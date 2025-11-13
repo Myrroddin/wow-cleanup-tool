@@ -1,6 +1,15 @@
 #!/usr/bin/env python3
 """
 World of Warcraft Maintenance Tool v1.0.0
+
+This is the main UI application file. It uses Tkinter to provide a graphical interface for:
+- Finding and removing .bak and .old files
+- Cleaning folder contents (Cache, Logs, Errors, etc.)
+- Detecting and removing orphaned addon SavedVariables
+- Rebuilding AddOns.txt files to match installed addons
+
+The application uses backend modules (file_cleaner, folder_cleaner, orphan_cleaner) for
+all filesystem operations, keeping the UI layer cleanly separated from business logic.
 """
 
 import os
@@ -11,8 +20,11 @@ import site
 import importlib
 import subprocess
 import platform
+from datetime import datetime
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, font as tkfont
+
+# Import backend modules for file scanning and deletion operations
 from Modules.file_cleaner import find_bak_old_files, delete_files
 from Modules.themes import apply_theme
 from Modules.orphan_cleaner import (
@@ -20,32 +32,67 @@ from Modules.orphan_cleaner import (
     delete_orphans,
     rebuild_addons_txt,
     collect_addon_names,
-    HAS_TRASH
+    HAS_TRASH,
 )
 from Modules.folder_cleaner import (
     scan_all_versions,
     clean_folders,
-    HAS_TRASH as FOLDER_HAS_TRASH
+    HAS_TRASH as FOLDER_HAS_TRASH,
 )
+# Pull smaller helpers into dedicated modules to slim the main file
+from Modules.settings import load_settings, save_settings, SETTINGS_FILE
+from Modules.ui_helpers import Tooltip, ImgAssets, ImgCheckbox, ImgRadio
+from Modules.logger import Logger
+from Modules.tabs.file_cleaner_tab import build_file_cleaner_tree as _build_file_cleaner_tab
+from Modules.tabs.folder_cleaner_tab import build_folder_cleaner_tab as _build_folder_cleaner_tab
+from Modules.tabs.orphan_cleaner_tab import build_orphan_cleaner_tab as _build_orphan_cleaner_tab
+import Modules.tree_helpers as tree_helpers
+from Modules.game_validation import is_game_version_valid, show_game_validation_warning
 
 VERSION = "v1.0.0"
 
-# -------------------- Silent package ensure --------------------
 def ensure_package(module_name: str, pip_name: str):
+    """
+    Ensure a package is installed or install it silently.
+
+    This function attempts to import a module. If the import fails, it tries
+    to install the package via pip in the user directory, then reimports it.
+    If installation fails, None is returned and the app gracefully degrades.
+
+    Args:
+        module_name: The Python module name (e.g., 'PIL')
+        pip_name: The pip package name (e.g., 'Pillow')
+
+    Returns:
+        The imported module object, or None if import/install failed
+    """
     try:
         return importlib.import_module(module_name)
     except ImportError:
         try:
+            # Silently install package to user's Python directory
             with open(os.devnull, "w") as devnull:
                 subprocess.call(
-                    [sys.executable, "-m", "pip", "install", "--user", "--quiet", "--no-warn-script-location", pip_name],
-                    stdout=devnull, stderr=devnull
+                    [
+                        sys.executable,
+                        "-m",
+                        "pip",
+                        "install",
+                        "--user",
+                        "--quiet",
+                        "--no-warn-script-location",
+                        pip_name,
+                    ],
+                    stdout=devnull,
+                    stderr=devnull,
                 )
             importlib.reload(site)
             return importlib.import_module(module_name)
-        except Exception:
+        except (OSError, subprocess.CalledProcessError):
             return None
 
+
+# Try to load optional dependencies
 _send2trash_mod = ensure_package("send2trash", "send2trash")
 if _send2trash_mod:
     from send2trash import send2trash
@@ -59,180 +106,6 @@ if _pil:
 else:
     Image = ImageTk = ImageDraw = None
 
-# -------------------- Settings helpers --------------------
-def get_settings_path():
-    home = os.path.expanduser("~")
-    cfg = os.path.join(home, ".wow_cleanup_tool")
-    os.makedirs(cfg, exist_ok=True)
-    return os.path.join(cfg, "settings.json")
-
-SETTINGS_FILE = get_settings_path()
-
-def load_settings():
-    if os.path.exists(SETTINGS_FILE):
-        try:
-            with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception:
-            return {}
-    return {}
-
-def save_settings(settings):
-    try:
-        with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
-            json.dump(settings, f, indent=4)
-    except Exception:
-        pass
-
-# -------------------- Tooltip --------------------
-class Tooltip:
-    def __init__(self, widget, text, delay=500):
-        self.widget = widget
-        self.text = text
-        self.delay = delay
-        self.tip = None
-        self.after_id = None
-        widget.bind("<Enter>", self.on_enter, add="+")
-        widget.bind("<Leave>", self.on_leave, add="+")
-        widget.bind("<ButtonPress>", self.on_leave, add="+")
-    def on_enter(self, _=None):
-        self.after_id = self.widget.after(self.delay, self.show)
-    def on_leave(self, _=None):
-        if self.after_id:
-            self.widget.after_cancel(self.after_id)
-            self.after_id = None
-        self.hide()
-    def show(self):
-        if self.tip:
-            return
-        x = self.widget.winfo_rootx() + 20
-        y = self.widget.winfo_rooty() + self.widget.winfo_height() + 5
-        tw = tk.Toplevel(self.widget)
-        tw.wm_overrideredirect(True)
-        tw.wm_geometry(f"+{x}+{y}")
-        lbl = tk.Label(tw, text=self.text, bg="#ffffe0", fg="black", relief="solid", bd=1, padx=6, pady=3, justify="left", wraplength=300)
-        lbl.pack()
-        self.tip = tw
-    def hide(self):
-        if self.tip:
-            try: self.tip.destroy()
-            except Exception: pass
-            self.tip = None
-
-# -------------------- Custom OS-aware checkbox / radio widgets --------------------
-class ImgAssets:
-    def __init__(self, osname: str, dark: bool):
-        self.osname = osname
-        self.dark = dark
-        self.has_pil = bool(Image and ImageDraw and ImageTk)
-        self.cache = {}
-
-    def _colors(self):
-        if self.dark:
-            return {"border":"#b0b0b0","fill":"#3a3a3a","check":"#f5f5f5","dot":"#f5f5f5"}
-        else:
-            return {"border":"#707070","fill":"#ffffff","check":"#111111","dot":"#111111"}
-
-    def checkbox(self, checked: bool):
-        key = ("cb", checked, self.osname, self.dark)
-        if key in self.cache: return self.cache[key]
-        if not self.has_pil:
-            self.cache[key] = None
-            return None
-        size = 16; pad = 1
-        use_circle = (self.osname == "Darwin")
-        img = Image.new("RGBA", (size, size), (0,0,0,0))
-        d = ImageDraw.Draw(img)
-        c = self._colors()
-        if use_circle:
-            d.ellipse([pad, pad, size-pad, size-pad], fill=c["fill"], outline=c["border"], width=1)
-        else:
-            d.rectangle([pad, pad, size-pad, size-pad], fill=c["fill"], outline=c["border"], width=1)
-        if checked:
-            d.line([4, 9, 7, 12, 12, 4], fill=c["check"], width=2)
-        self.cache[key] = ImageTk.PhotoImage(img)
-        return self.cache[key]
-
-    def radio(self, selected: bool):
-        key = ("rb", selected, self.osname, self.dark)
-        if key in self.cache: return self.cache[key]
-        if not self.has_pil:
-            self.cache[key] = None
-            return None
-        size = 16; pad = 1
-        img = Image.new("RGBA", (size, size), (0,0,0,0))
-        d = ImageDraw.Draw(img)
-        c = self._colors()
-        d.ellipse([pad, pad, size-pad, size-pad], fill=c["fill"], outline=c["border"], width=1)
-        if selected:
-            d.ellipse([5,5, size-5, size-5], fill=c["dot"])
-        self.cache[key] = ImageTk.PhotoImage(img)
-        return self.cache[key]
-
-class ImgCheckbox(ttk.Frame):
-    def __init__(self, master, text, variable: tk.BooleanVar, assets: ImgAssets, **kwargs):
-        super().__init__(master, **kwargs)
-        self.assets = assets
-        self.variable = variable
-        self.variable.set(bool(self.variable.get()))
-        self.img_label = tk.Label(self, bd=0, highlightthickness=0)
-        self.text_label = ttk.Label(self, text=text)
-        self.img_label.pack(side="left")
-        self.text_label.pack(side="left", padx=(6,0))
-        self._sync_image()
-        self.img_label.bind("<Button-1>", self._toggle)
-        self.text_label.bind("<Button-1>", self._toggle)
-        self.bind("<Button-1>", self._toggle)
-
-    def _toggle(self, *_):
-        self.variable.set(not self.variable.get())
-        self._sync_image()
-
-    def _sync_image(self):
-        checked = bool(self.variable.get())
-        img = self.assets.checkbox(checked)
-        if img is not None:
-            self.img_label.configure(image=img)
-            self.img_label.image = img
-        else:
-            prefix = "[x]" if checked else "[ ]"
-            base = self.text_label.cget('text')
-            if not base.startswith("["):
-                self.text_label.configure(text=f"{prefix} {base}")
-            else:
-                self.text_label.configure(text=f"{prefix} {base[4:]}")
-
-    def set_text(self, text):
-        self.text_label.configure(text=text)
-
-class ImgRadio(ttk.Frame):
-    def __init__(self, master, text, variable: tk.StringVar, value: str, assets: ImgAssets, **kwargs):
-        super().__init__(master, **kwargs)
-        self.assets = assets
-        self.variable = variable
-        self.value = value
-        self.img_label = tk.Label(self, bd=0, highlightthickness=0)
-        self.text_label = ttk.Label(self, text=text)
-        self.img_label.pack(side="left")
-        self.text_label.pack(side="left", padx=(6,0))
-        self._sync_image()
-        self.img_label.bind("<Button-1>", self._select)
-        self.text_label.bind("<Button-1>", self._select)
-        self.bind("<Button-1>", self._select)
-        self.variable.trace_add("write", lambda *_: self._sync_image())
-
-    def _select(self, *_):
-        self.variable.set(self.value)
-        self._sync_image()
-
-    def _sync_image(self):
-        selected = (self.variable.get() == self.value)
-        img = self.assets.radio(selected)
-        if img is not None:
-            self.img_label.configure(image=img)
-            self.img_label.image = img
-
-# -------------------- Main App --------------------
 class WoWMaintenanceTool:
     MIN_W = 760
     MIN_H = 540
@@ -250,7 +123,9 @@ class WoWMaintenanceTool:
     def __init__(self, root):
         self.root = root
         self.settings = load_settings()
-        self.log_lines = []
+        self.logger = Logger()
+        self.version_tabs = []
+        self.folder_paths = {}
 
         # Base path for theme assets
         self.app_path = os.path.dirname(os.path.abspath(__file__))
@@ -282,12 +157,12 @@ class WoWMaintenanceTool:
         self.root.bind("<Configure>", self._on_configure, add="+")
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
         self.root.after(200, self.show_startup_warning)
-        self.log(f"Session started — {VERSION} (Harmony)")
+        self.log(f"Session started — {VERSION}")
 
     # -------- Verbose logging helper --------
     def vlog(self, text):
         if self.verbose_var.get():
-            self.log(text)
+            self.logger.log(text)
 
     # ------------- OS base theme -------------
     def _apply_os_base_theme(self):
@@ -371,8 +246,14 @@ class WoWMaintenanceTool:
 
     # ------------- Theme -------------
     def _apply_theme(self):
+        # Determine theme
         theme = self.theme_var.get().lower()
 
+        # Load theme colors at class level
+        from Modules.themes import THEMES
+        self.theme_data = THEMES.get(theme, THEMES["light"])
+
+        # Apply theme via the theme module
         checkbox_on, checkbox_off = apply_theme(
             root=self.root,
             treeviews=[self.file_tree, self.orphan_tree],
@@ -380,18 +261,27 @@ class WoWMaintenanceTool:
             base_path=self.app_path,
         )
 
-        # Save icons for custom checkboxes
+        # Save themed checkbox icons for use inside TreeViews
         self.checkbox_on_img = checkbox_on
         self.checkbox_off_img = checkbox_off
 
-        # Update all custom checkboxes (you already have mapping dicts)
+        # Refresh TreeView checkbox images
         self._reload_all_custom_checkboxes()
 
-        # Recolor status bars if you have them
+        # Refresh custom PIL-based checkboxes, radios, screenshot toggles, etc.
+        self._refresh_styled_checkables()
+
+        # Recolor status bars
         if hasattr(self, "file_scan_status"):
-            self.file_scan_status.configure(bg=self.root["bg"], fg=self.theme_fg)
+            self.file_scan_status.configure(
+                bg=self.root["bg"],
+                fg=self.theme_data["fg"]
+            )
         if hasattr(self, "orphan_scan_status"):
-            self.orphan_scan_status.configure(bg=self.root["bg"], fg=self.theme_fg)
+            self.orphan_scan_status.configure(
+                bg=self.root["bg"],
+                fg=self.theme_data["fg"]
+            )
 
     def _rebuild_assets(self):
         osname = platform.system()
@@ -478,10 +368,10 @@ class WoWMaintenanceTool:
         self.main_notebook.add(self.folder_tab, text="Folder Cleaner")
         self.build_folder_cleaner_tab(self.folder_tab)
 
-        # Orphan Remover
+        # Orphan Cleaner
         self.orphan_tab = ttk.Frame(self.main_notebook)
-        self.main_notebook.add(self.orphan_tab, text="Orphan Remover")
-        self.build_orphan_remover_tab(self.orphan_tab)
+        self.main_notebook.add(self.orphan_tab, text="Orphan Cleaner")
+        self.build_orphan_cleaner_tab(self.orphan_tab)
 
         # Log
         self.log_tab = ttk.Frame(self.main_notebook)
@@ -550,152 +440,33 @@ class WoWMaintenanceTool:
                     versions.append((v2, label + suffix_label))
         return versions
 
-    def _collect_addon_names(self, addons_dir):
-        names = set()
-        if os.path.isdir(addons_dir):
-            try:
-                for name in os.listdir(addons_dir):
-                    p = os.path.join(addons_dir, name)
-                    if os.path.isdir(p) and not name.lower().startswith("blizzard_"):
-                        names.add(name.casefold())
-            except Exception:
-                pass
-        return names
-
-    def _iter_savedvariables_dirs(self, account_root):
-        if not os.path.isdir(account_root):
-            return
-        acc_sv = os.path.join(account_root, "SavedVariables")
-        if os.path.isdir(acc_sv):
-            yield acc_sv
-        try:
-            for realm in os.listdir(account_root):
-                realm_path = os.path.join(account_root, realm)
-                if not os.path.isdir(realm_path) or realm.upper() == "SAVEDVARIABLES":
-                    continue
-                realm_sv = os.path.join(realm_path, "SavedVariables")
-                if os.path.isdir(realm_sv):
-                    yield realm_sv
-                try:
-                    for char in os.listdir(realm_path):
-                        char_path = os.path.join(realm_path, char)
-                        if not os.path.isdir(char_path) or char.upper() == "SAVEDVARIABLES":
-                            continue
-                        char_sv = os.path.join(char_path, "SavedVariables")
-                        if os.path.isdir(char_sv):
-                            yield char_sv
-                except Exception:
-                    pass
-        except Exception:
-            pass
-
-    def _savedvar_basename(self, filename):
-        fn = filename
-        if fn.lower().endswith(".lua.bak"):
-            fn = fn[:-8]
-        elif fn.lower().endswith(".lua"):
-            fn = fn[:-4]
-        if fn.lower().endswith(".bak"):
-            fn = fn[:-4]
-        return fn
-
     # ------------- File Cleaner (Tree) -------------
     def _build_checkbox_images(self):
-        self.chk_unchecked = self.assets.checkbox(False)
-        self.chk_checked = self.assets.checkbox(True)
+        return tree_helpers.build_checkbox_images(self)
 
     def build_file_cleaner_tree(self, parent):
-        bar = ttk.Frame(parent, padding=10)
-        bar.pack(fill="x")
-        ttk.Button(bar, text="Scan for .bak / .old Files", command=self.scan_files_tree).pack(side="left")
-        ttk.Button(bar, text="Expand All", command=self._tree_expand_all).pack(side="left", padx=(8,0))
-        ttk.Button(bar, text="Collapse All", command=self._tree_collapse_all).pack(side="left", padx=(8,0))
-        self.tree_select_all_var = tk.BooleanVar(value=False)
-        self.tree_selall_frame = ImgCheckbox(bar, "Select / Deselect All", self.tree_select_all_var, self.assets)
-        self.tree_selall_frame.pack(side="left", padx=(12,0))
-        self.tree_select_all_var.trace_add("write", lambda *_: self._tree_toggle_all())
-        ttk.Button(bar, text="Process Selected Files", command=self.process_selected_files_tree)\
-            .pack(side="left", padx=(8, 0))
-        self.file_scan_status = ttk.Label(bar, text="")
-        self.file_scan_status.pack(side="left", padx=(10, 0))
-
-        tree_frame = ttk.Frame(parent, padding=(10, 10))
-        tree_frame.pack(fill="both", expand=True)
-        self.file_tree = ttk.Treeview(tree_frame, columns=("path",), show="tree", selectmode="none")
-        vsb = ttk.Scrollbar(tree_frame, orient="vertical", command=self.file_tree.yview)
-        self.file_tree.configure(yscrollcommand=vsb.set)
-        self.file_tree.pack(side="left", fill="both", expand=True)
-        vsb.pack(side="right", fill="y")
-
-        self._build_checkbox_images()
-        self.tree_checks = {}
-        self.tree_paths = {}
-        self.file_tree.bind("<Button-1>", self._on_tree_click)
+        return _build_file_cleaner_tab(self, parent)
 
     def _tree_add_parent(self, label):
-        pid = self.file_tree.insert("", "end", text=f"  {label}", open=False)
-        self.tree_checks[pid] = False
-        self._tree_set_icon(pid)
-        return pid
+        return tree_helpers.file_tree_add_parent(self, label)
 
     def _tree_add_child_file(self, parent_id, path):
-        basename = os.path.basename(path)
-        iid = self.file_tree.insert(parent_id, "end", text=f"  {basename}", open=False)
-        self.tree_checks[iid] = False
-        self.tree_paths[iid] = path
-        self._tree_set_icon(iid)
-        return iid
+        return tree_helpers.file_tree_add_child_file(self, parent_id, path)
 
     def _tree_set_icon(self, iid):
-        if self.chk_unchecked:
-            img = self.chk_checked if self.tree_checks.get(iid, False) else self.chk_unchecked
-            self.file_tree.item(iid, image=img)
-        else:
-            checked = self.tree_checks.get(iid, False)
-            text = self.file_tree.item(iid, "text")
-            prefix = "[x]" if checked else "[ ]"
-            if not text.strip().startswith("["):
-                self.file_tree.item(iid, text=f"{prefix} {text.strip()}")
-            else:
-                self.file_tree.item(iid, text=f"{prefix} {text.strip()[3:].strip()}")
+        return tree_helpers.file_tree_set_icon(self, iid)
 
     def _on_tree_click(self, event):
-        elem = self.file_tree.identify("element", event.x, event.y)
-        if elem in ("Treeitem.indicator", "treeitem.indicator", "indicator"):
-            # only expand/collapse
-            return
-        iid = self.file_tree.identify_row(event.y)
-        if not iid:
-            return
-        # toggling selection
-        if iid not in self.tree_paths:
-            new_state = not self.tree_checks.get(iid, False)
-            self.tree_checks[iid] = new_state
-            for child in self.file_tree.get_children(iid):
-                self.tree_checks[child] = new_state
-                self._tree_set_icon(child)
-            self._tree_set_icon(iid)
-        else:
-            self.tree_checks[iid] = not self.tree_checks.get(iid, False)
-            self._tree_set_icon(iid)
-        return "break"
+        return tree_helpers.on_file_tree_click(self, event)
 
     def _tree_toggle_all(self):
-        new_state = self.tree_select_all_var.get()
-        for iid in self.file_tree.get_children(""):
-            self.tree_checks[iid] = new_state
-            self._tree_set_icon(iid)
-            for child in self.file_tree.get_children(iid):
-                self.tree_checks[child] = new_state
-                self._tree_set_icon(child)
+        return tree_helpers.tree_toggle_all(self)
 
     def _tree_expand_all(self):
-        for iid in self.file_tree.get_children(""):
-            self.file_tree.item(iid, open=True)
+        return tree_helpers.tree_expand_all(self)
 
     def _tree_collapse_all(self):
-        for iid in self.file_tree.get_children(""):
-            self.file_tree.item(iid, open=False)
+        return tree_helpers.tree_collapse_all(self)
 
     def scan_files_tree(self):
         # Clear old tree
@@ -747,6 +518,14 @@ class WoWMaintenanceTool:
             messagebox.showinfo("No Selection", "No files selected for processing.")
             return
 
+        # Verify game installation is valid before proceeding
+        base = self.wow_path_var.get().strip()
+        versions = self._enumerate_versions(base)
+        for vpath, vlabel in versions:
+            if not is_game_version_valid(vpath):
+                show_game_validation_warning(self.root)
+                return
+
         use_trash_requested = (self.delete_mode.get() == "trash")
         action = (
             "move to Recycle Bin/Trash"
@@ -783,131 +562,21 @@ class WoWMaintenanceTool:
 
     # ------------- Folder Cleaner -------------
     def build_folder_cleaner_tab(self, parent):
-        self.version_notebook = ttk.Notebook(parent)
-        self.version_notebook.pack(fill="both", expand=True, padx=10, pady=10)
-        base = self.wow_path_var.get().strip()
-        self.version_tabs = []
-        if base and os.path.isdir(base):
-            versions = self._enumerate_versions(base)
-            for vpath, vlabel in versions:
-                tab = ttk.Frame(self.version_notebook)
-                self.version_notebook.add(tab, text=vlabel)
-                widgets = self._build_single_version_tab(tab, vpath, vlabel)
-                self.version_tabs.append((vlabel, vpath, widgets))
-        else:
-            info = ttk.Frame(parent, padding=12)
-            info.pack(fill="both", expand=True)
-            ttk.Label(info, text="Select a valid World of Warcraft folder in Options to enable Folder Cleaner.").pack()
+        return _build_folder_cleaner_tab(self, parent)
 
     def _build_single_version_tab(self, tab, version_path, version_label):
-        outer = ttk.Frame(tab, padding=10)
-        outer.pack(fill="both", expand=True)
-
-        # Controls row: toggles side-by-side + Process button at end
-        controls = ttk.Frame(outer)
-        controls.pack(fill="x")
-
-        folder_vars = {}
-        toggle_container = ttk.Frame(controls)
-        toggle_container.pack(side="left", fill="x", expand=True)
-
-        targets = {
-            "Screenshots": os.path.join(version_path, "Screenshots"),
-            "Logs": os.path.join(version_path, "Logs"),
-            "Errors": os.path.join(version_path, "Errors"),
-            "Cache": os.path.join(version_path, "Cache"),
-        }
-
-        # Master "Select/Deselect All"
-        master_var = tk.BooleanVar(value=False)
-        master = ImgCheckbox(toggle_container, "Select / Deselect All Folders", master_var, self.assets)
-        master.pack(side="left", padx=(0,10), pady=4)
-        master_var.trace_add("write", lambda *_: self._toggle_all_folders(folder_vars))
-
-        # Place folder toggles side-by-side (except Screenshots handled below)
-        self.styled_folder_boxes = getattr(self, "styled_folder_boxes", [])
-        for name, path in targets.items():
-            if name == "Screenshots":
-                continue
-            if os.path.isdir(path):
-                var = tk.BooleanVar(value=False)
-                cb = ImgCheckbox(toggle_container, f"{name}", var, self.assets)
-                cb.pack(side="left", padx=(0,10), pady=4)
-                folder_vars[name] = (var, path, cb)
-                self.styled_folder_boxes.append(cb)
-
-        # Process button aligned right on same line
-        ttk.Button(controls, text="Process Selected Folders",
-                   command=lambda: self._process_selected_folders(version_label, folder_vars)).pack(side="right", padx=(10,0), pady=4)
-
-        # Screenshots panel (unchanged)
-        shot_panel = ttk.LabelFrame(outer, text="Screenshots (per-file actions)", padding=8)
-        shot_panel.pack(fill="both", expand=True, pady=(8, 0))
-
-        shots_left = ttk.Frame(shot_panel); shots_left.pack(side="left", fill="both", expand=True)
-        shots_right = ttk.Frame(shot_panel); shots_right.pack(side="left", fill="both", expand=True, padx=(10, 0))
-
-        shots_canvas = tk.Canvas(shots_left)
-        shots_scroll = ttk.Scrollbar(shots_left, orient="vertical", command=shots_canvas.yview)
-        shots_frame = ttk.Frame(shots_canvas)
-        shots_frame.bind("<Configure>", lambda e: shots_canvas.configure(scrollregion=shots_canvas.bbox("all")))
-        shots_canvas.create_window((0, 0), window=shots_frame, anchor="nw")
-        shots_canvas.configure(yscrollcommand=shots_scroll.set)
-        shots_canvas.pack(side="left", fill="both", expand=True)
-        shots_scroll.pack(side="right", fill="y")
-
-        shots_controls = ttk.Frame(outer); shots_controls.pack(fill="x", pady=(6, 0))
-        shots_select_all_var = tk.BooleanVar(value=False)
-        shots_selall = ImgCheckbox(shots_controls, "Select / Deselect All Screenshot Files", shots_select_all_var, self.assets)
-        shots_selall.pack(side="left")
-        shots_vars = {}
-        shots_select_all_var.trace_add("write", lambda *_: self._toggle_all_screenshot_files(shots_vars))
-
-        preview_label = ttk.Label(shots_right, text="Preview", anchor="center"); preview_label.pack(anchor="n")
-        preview_canvas = tk.Canvas(shots_right, width=220, height=220, highlightthickness=1)
-        preview_canvas.pack(fill="both", expand=False, pady=(6, 0))
-        preview_canvas._img_ref = None
-
-        self.styled_shot_boxes = getattr(self, "styled_shot_boxes", [])
-        shot_folder = targets.get("Screenshots")
-        if shot_folder and os.path.isdir(shot_folder):
-            files = []
-            try:
-                for fname in os.listdir(shot_folder):
-                    fp = os.path.join(shot_folder, fname)
-                    if os.path.isfile(fp) and fname.lower().endswith((".jpg", ".jpeg", ".png", ".bmp", ".tga", ".gif")):
-                        files.append(fp)
-            except Exception:
-                files = []
-            files.sort(key=lambda p: os.path.getmtime(p) if os.path.exists(p) else 0, reverse=True)
-            for fp in files:
-                var = tk.BooleanVar(value=False)
-                cb = ImgCheckbox(shots_frame, fp, var, self.assets)
-                cb.pack(anchor="w", fill="x", padx=4, pady=1)
-                cb.bind("<ButtonRelease-1>", lambda e, p=fp: self._show_preview(preview_canvas, p))
-                self.styled_shot_boxes.append(cb)
-                shots_vars[fp] = var
-        else:
-            ttk.Label(shots_frame, text="Screenshots folder not found for this version.").pack(anchor="w")
-
-        return {"folder_vars": folder_vars, "shots_vars": shots_vars, "preview_canvas": preview_canvas}
+        from Modules.tabs.folder_helpers import build_single_version_tab as _bsv
+        return _bsv(self, tab, version_path, version_label)
 
     def _show_preview(self, canvas: tk.Canvas, path: str):
-        if not Image or not ImageTk or not path or not os.path.exists(path):
-            canvas.delete("all"); canvas._img_ref = None; return
         try:
-            img = Image.open(path)
-            canvas.update_idletasks()
-            cw = max(200, int(canvas.winfo_width()))
-            ch = max(200, int(canvas.winfo_height()))
-            img.thumbnail((cw, ch))
-            tkimg = ImageTk.PhotoImage(img)
-            canvas.delete("all")
-            cx, cy = cw // 2, ch // 2
-            canvas.create_image(cx, cy, image=tkimg)
-            canvas._img_ref = tkimg
+            from Modules.tabs.folder_helpers import show_preview as _show_preview
+            _show_preview(self, canvas, path)
         except Exception:
-            canvas.delete("all"); canvas._img_ref = None
+            try:
+                canvas.delete("all"); canvas._img_ref = None
+            except Exception:
+                pass
 
     def _toggle_all_folders(self, folder_vars):
         any_unchecked = any(not v.get() for v, _, _ in folder_vars.values())
@@ -921,20 +590,29 @@ class WoWMaintenanceTool:
         Called by the Folder Cleaner tab's per-version process button.
 
         version_label: e.g. "Retail", "Classic", etc.
-        folder_vars: dict mapping rel_folder_name -> tk.BooleanVar
+        folder_vars: dict mapping rel_folder_name -> (tk.BooleanVar, path, widget)
         """
         # Determine which folders are selected
         selected = [
             abs_path
-            for (rel_name, abs_path) in self.folder_paths.get(version_label, {}).items()
-            if folder_vars.get(rel_name, False).get()
+            for (rel_name, (var, abs_path, _)) in folder_vars.items()
+            if var.get()
         ]
 
         if not selected:
             messagebox.showinfo("No Selection", "No folders were selected for cleanup.")
             return
 
-        use_trash_requested = (self.folder_delete_mode.get() == "trash")
+        # Verify game installation is valid before proceeding
+        base = self.wow_path_var.get().strip()
+        for vpath, vlabel in self._enumerate_versions(base):
+            if vlabel == version_label:
+                if not is_game_version_valid(vpath):
+                    show_game_validation_warning(self.root)
+                    return
+                break
+
+        use_trash_requested = self.delete_mode.get() == "trash"
         action = (
             "move to Recycle Bin/Trash"
             if use_trash_requested and FOLDER_HAS_TRASH
@@ -998,110 +676,30 @@ class WoWMaintenanceTool:
         for v in shots_vars.values():
             v.set(any_unchecked)
 
-    # ------------- Orphan Remover -------------
-    def build_orphan_remover_tab(self, parent):
-        desc = ttk.Label(parent, padding=(10, 10),
-            text=("Searches all detected WoW versions for addon SavedVariables (.lua / .lua.bak) "
-                  "that do not have a corresponding installed addon (Interface/AddOns). "
-                  "Scans Account, Realm, and Character SavedVariables folders. "
-                  "Processing also rebuilds AddOns.txt to match installed addons (preserving enabled/disabled where possible).\n\n"
-                  "Note: Blizzard_*.lua files are core game data and are automatically ignored "
-                  "for safety (but their .lua.bak backups may be removed)."),
-            wraplength=800, justify="left")
-        desc.pack(fill="x")
-
-        bar = ttk.Frame(parent, padding=(10, 0)); bar.pack(fill="x")
-        ttk.Button(bar, text="Scan for Orphaned SavedVariables", command=self.scan_orphan_savedvars).pack(side="left")
-        ttk.Button(bar, text="Expand All", command=self._orphan_tree_expand_all).pack(side="left", padx=(8,0))
-        ttk.Button(bar, text="Collapse All", command=self._orphan_tree_collapse_all).pack(side="left", padx=(8,0))
-
-        self.orphan_select_all_var = tk.BooleanVar(value=False)
-        self.orphan_selall_frame = ImgCheckbox(bar, "Select / Deselect All", self.orphan_select_all_var, self.assets)
-        self.orphan_selall_frame.pack(side="left", padx=(12,0))
-        self.orphan_select_all_var.trace_add("write", lambda *_: self._orphan_tree_toggle_all())
-
-        ttk.Button(bar, text="Process Selected Files", command=self.process_selected_orphans)\
-            .pack(side="left", padx=(8, 0))
-        self.orphan_scan_status = ttk.Label(bar, text="")
-        self.orphan_scan_status.pack(side="left", padx=(10, 0))
-
-        tree_frame = ttk.Frame(parent, padding=(10, 10)); tree_frame.pack(fill="both", expand=True)
-        self.orphan_tree = ttk.Treeview(tree_frame, columns=("path",), show="tree", selectmode="none")
-        vsb = ttk.Scrollbar(tree_frame, orient="vertical", command=self.orphan_tree.yview)
-        self.orphan_tree.configure(yscrollcommand=vsb.set)
-        self.orphan_tree.pack(side="left", fill="both", expand=True)
-        vsb.pack(side="right", fill="y")
-
-        self._build_checkbox_images()
-        self.orphan_checks = {}
-        self.orphan_paths = {}
-        self.orphan_tree.bind("<Button-1>", self._on_orphan_tree_click)
+    # ------------- Orphan Cleaner -------------
+    def build_orphan_cleaner_tab(self, parent):
+        return _build_orphan_cleaner_tab(self, parent)
 
     def _orphan_tree_add_parent(self, label):
-        pid = self.orphan_tree.insert("", "end", text=f"  {label}", open=False)
-        self.orphan_checks[pid] = False
-        self._orphan_tree_set_icon(pid)
-        return pid
+        return tree_helpers.orphan_tree_add_parent(self, label)
 
     def _orphan_tree_add_child_file(self, parent_id, path):
-        basename = os.path.basename(path)
-        iid = self.orphan_tree.insert(parent_id, "end", text=f"  {basename}", open=False)
-        self.orphan_checks[iid] = False
-        self.orphan_paths[iid] = path
-        self._orphan_tree_set_icon(iid)
-        return iid
+        return tree_helpers.orphan_tree_add_child_file(self, parent_id, path)
 
     def _orphan_tree_set_icon(self, iid):
-        if self.chk_unchecked:
-            img = self.chk_checked if self.orphan_checks.get(iid, False) else self.chk_unchecked
-            self.orphan_tree.item(iid, image=img)
-        else:
-            checked = self.orphan_checks.get(iid, False)
-            text = self.orphan_tree.item(iid, "text")
-            prefix = "[x]" if checked else "[ ]"
-            if not text.strip().startswith("["):
-                self.orphan_tree.item(iid, text=f"{prefix} {text.strip()}")
-            else:
-                self.orphan_tree.item(iid, text=f"{prefix} {text.strip()[3:].strip()}")
+        return tree_helpers.orphan_tree_set_icon(self, iid)
 
     def _on_orphan_tree_click(self, event):
-        elem = self.orphan_tree.identify("element", event.x, event.y)
-        if elem in ("Treeitem.indicator", "treeitem.indicator", "indicator"):
-            # only expand/collapse
-            return
-        iid = self.orphan_tree.identify_row(event.y)
-        if not iid:
-            return
-        if iid not in self.orphan_paths:
-            new_state = not self.orphan_checks.get(iid, False)
-            self.orphan_checks[iid] = new_state
-            for child in self.orphan_tree.get_children(iid):
-                self.orphan_checks[child] = new_state
-                self._orphan_tree_set_icon(child)
-            self._orphan_tree_set_icon(iid)
-        else:
-            self.orphan_checks[iid] = not self.orphan_checks.get(iid, False)
-            self._orphan_tree_set_icon(iid)
-        return "break"
+        return tree_helpers.on_orphan_tree_click(self, event)
 
     def _orphan_tree_toggle_all(self):
-        new_state = self.orphan_select_all_var.get()
-        for iid in self.orphan_tree.get_children(""):
-            self.orphan_checks[iid] = new_state
-            self._orphan_tree_set_icon(iid)
-            for child in self.orphan_tree.get_children(iid):
-                self.orphan_checks[child] = new_state
-                self._orphan_tree_set_icon(child)
+        return tree_helpers.orphan_tree_toggle_all(self)
 
     def _orphan_tree_expand_all(self):
-        if hasattr(self, "orphan_tree"):
-            for iid in self.orphan_tree.get_children(""):
-                self.orphan_tree.item(iid, open=True)
+        return tree_helpers.orphan_tree_expand_all(self)
 
     def _orphan_tree_collapse_all(self):
-        if hasattr(self, "orphan_tree"):
-            for iid in self.orphan_tree.get_children(""):
-                self.orphan_tree.item(iid, open=False)
+        return tree_helpers.orphan_tree_collapse_all(self)
 
     def scan_orphan_savedvars(self):
         # Clear UI state
@@ -1160,6 +758,14 @@ class WoWMaintenanceTool:
         if not selected:
             messagebox.showinfo("No Selection", "No orphaned files selected.")
             return
+
+        # Verify game installation is valid before proceeding with orphan deletion
+        base = self.wow_path_var.get().strip()
+        versions = self._enumerate_versions(base)
+        for vpath, vlabel in versions:
+            if not is_game_version_valid(vpath):
+                show_game_validation_warning(self.root)
+                return
 
         use_trash_requested = (self.delete_mode.get() == "trash")
         action = (
@@ -1242,6 +848,11 @@ class WoWMaintenanceTool:
         scroll_y = ttk.Scrollbar(frame, orient="vertical", command=self.log_text.yview)
         self.log_text.configure(yscrollcommand=scroll_y.set)
         scroll_y.pack(side="right", fill="y")
+        # Attach the UI text widget to the logger so it mirrors stored lines
+        try:
+            self.logger.attach_text_widget(self.log_text)
+        except Exception:
+            pass
         ttk.Button(parent, text="Clear Log", command=self.clear_log).pack(anchor="w", padx=10, pady=6)
 
     def build_help_tab(self, parent):
@@ -1313,25 +924,31 @@ class WoWMaintenanceTool:
 
     # ------------- Logging helpers -------------
     def clear_log(self):
-        self.log_lines = []
         try:
-            self.log_text.configure(state="normal")
-            self.log_text.delete("1.0", "end")
-            self.log_text.configure(state="disabled")
+            self.logger.clear()
         except Exception:
-            pass
+            # Fallback if logger not ready
+            try:
+                self.log_text.configure(state="normal")
+                self.log_text.delete("1.0", "end")
+                self.log_text.configure(state="disabled")
+            except Exception:
+                pass
 
     def log(self, text):
-        from datetime import datetime
-        line = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {text}"
-        self.log_lines.append(line)
+        # Delegate to the external logger module
         try:
-            self.log_text.configure(state="normal")
-            self.log_text.insert("end", line + "\n")
-            self.log_text.see("end")
-            self.log_text.configure(state="disabled")
+            self.logger.log(text)
         except Exception:
-            pass
+            # Fallback: directly append to UI text widget
+            try:
+                line = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {text}"
+                self.log_text.configure(state="normal")
+                self.log_text.insert("end", line + "\n")
+                self.log_text.see("end")
+                self.log_text.configure(state="disabled")
+            except Exception:
+                pass
 
     # ------------- Defaults, Updates, Startup -------------
     def restore_defaults(self):
@@ -1341,8 +958,40 @@ class WoWMaintenanceTool:
             if os.path.exists(SETTINGS_FILE):
                 os.remove(SETTINGS_FILE)
             self.settings = {}
-            messagebox.showinfo("Restored", "Settings restored to defaults. Please restart the application.")
-            self.root.destroy()
+            # Inform user and attempt an automatic restart.
+            # Prefer spawning a fresh process then exiting this one; if that fails,
+            # fall back to closing the UI and letting the user relaunch manually.
+            try:
+                messagebox.showinfo("Restored", "Settings restored to defaults. The application will now restart.")
+            except Exception:
+                # If message box fails for any reason, continue with restart.
+                pass
+
+            try:
+                # Try to spawn a fresh Python process running the same command-line
+                python = sys.executable
+                args = [python] + sys.argv
+                # Start detached process and exit this one
+                subprocess.Popen(args, close_fds=True)
+                try:
+                    self.root.destroy()
+                except Exception:
+                    pass
+                try:
+                    sys.exit(0)
+                except SystemExit:
+                    # Ensure process ends
+                    return
+            except Exception:
+                # If spawning a new process fails, gracefully close the UI.
+                try:
+                    messagebox.showinfo("Restored", "Settings restored to defaults. Please restart the application manually.")
+                except Exception:
+                    pass
+                try:
+                    self.root.destroy()
+                except Exception:
+                    pass
         except Exception as e:
             messagebox.showerror("Error", f"Failed to restore defaults: {e}")
 
@@ -1350,40 +999,19 @@ class WoWMaintenanceTool:
         messagebox.showinfo("Check for Updates", "Update checking will be added in a future release.")
 
     def show_startup_warning(self):
-        if self.settings.get("hide_warning", False):
-            return
-        popup = tk.Toplevel(self.root)
-        popup.title("Important Notice")
-        popup.resizable(False, False)
-        pw, ph = 460, 210
-        self.root.update_idletasks()
         try:
-            mw = self.root.winfo_width(); mh = self.root.winfo_height()
-            mx = self.root.winfo_x(); my = self.root.winfo_y()
-            px = mx + (mw // 2) - (pw // 2); py = my + (mh // 2) - (ph // 2)
+            from Modules.startup_warning import show_startup_warning as _sw
+            _sw(self.root, self.settings, save_settings, logger=getattr(self, "logger", None))
         except Exception:
-            sw = self.root.winfo_screenwidth(); sh = self.root.winfo_screenheight()
-            px = (sw // 2) - (pw // 2); py = (sh // 2) - (ph // 2)
-        popup.geometry(f"{pw}x{ph}+{px}+{py}")
-        popup.transient(self.root); popup.grab_set()
-
-        frm = ttk.Frame(popup, padding=12); frm.pack(fill="both", expand=True)
-        ttk.Label(
-            frm,
-            text=("⚠️ Please ensure World of Warcraft is completely closed before using this tool.\n\n"
-                  "Running the tool while WoW is open could interfere with the game's files."),
-            wraplength=pw - 24, justify="left"
-        ).pack(pady=(0, 12))
-        self.never_show_var = tk.BooleanVar(value=False)
-        ttk.Checkbutton(frm, text="Do not show this warning again", variable=self.never_show_var).pack(anchor="w")
-        ttk.Button(frm, text="OK", command=lambda: self._dismiss_warning(popup)).pack(pady=(12, 0))
+            # If the module can't be loaded for any reason, silently continue
+            pass
 
     def _dismiss_warning(self, popup):
-        if getattr(self, "never_show_var", None) and self.never_show_var.get():
-            self.settings["hide_warning"] = True
-            save_settings(self.settings)
-            self.log("User disabled startup warning.")
-        popup.destroy()
+        # Deprecated: logic moved to Modules.startup_warning
+        try:
+            popup.destroy()
+        except Exception:
+            pass
 
     def on_close(self):
         is_max = False
