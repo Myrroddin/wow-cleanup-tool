@@ -13,6 +13,20 @@ import subprocess
 import platform
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, font as tkfont
+from Modules.file_cleaner import find_bak_old_files, delete_files
+from Modules.themes import apply_theme
+from Modules.orphan_cleaner import (
+    scan_orphans,
+    delete_orphans,
+    rebuild_addons_txt,
+    collect_addon_names,
+    HAS_TRASH
+)
+from Modules.folder_cleaner import (
+    scan_all_versions,
+    clean_folders,
+    HAS_TRASH as FOLDER_HAS_TRASH
+)
 
 VERSION = "v1.0.0"
 
@@ -238,6 +252,9 @@ class WoWMaintenanceTool:
         self.settings = load_settings()
         self.log_lines = []
 
+        # Base path for theme assets
+        self.app_path = os.path.dirname(os.path.abspath(__file__))
+
         # OS theme baseline
         self.style = ttk.Style()
         self._apply_os_base_theme()
@@ -258,16 +275,14 @@ class WoWMaintenanceTool:
 
         self.root.title(f"World of Warcraft Maintenance Tool {VERSION}")
         self.setup_geometry()
-        self.apply_theme(self.theme_var.get())
-
         self._rebuild_assets()
         self.build_ui()
+        self._apply_theme()   # ← apply after widgets exist
 
         self.root.bind("<Configure>", self._on_configure, add="+")
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
         self.root.after(200, self.show_startup_warning)
         self.log(f"Session started — {VERSION} (Harmony)")
-
 
     # -------- Verbose logging helper --------
     def vlog(self, text):
@@ -355,48 +370,28 @@ class WoWMaintenanceTool:
             self.root.geometry(f"{w}x{h}+{nx}+{ny}")
 
     # ------------- Theme -------------
-    def apply_theme(self, choice):
-        self.theme_var.set(choice)
-        self.settings["theme"] = choice
-        save_settings(self.settings)
-        if choice == "light":
-            try: self.style.theme_use(self.style.theme_use())
-            except Exception: pass
-            self.root.configure(bg="white")
-            self.style.configure(".", background="white", foreground="black")
-            self.style.configure("TLabel", background="white", foreground="black")
-            self.style.configure("TEntry", fieldbackground="white", foreground="black")
-            self.style.configure("TSpinbox", fieldbackground="white", foreground="black")
-            self.style.configure("TNotebook.Tab", background="#e0e0e0", foreground="black",
-                                 borderwidth=1, padding=(10, 6))
-            self.style.map("TNotebook.Tab",
-                           background=[("selected", "#d0d0d0")],
-                           foreground=[("selected", "black")])
-            self._set_options_border(False)
-        elif choice == "dark":
-            try: self.style.theme_use(self.style.theme_use())
-            except Exception: pass
-            dark_bg = "#2b2b2b"; fg = "#f5f5f5"; accent_bg = "#3a3a3a"; accent_sel = "#4a4a4a"
-            self.root.configure(bg=dark_bg)
-            self.style.configure(".", background=dark_bg, foreground=fg)
-            self.style.configure("TLabel", background=dark_bg, foreground=fg)
-            self.style.configure("TEntry", fieldbackground=accent_bg, foreground=fg)
-            self.style.configure("TSpinbox", fieldbackground=accent_bg, foreground=fg)
-            self.style.configure("TNotebook.Tab", background=accent_bg, foreground=fg,
-                                 borderwidth=1, padding=(10, 6))
-            self.style.map("TNotebook.Tab",
-                           background=[("selected", accent_sel)],
-                           foreground=[("selected", "#ffffff")])
-            self._set_options_border(True)
-        try:
-            size = min(max(int(self.font_size_var.get()), 6), 16)
-            self.font_size_var.set(size)
-            self.default_font.configure(size=size)
-        except Exception:
-            pass
-        self._rebuild_assets()
-        if hasattr(self, "_refresh_styled_checkables"):
-            self._refresh_styled_checkables()
+    def _apply_theme(self):
+        theme = self.theme_var.get().lower()
+
+        checkbox_on, checkbox_off = apply_theme(
+            root=self.root,
+            treeviews=[self.file_tree, self.orphan_tree],
+            theme_name=theme,
+            base_path=self.app_path,
+        )
+
+        # Save icons for custom checkboxes
+        self.checkbox_on_img = checkbox_on
+        self.checkbox_off_img = checkbox_off
+
+        # Update all custom checkboxes (you already have mapping dicts)
+        self._reload_all_custom_checkboxes()
+
+        # Recolor status bars if you have them
+        if hasattr(self, "file_scan_status"):
+            self.file_scan_status.configure(bg=self.root["bg"], fg=self.theme_fg)
+        if hasattr(self, "orphan_scan_status"):
+            self.orphan_scan_status.configure(bg=self.root["bg"], fg=self.theme_fg)
 
     def _rebuild_assets(self):
         osname = platform.system()
@@ -442,7 +437,7 @@ class WoWMaintenanceTool:
         ttk.Label(options, text="Theme:").grid(row=0, column=5, sticky="e", padx=(0,6), pady=4)
         theme_combo = ttk.Combobox(options, textvariable=self.theme_var, values=["light", "dark"], state="readonly", width=10)
         theme_combo.grid(row=0, column=6, sticky="w", padx=(0,0), pady=4)
-        theme_combo.bind("<<ComboboxSelected>>", lambda e: self.apply_theme(self.theme_var.get()))
+        theme_combo.bind("<<ComboboxSelected>>", lambda e: self._apply_theme())
 
         options.columnconfigure(1, weight=1)   # Entry stretches
 
@@ -520,6 +515,26 @@ class WoWMaintenanceTool:
             if hasattr(self, "orphan_tree"):
                 for iid in list(getattr(self, "orphan_checks", {}).keys()):
                     self._orphan_tree_set_icon(iid)
+
+    def _reload_all_custom_checkboxes(self):
+        """
+        Called after theme changes.
+        Replaces checkbox images in file/orphan/folder cleaners.
+        """
+
+        # File Cleaner
+        for iid, var in self.tree_checks.items():
+            img = self.checkbox_on_img if var.get() else self.checkbox_off_img
+            self.file_tree.item(iid, image=img)
+
+        # Orphan Cleaner
+        for iid, var in self.orphan_checks.items():
+            img = self.checkbox_on_img if var.get() else self.checkbox_off_img
+            self.orphan_tree.item(iid, image=img)
+
+        # Folder cleaner uses per-version custom widgets,
+        # so we only recolor frames/buttons normally.
+        # No TreeView here.
 
     # ----------------- Common helpers -----------------
     def _enumerate_versions(self, base):
@@ -683,6 +698,7 @@ class WoWMaintenanceTool:
             self.file_tree.item(iid, open=False)
 
     def scan_files_tree(self):
+        # Clear old tree
         for n in self.file_tree.get_children(""):
             self.file_tree.delete(n)
         self.tree_checks.clear()
@@ -694,44 +710,75 @@ class WoWMaintenanceTool:
             messagebox.showerror("Invalid Folder", "Please select a valid WoW folder first.")
             return
 
+        # Back-end: compute which files exist per version
         versions = self._enumerate_versions(base)
+        files_by_version = find_bak_old_files(
+            versions,
+            logger=self if self.verbose_var.get() else None,
+        )
+
         total = 0
+        # Rebuild treeview using the backend results
         for vpath, vlabel in versions:
+            # Only create a parent if we have files for this version
+            v_files = files_by_version.get(vlabel, [])
+            if not v_files:
+                continue
             pid = self._tree_add_parent(vlabel)
-            for rootd, _, files in os.walk(vpath):
-                for fname in files:
-                    if fname.lower().endswith((".bak", ".old")):
-                        fpath = os.path.join(rootd, fname)
-                        self._tree_add_child_file(pid, fpath)
-                        total += 1
+            for fpath in v_files:
+                self._tree_add_child_file(pid, fpath)
+                total += 1
             self.file_tree.item(pid, open=False)
 
-        self.file_scan_status.configure(text=(f"Found {total} file(s) across versions." if total else "No .bak or .old files found."))
+        if total:
+            self.file_scan_status.configure(text=f"Found {total} file(s) across versions.")
+        else:
+            self.file_scan_status.configure(text="No .bak or .old files found.")
+
         self.log(f"File Cleaner scan: {total} match(es).")
 
     def process_selected_files_tree(self):
-        selected = [path for iid, path in self.tree_paths.items() if self.tree_checks.get(iid, False)]
+        selected = [
+            path
+            for iid, path in self.tree_paths.items()
+            if self.tree_checks.get(iid, False)
+        ]
         if not selected:
             messagebox.showinfo("No Selection", "No files selected for processing.")
             return
-        action = "move to Recycle Bin/Trash" if self.delete_mode.get() == "trash" and HAS_TRASH else "delete permanently"
-        if not messagebox.askyesno("Confirm", f"Are you sure you want to {action} {len(selected)} file(s)?"):
+
+        use_trash_requested = (self.delete_mode.get() == "trash")
+        action = (
+            "move to Recycle Bin/Trash"
+            if use_trash_requested and HAS_TRASH
+            else "delete permanently"
+        )
+
+        if not messagebox.askyesno(
+            "Confirm",
+            f"Are you sure you want to {action} {len(selected)} file(s)?"
+        ):
             return
-        processed = 0
-        for fp in selected:
-            try:
-                if self.delete_mode.get() == "trash" and HAS_TRASH:
-                    send2trash(fp); self.vlog(f"Moved to trash: {fp}")
-                else:
-                    os.remove(fp); self.vlog(f"Deleted: {fp}")
-                processed += 1
-            except Exception as e:
-                self.log(f"ERROR deleting {fp}: {e}")
-        if self.delete_mode.get() == "trash" and not HAS_TRASH:
-            messagebox.showwarning("send2trash missing", "The 'send2trash' module is unavailable. Files were deleted permanently.")
+
+        # Back-end deletion
+        processed, permanently_deleted, used_trash = delete_files(
+            selected,
+            use_trash=use_trash_requested and HAS_TRASH,
+            logger=self if self.verbose_var.get() else None,
+        )
+
+        # Handle the case where trash was requested but isn't available
+        if use_trash_requested and not HAS_TRASH:
+            messagebox.showwarning(
+                "send2trash missing",
+                "The 'send2trash' module is unavailable. Files were deleted permanently."
+            )
             self.log("Warning: send2trash not installed; deletions were permanent.")
+
         self.log(f"File Cleaner: processed {processed} file(s).")
         messagebox.showinfo("Completed", f"Processed {processed} file(s).")
+
+        # Refresh the tree to reflect deletions
         self.scan_files_tree()
 
     # ------------- Folder Cleaner -------------
@@ -870,35 +917,81 @@ class WoWMaintenanceTool:
             cb._sync_image()
 
     def _process_selected_folders(self, version_label, folder_vars):
-        selected = [(name, path) for name, (var, path, _) in folder_vars.items() if var.get()]
+        """
+        Called by the Folder Cleaner tab's per-version process button.
+
+        version_label: e.g. "Retail", "Classic", etc.
+        folder_vars: dict mapping rel_folder_name -> tk.BooleanVar
+        """
+        # Determine which folders are selected
+        selected = [
+            abs_path
+            for (rel_name, abs_path) in self.folder_paths.get(version_label, {}).items()
+            if folder_vars.get(rel_name, False).get()
+        ]
+
         if not selected:
-            messagebox.showinfo("No Selection", f"No folders selected for {version_label}.")
+            messagebox.showinfo("No Selection", "No folders were selected for cleanup.")
             return
-        if any(name == "Cache" for name, _ in selected):
-            if not messagebox.askyesno("Confirm Cache Deletion",
-                                       "Deleting the Cache folder may affect how the game loads next time.\n\nContinue?"):
-                return
-        action = "move to Recycle Bin/Trash" if HAS_TRASH and self.delete_mode.get() == "trash" else "delete permanently"
-        if not messagebox.askyesno("Confirm", f"Are you sure you want to {action} the selected folder(s) for {version_label}?"):
+
+        use_trash_requested = (self.folder_delete_mode.get() == "trash")
+        action = (
+            "move to Recycle Bin/Trash"
+            if use_trash_requested and FOLDER_HAS_TRASH
+            else "delete permanently"
+        )
+
+        if not messagebox.askyesno(
+            "Confirm",
+            f"Are you sure you want to {action} {len(selected)} folder(s)?"
+        ):
             return
-        processed = 0
-        for name, path in selected:
-            if not os.path.isdir(path):
-                continue
-            try:
-                if HAS_TRASH and self.delete_mode.get() == "trash":
-                    send2trash(path); self.vlog(f"[{version_label}] Moved folder to trash: {path}")
-                else:
-                    shutil.rmtree(path, ignore_errors=False); self.vlog(f"[{version_label}] Deleted folder: {path}")
-                processed += 1
-            except Exception as e:
-                self.log(f"[{version_label}] ERROR deleting folder {path}: {e}")
-        if self.delete_mode.get() == "trash" and not HAS_TRASH:
-            messagebox.showwarning("send2trash missing", "The 'send2trash' module is unavailable. Folders were deleted permanently.")
-            self.log("Warning: send2trash not installed; folder deletions were permanent.")
-        self.log(f"Folder Cleaner: processed {processed} folder(s) for {version_label}.")
-        messagebox.showinfo("Completed", f"Processed {processed} folder(s) for {version_label}.")
-        self._refresh_folder_cleaner_tabs()
+
+        processed, permanently_deleted, used_trash = clean_folders(
+            selected,
+            use_trash=use_trash_requested and FOLDER_HAS_TRASH,
+            logger=self if self.verbose_var.get() else None
+        )
+
+        if use_trash_requested and not FOLDER_HAS_TRASH:
+            messagebox.showwarning(
+                "send2trash missing",
+                "The 'send2trash' module is unavailable. "
+                "Folders were deleted permanently."
+            )
+            self.log("Warning: send2trash not installed; deletions were permanent.")
+
+        self.log(f"Folder Cleaner: processed {processed} folder(s).")
+        messagebox.showinfo("Completed", f"Processed {processed} folder(s).")
+
+        # Rebuild UI for this version tab
+        # This calls _build_single_version_tab again to refresh the toggles
+        self.refresh_folder_cleaner_version(version_label)
+
+    def refresh_folder_cleaner_version(self, version_label):
+        """
+        Rebuilds a single Folder Cleaner version tab after cleanup.
+        """
+        # Find the correct tab frame
+        for tab_label, tab_path, widgets in self.version_tabs:
+            if tab_label == version_label:
+                frame = self.version_notebook.nametowidget(
+                    self.version_notebook.select()
+                )
+                break
+        else:
+            return  # Version not found (safe fallback)
+
+        # Clear widgets on the tab
+        for widget in frame.winfo_children():
+            widget.destroy()
+
+        # Rebuild the version tab UI
+        for vlabel, vpath, _widgets in self.version_tabs:
+            if vlabel == version_label:
+                # rebuild the exact tab
+                self._build_single_version_tab(frame, vpath, vlabel)
+                break
 
     def _toggle_all_screenshot_files(self, shots_vars):
         any_unchecked = any(not v.get() for v in shots_vars.values())
@@ -1011,8 +1104,7 @@ class WoWMaintenanceTool:
                 self.orphan_tree.item(iid, open=False)
 
     def scan_orphan_savedvars(self):
-        if not hasattr(self, "orphan_tree"):
-            return
+        # Clear UI state
         for n in self.orphan_tree.get_children(""):
             self.orphan_tree.delete(n)
         self.orphan_checks.clear()
@@ -1026,197 +1118,120 @@ class WoWMaintenanceTool:
 
         versions = self._enumerate_versions(base)
 
-        total = 0
-        for vpath, vlabel in versions:
-            addons_dir = os.path.join(vpath, "Interface", "AddOns")
-            addon_names = self._collect_addon_names(addons_dir)
+        # Backend call (pure logic)
+        orphan_data = scan_orphans(
+            versions,
+            logger=self if self.verbose_var.get() else None,
+        )
 
-            wtf_account_root = os.path.join(vpath, "WTF", "Account")
-            if not os.path.isdir(wtf_account_root):
+        total = 0
+
+        # Rebuild UI tree using backend results
+        for vpath, vlabel in versions:
+            v_orphans = orphan_data.get(vlabel)
+            if not v_orphans:
                 continue
 
             pid = self._orphan_tree_add_parent(vlabel)
-            try:
-                for account in os.listdir(wtf_account_root):
-                    account_path = os.path.join(wtf_account_root, account)
-                    if not os.path.isdir(account_path):
-                        continue
-                    for sv_dir in self._iter_savedvariables_dirs(account_path):
-                        try:
-                            for fname in os.listdir(sv_dir):
-                                lf = fname.lower()
-                                if not (lf.endswith(".lua") or lf.endswith(".lua.bak")):
-                                    continue
-                                # Ignore Blizzard_*.lua (but allow .lua.bak variants to be cleaned)
-                                if lf.startswith("blizzard_") and lf.endswith(".lua") and not lf.endswith(".lua.bak"):
-                                    continue
-                                base_name = self._savedvar_basename(fname).casefold()
-                                if base_name not in addon_names:
-                                    fpath = os.path.join(sv_dir, fname)
-                                    self._orphan_tree_add_child_file(pid, fpath)
-                                    total += 1
-                        except Exception:
-                            pass
-            except Exception:
-                pass
+            for fpath in v_orphans:
+                self._orphan_tree_add_child_file(pid, fpath)
+                total += 1
 
             self.orphan_tree.item(pid, open=False)
 
-        if total == 0:
-            self.orphan_scan_status.configure(text="No orphaned SavedVariables found.")
-            self.log("Orphan scan complete: no matches found.")
+        if total:
+            self.orphan_scan_status.configure(
+                text=f"Found {total} orphan SavedVariable(s)."
+            )
         else:
-            self.orphan_scan_status.configure(text=f"Found {total} orphaned SavedVariables file(s).")
-            self.log(f"Orphan scan complete: {total} orphaned file(s) found.")
+            self.orphan_scan_status.configure(
+                text="No orphaned SavedVariables found."
+            )
+
+        self.log(f"Orphan Cleaner scan: {total} orphan(s).")
 
     def process_selected_orphans(self):
-        selected = [path for iid, path in self.orphan_paths.items() if self.orphan_checks.get(iid, False)]
+        selected = [
+            path
+            for iid, path in self.orphan_paths.items()
+            if self.orphan_checks.get(iid, False)
+        ]
+
         if not selected:
-            messagebox.showinfo("No Selection", "No orphaned SavedVariables selected for processing.")
-            return
-        action = "move to Recycle Bin/Trash" if self.delete_mode.get() == "trash" and HAS_TRASH else "delete permanently"
-        if not messagebox.askyesno("Confirm", f"Are you sure you want to {action} {len(selected)} file(s)?"):
+            messagebox.showinfo("No Selection", "No orphaned files selected.")
             return
 
-        touched_versions = set()
-        processed = 0
-        for fp in selected:
-            try:
-                vroot = None
-                try:
-                    cur = os.path.abspath(fp)
-                    for _ in range(10):
-                        cur = os.path.dirname(cur)
-                        if os.path.isdir(os.path.join(cur, "Interface")) and os.path.isdir(os.path.join(cur, "WTF")):
-                            vroot = cur; break
-                except Exception:
-                    vroot = None
+        use_trash_requested = (self.delete_mode.get() == "trash")
+        action = (
+            "move to Recycle Bin/Trash"
+            if use_trash_requested and HAS_TRASH
+            else "delete permanently"
+        )
 
-                if self.delete_mode.get() == "trash" and HAS_TRASH:
-                    send2trash(fp); self.vlog(f"Moved to trash (orphan SV): {fp}")
-                else:
-                    os.remove(fp); self.vlog(f"Deleted (orphan SV): {fp}")
-                processed += 1
-                if vroot: touched_versions.add(vroot)
-            except Exception as e:
-                self.log(f"ERROR deleting orphaned SavedVariables {fp}: {e}")
+        if not messagebox.askyesno(
+            "Confirm",
+            f"Are you sure you want to {action} {len(selected)} orphaned SavedVariables?"
+        ):
+            return
 
-        # Rebuild AddOns.txt for each touched version
-        for vroot in touched_versions:
-            addons_dir = os.path.join(vroot, "Interface", "AddOns")
-            addon_names = self._collect_addon_names(addons_dir)  # installed, excluding Blizzard_*
-            rebuilt, removed = self._rebuild_addons_txt(vroot, addon_names)
-            if self.verbose_var.get():
-                for path, lines in rebuilt.items():
-                    self.log(f"Rebuilt AddOns.txt: {path} ({len(lines)} entries)")
-                    for line in lines:
-                        self.log(f"  wrote: {line}")
-                for path, missing in removed.items():
-                    for r in missing:
-                        self.log(f"Removed missing addon '{r}' from {path}")
-            else:
-                total_rebuilt = sum(len(lines) for lines in rebuilt.values())
-                total_files = len(rebuilt)
-                total_removed = sum(len(missing) for missing in removed.values())
-                self.log(f"AddOns.txt: rebuilt {total_files} file(s), {total_rebuilt} entries written, {total_removed} missing removed.")
+        processed, permanently_deleted, used_trash = delete_orphans(
+            selected,
+            use_trash=use_trash_requested and HAS_TRASH,
+            logger=self if self.verbose_var.get() else None,
+        )
 
-        if self.delete_mode.get() == "trash" and not HAS_TRASH:
-            messagebox.showwarning("send2trash missing", "The 'send2trash' module is unavailable. Files were deleted permanently.")
+        if use_trash_requested and not HAS_TRASH:
+            messagebox.showwarning(
+                "send2trash missing",
+                "The 'send2trash' module is unavailable. Files were deleted permanently."
+            )
             self.log("Warning: send2trash not installed; deletions were permanent.")
-        messagebox.showinfo("Completed", f"Processed {processed} orphaned SavedVariables file(s).")
+
+        self.log(f"Orphan Cleaner: processed {processed} orphan(s).")
+        messagebox.showinfo("Completed", f"Processed {processed} orphan(s).")
+
+        # Refresh
         self.scan_orphan_savedvars()
 
-    def _rebuild_addons_txt(self, version_root, installed_addons_set):
-        """Rebuild AddOns.txt for each character, preserving enabled/disabled states.
-           - Include Blizzard_ lines from previous file (never delete them).
-           - Remove other missing addons; add newly installed ones (default enabled).
-           - Alphabetize all entries (case-insensitive), including Blizzard_.
-           - Remove blank lines (and no trailing blank last line).
-           Returns (rebuilt_map, removed_map) for logging.
-        """
-        rebuilt_map = {}
-        removed_map = {}
-        wtf_account_root = os.path.join(version_root, "WTF", "Account")
-        if not os.path.isdir(wtf_account_root):
-            return rebuilt_map, removed_map
+    def rebuild_addons_txt_gui(self):
+        base = self.wow_path_var.get().strip()
+        if not base or not os.path.isdir(base):
+            messagebox.showerror(
+                "Invalid Folder", "Please select a valid WoW folder first."
+            )
+            return
 
-        def parse_line(line):
-            parts = line.split(":", 1)
-            if len(parts) != 2:
-                return line.strip(), "enabled"
-            name = parts[0].strip()
-            state = parts[1].strip().lower()
-            if state not in ("enabled", "disabled"):
-                state = "enabled"
-            return name, state
+        versions = self._enumerate_versions(base)
 
-        try:
-            for account in os.listdir(wtf_account_root):
-                account_path = os.path.join(wtf_account_root, account)
-                if not os.path.isdir(account_path):
-                    continue
-                for realm in os.listdir(account_path):
-                    realm_path = os.path.join(account_path, realm)
-                    if not os.path.isdir(realm_path) or realm.upper() == "SAVEDVARIABLES":
-                        continue
-                    for char in os.listdir(realm_path):
-                        char_path = os.path.join(realm_path, char)
-                        if not os.path.isdir(char_path) or char.upper() == "SAVEDVARIABLES":
-                            continue
-                        addons_txt = os.path.join(char_path, "AddOns.txt")
+        total_written = 0
+        total_removed = 0
 
-                        prev_states = {}         # cf_name -> ("DisplayName", "enabled"/"disabled")
-                        prev_blizzard = {}       # cf_name -> ("DisplayName", state)
-                        if os.path.isfile(addons_txt):
-                            try:
-                                with open(addons_txt, "r", encoding="utf-8", errors="ignore") as f:
-                                    for raw in f.read().splitlines():
-                                        raw = raw.strip()
-                                        if not raw:
-                                            continue
-                                        name, state = parse_line(raw)
-                                        cf = name.casefold()
-                                        if name.lower().startswith("blizzard_"):
-                                            prev_blizzard[cf] = (name, state)
-                                        else:
-                                            prev_states[cf] = (name, state)
-                            except Exception:
-                                prev_states = {}
-                                prev_blizzard = {}
+        for vpath, vlabel in versions:
+            addons_dir = os.path.join(vpath, "Interface", "AddOns")
+            installed = collect_addon_names(addons_dir)
 
-                        entries = {}   # cf_name -> ("DisplayName", state)
-                        add_dir = os.path.join(version_root, "Interface", "AddOns")
-                        dir_listing = []
-                        try:
-                            dir_listing = [d for d in os.listdir(add_dir) if os.path.isdir(os.path.join(add_dir, d))]
-                        except Exception:
-                            pass
-                        dir_by_cf = {d.casefold(): d for d in dir_listing if not d.lower().startswith("blizzard_")}
+            rebuilt, removed = rebuild_addons_txt(
+                vpath,
+                installed,
+                logger=self if self.verbose_var.get() else None,
+            )
 
-                        removed_names = [cf for cf in prev_states.keys() if cf not in installed_addons_set]
+            written_count = sum(len(v) for v in rebuilt.values())
+            removed_count = sum(len(v) for v in removed.values())
 
-                        for addon_cf in installed_addons_set:
-                            display_name = dir_by_cf.get(addon_cf, addon_cf)
-                            state = prev_states.get(addon_cf, (display_name, "enabled"))[1]
-                            entries[addon_cf] = (display_name, state)
+            total_written += written_count
+            total_removed += removed_count
 
-                        for blizz_cf, (blizz_name, blizz_state) in prev_blizzard.items():
-                            entries[blizz_cf] = (blizz_name, blizz_state)
+            self.log(
+                f"[AddOns.txt] {vlabel}: wrote {written_count} entries, removed {removed_count}"
+            )
 
-                        sorted_items = sorted(entries.items(), key=lambda kv: kv[1][0].casefold())
-                        written_lines = [f"{disp}: {state}" for _, (disp, state) in sorted_items]
-
-                        try:
-                            with open(addons_txt, "w", encoding="utf-8") as f:
-                                f.write("\n".join(written_lines))  # no trailing newline to avoid a blank last line
-                            rebuilt_map[addons_txt] = written_lines
-                            removed_map[addons_txt] = removed_names
-                        except Exception as e:
-                            self.log(f"ERROR writing AddOns.txt {addons_txt}: {e}")
-        except Exception as e:
-            self.log(f"ERROR during AddOns.txt rebuild: {e}")
-
-        return rebuilt_map, removed_map
+        messagebox.showinfo(
+            "Completed",
+            f"Rebuilt AddOns.txt entries.\n"
+            f"Total written: {total_written}\n"
+            f"Total removed: {total_removed}",
+        )
 
     # ------------- Help & Log -------------
     def build_log_tab(self, parent):
