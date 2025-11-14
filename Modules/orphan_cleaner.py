@@ -394,13 +394,8 @@ def rebuild_addons_txt(version_root, installed_addons, logger=None):
                         cf for cf in prev_states.keys() if cf not in installed_addons
                     ]
 
-                    # Alphabetize for output
-                    sorted_items = sorted(
-                        entries.items(), key=lambda kv: kv[1][0].casefold()
-                    )
-
                     written = [
-                        f"{disp}: {state}" for _, (disp, state) in sorted_items
+                        f"{disp}: {state}" for _, (disp, state) in entries.items()
                     ]
 
                     # Write file

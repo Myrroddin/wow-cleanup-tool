@@ -23,7 +23,6 @@ def build_single_version_tab(app, tab, version_path, version_label):
         "Screenshots": os.path.join(version_path, "Screenshots"),
         "Logs": os.path.join(version_path, "Logs"),
         "Errors": os.path.join(version_path, "Errors"),
-        "Cache": os.path.join(version_path, "Cache"),
     }
 
     # Store paths for later use in _process_selected_folders

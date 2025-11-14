@@ -2,7 +2,7 @@
 Backend logic for Folder Cleaner.
 
 This module performs:
-- Scanning for folders that can be cleaned safely (Cache, Logs, Errors, Screenshots, etc.)
+- Scanning for folders that can be cleaned safely (Logs, Errors, Screenshots, etc.)
 - Deleting folder contents, either permanently or to Trash
 - Returning structured results to the UI layer
 
@@ -26,10 +26,8 @@ except ImportError:
     HAS_TRASH = False
 
 DEFAULT_CLEANABLE_FOLDERS = [
-    "Cache",                # Cached interface and game data
     "Logs",                 # Debug and error logs
     "Errors",               # Error report files
-    "Crash",                # Crash dump files
     "AddOns.txt.bak",       # Backup of AddOns.txt (if stored incorrectly)
 ]
 

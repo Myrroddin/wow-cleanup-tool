@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-World of Warcraft Maintenance Tool v1.0.0
+WoW Cleanup Tool v1.0.0
 
 This is the main UI application file. It uses Tkinter to provide a graphical interface for:
 - Finding and removing .bak and .old files
-- Cleaning folder contents (Cache, Logs, Errors, etc.)
+- Cleaning folder contents (Logs, Errors, etc.)
 - Detecting and removing orphaned addon SavedVariables
 - Rebuilding AddOns.txt files to match installed addons
 
@@ -106,7 +106,7 @@ if _pil:
 else:
     Image = ImageTk = ImageDraw = None
 
-class WoWMaintenanceTool:
+class WoWCleanupTool:
     MIN_W = 760
     MIN_H = 540
 
@@ -136,11 +136,74 @@ class WoWMaintenanceTool:
 
         # Fonts
         self.default_font = tkfont.nametofont("TkDefaultFont")
-        start_size = int(self.settings.get("font_size", self.default_font.cget("size")))
+        # Choose an OS-native font family when available for better fidelity
+        osname = platform.system()
+        try:
+            avail = set(tkfont.families())
+        except Exception:
+            avail = set()
+
+        if osname == "Darwin":
+            preferred_families = [".SF NS Text", "Helvetica Neue", "Helvetica", "Arial"]
+        elif osname == "Windows":
+            preferred_families = ["Segoe UI", "Tahoma", "Arial"]
+        else:
+            preferred_families = ["Ubuntu", "Cantarell", "DejaVu Sans", "Arial", "Sans"]
+
+        for fam in preferred_families:
+            if fam in avail:
+                try:
+                    self.default_font.configure(family=fam)
+                except Exception:
+                    pass
+                break
+
+        # Build a sorted list of all available font families for the Font dropdown
+        # and allow user settings to override the detected default family.
+        self.font_families = sorted(list(avail))
+        self.font_family_var = tk.StringVar(value=self.settings.get("font_family", self.default_font.cget("family")))
+        try:
+            # If the user had a saved font, apply it now.
+            self.default_font.configure(family=self.font_family_var.get())
+        except Exception:
+            pass
+
+        # Determine base size (allow user override via settings)
+        base_size = self.default_font.cget("size")
+        try:
+            start_size = int(self.settings.get("font_size", base_size))
+        except Exception:
+            start_size = int(base_size)
+
+        # Apply small OS-specific size nudges for native look
+        if osname == "Darwin":
+            # macOS UI typically uses slightly larger default text
+            start_size = max(start_size, int(base_size) + 1)
+        else:
+            start_size = max(start_size, int(base_size))
+
         start_size = min(max(start_size, 6), 16)
         self.font_size_var = tk.IntVar(value=start_size)
-        self.default_font.configure(size=self.font_size_var.get())
+        try:
+            self.default_font.configure(size=self.font_size_var.get())
+        except Exception:
+            pass
         self.root.option_add("*Font", self.default_font)
+
+        # Micro-adjustments to ttk widget styling per OS for closer native fidelity
+        try:
+            if osname == "Darwin":
+                # Slightly larger button padding on macOS
+                self.style.configure("TButton", padding=(8, 4))
+                self.style.configure("TMenubutton", padding=(8, 4))
+            elif osname == "Windows":
+                # Use Windows-like tighter padding
+                self.style.configure("TButton", padding=(6, 3))
+            else:
+                # Linux: conservative padding
+                self.style.configure("TButton", padding=(6, 4))
+        except Exception:
+            pass
 
         # State
         self.wow_path_var = tk.StringVar(value=self.settings.get("wow_path", ""))
@@ -148,7 +211,7 @@ class WoWMaintenanceTool:
         self.theme_var = tk.StringVar(value=self.settings.get("theme", "light"))
         self.verbose_var = tk.BooleanVar(value=bool(self.settings.get("verbose_logging", False)))
 
-        self.root.title(f"World of Warcraft Maintenance Tool {VERSION}")
+        self.root.title(f"WoW Cleanup Tool {VERSION}")
         self.setup_geometry()
         self._rebuild_assets()
         self.build_ui()
@@ -167,15 +230,34 @@ class WoWMaintenanceTool:
     # ------------- OS base theme -------------
     def _apply_os_base_theme(self):
         osname = platform.system()
+        # Prefer OS-native themes when available, falling back to a sensible default.
+        available = list(self.style.theme_names())
+        if osname == "Darwin":
+            preferred = ["aqua", "clam", "default"]
+        elif osname == "Windows":
+            preferred = ["vista", "winnative", "xpnative", "clam", "default"]
+        else:
+            # Linux / other X11 systems
+            preferred = ["clam", "alt", "default"]
+
+        for theme in preferred:
+            if theme in available:
+                try:
+                    self.style.theme_use(theme)
+                    return
+                except Exception:
+                    continue
+
+        # As a last resort, use whatever theme is currently set (or the first available)
         try:
-            if osname == "Windows" and "vista" in self.style.theme_names():
-                self.style.theme_use("vista")
-            elif osname == "Darwin" and "aqua" in self.style.theme_names():
-                self.style.theme_use("aqua")
-            else:
-                self.style.theme_use("clam")
+            current = self.style.theme_use()
+            self.style.theme_use(current)
         except Exception:
-            self.style.theme_use("clam")
+            try:
+                if available:
+                    self.style.theme_use(available[0])
+            except Exception:
+                pass
 
     # ------------- Geometry -------------
     def setup_geometry(self):
@@ -296,11 +378,324 @@ class WoWMaintenanceTool:
                 pass
 
     def update_font_size(self):
-        size = min(max(int(self.font_size_var.get()), 6), 16)
+        size = min(max(int(self.font_size_var.get()), 6), 20)
         self.font_size_var.set(size)
         self.default_font.configure(size=size)
         self.settings["font_size"] = size
         save_settings(self.settings)
+        # If we have a font OptionMenu, update its display font and menu entries
+        try:
+            if hasattr(self, "font_optionmenu"):
+                try:
+                    self.font_optionmenu.configure(font=(self.font_family_var.get(), size))
+                except Exception:
+                    pass
+                try:
+                    menu = self.font_optionmenu["menu"]
+                    for i, fam in enumerate(self.font_families):
+                        try:
+                            menu.entryconfig(i, font=(fam, size))
+                        except Exception:
+                            pass
+                except Exception:
+                    pass
+        except Exception:
+            pass
+        # If the font selector is open, update label widget fonts to the new size
+        try:
+            if self._font_selector and self._font_label_widgets:
+                for lbl in self._font_label_widgets:
+                    try:
+                        # lbl is a tk.Label
+                        fam = getattr(lbl, "_family", None)
+                        if fam:
+                            lbl.configure(font=(fam, size))
+                    except Exception:
+                        pass
+        except Exception:
+            pass
+
+    def open_font_selector(self):
+        """Open a searchable Toplevel that lists font families styled in their own font.
+
+        Selecting a font previews it immediately. The user must Apply to persist
+        the change, or Cancel to revert to the previous font.
+        
+        Uses incremental loading: displays fonts in batches as the user scrolls,
+        improving performance on systems with large font catalogs.
+        """
+        # If already open, bring to front
+        if self._font_selector:
+            try:
+                self._font_selector.deiconify(); self._font_selector.lift()
+            except Exception:
+                pass
+            return
+
+        prev_family = self.font_family_var.get()
+        self._prev_font_family = prev_family
+
+        sel = tk.Toplevel(self.root)
+        sel.title("Select Font")
+        sel.transient(self.root)
+        sel.grab_set()
+        sel.geometry("+%d+%d" % (self.root.winfo_rootx() + 60, self.root.winfo_rooty() + 60))
+        self._font_selector = sel
+
+        filter_var = tk.StringVar()
+
+        entry = ttk.Entry(sel, textvariable=filter_var)
+        entry.pack(fill="x", padx=8, pady=(8,4))
+        entry.focus_set()
+
+        # Scrollable canvas to host styled Labels (each label can have its own font)
+        canvas_frame = ttk.Frame(sel)
+        canvas_frame.pack(fill="both", expand=True, padx=8, pady=(0,8))
+        canvas = tk.Canvas(canvas_frame, borderwidth=0, highlightthickness=0)
+        scroll_y = ttk.Scrollbar(canvas_frame, orient="vertical", command=canvas.yview)
+        inner = ttk.Frame(canvas)
+        inner_id = canvas.create_window((0, 0), window=inner, anchor="nw")
+        canvas.configure(yscrollcommand=scroll_y.set)
+        canvas.pack(side="left", fill="both", expand=True)
+        scroll_y.pack(side="right", fill="y")
+
+        def _on_configure(event):
+            canvas.configure(scrollregion=canvas.bbox("all"))
+
+        inner.bind("<Configure>", _on_configure)
+
+        # Incremental loading state
+        self._font_label_widgets = []
+        _load_state = {
+            "filtered_fonts": [],
+            "loaded_count": 0,
+            "batch_size": 30,
+            "after_id": None,
+        }
+
+        def get_filtered_fonts(filter_text=""):
+            """Return list of fonts matching the filter."""
+            pattern = filter_text.lower()
+            result = []
+            for fam in self.font_families:
+                if pattern and pattern not in fam.lower():
+                    continue
+                result.append(fam)
+            return result
+
+        def load_batch():
+            """Load the next batch of fonts into the list."""
+            state = _load_state
+            if state["loaded_count"] >= len(state["filtered_fonts"]):
+                return  # All loaded
+            
+            size = max(8, min(28, int(self.font_size_var.get())))
+            batch_end = min(state["loaded_count"] + state["batch_size"], len(state["filtered_fonts"]))
+            
+            for i in range(state["loaded_count"], batch_end):
+                fam = state["filtered_fonts"][i]
+                try:
+                    lbl = tk.Label(inner, text=fam, anchor="w", font=(fam, size))
+                    lbl.pack(fill="x", anchor="w", padx=2, pady=1)
+                    lbl._family = fam
+                    def _on_click(event, f=fam):
+                        try:
+                            self.apply_font_preview(f)
+                        except Exception:
+                            pass
+                    lbl.bind("<Button-1>", _on_click)
+                    # Hover feedback
+                    lbl.bind("<Enter>", lambda e, l=lbl: l.configure(bg="#e6f2ff"))
+                    lbl.bind("<Leave>", lambda e, l=lbl: l.configure(bg=sel.cget("bg")))
+                    self._font_label_widgets.append(lbl)
+                except Exception:
+                    # Skip fonts that raise errors when applied
+                    pass
+            
+            state["loaded_count"] = batch_end
+
+        def on_scroll(*args):
+            """Detect when user scrolls near the bottom and load more fonts."""
+            state = _load_state
+            if state["loaded_count"] >= len(state["filtered_fonts"]):
+                return  # All already loaded
+            
+            # Cancel any pending load to avoid spamming
+            if state["after_id"]:
+                try:
+                    self.root.after_cancel(state["after_id"])
+                except Exception:
+                    pass
+            
+            # Schedule load on next idle (debounce)
+            state["after_id"] = self.root.after(100, load_batch)
+
+        def populate(filter_text=""):
+            """Clear list and prepare filtered fonts for incremental loading."""
+            state = _load_state
+            # Cancel any pending load
+            if state["after_id"]:
+                try:
+                    self.root.after_cancel(state["after_id"])
+                except Exception:
+                    pass
+            
+            # Clear display
+            for w in inner.winfo_children():
+                w.destroy()
+            self._font_label_widgets.clear()
+            
+            # Prepare filtered list
+            state["filtered_fonts"] = get_filtered_fonts(filter_text)
+            state["loaded_count"] = 0
+            
+            # Load first batch immediately
+            load_batch()
+
+        populate()
+
+        def on_filter_change(*_):
+            populate(filter_var.get())
+
+        filter_var.trace_add("write", on_filter_change)
+        
+        # Detect scroll to load more fonts incrementally
+        canvas.bind("<MouseWheel>", on_scroll)
+        canvas.bind("<Button-4>", on_scroll)
+        canvas.bind("<Button-5>", on_scroll)
+
+        # Buttons
+        btn_frame = ttk.Frame(sel)
+        btn_frame.pack(fill="x", padx=8, pady=(0,8))
+        apply_btn = ttk.Button(btn_frame, text="Apply", command=lambda: self._finalize_font_change())
+        apply_btn.pack(side="right", padx=(4,0))
+        cancel_btn = ttk.Button(btn_frame, text="Cancel", command=lambda: self._cancel_font_change())
+        cancel_btn.pack(side="right")
+
+        def on_close_sel():
+            self._cancel_font_change()
+
+        sel.protocol("WM_DELETE_WINDOW", on_close_sel)
+
+    def apply_font_preview(self, family: str):
+        """Temporarily apply a font family to the UI for previewing."""
+        try:
+            if not family:
+                return
+            self.font_family_var.set(family)
+            try:
+                self.default_font.configure(family=family)
+            except Exception:
+                pass
+            try:
+                self.root.option_add("*Font", self.default_font)
+            except Exception:
+                pass
+            # Update the font button to show preview
+            try:
+                self.font_button.configure(font=(family, self.font_size_var.get()))
+            except Exception:
+                pass
+            # Track currently previewed family
+            self._previewed_family = family
+        except Exception:
+            pass
+
+    def _finalize_font_change(self):
+        """Ask user to confirm the previewed font; save or revert accordingly."""
+        try:
+            new = getattr(self, "_previewed_family", self.font_family_var.get())
+            old = getattr(self, "_prev_font_family", None)
+            if new == old:
+                # Nothing changed
+                try:
+                    if self._font_selector:
+                        self._font_selector.grab_release(); self._font_selector.destroy()
+                except Exception:
+                    pass
+                self._font_selector = None
+                return
+
+            ok = messagebox.askyesno("Confirm Font", f"Apply font '{new}' to the application?")
+            if ok:
+                try:
+                    self.settings["font_family"] = new
+                    save_settings(self.settings)
+                except Exception:
+                    pass
+                try:
+                    if self._font_selector:
+                        self._font_selector.grab_release(); self._font_selector.destroy()
+                except Exception:
+                    pass
+                self._font_selector = None
+                self._prev_font_family = new
+            else:
+                # Revert
+                try:
+                    if old:
+                        self.default_font.configure(family=old)
+                        self.root.option_add("*Font", self.default_font)
+                        self.font_family_var.set(old)
+                        try:
+                            self.font_button.configure(font=(old, self.font_size_var.get()))
+                        except Exception:
+                            pass
+                except Exception:
+                    pass
+                try:
+                    if self._font_selector:
+                        self._font_selector.grab_release(); self._font_selector.destroy()
+                except Exception:
+                    pass
+                self._font_selector = None
+        except Exception:
+            pass
+
+    def _cancel_font_change(self):
+        """Cancel selector and revert any previewed font back to previous."""
+        try:
+            prev = getattr(self, "_prev_font_family", None)
+            if prev:
+                try:
+                    self.default_font.configure(family=prev)
+                    self.root.option_add("*Font", self.default_font)
+                    self.font_family_var.set(prev)
+                    try:
+                        self.font_button.configure(font=(prev, self.font_size_var.get()))
+                    except Exception:
+                        pass
+                except Exception:
+                    pass
+        except Exception:
+            pass
+        try:
+            if self._font_selector:
+                self._font_selector.grab_release(); self._font_selector.destroy()
+        except Exception:
+            pass
+        self._font_selector = None
+
+    def update_font_family(self):
+        """Apply a newly selected font family and persist it per-user."""
+        try:
+            fam = self.font_family_var.get()
+            if fam:
+                try:
+                    self.default_font.configure(family=fam)
+                except Exception:
+                    pass
+                # Update OptionMenu button font
+                try:
+                    if hasattr(self, "font_optionmenu"):
+                        self.font_optionmenu.configure(font=(fam, self.font_size_var.get()))
+                except Exception:
+                    pass
+                # Persist
+                self.settings["font_family"] = fam
+                save_settings(self.settings)
+        except Exception:
+            pass
 
     # ------------- UI Build -------------
     def build_ui(self):
@@ -324,9 +719,24 @@ class WoWMaintenanceTool:
         font_spin = ttk.Spinbox(options, from_=6, to=16, textvariable=self.font_size_var, width=5, command=self.update_font_size)
         font_spin.grid(row=0, column=4, sticky="w", padx=(0,10), pady=4)
 
-        ttk.Label(options, text="Theme:").grid(row=0, column=5, sticky="e", padx=(0,6), pady=4)
+        # Font selection: a searchable selector opened from a button showing current font
+        ttk.Label(options, text="Font:").grid(row=0, column=5, sticky="e", padx=(0,6), pady=4)
+        # Button shows the currently selected font; clicking opens a searchable selector.
+        self.font_button = ttk.Button(options, textvariable=self.font_family_var, command=self.open_font_selector)
+        self.font_button.grid(row=0, column=6, sticky="w", padx=(0,10), pady=4)
+        try:
+            # Apply the selected font to the button itself for a live preview.
+            self.font_button.configure(style="TButton")
+            self.font_button.configure(font=(self.font_family_var.get(), self.font_size_var.get()))
+        except Exception:
+            pass
+        # Prepare holder for selector widgets when opened
+        self._font_selector = None
+        self._font_label_widgets = []
+
+        ttk.Label(options, text="Theme:").grid(row=0, column=7, sticky="e", padx=(0,6), pady=4)
         theme_combo = ttk.Combobox(options, textvariable=self.theme_var, values=["light", "dark"], state="readonly", width=10)
-        theme_combo.grid(row=0, column=6, sticky="w", padx=(0,0), pady=4)
+        theme_combo.grid(row=0, column=8, sticky="w", padx=(0,0), pady=4)
         theme_combo.bind("<<ComboboxSelected>>", lambda e: self._apply_theme())
 
         options.columnconfigure(1, weight=1)   # Entry stretches
@@ -860,7 +1270,7 @@ class WoWMaintenanceTool:
         outer.pack(fill="both", expand=True)
         card = ttk.Frame(outer, padding=14, relief="groove")
         card.pack(padx=20, pady=20, fill="both", expand=False)
-        ttk.Label(card, text=f"World of Warcraft Maintenance Tool {VERSION}",
+        ttk.Label(card, text=f"WoW Cleanup Tool {VERSION}",
                   font=(None, 14, "bold")).pack(anchor="center", pady=(0, 8))
         ttk.Label(
             card,
@@ -1034,13 +1444,17 @@ class WoWMaintenanceTool:
             self.settings["font_size"] = int(self.font_size_var.get())
         except Exception:
             pass
+        try:
+            self.settings["font_family"] = self.font_family_var.get()
+        except Exception:
+            pass
         save_settings(self.settings)
         self.root.destroy()
 
 # -------------------- Run --------------------
 def main():
     root = tk.Tk()
-    app = WoWMaintenanceTool(root)
+    app = WoWCleanupTool(root)
     root.mainloop()
 
 if __name__ == "__main__":
