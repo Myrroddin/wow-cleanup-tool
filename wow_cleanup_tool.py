@@ -23,23 +23,10 @@ import platform
 from datetime import datetime
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, font as tkfont
-
-# Import backend modules for file scanning and deletion operations
 from Modules.file_cleaner import find_bak_old_files, delete_files
 from Modules.themes import apply_theme
-from Modules.orphan_cleaner import (
-    scan_orphans,
-    delete_orphans,
-    rebuild_addons_txt,
-    collect_addon_names,
-    HAS_TRASH,
-)
-from Modules.folder_cleaner import (
-    scan_all_versions,
-    clean_folders,
-    HAS_TRASH as FOLDER_HAS_TRASH,
-)
-# Pull smaller helpers into dedicated modules to slim the main file
+from Modules.orphan_cleaner import scan_orphans, delete_orphans, rebuild_addons_txt, collect_addon_names, HAS_TRASH
+from Modules.folder_cleaner import scan_all_versions, clean_folders, HAS_TRASH as FOLDER_HAS_TRASH
 from Modules.settings import load_settings, save_settings, SETTINGS_FILE
 from Modules.ui_helpers import Tooltip, ImgAssets, ImgCheckbox, ImgRadio
 from Modules.logger import Logger
@@ -48,6 +35,7 @@ from Modules.tabs.folder_cleaner_tab import build_folder_cleaner_tab as _build_f
 from Modules.tabs.orphan_cleaner_tab import build_orphan_cleaner_tab as _build_orphan_cleaner_tab
 import Modules.tree_helpers as tree_helpers
 from Modules.game_validation import is_game_version_valid, show_game_validation_warning
+from Modules import font_selector, geometry, path_manager, ui_refresh
 
 VERSION = "v1.0.0"
 
@@ -91,7 +79,6 @@ def ensure_package(module_name: str, pip_name: str):
         except (OSError, subprocess.CalledProcessError):
             return None
 
-
 # Try to load optional dependencies
 _send2trash_mod = ensure_package("send2trash", "send2trash")
 if _send2trash_mod:
@@ -99,7 +86,6 @@ if _send2trash_mod:
     HAS_TRASH = True
 else:
     HAS_TRASH = False
-
 _pil = ensure_package("PIL", "Pillow")
 if _pil:
     from PIL import Image, ImageTk, ImageDraw
@@ -212,12 +198,12 @@ class WoWCleanupTool:
         self.verbose_var = tk.BooleanVar(value=bool(self.settings.get("verbose_logging", False)))
 
         self.root.title(f"WoW Cleanup Tool {VERSION}")
-        self.setup_geometry()
-        self._rebuild_assets()
+        geometry.setup_geometry(self)
+        ui_refresh.rebuild_assets(self)
         self.build_ui()
         self._apply_theme()   # ← apply after widgets exist
 
-        self.root.bind("<Configure>", self._on_configure, add="+")
+        self.root.bind("<Configure>", lambda e: geometry.on_configure(self), add="+")
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
         self.root.after(200, self.show_startup_warning)
         self.log(f"Session started — {VERSION}")
@@ -365,17 +351,12 @@ class WoWCleanupTool:
                 fg=self.theme_data["fg"]
             )
 
+    # Asset rebuild now delegated to Modules.ui_refresh
     def _rebuild_assets(self):
-        osname = platform.system()
-        dark = (self.theme_var.get() == "dark")
-        self.assets = ImgAssets(osname=osname, dark=dark)
+        ui_refresh.rebuild_assets(self)
 
     def _set_options_border(self, show_dark_border: bool):
-        if hasattr(self, "options_border"):
-            try:
-                self.options_border.configure(bg="#b0b0b0" if show_dark_border else self.root.cget("bg"))
-            except Exception:
-                pass
+        ui_refresh.set_options_border(self, show_dark_border)
 
     def update_font_size(self):
         size = min(max(int(self.font_size_var.get()), 6), 20)
@@ -722,7 +703,7 @@ class WoWCleanupTool:
         # Font selection: a searchable selector opened from a button showing current font
         ttk.Label(options, text="Font:").grid(row=0, column=5, sticky="e", padx=(0,6), pady=4)
         # Button shows the currently selected font; clicking opens a searchable selector.
-        self.font_button = ttk.Button(options, textvariable=self.font_family_var, command=self.open_font_selector)
+        self.font_button = ttk.Button(options, textvariable=self.font_family_var, command=lambda: font_selector.open_font_selector(self))
         self.font_button.grid(row=0, column=6, sticky="w", padx=(0,10), pady=4)
         try:
             # Apply the selected font to the button itself for a live preview.
@@ -1284,53 +1265,18 @@ class WoWCleanupTool:
         ttk.Button(card, text="Check for Updates", command=self.check_for_updates).pack(anchor="center", pady=(8, 0))
 
     # ------------- Path selection + detection -------------
+    # Path management methods now delegated to Modules.path_manager
     def select_wow_folder(self):
-        folder = filedialog.askdirectory(title="Select World of Warcraft Folder")
-        if not folder: return
-        corrected = self._find_wow_root(folder)
-        if not self._is_valid_wow_install(corrected):
-            if not messagebox.askyesno("Unrecognized Installation", "The selected folder doesn't appear valid.\n\nContinue anyway?"):
-                return
-        self.wow_path_var.set(corrected)
-        self.settings["wow_path"] = corrected
-        save_settings(self.settings)
-        self.log(f"WoW folder set: {corrected}")
-        self._refresh_folder_cleaner_tabs()
+        path_manager.select_wow_folder(self)
 
     def _refresh_folder_cleaner_tabs(self):
-        # Rebuild Folder Cleaner tabs to reflect new path
-        try:
-            self.version_notebook.destroy()
-        except Exception:
-            pass
-        container = self.folder_tab
-        for w in container.winfo_children():
-            try: w.destroy()
-            except Exception: pass
-        self.build_folder_cleaner_tab(container)
+        path_manager.refresh_folder_cleaner_tabs(self)
 
     def _find_wow_root(self, path):
-        path = os.path.abspath(path)
-        markers = ["_retail_", "_classic_", "_classic_era_",
-                   "_retail_ptr_", "_retail_beta_",
-                   "_classic_ptr_", "_classic_beta_",
-                   "_classic_era_ptr_", "_classic_era_beta_"]
-        for _ in range(6):
-            if any(os.path.isdir(os.path.join(path, m)) for m in markers):
-                return path
-            parent = os.path.dirname(path)
-            if parent == path: break
-            path = parent
-        return path
+        return path_manager.find_wow_root(path)
 
     def _is_valid_wow_install(self, path):
-        if not os.path.isdir(path): return False
-        indicators = ["_retail_", "_classic_", "_classic_era_",
-                      "_retail_ptr_", "_retail_beta_",
-                      "_classic_ptr_", "_classic_beta_",
-                      "_classic_era_ptr_", "_classic_era_beta_",
-                      "Wow.exe", "Launcher.app"]
-        return any(os.path.exists(os.path.join(path, it)) for it in indicators)
+        return path_manager.is_valid_wow_install(path)
 
     # ------------- Logging helpers -------------
     def clear_log(self):
@@ -1424,18 +1370,7 @@ class WoWCleanupTool:
             pass
 
     def on_close(self):
-        is_max = False
-        try: is_max = (self.root.state() == "zoomed")
-        except Exception: pass
-        if not is_max:
-            parsed = self._parse_geometry(self.root.geometry())
-            if parsed:
-                w, h, x, y = parsed
-                self.settings["window_width"] = max(w, self.MIN_W)
-                self.settings["window_height"] = max(h, self.MIN_H)
-                self.settings["window_x"] = x
-                self.settings["window_y"] = y
-        self.settings["is_maximized"] = is_max
+        geometry.save_geometry(self)
         self.settings["wow_path"] = self.wow_path_var.get()
         self.settings["delete_mode"] = self.delete_mode.get()
         self.settings["theme"] = self.theme_var.get()

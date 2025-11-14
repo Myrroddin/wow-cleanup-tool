@@ -61,7 +61,6 @@ def savedvar_basename(filename):
         return filename[:-4]
     return filename
 
-
 def collect_addon_names(addons_dir):
     """
     Return a set of installed addon names (casefolded), excluding Blizzard_*.
@@ -85,7 +84,6 @@ def collect_addon_names(addons_dir):
         if os.path.isdir(os.path.join(addons_dir, entry))
         and not entry.lower().startswith("blizzard_")
     }
-
 
 def iter_savedvariables_dirs(account_root):
     """
@@ -216,8 +214,6 @@ def scan_orphans(versions, logger=None):
 
     return results
 
-
-
 def delete_orphans(paths, use_trash=False, logger=None):
     """
     Delete or move orphaned SavedVariables to trash.
@@ -266,12 +262,10 @@ def delete_orphans(paths, use_trash=False, logger=None):
     permanently_deleted = not real_use_trash
     return processed, permanently_deleted, used_trash
 
-
 # ============================================================
 # ADDONS.TXT REBUILD LOGIC
 # ============================================================
 # Functions for rebuilding AddOns.txt files to match installed addons
-
 
 def rebuild_addons_txt(version_root, installed_addons, logger=None):
     """

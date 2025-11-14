@@ -1,6 +1,5 @@
 import os
 
-
 def build_checkbox_images(app):
     """Populate `app.chk_unchecked` and `app.chk_checked` using app.assets."""
     try:

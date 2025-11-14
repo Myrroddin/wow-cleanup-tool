@@ -56,7 +56,6 @@ def scan_cleanable_folders(version_path, logger=None):
 
     return found
 
-
 def scan_all_versions(versions, logger=None):
     """
     Scan all WoW versions for cleanable folders.
@@ -83,7 +82,6 @@ def scan_all_versions(versions, logger=None):
     if logger:
         logger.info(f"[FolderCleaner] Total cleanable folders: {total}")
     return results
-
 
 def clean_folders(paths, use_trash=False, logger=None):
     """
