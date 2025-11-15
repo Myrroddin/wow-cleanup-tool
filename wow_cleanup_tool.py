@@ -362,7 +362,7 @@ class WoWCleanupTool:
         ui_refresh.set_options_border(self, show_dark_border)
 
     def update_font_size(self):
-        size = min(max(int(self.font_size_var.get()), 6), 20)
+        size = min(max(int(self.font_size_var.get()), 6), 16)
         self.font_size_var.set(size)
         self.default_font.configure(size=size)
         self.settings["font_size"] = size
