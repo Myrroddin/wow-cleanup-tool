@@ -168,6 +168,7 @@ python3 wow_cleanup_tool.py
 ![files](https://github.com/user-attachments/assets/2b2680d7-d7c0-4007-b5ad-3e03247f6ff4)
 ![folders](https://github.com/user-attachments/assets/5da620f1-e3e8-4ff9-abe9-4e85117a07ed)
 ![orphans](https://github.com/user-attachments/assets/e33a7e8e-d217-4f13-9b8b-c3c66f8015f0)
+![optimizer](https://github.com/user-attachments/assets/d9b031de-d4c6-4326-a26f-cf9ac7a61ac9)
 
 ## Troubleshooting
 
