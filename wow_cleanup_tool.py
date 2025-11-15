@@ -35,7 +35,7 @@ from Modules.tabs.folder_cleaner_tab import build_folder_cleaner_tab as _build_f
 from Modules.tabs.orphan_cleaner_tab import build_orphan_cleaner_tab as _build_orphan_cleaner_tab
 import Modules.tree_helpers as tree_helpers
 from Modules.game_validation import is_game_version_valid, show_game_validation_warning
-from Modules import font_selector, geometry, path_manager, ui_refresh
+from Modules import font_selector, geometry, path_manager, ui_refresh, game_optimizer, update_checker, global_settings
 
 VERSION = "v1.0.0"
 
@@ -196,6 +196,7 @@ class WoWCleanupTool:
         self.delete_mode = tk.StringVar(value=self.settings.get("delete_mode", "delete"))
         self.theme_var = tk.StringVar(value=self.settings.get("theme", "light"))
         self.verbose_var = tk.BooleanVar(value=bool(self.settings.get("verbose_logging", False)))
+        self.check_for_updates_var = tk.BooleanVar(value=bool(self.settings.get("check_for_updates", True)))
 
         self.root.title(f"WoW Cleanup Tool {VERSION}")
         geometry.setup_geometry(self)
@@ -722,7 +723,7 @@ class WoWCleanupTool:
 
         options.columnconfigure(1, weight=1)   # Entry stretches
 
-        # Row 1: File Action label | Delete | Trash | Verbose | Restore
+        # Row 1: File Action label | Delete | Trash | Verbose | Check Updates | Restore
         mode_frame = ttk.Frame(options)
         mode_frame.grid(row=1, column=0, columnspan=7, sticky="we", pady=(2, 2))
         mode_frame.columnconfigure(10, weight=1)
@@ -740,6 +741,10 @@ class WoWCleanupTool:
         self.verbose_cb = ImgCheckbox(mode_frame, "Enable verbose logging", self.verbose_var, self.assets)
         self.verbose_cb.grid(row=0, column=2, sticky="w", padx=(10,0))
         Tooltip(self.verbose_cb, "When enabled, Log captures every processed file/folder/AddOns.txt line.")
+
+        self.check_updates_cb = ImgCheckbox(mode_frame, "Check for updates", self.check_for_updates_var, self.assets)
+        self.check_updates_cb.grid(row=0, column=3, sticky="w", padx=(10,0))
+        Tooltip(self.check_updates_cb, "When enabled, check for new releases on GitHub at startup.")
 
         restore_btn = ttk.Button(mode_frame, text="Restore Defaults", command=self.restore_defaults)
         restore_btn.grid(row=0, column=9, sticky="e", padx=(10,0))
@@ -763,6 +768,11 @@ class WoWCleanupTool:
         self.orphan_tab = ttk.Frame(self.main_notebook)
         self.main_notebook.add(self.orphan_tab, text="Orphan Cleaner")
         self.build_orphan_cleaner_tab(self.orphan_tab)
+
+        # Game Optimizer
+        self.optimizer_tab = ttk.Frame(self.main_notebook)
+        self.main_notebook.add(self.optimizer_tab, text="Game Optimizer")
+        game_optimizer.build_game_optimizer_tab(self, self.optimizer_tab)
 
         # Log
         self.log_tab = ttk.Frame(self.main_notebook)
@@ -1260,8 +1270,15 @@ class WoWCleanupTool:
                   "Always close World of Warcraft before running this tool."),
             wraplength=520, justify="center"
         ).pack(anchor="center", pady=(0, 8))
-        ttk.Label(card, text="Copyright © 2025 Paul Vandersypen. All rights reserved.",
-                  font=(None, 10, "italic")).pack(anchor="center", pady=(0, 6))
+        ttk.Label(
+            card,
+            text=(
+                "Copyright © 2025 Paul Vandersypen. "
+                "Released under the GNU General Public License v3.0 (GPL-3.0-or-later). "
+                "See the included LICENSE file for full terms."
+            ),
+            font=(None, 10, "italic"),
+        ).pack(anchor="center", pady=(0, 6))
         ttk.Button(card, text="Check for Updates", command=self.check_for_updates).pack(anchor="center", pady=(8, 0))
 
     # ------------- Path selection + detection -------------
@@ -1291,20 +1308,35 @@ class WoWCleanupTool:
             except Exception:
                 pass
 
-    def log(self, text):
-        # Delegate to the external logger module
-        try:
-            self.logger.log(text)
-        except Exception:
-            # Fallback: directly append to UI text widget
+    def log(self, text, always_log=False):
+        # If always_log is True, bypass verbose check and log regardless
+        if always_log:
             try:
-                line = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {text}"
-                self.log_text.configure(state="normal")
-                self.log_text.insert("end", line + "\n")
-                self.log_text.see("end")
-                self.log_text.configure(state="disabled")
+                self.logger.log(text)
             except Exception:
-                pass
+                # Fallback: directly append to UI text widget
+                try:
+                    line = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {text}"
+                    self.log_text.configure(state="normal")
+                    self.log_text.insert("end", line + "\n")
+                    self.log_text.see("end")
+                    self.log_text.configure(state="disabled")
+                except Exception:
+                    pass
+        else:
+            # Delegate to the external logger module
+            try:
+                self.logger.log(text)
+            except Exception:
+                # Fallback: directly append to UI text widget
+                try:
+                    line = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {text}"
+                    self.log_text.configure(state="normal")
+                    self.log_text.insert("end", line + "\n")
+                    self.log_text.see("end")
+                    self.log_text.configure(state="disabled")
+                except Exception:
+                    pass
 
     # ------------- Defaults, Updates, Startup -------------
     def restore_defaults(self):
@@ -1352,7 +1384,7 @@ class WoWCleanupTool:
             messagebox.showerror("Error", f"Failed to restore defaults: {e}")
 
     def check_for_updates(self):
-        messagebox.showinfo("Check for Updates", "Update checking will be added in a future release.")
+        update_checker.check_for_updates(VERSION, parent_window=self.root)
 
     def show_startup_warning(self):
         try:
@@ -1375,6 +1407,7 @@ class WoWCleanupTool:
         self.settings["delete_mode"] = self.delete_mode.get()
         self.settings["theme"] = self.theme_var.get()
         self.settings["verbose_logging"] = bool(self.verbose_var.get())
+        self.settings["check_for_updates"] = bool(self.check_for_updates_var.get())
         try:
             self.settings["font_size"] = int(self.font_size_var.get())
         except Exception:

@@ -5,15 +5,19 @@ from Modules.ui_helpers import ImgCheckbox
 
 def build_orphan_cleaner_tab(app, parent):
     """Build the Orphan Cleaner tab UI onto `parent` using `app` for state."""
+    description_text = (
+        "Searches all detected WoW versions for addon SavedVariables (.lua / .lua.bak) that do not have a corresponding installed addon (Interface/AddOns). Scans Account, Realm, and Character SavedVariables folders. Processing also rebuilds AddOns." + "\u200B" + "txt to match installed addons (preserving enabled/disabled where possible).\n\n"
+        "Note: Blizzard_*.lua files are core game data and are automatically ignored for safety (but their .lua.bak backups may be removed)."
+    )
     desc = ttk.Label(parent, padding=(10, 10),
-        text=("Searches all detected WoW versions for addon SavedVariables (.lua / .lua.bak) "
-              "that do not have a corresponding installed addon (Interface/AddOns). "
-              "Scans Account, Realm, and Character SavedVariables folders. "
-              "Processing also rebuilds AddOns.txt to match installed addons (preserving enabled/disabled where possible).\n\n"
-              "Note: Blizzard_*.lua files are core game data and are automatically ignored "
-              "for safety (but their .lua.bak backups may be removed)."),
-        wraplength=800, justify="left")
+        text=description_text,
+        wraplength=parent.winfo_width(), justify="left")
     desc.pack(fill="x")
+
+    def update_wraplength(event):
+        desc.configure(wraplength=parent.winfo_width())
+
+    parent.bind("<Configure>", update_wraplength)
 
     bar = ttk.Frame(parent, padding=(10, 0)); bar.pack(fill="x")
     ttk.Button(bar, text="Scan for Orphaned SavedVariables", command=app.scan_orphan_savedvars).pack(side="left")
