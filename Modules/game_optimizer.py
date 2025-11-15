@@ -616,10 +616,8 @@ def _apply_settings_to_config(version_path, preset_name, hardware=None):
             cpu_name = hardware.get("cpu_name", "")
             dedicated_gpu = _select_best_gpu(gpu_list, cpu_name)
             
-            if dedicated_gpu:
-                # Set WoW to use the dedicated GPU
-                # gxApi controls graphics API: values are typically "d3d11", "d3d12", etc.
-                # gxAdapter is the GPU index - 0 for first, 1 for second, etc.
+            # Only set adapter on Windows builds
+            if dedicated_gpu and platform.system() == "Windows":
                 gpu_index = str(gpu_list.index(dedicated_gpu))
                 config_dict["gxAdapter"] = f'SET gxAdapter "{gpu_index}"'
         
@@ -758,14 +756,26 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
     # Determine version type and classify hardware accordingly
     is_retail = version_label.lower().startswith("retail")
     is_classic = "classic" in version_label.lower()
+    # If both integrated and dedicated GPUs are present (Intel/AMD), select dedicated BEFORE classification
+    classification_hw = (hardware or {}).copy() if hardware else {}
+    try:
+        if hardware:
+            gpu_list = hardware.get("gpu", [])
+            cpu_name = hardware.get("cpu_name", "")
+            chosen_dedicated = _select_best_gpu(gpu_list, cpu_name)
+            if chosen_dedicated:
+                # Use only the dedicated GPU for tier calculations
+                classification_hw["gpu"] = [chosen_dedicated]
+    except Exception:
+        pass
 
     if is_retail:
-        overall, parts = _classify_retail_hardware(hardware or {})
+        overall, parts = _classify_retail_hardware(classification_hw)
         presets = _build_presets_for_level(overall)
         suggested_preset = _tier_to_suggested_preset(overall)
         preset_title = "Graphics Presets (Retail):"
     elif is_classic:
-        overall, parts = _classify_classic_hardware(hardware or {})
+        overall, parts = _classify_classic_hardware(classification_hw)
         presets = _build_presets_for_level(overall)
         suggested_preset = _tier_to_suggested_preset(overall)
         preset_title = "Graphics Presets (Classic):"

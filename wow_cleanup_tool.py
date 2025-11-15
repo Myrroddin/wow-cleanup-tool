@@ -19,11 +19,13 @@ import shutil
 import site
 import importlib
 import subprocess
+import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import platform
 from datetime import datetime
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, font as tkfont
-from Modules.file_cleaner import find_bak_old_files, delete_files
+from Modules.file_cleaner import find_bak_old_files, delete_files, scan_bak_old_in_version
 from Modules.themes import apply_theme
 from Modules.orphan_cleaner import scan_orphans, delete_orphans, rebuild_addons_txt, collect_addon_names, HAS_TRASH
 from Modules.folder_cleaner import scan_all_versions, clean_folders, HAS_TRASH as FOLDER_HAS_TRASH
@@ -870,44 +872,122 @@ class WoWCleanupTool:
         return tree_helpers.tree_collapse_all(self)
 
     def scan_files_tree(self):
-        # Clear old tree
+        # Prevent concurrent scans
+        if getattr(self, "_file_scan_in_progress", False):
+            return
+        self._file_scan_in_progress = True
+
+        # Clear old tree visually and show scanning status
         for n in self.file_tree.get_children(""):
             self.file_tree.delete(n)
         self.tree_checks.clear()
         self.tree_paths.clear()
         self.tree_select_all_var.set(False)
+        try:
+            self.file_scan_status.configure(text="Scanning…")
+        except Exception:
+            pass
 
         base = self.wow_path_var.get().strip()
         if not base or not os.path.isdir(base):
+            self._file_scan_in_progress = False
             messagebox.showerror("Invalid Folder", "Please select a valid WoW folder first.")
             return
 
-        # Back-end: compute which files exist per version
         versions = self._enumerate_versions(base)
-        files_by_version = find_bak_old_files(
-            versions,
-            logger=self if self.verbose_var.get() else None,
-        )
+        verbose_logger = self if self.verbose_var.get() else None
 
-        total = 0
-        # Rebuild treeview using the backend results
-        for vpath, vlabel in versions:
-            # Only create a parent if we have files for this version
-            v_files = files_by_version.get(vlabel, [])
-            if not v_files:
-                continue
-            pid = self._tree_add_parent(vlabel)
-            for fpath in v_files:
-                self._tree_add_child_file(pid, fpath)
-                total += 1
-            self.file_tree.item(pid, open=False)
+        def worker():
+            results = {}
+            # Limit workers to number of versions, cap reasonable upper bound
+            max_workers = min(len(versions) or 1, 8)
+            try:
+                with ThreadPoolExecutor(max_workers=max_workers) as ex:
+                    future_map = {
+                        ex.submit(scan_bak_old_in_version, vpath, verbose_logger): vlabel
+                        for vpath, vlabel in versions
+                    }
+                    for fut in as_completed(future_map):
+                        vlabel = future_map[fut]
+                        try:
+                            lst = fut.result() or []
+                        except Exception:
+                            lst = []
+                        if lst:
+                            results[vlabel] = lst
+            except Exception:
+                # Fallback to single-threaded on any executor issue
+                try:
+                    files_by_version = find_bak_old_files(versions, logger=verbose_logger)
+                    results.update(files_by_version or {})
+                except Exception:
+                    pass
 
-        if total:
-            self.file_scan_status.configure(text=f"Found {total} file(s) across versions.")
-        else:
-            self.file_scan_status.configure(text="No .bak or .old files found.")
+            def apply_results():
+                # Create parents first
+                version_parents = {}
+                total_count = 0
+                for _vpath, vlabel in versions:
+                    v_files = results.get(vlabel, [])
+                    if v_files:
+                        pid = self._tree_add_parent(vlabel)
+                        version_parents[vlabel] = (pid, v_files)
+                        total_count += len(v_files)
 
-        self.log(f"File Cleaner scan: {total} match(es).")
+                # Insert children in chunks to keep UI smooth
+                items = []
+                for vlabel, (pid, v_files) in version_parents.items():
+                    for f in v_files:
+                        items.append((pid, f))
+
+                chunk_size = 200
+                state = {"idx": 0, "n": len(items)}
+
+                def insert_chunk():
+                    end = min(state["idx"] + chunk_size, state["n"])
+                    for i in range(state["idx"], end):
+                        pid, fpath = items[i]
+                        self._tree_add_child_file(pid, fpath)
+                    state["idx"] = end
+                    if state["idx"] < state["n"]:
+                        self.root.after(0, insert_chunk)
+                    else:
+                        # Close parents and finalize status
+                        for pid, _ in version_parents.values():
+                            try:
+                                self.file_tree.item(pid, open=False)
+                            except Exception:
+                                pass
+                        try:
+                            if total_count:
+                                self.file_scan_status.configure(text=f"Found {total_count} file(s) across versions.")
+                            else:
+                                self.file_scan_status.configure(text="No .bak or .old files found.")
+                        except Exception:
+                            pass
+                        self.log(f"File Cleaner scan: {total_count} match(es).")
+                        self._file_scan_in_progress = False
+
+                # Kick off chunked insertion (or finalize immediately)
+                if items:
+                    self.root.after(0, insert_chunk)
+                else:
+                    try:
+                        self.file_scan_status.configure(text="No .bak or .old files found.")
+                    except Exception:
+                        pass
+                    self.log("File Cleaner scan: 0 match(es).")
+                    self._file_scan_in_progress = False
+
+            # Schedule UI updates on main thread
+            try:
+                self.root.after(0, apply_results)
+            except Exception:
+                # As a last resort, clear the in-progress flag
+                self._file_scan_in_progress = False
+
+        t = threading.Thread(target=worker, daemon=True)
+        t.start()
 
     def process_selected_files_tree(self):
         selected = [
@@ -1343,9 +1423,37 @@ class WoWCleanupTool:
         if not messagebox.askyesno("Confirm", "Restore all settings to defaults?"):
             return
         try:
+            # 1) Reset per-user settings by deleting user settings file
             if os.path.exists(SETTINGS_FILE):
                 os.remove(SETTINGS_FILE)
             self.settings = {}
+
+            # 2) Reset global settings to app defaults, while preserving wow_path and hardware_cache
+            try:
+                current_global = global_settings.load_global_settings()
+            except Exception:
+                current_global = {}
+
+            preserved_wow_path = current_global.get("wow_path")
+            preserved_hw_cache = current_global.get("hardware_cache")
+
+            default_globals = {
+                # Defaults for global options
+                "check_for_updates": True,
+                "verbose_logging": False,
+                "delete_mode": "delete",
+            }
+            # Rebuild globals with preserved keys
+            new_globals = dict(default_globals)
+            if preserved_wow_path is not None:
+                new_globals["wow_path"] = preserved_wow_path
+            if preserved_hw_cache is not None:
+                new_globals["hardware_cache"] = preserved_hw_cache
+
+            try:
+                global_settings.save_global_settings(new_globals)
+            except Exception:
+                pass
             # Inform user and attempt an automatic restart.
             # Prefer spawning a fresh process then exiting this one; if that fails,
             # fall back to closing the UI and letting the user relaunch manually.

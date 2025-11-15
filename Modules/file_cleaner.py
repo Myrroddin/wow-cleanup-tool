@@ -10,6 +10,7 @@ Functions:
 """
 import os
 import os.path
+import re
 
 # Try to import send2trash for safe deletion to recycle bin/trash
 # If unavailable, files will be permanently deleted instead
@@ -19,37 +20,61 @@ try:
 except ImportError:
     HAS_TRASH = False
 
-def find_bak_old_files(versions, logger=None):
-    """
-    Scan WoW versions for .bak / .old files.
-    
-    Recursively walks through each version directory looking for files
-    ending in .bak or .old. These are typically backup files created
-    by WoW, text editors, or other tools that can safely be removed.
-    
-    Parameters:
-        versions: Iterable of (version_path, version_label) tuples.
-                  Each tuple represents a WoW installation (Retail, Classic, etc.)
-        logger: Optional object with .debug() and .info() methods for logging
-    
+# Compiled pattern for .bak/.old (performance)
+_BAK_OLD_PATTERN = re.compile(r"\.(bak|old)$", re.IGNORECASE)
+
+def scan_bak_old_in_version(version_path, logger=None):
+    """Scan a single WoW version path for .bak/.old files.
+
+    Args:
+        version_path: Absolute path to a WoW version (e.g., _retail_)
+        logger: Optional object with .debug() method
+
     Returns:
-        dict: Mapping of version_label -> list of absolute file paths
-              Only includes versions that have files to clean
+        list[str]: Absolute file paths found under this version
     """
+    matches = []
+    for rootd, _dirs, files in os.walk(version_path):
+        for fname in files:
+            lf = fname.lower()
+            if lf.endswith((".bak", ".old")):
+                fpath = os.path.join(rootd, fname)
+                matches.append(fpath)
+                if logger:
+                    logger.debug(f"[FileCleaner] Found file: {fpath}")
+    return matches
+
+def find_bak_old_files(versions, logger=None):
+    """Scan versions for .bak/.old files using os.scandir for speed."""
     results = {}
     total = 0
+
+    def _scan_dir(start_dir, out_list):
+        try:
+            with os.scandir(start_dir) as entries:
+                for entry in entries:
+                    try:
+                        if entry.is_file(follow_symlinks=False):
+                            if _BAK_OLD_PATTERN.search(entry.name):
+                                out_list.append(entry.path)
+                                if logger:
+                                    logger.debug(f"[FileCleaner] Found: {entry.path}")
+                        elif entry.is_dir(follow_symlinks=False):
+                            _scan_dir(entry.path, out_list)
+                    except (OSError, PermissionError):
+                        # Skip problematic entries
+                        continue
+        except (OSError, PermissionError):
+            # Skip directories we cannot access
+            pass
+
     for vpath, vlabel in versions:
         vlabel_files = []
-        for rootd, _dirs, files in os.walk(vpath):
-            for fname in files:
-                if fname.lower().endswith((".bak", ".old")):
-                    fpath = os.path.join(rootd, fname)
-                    vlabel_files.append(fpath)
-                    total += 1
-                    if logger:
-                        logger.debug(f"[FileCleaner] Found file in {vlabel}: {fpath}")
+        _scan_dir(vpath, vlabel_files)
         if vlabel_files:
             results[vlabel] = vlabel_files
+            total += len(vlabel_files)
+
     if logger:
         logger.info(f"[FileCleaner] Total .bak/.old files found: {total}")
     return results

@@ -46,6 +46,31 @@ def check_for_updates(current_version: str, parent_window=None):
 
             return result
 
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            # No releases published yet
+            result = {
+                "has_update": False,
+                "latest_version": None,
+                "error": "No releases published yet",
+            }
+            if parent_window:
+                messagebox.showinfo(
+                    "No Updates Available",
+                    f"You are running {current_version}.\n\nNo releases have been published yet.",
+                )
+        else:
+            result = {
+                "has_update": False,
+                "latest_version": None,
+                "error": f"HTTP error {e.code}: {e.reason}",
+            }
+            if parent_window:
+                messagebox.showwarning(
+                    "Update Check Failed",
+                    f"Could not check for updates:\n\nHTTP {e.code}: {e.reason}",
+                )
+        return result
     except urllib.error.URLError as e:
         result = {
             "has_update": False,

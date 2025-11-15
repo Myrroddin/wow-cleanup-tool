@@ -5,7 +5,15 @@ Provides caching, memoization, and other performance enhancements.
 """
 
 import functools
+import os
 from typing import Any, Callable
+
+# Try to import send2trash for safe deletion
+try:
+    from send2trash import send2trash
+    HAS_TRASH = True
+except ImportError:
+    HAS_TRASH = False
 
 def memoized_property(func: Callable) -> property:
     """Decorator to cache property results for the lifetime of the object.
@@ -37,3 +45,51 @@ def cache_result(maxsize: int = 128) -> Callable:
         Decorator that caches function results
     """
     return functools.lru_cache(maxsize=maxsize)
+
+def delete_files_batch(paths, use_trash=False, logger=None, module_name="FileOps"):
+    """Shared utility for deleting or trashing files/folders.
+    
+    Consolidates duplicate deletion logic from file_cleaner, folder_cleaner, 
+    and orphan_cleaner modules for better code reuse and maintenance.
+    
+    Args:
+        paths: Iterable of absolute file/folder paths to delete
+        use_trash: If True, attempt to move to trash instead of permanent deletion
+        logger: Optional object with .info() and .error() methods for logging
+        module_name: Name for log messages (e.g., "FileCleaner", "OrphanCleaner")
+    
+    Returns:
+        Tuple of (processed_count, permanently_deleted_flag, used_trash_flag):
+        - processed_count: Number of items successfully deleted/moved
+        - permanently_deleted_flag: True if items were permanently deleted
+        - used_trash_flag: True if items were moved to trash
+    """
+    processed = 0
+    used_trash = False
+    real_use_trash = use_trash and HAS_TRASH
+    
+    for fp in paths:
+        try:
+            if real_use_trash:
+                # Move to system trash/recycle bin
+                send2trash(fp)
+                used_trash = True
+                if logger:
+                    logger.info(f"[{module_name}] Moved to trash: {fp}")
+            else:
+                # Permanently delete file or folder
+                if os.path.isfile(fp):
+                    os.remove(fp)
+                elif os.path.isdir(fp):
+                    import shutil
+                    shutil.rmtree(fp)
+                if logger:
+                    logger.info(f"[{module_name}] Deleted: {fp}")
+            processed += 1
+        except (OSError, IOError) as e:
+            # Log error but continue with next item
+            if logger:
+                logger.error(f"[{module_name}] ERROR deleting {fp}: {e}")
+    
+    permanently_deleted = not real_use_trash
+    return processed, permanently_deleted, used_trash

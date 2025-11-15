@@ -16,14 +16,7 @@ Functions:
 """
 import os
 import shutil
-
-# Try to import send2trash for safe deletion to recycle bin/trash
-# If unavailable, folders will be permanently deleted instead
-try:
-    from send2trash import send2trash
-    HAS_TRASH = True
-except ImportError:
-    HAS_TRASH = False
+from Modules.performance import delete_files_batch, HAS_TRASH
 
 DEFAULT_CLEANABLE_FOLDERS = [
     "Logs",                 # Debug and error logs
@@ -84,43 +77,14 @@ def scan_all_versions(versions, logger=None):
     return results
 
 def clean_folders(paths, use_trash=False, logger=None):
-    """
-    Delete or move folders to trash.
-    
-    For each folder in the paths list, either:
-    - Move the entire folder to the system Recycle Bin/Trash (if use_trash=True and available)
-    - Permanently delete the entire folder (if use_trash=False or send2trash not available)
-    
-    If a folder fails to delete, the operation continues with remaining folders.
+    """Delete or move folders using shared utility.
     
     Parameters:
         paths: Iterable of absolute folder paths to delete
-        use_trash: Boolean - if True, attempt to move to trash instead of permanent deletion
-        logger: Optional object with .info() and .error() methods for logging
+        use_trash: Boolean - if True, attempt to move to trash
+        logger: Optional object with .info() and .error() methods
     
     Returns:
-        Tuple of (processed_count, permanently_deleted_flag, used_trash_flag):
-        - processed_count: Number of folders successfully deleted/moved
-        - permanently_deleted_flag: True if folders were permanently deleted
-        - used_trash_flag: True if any folders were moved to trash
+        Tuple of (processed_count, permanently_deleted_flag, used_trash_flag)
     """
-    processed = 0
-    used_trash = False
-    real_use_trash = use_trash and HAS_TRASH
-    for folder in paths:
-        try:
-            if real_use_trash:
-                send2trash(folder)
-                used_trash = True
-                if logger:
-                    logger.info(f"[FolderCleaner] Moved to trash: {folder}")
-            else:
-                shutil.rmtree(folder, ignore_errors=False)
-                if logger:
-                    logger.info(f"[FolderCleaner] Deleted: {folder}")
-            processed += 1
-        except (OSError, IOError) as e:
-            if logger:
-                logger.error(f"[FolderCleaner] ERROR removing {folder}: {e}")
-    permanently_deleted = not real_use_trash
-    return processed, permanently_deleted, used_trash
+    return delete_files_batch(paths, use_trash, logger, "FolderCleaner")
