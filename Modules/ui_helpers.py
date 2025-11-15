@@ -177,6 +177,7 @@ class ImgRadio(ttk.Frame):
         self.assets = assets
         self.variable = variable
         self.value = value
+        self._disabled = False
         self.img_label = tk.Label(self, bd=0, highlightthickness=0)
         self.text_label = ttk.Label(self, text=text)
         self.img_label.pack(side="left")
@@ -187,7 +188,30 @@ class ImgRadio(ttk.Frame):
         self.bind("<Button-1>", self._select)
         self.variable.trace_add("write", lambda *_: self._sync_image())
 
+    def configure(self, **kwargs):
+        """Configure widget, including support for state='disabled'."""
+        if "state" in kwargs:
+            self._disabled = (kwargs["state"] == "disabled")
+            self._apply_disabled_style()
+            del kwargs["state"]
+        super().configure(**kwargs)
+
+    def _apply_disabled_style(self):
+        """Apply visual styling for disabled state."""
+        if self._disabled:
+            self.text_label.configure(foreground="gray")
+            self.img_label.configure(cursor="arrow")
+            self.text_label.configure(cursor="arrow")
+            self.configure(cursor="arrow")
+        else:
+            self.text_label.configure(foreground="")
+            self.img_label.configure(cursor="hand2")
+            self.text_label.configure(cursor="hand2")
+            self.configure(cursor="hand2")
+
     def _select(self, *_):
+        if self._disabled:
+            return
         self.variable.set(self.value)
         self._sync_image()
 
@@ -197,3 +221,6 @@ class ImgRadio(ttk.Frame):
         if img is not None:
             self.img_label.configure(image=img)
             self.img_label.image = img
+            # Apply opacity effect for disabled state if needed
+            if self._disabled:
+                self.img_label.configure(state="disabled")

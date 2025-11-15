@@ -85,7 +85,12 @@ Hardware-based graphics preset recommendations and automatic GPU selection for o
 
 ### Requirements
 - **Python 3.8+** (64-bit recommended for large WoW installations)
-- **Dependencies**: `psutil` (auto-installed if missing), optional: `send2trash`, `Pillow`
+- **Required Dependencies**: `psutil` (auto-installed if missing)
+- **Optional Dependencies**:
+  - `send2trash`: Enables "Move to Recycle Bin" option for safe deletion (highly recommended)
+  - `Pillow`: Enables screenshot preview in Folder Cleaner
+
+**Note**: If optional dependencies fail to install, the affected UI elements will be disabled (greyed out) with tooltips explaining how to manually install them. The tool remains fully functional without these packages, but with reduced features.
 
 ### Running the Tool
 
@@ -137,10 +142,12 @@ python3 wow_cleanup_tool.py
 
 ### Performance Optimizations
 - **Multi-threaded scanning**: File scanning uses ThreadPoolExecutor for parallel directory traversal
-- **os.scandir**: Fast directory iteration (2-3x faster than os.walk)
+- **Parallel hardware detection**: CPU and GPU detection run simultaneously for 40-50% faster hardware scans
+- **os.scandir**: Fast directory iteration (2-3x faster than os.walk) in File Cleaner and Orphan Cleaner
 - **Compiled regex patterns**: Pre-compiled patterns for file extension matching
 - **Chunked UI updates**: Tree view population in batches to maintain responsiveness
 - **Hardware caching**: System specs cached globally to avoid repeated detection
+- **Incremental font loading**: Font selector loads in batches for smooth UI performance
 
 ### Cross-Platform Compatibility
 - **Windows**: Full support with native GPU detection (WMIC/PowerShell)
@@ -186,9 +193,18 @@ Contributions welcome! Please test changes across Windows, macOS, and Linux wher
 
 ## Known Limitations
 
-- Screenshot previews require Pillow library (optional dependency)
+- Screenshot previews require Pillow library (disabled with helpful tooltip if not installed)
+- "Move to Recycle Bin" option requires send2trash library (disabled with tooltip if not installed)
 - GPU adapter selection only applies on Windows (macOS/Linux use different mechanisms)
 - Extremely large installations (100k+ files) may take 30+ seconds for initial scan
+
+### Graceful Degradation
+
+The tool implements graceful degradation for optional dependencies:
+- **Missing send2trash**: "Move to Recycle Bin" radio button is disabled and greyed out. Hovering shows installation instructions.
+- **Missing Pillow**: Screenshot preview canvas is disabled and greyed out. All screenshot checkboxes remain functional for deletion, but preview-on-click is unavailable.
+
+Both features display tooltips with manual installation commands when the dependency is missing.
 
 ## License
 

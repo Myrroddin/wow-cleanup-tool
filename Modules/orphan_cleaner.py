@@ -78,12 +78,16 @@ def collect_addon_names(addons_dir):
     if not os.path.isdir(addons_dir):
         return set()
 
-    return {
-        entry.casefold()
-        for entry in os.listdir(addons_dir)
-        if os.path.isdir(os.path.join(addons_dir, entry))
-        and not entry.lower().startswith("blizzard_")
-    }
+    try:
+        with os.scandir(addons_dir) as entries:
+            return {
+                entry.name.casefold()
+                for entry in entries
+                if entry.is_dir(follow_symlinks=False)
+                and not entry.name.lower().startswith("blizzard_")
+            }
+    except (OSError, PermissionError):
+        return set()
 
 def iter_savedvariables_dirs(account_root):
     """
@@ -111,27 +115,34 @@ def iter_savedvariables_dirs(account_root):
         yield root_sv
 
     # Realms and characters nested under account
-    for realm_name in os.listdir(account_root):
-        realm_path = os.path.join(account_root, realm_name)
-        # Skip if not a directory or if it's a SavedVariables folder (not a realm)
-        if not os.path.isdir(realm_path) or realm_name.upper() == "SAVEDVARIABLES":
-            continue
+    try:
+        with os.scandir(account_root) as realm_entries:
+            for realm_entry in realm_entries:
+                # Skip if not a directory or if it's a SavedVariables folder (not a realm)
+                if not realm_entry.is_dir(follow_symlinks=False) or realm_entry.name.upper() == "SAVEDVARIABLES":
+                    continue
 
-        # Realm-level SavedVariables
-        realm_sv = os.path.join(realm_path, "SavedVariables")
-        if os.path.isdir(realm_sv):
-            yield realm_sv
+                realm_path = realm_entry.path
+                # Realm-level SavedVariables
+                realm_sv = os.path.join(realm_path, "SavedVariables")
+                if os.path.isdir(realm_sv):
+                    yield realm_sv
 
-        # Character-level SavedVariables (one per character on this realm)
-        for char_name in os.listdir(realm_path):
-            char_path = os.path.join(realm_path, char_name)
-            # Skip if not a directory or if it's a SavedVariables folder (not a character)
-            if not os.path.isdir(char_path) or char_name.upper() == "SAVEDVARIABLES":
-                continue
+                # Character-level SavedVariables (one per character on this realm)
+                try:
+                    with os.scandir(realm_path) as char_entries:
+                        for char_entry in char_entries:
+                            # Skip if not a directory or if it's a SavedVariables folder (not a character)
+                            if not char_entry.is_dir(follow_symlinks=False) or char_entry.name.upper() == "SAVEDVARIABLES":
+                                continue
 
-            char_sv = os.path.join(char_path, "SavedVariables")
-            if os.path.isdir(char_sv):
-                yield char_sv
+                            char_sv = os.path.join(char_entry.path, "SavedVariables")
+                            if os.path.isdir(char_sv):
+                                yield char_sv
+                except (OSError, PermissionError):
+                    continue
+    except (OSError, PermissionError):
+        pass
 
 def scan_orphans(versions, logger=None):
     """
@@ -173,33 +184,37 @@ def scan_orphans(versions, logger=None):
         # Scan every SavedVariables directory at all levels
         for sv_dir in iter_savedvariables_dirs(account_root):
             try:
-                for fname in os.listdir(sv_dir):
-                    lf = fname.lower()
+                with os.scandir(sv_dir) as entries:
+                    for entry in entries:
+                        if not entry.is_file(follow_symlinks=False):
+                            continue
+                        
+                        fname = entry.name
+                        lf = fname.lower()
 
-                    # Ignore Blizzard_*.lua core files (but keep Blizzard backups)
-                    # These are game-critical and should never be deleted
-                    if (
-                        lf.startswith("blizzard_")
-                        and lf.endswith(".lua")
-                        and not lf.endswith(".lua.bak")
-                    ):
-                        continue
+                        # Ignore Blizzard_*.lua core files (but keep Blizzard backups)
+                        # These are game-critical and should never be deleted
+                        if (
+                            lf.startswith("blizzard_")
+                            and lf.endswith(".lua")
+                            and not lf.endswith(".lua.bak")
+                        ):
+                            continue
 
-                    # Only process .lua and .lua.bak files (SavedVariables format)
-                    if not (lf.endswith(".lua") or lf.endswith(".lua.bak")):
-                        continue
+                        # Only process .lua and .lua.bak files (SavedVariables format)
+                        if not (lf.endswith(".lua") or lf.endswith(".lua.bak")):
+                            continue
 
-                    # Normalize filename to addon name for comparison
-                    base = savedvar_basename(fname).casefold()
-                    # If this addon is not installed, it's orphaned
-                    if base not in installed:
-                        fpath = os.path.join(sv_dir, fname)
-                        version_orphans.append(fpath)
-                        total += 1
-                        if logger:
-                            logger.debug(
-                                f"[OrphanCleaner] Found orphan in {vlabel}: {fpath}"
-                            )
+                        # Normalize filename to addon name for comparison
+                        base = savedvar_basename(fname).casefold()
+                        # If this addon is not installed, it's orphaned
+                        if base not in installed:
+                            version_orphans.append(entry.path)
+                            total += 1
+                            if logger:
+                                logger.debug(
+                                    f"[OrphanCleaner] Found orphan in {vlabel}: {entry.path}"
+                                )
 
             except (OSError, IOError):
                 # If we can't read a SavedVariables directory, just skip it
@@ -306,11 +321,12 @@ def rebuild_addons_txt(version_root, installed_addons, logger=None):
 
     # Get list of currently installed addon folder names
     try:
-        dir_listing = [
-            d
-            for d in os.listdir(addons_dir)
-            if os.path.isdir(os.path.join(addons_dir, d))
-        ]
+        with os.scandir(addons_dir) as entries:
+            dir_listing = [
+                entry.name
+                for entry in entries
+                if entry.is_dir(follow_symlinks=False)
+            ]
     except (OSError, IOError):
         dir_listing = []
 
@@ -328,23 +344,26 @@ def rebuild_addons_txt(version_root, installed_addons, logger=None):
         return name, ("enabled" if state in ("enabled", "disabled") else "enabled")
 
     try:
-        for account in os.listdir(account_root):
-            account_path = os.path.join(account_root, account)
-            if not os.path.isdir(account_path):
-                continue
-
-            for realm in os.listdir(account_path):
-                realm_path = os.path.join(account_path, realm)
-                if not os.path.isdir(realm_path) or realm.upper() == "SAVEDVARIABLES":
+        with os.scandir(account_root) as account_entries:
+            for account_entry in account_entries:
+                if not account_entry.is_dir(follow_symlinks=False):
                     continue
+                account_path = account_entry.path
 
-                for char in os.listdir(realm_path):
-                    char_path = os.path.join(realm_path, char)
-                    if (
-                        not os.path.isdir(char_path)
-                        or char.upper() == "SAVEDVARIABLES"
-                    ):
-                        continue
+                with os.scandir(account_path) as realm_entries:
+                    for realm_entry in realm_entries:
+                        if not realm_entry.is_dir(follow_symlinks=False) or realm_entry.name.upper() == "SAVEDVARIABLES":
+                            continue
+                        realm_path = realm_entry.path
+
+                        with os.scandir(realm_path) as char_entries:
+                            for char_entry in char_entries:
+                                if (
+                                    not char_entry.is_dir(follow_symlinks=False)
+                                    or char_entry.name.upper() == "SAVEDVARIABLES"
+                                ):
+                                    continue
+                                char_path = char_entry.path
 
                     addons_txt = os.path.join(char_path, "AddOns.txt")
 

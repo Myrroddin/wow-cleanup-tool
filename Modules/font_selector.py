@@ -66,8 +66,9 @@ def open_font_selector(app):
     _load_state = {
         "filtered_fonts": [],
         "loaded_count": 0,
-        "batch_size": 30,
+        "batch_size": 50,  # Increased for faster loading
         "after_id": None,
+        "bg_color": None,  # Cache background color
     }
 
     def get_filtered_fonts(filter_text=""):
@@ -86,8 +87,16 @@ def open_font_selector(app):
         if state["loaded_count"] >= len(state["filtered_fonts"]):
             return  # All loaded
         
+        # Cache background color on first batch
+        if state["bg_color"] is None:
+            try:
+                state["bg_color"] = sel.cget("bg")
+            except Exception:
+                state["bg_color"] = "SystemButtonFace"
+        
         size = max(8, min(28, int(app.font_size_var.get())))
         batch_end = min(state["loaded_count"] + state["batch_size"], len(state["filtered_fonts"]))
+        bg_color = state["bg_color"]
         
         for i in range(state["loaded_count"], batch_end):
             fam = state["filtered_fonts"][i]
@@ -96,14 +105,11 @@ def open_font_selector(app):
                 lbl.pack(fill="x", anchor="w", padx=2, pady=1)
                 lbl._family = fam
                 def _on_click(event, f=fam):
-                    try:
-                        apply_font_preview(app, f)
-                    except Exception:
-                        pass
+                    apply_font_preview(app, f)
                 lbl.bind("<Button-1>", _on_click)
-                # Hover feedback
+                # Hover feedback with cached bg_color
                 lbl.bind("<Enter>", lambda e, l=lbl: l.configure(bg="#e6f2ff"))
-                lbl.bind("<Leave>", lambda e, l=lbl: l.configure(bg=sel.cget("bg")))
+                lbl.bind("<Leave>", lambda e, l=lbl, bg=bg_color: l.configure(bg=bg))
                 app._font_label_widgets.append(lbl)
             except Exception:
                 # Skip fonts that raise errors when applied
@@ -112,7 +118,7 @@ def open_font_selector(app):
         state["loaded_count"] = batch_end
 
     def on_scroll(*args):
-        """Detect when user scrolls near the bottom and load more fonts."""
+        """Detect when user scrolls and load more fonts if needed."""
         state = _load_state
         if state["loaded_count"] >= len(state["filtered_fonts"]):
             return  # All already loaded
@@ -124,8 +130,8 @@ def open_font_selector(app):
             except Exception:
                 pass
         
-        # Schedule load on next idle (debounce)
-        state["after_id"] = app.root.after(100, load_batch)
+        # Schedule load on next idle for immediate response
+        state["after_id"] = app.root.after_idle(load_batch)
 
     def populate(filter_text=""):
         """Clear list and prepare filtered fonts for incremental loading."""
@@ -158,8 +164,10 @@ def open_font_selector(app):
     
     # Detect scroll to load more fonts incrementally
     canvas.bind("<MouseWheel>", on_scroll)
-    canvas.bind("<Button-4>", on_scroll)
-    canvas.bind("<Button-5>", on_scroll)
+    canvas.bind("<Button-4>", on_scroll)  # Linux scroll up
+    canvas.bind("<Button-5>", on_scroll)  # Linux scroll down
+    # Also bind to scrollbar movement for more reliable detection
+    canvas.configure(yscrollcommand=lambda *args: (scroll_y.set(*args), on_scroll()))
 
     # Buttons
     btn_frame = ttk.Frame(sel)

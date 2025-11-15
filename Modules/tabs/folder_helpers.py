@@ -82,6 +82,18 @@ def build_single_version_tab(app, tab, version_path, version_label):
     preview_canvas = tk.Canvas(shots_right, width=220, height=220, highlightthickness=1)
     preview_canvas.pack(fill="both", expand=False, pady=(6, 0))
     preview_canvas._img_ref = None
+    
+    # Disable preview if Pillow not available
+    if not Image or not ImageTk:
+        preview_label.config(foreground="gray")
+        preview_canvas.config(state="disabled", bg="#f0f0f0")
+        from Modules.ui_helpers import Tooltip
+        Tooltip(preview_canvas,
+                "Screenshot preview requires the Pillow library.\n"
+                "To enable previews, install it manually:\n\n"
+                "  pip install Pillow\n\n"
+                "or:\n\n"
+                "  python -m pip install --user Pillow")
 
     app.styled_shot_boxes = getattr(app, "styled_shot_boxes", [])
     shot_folder = targets.get("Screenshots")
@@ -99,7 +111,9 @@ def build_single_version_tab(app, tab, version_path, version_label):
             var = tk.BooleanVar(value=False)
             cb = ImgCheckbox(shots_frame, fp, var, app.assets)
             cb.pack(anchor="w", fill="x", padx=4, pady=1)
-            cb.bind("<ButtonRelease-1>", lambda e, p=fp: show_preview(app, preview_canvas, p))
+            # Only bind preview if Pillow is available
+            if Image and ImageTk:
+                cb.bind("<ButtonRelease-1>", lambda e, p=fp: show_preview(app, preview_canvas, p))
             app.styled_shot_boxes.append(cb)
             shots_vars[fp] = var
     else:

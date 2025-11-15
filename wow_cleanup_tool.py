@@ -739,6 +739,19 @@ class WoWCleanupTool:
         self.rb_trash  = ImgRadio(self.radio_container, "Move to Recycle Bin", self.delete_mode, "trash", self.assets)
         self.rb_delete.pack(side="left", padx=(0,14))
         self.rb_trash.pack(side="left", padx=(0,14))
+        
+        # Disable trash option if send2trash not available
+        if not HAS_TRASH:
+            self.rb_trash.configure(state="disabled")
+            # Force delete mode if trash was previously selected
+            if self.delete_mode.get() == "trash":
+                self.delete_mode.set("delete")
+            Tooltip(self.rb_trash, 
+                    "The 'send2trash' package is not installed.\n"
+                    "To enable Recycle Bin support, install it manually:\n\n"
+                    "  pip install send2trash\n\n"
+                    "or:\n\n"
+                    "  python -m pip install --user send2trash")
 
         self.verbose_cb = ImgCheckbox(mode_frame, "Enable verbose logging", self.verbose_var, self.assets)
         self.verbose_cb.grid(row=0, column=2, sticky="w", padx=(10,0))
@@ -1345,8 +1358,8 @@ class WoWCleanupTool:
                   font=(None, 14, "bold")).pack(anchor="center", pady=(0, 8))
         ttk.Label(
             card,
-            text=("A utility to find and safely remove .bak and .old files, clean common folders, "
-                  "remove orphaned SavedVariables and rebuild AddOns.txt entries.\n\n"
+            text=("A comprehensive maintenance and optimization suite for World of Warcraft.\n"
+                  "Clean unnecessary files, manage addons, optimize game performance, and more.\n\n"
                   "Always close World of Warcraft before running this tool."),
             wraplength=520, justify="center"
         ).pack(anchor="center", pady=(0, 8))

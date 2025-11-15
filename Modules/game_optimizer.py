@@ -11,60 +11,39 @@ import subprocess
 import re
 import tkinter as tk
 from tkinter import ttk
+from concurrent.futures import ThreadPoolExecutor
 import psutil
 from Modules.global_settings import get_global_setting, set_global_setting
-
-class ToolTip:
-    """Simple tooltip widget that appears on hover."""
-    def __init__(self, widget, text):
-        self.widget = widget
-        self.text = text
-        self.tipwindow = None
-        self.id = None
-        self.x = self.y = 0
-        widget.bind("<Enter>", self.showtip, add=True)
-        widget.bind("<Leave>", self.hidetip, add=True)
-
-    def showtip(self, event=None):
-        """Display the tooltip."""
-        if self.tipwindow or not self.text:
-            return
-        x = self.widget.winfo_rootx() + 10
-        y = self.widget.winfo_rooty() + self.widget.winfo_height() + 5
-        self.tipwindow = tw = tk.Toplevel(self.widget)
-        tw.wm_overrideredirect(True)
-        tw.wm_geometry(f"+{x}+{y}")
-        label = tk.Label(tw, text=self.text, background="lightyellow",
-                        relief=tk.SOLID, borderwidth=1, font=("tahoma", 9, "normal"))
-        label.pack(ipadx=1)
-
-    def hidetip(self, event=None):
-        """Hide the tooltip."""
-        tw = self.tipwindow
-        self.tipwindow = None
-        if tw:
-            tw.destroy()
+from Modules.ui_helpers import Tooltip
 
 def get_hardware_info():
     """Retrieve system hardware information affecting game performance.
 
     Detects CPU cores, RAM, GPU, and other performance-relevant hardware.
+    CPU and GPU detection run in parallel for faster results.
 
     Returns:
         dict: Dictionary containing hardware details
     """
     cpu_cores = psutil.cpu_count(logical=False)
     cpu_threads = psutil.cpu_count(logical=True)
+    
+    # Run CPU and GPU detection in parallel (both are I/O-bound subprocess calls)
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        cpu_future = executor.submit(_detect_cpu_name)
+        gpu_future = executor.submit(_detect_gpu_names)
+        cpu_name = cpu_future.result()
+        gpu_list = gpu_future.result()
+    
     info = {
         "system": platform.system(),
         "processor": platform.processor(),
-        "cpu_name": _detect_cpu_name(),
+        "cpu_name": cpu_name,
         "cpu_cores": cpu_cores,
         "cpu_threads": cpu_threads,
         "memory_gb": round(psutil.virtual_memory().total / (1024 ** 3), 1),
+        "gpu": gpu_list,
     }
-
-    info["gpu"] = _detect_gpu_names()
 
     return info
 
@@ -176,10 +155,10 @@ def _is_integrated_gpu(gpu_name):
     
     # AMD integrated patterns (APU graphics)
     if "amd" in gpu_lower and any(x in gpu_lower for x in [
-        "radeon graphics", "vega", "radeon(tm) graphics"
+        "radeon graphics", "vega", "radeon(tm) graphics", "radeon™ graphics"
     ]):
-        # But not discrete AMD cards
-        if not any(x in gpu_lower for x in ["rx", "r9", "r7", "r5"]):
+        # But not discrete AMD cards (RX series, older R9/R7/R5 series)
+        if not any(x in gpu_lower for x in ["rx ", "r9 ", "r7 ", "r5 ", "rx4", "rx5", "rx6", "rx7"]):
             return True
     
     return False
@@ -381,7 +360,7 @@ def _set_scan_tooltip(scan_btn):
     if scan_btn._tooltip:
         scan_btn._tooltip.text = tooltip_text
     else:
-        scan_btn._tooltip = ToolTip(scan_btn, tooltip_text)
+        scan_btn._tooltip = Tooltip(scan_btn, tooltip_text)
 
 # Retail requirement thresholds derived from Blizzard Support article 76459
 RETAIL_REQ = {
