@@ -2,51 +2,53 @@
 
 A comprehensive maintenance and optimization suite for World of Warcraft, helping you clean up unnecessary files, manage addons, and optimize game performance across all WoW versions (Retail, Classic, Classic Era, PTR, and Beta).
 
+## Table of Contents
+
+- [Features](#features)
+  - [File Cleaner](#️-file-cleaner)
+  - [Folder Cleaner](#-folder-cleaner)
+  - [Orphan Cleaner](#-orphan-cleaner)
+  - [Game Optimizer](#️-game-optimizer)
+  - [Optimization Suggestions](#-optimization-suggestions)
+  - [Additional Features](#-additional-features)
+- [Screenshots](#screenshots)
+- [Safety Precautions](#safety-precautions)
+- [Installation & Usage](#installation--usage)
+  - [Requirements](#requirements)
+  - [Running the Tool](#running-the-tool)
+  - [First-Time Setup](#first-time-setup)
+  - [Using Each Tool](#using-each-tool)
+- [Technical Information](#technical-information)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [Bug Reports & Feature Requests](#bug-reports--feature-requests)
+- [Support](#support)
+- [Documentation](#documentation)
+- [Known Limitations](#known-limitations)
+- [License](#license)
+
 ## Features
 
 ### 🗂️ File Cleaner
-Scans and removes backup files (`.bak` and `.old`) that accumulate over time from WoW updates, addon installations, and configuration changes.
-
-- **Multi-threaded scanning** for fast directory traversal across all WoW versions
-- **Selective deletion** with checkbox selection for individual files
-- **Safe deletion** options: Move to Recycle Bin/Trash or permanent deletion
-- **Batch operations** with "Select All" toggle
+Scans and removes backup files (`.bak` and `.old`) that accumulate from WoW updates and addon installations. Multi-threaded scanning with selective deletion and safe deletion options (Recycle Bin or permanent).
 
 ### 📁 Folder Cleaner
-Safely removes temporary and log folders that can consume significant disk space.
-
-- Cleans **Logs**, **Errors**, and other temporary folders per WoW version
-- **Per-version tabs** for granular control
-- Displays folder sizes before deletion
-- **Screenshot management** with preview support (if available)
+Safely removes temporary folders (Logs, Errors, Screenshots) that consume disk space. Per-version tabs with folder size display and preview support.
 
 ### 🧹 Orphan Cleaner
-Detects and removes SavedVariables files for uninstalled addons, keeping your WTF folder clean.
-
-- **Scans all levels**: Account, Realm, and Character SavedVariables
-- **Smart detection**: Identifies orphaned addon data by comparing against currently installed addons
-- **Preserves Blizzard files**: Core game SavedVariables are never touched
-- **AddOns.txt Rebuilding**: Automatically rebuilds addon lists to remove references to deleted addons
+Detects and removes SavedVariables files for uninstalled addons. Scans all levels (Account, Realm, Character) with smart detection that preserves Blizzard core files. Includes AddOns.txt rebuilding.
 
 ### ⚙️ Game Optimizer
-Hardware-based graphics preset recommendations and automatic GPU selection for optimal performance.
+Hardware-based graphics preset recommendations with automatic GPU selection. Cross-platform hardware detection, intelligent presets (Low/Medium/High/Ultra), and one-click application to Config.wtf.
 
-- **Cross-platform hardware detection**: CPU (full name), RAM, GPU across Windows, macOS, and Linux
-- **System requirement integration**: Uses official Blizzard requirements for Retail and Classic
-- **Intelligent presets**: Low, Medium, High, and Ultra settings tailored to your hardware tier
-- **Dedicated GPU selection**: Automatically configures WoW to use discrete GPU on systems with both integrated and dedicated graphics (Intel/AMD CPUs)
-- **Per-version optimization**: Separate recommendations for Retail, Classic, and Classic Era
-- **One-click application**: Apply presets directly to `Config.wtf`
+### 💡 Optimization Suggestions
+Manual optimization tips including: Clean Game Data Folder, Reinstall WoW (Clean Install), Enable HDR, Verify Monitor Refresh Rate, Enable Smart Access Memory/Resizable BAR, and Enable XMP Memory Profile. Each with detailed tooltips explaining benefits, risks, and instructions.
 
 ### 📊 Additional Features
-
-- **Multi-language Support**: Full interface translation in all 11 official WoW languages plus Ukrainian (12 total). All languages 100% complete. See **[LOCALIZATION.md](LOCALIZATION.md)** for details.
-- **Verbose Logging**: Optional detailed operation logs for troubleshooting
-- **Theme Support**: Light and dark themes with OS-native styling
-- **Font Customization**: Adjustable font family and size (6-16pt)
-- **Update Checker**: Automatic GitHub release checking at startup
-- **Geometry Persistence**: Window size and position saved between sessions
-- **Multi-version Support**: Automatically detects all installed WoW versions including PTR and Beta
+- **12 Languages**: Full translation in all 11 WoW languages plus Ukrainian
+- **Themes**: Light and dark modes with customizable fonts
+- **Update Checker**: Automatic GitHub release checking
+- **Multi-version Support**: Retail, Classic, Classic Era, PTR, Beta
 
 ## Screenshots
 
@@ -54,154 +56,71 @@ Hardware-based graphics preset recommendations and automatic GPU selection for o
 ![Folder Cleaner](https://github.com/user-attachments/assets/5da620f1-e3e8-4ff9-abe9-4e85117a07ed)
 ![Orphan Cleaner](https://github.com/user-attachments/assets/e33a7e8e-d217-4f13-9b8b-c3c66f8015f0)
 ![Game Optimizer](https://github.com/user-attachments/assets/d9b031de-d4c6-4326-a26f-cf9ac7a61ac9)
+![Optimization Suggestions](https://github.com/user-attachments/assets/optimization-suggestions-screenshot)
+
+*Note: Optimization Suggestions screenshot placeholder - actual screenshot to be added*
 
 ## Safety Precautions
 
-### ⚠️ Important Warnings
+**⚠️ Important:**
+- **Backup your WoW folder** before major cleanups, especially your `WTF` folder before using Orphan Cleaner
+- **Launch each WoW version once** (reach Character Select) before using Game Optimizer
+- **Use "Move to Recycle Bin"** for reversible deletions until confident
+- **Close WoW** before applying optimizer presets to avoid conflicts
 
-1. **Always backup your WoW folder before major cleanups**
-   - Consider creating a backup of your `WTF` folder, especially before using Orphan Cleaner
-   - Use the "Move to Recycle Bin" option instead of permanent deletion until you're confident
-
-2. **Game Optimizer Requirements**
-   - The optimizer requires that each WoW version has been launched at least once
-   - Launch the game and reach the Character Select screen before using the optimizer
-   - The optimizer will display instructions if required directories (`WTF`, `Interface`, `AddOns`) are missing
-
-3. **Orphan Cleaner Considerations**
-   - SavedVariables are only "orphaned" if the corresponding addon is completely uninstalled
-   - If you plan to reinstall an addon later, consider keeping its SavedVariables
-   - Blizzard_*.lua files (core game data) are automatically excluded and never deleted
-
-4. **Folder Cleaner Caution**
-   - Screenshots folder deletion is permanent (or moves to trash)
-   - Review folder contents before cleaning, especially if you value error logs for troubleshooting
-
-5. **Config.wtf Modifications**
-   - Game Optimizer writes directly to `Config.wtf`
-   - Existing settings are preserved; only graphics-related CVars are updated
-   - Close WoW before applying optimizer presets to avoid conflicts
-
-### 🛡️ Safe Practices
-
-- **Test on one version first** before running on all WoW versions
-- **Use "Move to Recycle Bin"** for reversible deletions
-- **Enable Verbose Logging** to track exactly what was changed
+See [Technical Details](Technical-Details.md) for detailed safety information and best practices.
 
 ## Installation & Usage
 
 ### Requirements
-- **Python 3.8+** (64-bit recommended for large WoW installations)
-- **Required Dependencies**: `psutil` (auto-installed if missing)
-- **Optional Dependencies**:
-  - `send2trash`: Enables "Move to Recycle Bin" option for safe deletion (highly recommended)
-  - `Pillow`: Enables screenshot preview in Folder Cleaner
+- **Python 3.8+** (64-bit recommended)
+- **Auto-installed**: `psutil`
+- **Optional**: `send2trash` (Recycle Bin), `Pillow` (screenshot preview)
 
-**Note**: If optional dependencies fail to install, the affected UI elements will be disabled (greyed out) with tooltips explaining how to manually install them. The tool remains fully functional without these packages, but with reduced features.
-
-### Running the Tool
-
-**Windows:**
-```powershell
+### Running
+```bash
 python wow_cleanup_tool.py
 ```
 
-**macOS/Linux:**
-```bash
-python3 wow_cleanup_tool.py
-```
+### Quick Start
+1. Click "Browse" and select your World of Warcraft folder
+2. Choose "Move to Recycle Bin" for safe deletions
+3. Use each tab to scan and clean as needed
+4. (Optional) Scan hardware in Game Optimizer for preset recommendations
 
-### First-Time Setup
-
-1. **Select WoW Folder**: Click "Browse" in Options and navigate to your World of Warcraft installation directory
-2. **Scan Hardware** (Optional): Click "Scan Hardware" in the Game Optimizer tab to detect your system specs
-3. **Choose Deletion Mode**: Select "Move to Recycle Bin" for safer operations or "Delete Permanently" for irreversible removal
-4. **Adjust Theme/Font**: Customize appearance in Options section
-
-### Using Each Tool
-
-**File Cleaner:**
-1. Click "Scan for .bak / .old Files"
-2. Review detected files in the tree view
-3. Select/deselect files as needed
-4. Click "Process Selected Files"
-
-**Folder Cleaner:**
-1. Navigate to version-specific tabs (Retail, Classic, etc.)
-2. Review folder sizes and contents
-3. Check folders you want to clean
-4. Click "Clean Selected Folders"
-
-**Orphan Cleaner:**
-1. Click "Scan for Orphans"
-2. Review orphaned SavedVariables grouped by version
-3. Select orphans to remove
-4. Click "Process Selected Orphans"
-5. Optionally click "Rebuild AddOns.txt" to clean addon lists
-
-**Game Optimizer:**
-1. Click "Scan Hardware" (one-time, results cached)
-2. Navigate to version tabs to see preset recommendations
-3. Choose a preset from the dropdown (defaults to suggested tier)
-4. Click "Apply" to write settings to Config.wtf
-
-## Technical Information
-
-For detailed technical documentation including architecture, performance optimizations, cross-platform implementation, hardware detection internals, and advanced debugging, see the **[Technical Details Wiki](Technical-Details.md)**.
+For detailed usage instructions, see [Technical Details](Technical-Details.md).
 
 ## Troubleshooting
 
-**"Invalid Folder" error:**
-- Ensure you've selected the root World of Warcraft folder (contains `_retail_`, `_classic_`, etc.)
-- Path should point to the folder containing version subdirectories, not a version folder itself
+**Common Issues:**
+- **"Invalid Folder"**: Select the root WoW folder (contains `_retail_`, `_classic_`, etc.)
+- **"Requires launch"**: Launch WoW version and reach Character Select to create required directories
+- **Hardware not detected**: Some systems require elevated permissions for GPU detection
+- **Changes not applied**: Close WoW before applying optimizer presets
 
-**Optimizer shows "requires launch" message:**
-- Launch the affected WoW version and reach Character Select screen
-- This creates required directories (WTF, Interface/AddOns)
-
-**Hardware scan shows "Not detected":**
-- Some systems may require elevated permissions for full GPU detection
-- CPU and RAM detection should work on all platforms
-
-**Changes not taking effect in-game:**
-- Close WoW completely before applying optimizer presets
-- Verify Config.wtf was modified (check file timestamp)
-
-For more troubleshooting help, see the **[Technical Details Wiki](Technical-Details.md)**.
-
-## Contributing
-
-Contributions welcome! Please test changes across Windows, macOS, and Linux where possible. See the **[Technical Details Wiki](Technical-Details.md)** for architecture and implementation details.
-
-## Bug Reports & Feature Requests
-
-Found a bug or have a feature request? Please use our **[Issue Tracker](https://github.com/Myrroddin/wow-cleanup-tool/issues)** to report problems or suggest improvements. When reporting bugs, please include your OS, Python version, and steps to reproduce the issue.
-
-## Support
-
-If you find this tool useful, consider supporting its development:
-
-[![Patreon](https://img.shields.io/badge/Patreon-F96854?style=for-the-badge&logo=patreon&logoColor=white)](https://www.patreon.com/c/Myrroddin) [![PayPal](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PVandersypen)
+See [Technical Details](Technical-Details.md) for advanced troubleshooting.
 
 ## Documentation
 
-- **[README.md](README.md)** - User guide, features, installation, and usage
-- **[Technical Details Wiki](Technical-Details.md)** - Architecture, optimizations, cross-platform details
-- **[LOCALIZATION.md](LOCALIZATION.md)** - Translation guide and language support details
-- **[LICENSE](LICENSE)** - Full GPL-3.0 license text
+- **[README.md](README.md)** - This file: Overview and quick start
+- **[Technical Details](Technical-Details.md)** - Architecture, optimizations, and advanced usage
+- **[LOCALIZATION.md](LOCALIZATION.md)** - Translation guide and language support
+- **[LICENSE](LICENSE)** - GPL-3.0 license
 
-## Known Limitations
+## Contributing
 
-- **Optional dependencies**: Screenshot previews require Pillow; "Move to Recycle Bin" requires send2trash. Missing libraries result in disabled UI elements with installation tooltips.
-- **GPU adapter selection**: Windows only (macOS/Linux use different mechanisms)
-- **Large installations**: 100k+ files may take 30+ seconds for initial scan
+Contributions welcome! See [Technical Details](Technical-Details.md) for architecture details. Please test changes across platforms where possible.
 
-For detailed technical limitations and workarounds, see the **[Technical Details Wiki](Technical-Details.md)**.
+## Bug Reports & Feature Requests
+
+- **[Report a Bug](https://github.com/Myrroddin/wow-cleanup-tool/issues/new?template=bug_report.yml)** - Submit detailed bug reports with logs and system info
+- **[Request a Feature](https://github.com/Myrroddin/wow-cleanup-tool/issues/new?template=feature_request.yml)** - Suggest improvements or new features
+- **[Discussions](https://github.com/Myrroddin/wow-cleanup-tool/discussions)** - General questions and community support
+
+## Support
+
+[![Patreon](https://img.shields.io/badge/Patreon-F96854?style=for-the-badge&logo=patreon&logoColor=white)](https://www.patreon.com/c/Myrroddin) [![PayPal](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PVandersypen)
 
 ## License
 
-Copyright © 2025 Paul Vandersypen. This project is licensed under the GNU General Public License v3.0 or later.
-
-- SPDX-License-Identifier: GPL-3.0-or-later
-
-See the included `LICENSE` file for the full license text and terms.
+Copyright © 2025 Paul Vandersypen. Licensed under GPL-3.0-or-later. See [LICENSE](LICENSE) for details.

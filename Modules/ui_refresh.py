@@ -41,13 +41,13 @@ def reload_all_custom_checkboxes(app):
     # File Cleaner
     if hasattr(app, "tree_checks") and hasattr(app, "file_tree"):
         for iid, var in app.tree_checks.items():
-            img = app.checkbox_on_img if var.get() else app.checkbox_off_img
+            img = app.chk_checked if var.get() else app.chk_unchecked
             app.file_tree.item(iid, image=img)
 
     # Orphan Cleaner
     if hasattr(app, "orphan_checks") and hasattr(app, "orphan_tree"):
         for iid, var in app.orphan_checks.items():
-            img = app.checkbox_on_img if var.get() else app.checkbox_off_img
+            img = app.chk_checked if var.get() else app.chk_unchecked
             app.orphan_tree.item(iid, image=img)
 
     # Folder cleaner uses per-version custom widgets, no TreeView

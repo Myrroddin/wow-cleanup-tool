@@ -11,6 +11,9 @@ def build_folder_cleaner_tab(app, parent):
     base = app.wow_path_var.get().strip()
     app.version_tabs.clear()
     app.folder_paths.clear()
+    # Clear styled checkboxes lists for theme refresh
+    app.styled_folder_boxes = []
+    app.styled_shot_boxes = []
     if base and os.path.isdir(base):
         versions = app._enumerate_versions(base)
         for vpath, vlabel in versions:

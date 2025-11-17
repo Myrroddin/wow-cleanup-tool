@@ -41,8 +41,13 @@ def build_single_version_tab(app, tab, version_path, version_label):
     master_cb.pack(side="left", padx=(0,10), pady=4)
     master_var.trace_add("write", lambda *_: app._toggle_all_folders(folder_vars))
 
+    # Clear styled boxes lists before rebuilding to prevent duplicates
+    if not hasattr(app, 'styled_folder_boxes'):
+        app.styled_folder_boxes = []
+    if not hasattr(app, 'styled_shot_boxes'):
+        app.styled_shot_boxes = []
+    
     # Place folder toggles side-by-side (except Screenshots handled below)
-    app.styled_folder_boxes = getattr(app, "styled_folder_boxes", [])
     for name, path in targets.items():
         if name == "Screenshots":
             continue
@@ -88,7 +93,10 @@ def build_single_version_tab(app, tab, version_path, version_label):
     # Disable preview if Pillow not available
     if not Image or not ImageTk:
         preview_label.config(foreground="gray")
-        preview_canvas.config(state="disabled", bg="#f0f0f0")
+        # Use theme-aware background color
+        theme = getattr(app, 'settings', {}).get('theme', 'light') if hasattr(app, 'settings') else 'light'
+        disabled_bg = "#3c3c3c" if theme == 'dark' else "#f0f0f0"
+        preview_canvas.config(state="disabled", bg=disabled_bg)
         from Modules.ui_helpers import Tooltip
         Tooltip(preview_canvas,
                 "Screenshot preview requires the Pillow library.\n"
@@ -97,7 +105,9 @@ def build_single_version_tab(app, tab, version_path, version_label):
                 "or:\n\n"
                 "  python -m pip install --user Pillow")
 
-    app.styled_shot_boxes = getattr(app, "styled_shot_boxes", [])
+    # Reset styled boxes list for screenshots (will be populated below)
+    app.styled_shot_boxes = []
+    
     shot_folder = targets.get("Screenshots")
     if shot_folder and os.path.isdir(shot_folder):
         files = []

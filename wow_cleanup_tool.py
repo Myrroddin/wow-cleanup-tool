@@ -369,18 +369,14 @@ class WoWCleanupTool:
         self.theme_data = THEMES.get(theme, THEMES["light"])
 
         # Apply theme via the theme module
-        checkbox_on, checkbox_off = apply_theme(
+        apply_theme(
             root=self.root,
             treeviews=[self.file_tree, self.orphan_tree],
             theme_name=theme,
             base_path=self.app_path,
         )
 
-        # Save themed checkbox icons for use inside TreeViews
-        self.checkbox_on_img = checkbox_on
-        self.checkbox_off_img = checkbox_off
-
-        # Refresh TreeView checkbox images
+        # Refresh TreeView checkbox images (PIL-generated)
         self._reload_all_custom_checkboxes()
 
         # Refresh custom PIL-based checkboxes, radios, screenshot toggles, etc.
@@ -397,6 +393,81 @@ class WoWCleanupTool:
                 bg=self.root["bg"],
                 fg=self.theme_data["fg"]
             )
+        
+        # Recolor optimization suggestions disclaimer
+        if hasattr(self, "opt_sug_disclaimer"):
+            is_dark = theme == "dark"
+            warning_color = "#ff9933" if is_dark else "#cc0000"  # Orange for dark, dark red for light
+            self.opt_sug_disclaimer.configure(
+                bg=self.theme_data["bg"],
+                fg=warning_color
+            )
+        
+        # Recolor game optimizer bullet point labels
+        if hasattr(self, "optimizer_bullet_labels"):
+            is_dark = theme == "dark"
+            for item in self.optimizer_bullet_labels:
+                # Handle both simple labels and (label, is_new) tuples
+                if isinstance(item, tuple):
+                    lbl, is_new = item
+                    if is_new:
+                        # New settings: use green (lighter green for dark theme)
+                        text_color = "#00ff00" if is_dark else "#008000"
+                    else:
+                        # Existing settings: use theme text color
+                        text_color = "#ffffff" if is_dark else "#000000"
+                else:
+                    lbl = item
+                    # Regular bullet labels use theme text color
+                    text_color = "#ffffff" if is_dark else "#000000"
+                
+                lbl.configure(
+                    bg=self.theme_data["bg"],
+                    fg=text_color
+                )
+        
+        # Recolor game optimizer theme-aware labels
+        if hasattr(self, "optimizer_theme_labels"):
+            is_dark = theme == "dark"
+            for item in self.optimizer_theme_labels:
+                label_type = item[0]
+                label = item[1]
+                
+                if label_type == 'info':
+                    # Gray info label
+                    gray_color = "#a0a0a0" if is_dark else "#808080"
+                    label.configure(bg=self.theme_data["bg"], fg=gray_color)
+                elif label_type == 'gpu_switch':
+                    # Blue GPU switch label
+                    blue_color = "#6699ff" if is_dark else "#0000ff"
+                    label.configure(bg=self.theme_data["bg"], fg=blue_color)
+                elif label_type == 'instruction':
+                    # Red instruction label
+                    red_color = "#ff6666" if is_dark else "#cc0000"
+                    label.configure(bg=self.theme_data["bg"], fg=red_color)
+                elif label_type == 'system_match':
+                    # Blue system match label
+                    blue_color = "#6699ff" if is_dark else "#0000ff"
+                    label.configure(bg=self.theme_data["bg"], fg=blue_color)
+                elif label_type == 'optimization_status':
+                    # Green/orange optimization status label (has StringVar)
+                    if len(item) > 2:
+                        status_var = item[2]
+                        # Check current text to determine color
+                        current_text = status_var.get()
+                        # If status contains "applied", use green; otherwise orange
+                        if "applied" in current_text.lower():
+                            fg_color = "#00ff00" if is_dark else "#008000"
+                        else:
+                            fg_color = "#ff9933" if is_dark else "#ff8800"
+                        label.configure(bg=self.theme_data["bg"], fg=fg_color)
+                elif label_type == 'status':
+                    # Green status label
+                    green_color = "#00ff00" if is_dark else "#008000"
+                    label.configure(bg=self.theme_data["bg"], fg=green_color)
+        
+        # Update options border for theme
+        self._set_options_border(theme == "dark")
 
     # Asset rebuild now delegated to Modules.ui_refresh
     def _rebuild_assets(self):
@@ -565,7 +636,7 @@ class WoWCleanupTool:
         
         # Add tooltip with detailed help
         from Modules.ui_helpers import Tooltip
-        Tooltip(help_btn, help_text)
+        Tooltip(help_btn, help_text, app=self)
         
         # Add click handler for detailed help dialog
         def show_detailed_help(event=None):
@@ -966,7 +1037,7 @@ class WoWCleanupTool:
 
         folder_btn = ttk.Button(options, text=_("browse"), command=self.select_wow_folder)
         folder_btn.grid(row=0, column=2, sticky="w", padx=(0,10), pady=4)
-        Tooltip(folder_btn, _("browse_tooltip"))
+        Tooltip(folder_btn, _("browse_tooltip"), app=self)
 
         ttk.Label(options, text=_("font_size")).grid(row=0, column=3, sticky="e", padx=(0,6), pady=4)
         font_spin = ttk.Spinbox(options, from_=6, to=16, textvariable=self.font_size_var, width=5, command=self.update_font_size)
@@ -1035,24 +1106,24 @@ class WoWCleanupTool:
             # Force delete mode if trash was previously selected
             if self.delete_mode.get() == "trash":
                 self.delete_mode.set("delete")
-            Tooltip(self.rb_trash, _("send2trash_install"))
+            Tooltip(self.rb_trash, _("send2trash_install"), app=self)
 
         self.verbose_cb = ImgCheckbox(mode_frame, _("enable_verbose"), self.verbose_var, self.assets)
         self.verbose_cb.grid(row=0, column=2, sticky="w", padx=(10,0))
-        Tooltip(self.verbose_cb, _("verbose_tooltip"))
+        Tooltip(self.verbose_cb, _("verbose_tooltip"), app=self)
 
         # External log mode
         ttk.Label(mode_frame, text=_("external_log")).grid(row=0, column=3, sticky="e", padx=(10,6))
         self.external_log_fresh_rb = ImgRadio(mode_frame, _("fresh"), self.external_log_mode_var, "fresh", self.assets)
         self.external_log_fresh_rb.grid(row=0, column=4, sticky="w")
-        Tooltip(self.external_log_fresh_rb, _("fresh_tooltip"))
+        Tooltip(self.external_log_fresh_rb, _("fresh_tooltip"), app=self)
         self.external_log_append_rb = ImgRadio(mode_frame, _("append"), self.external_log_mode_var, "append", self.assets)
         self.external_log_append_rb.grid(row=0, column=5, sticky="w", padx=(5,0))
-        Tooltip(self.external_log_append_rb, _("append_tooltip"))
+        Tooltip(self.external_log_append_rb, _("append_tooltip"), app=self)
 
         self.check_updates_cb = ImgCheckbox(mode_frame, _("check_updates"), self.check_for_updates_var, self.assets)
         self.check_updates_cb.grid(row=0, column=6, sticky="w", padx=(10,0))
-        Tooltip(self.check_updates_cb, _("check_updates_tooltip"))
+        Tooltip(self.check_updates_cb, _("check_updates_tooltip"), app=self)
 
         restore_btn = ttk.Button(mode_frame, text=_("restore_defaults"), command=self.restore_defaults)
         restore_btn.grid(row=0, column=9, sticky="e", padx=(10,0))
@@ -1064,43 +1135,46 @@ class WoWCleanupTool:
 
         # File Cleaner
         self.cleaner_tab = ttk.Frame(self.main_notebook)
-        self.main_notebook.add(self.cleaner_tab, text=_("file_cleaner"))
+        self.main_notebook.add(self.cleaner_tab, text=f"🗂️  {_('file_cleaner')}")
         self._add_tab_help_icon(self.cleaner_tab, "file_cleaner")
         self.build_file_cleaner_tree(self.cleaner_tab)
 
         # Folder Cleaner
         self.folder_tab = ttk.Frame(self.main_notebook)
-        self.main_notebook.add(self.folder_tab, text=_("folder_cleaner"))
+        self.main_notebook.add(self.folder_tab, text=f"📁  {_('folder_cleaner')}")
         self._add_tab_help_icon(self.folder_tab, "folder_cleaner")
         self.build_folder_cleaner_tab(self.folder_tab)
 
         # Orphan Cleaner
         self.orphan_tab = ttk.Frame(self.main_notebook)
-        self.main_notebook.add(self.orphan_tab, text=_("orphan_cleaner"))
+        self.main_notebook.add(self.orphan_tab, text=f"🔍  {_('orphan_cleaner')}")
         self._add_tab_help_icon(self.orphan_tab, "orphan_cleaner")
         self.build_orphan_cleaner_tab(self.orphan_tab)
 
         # Game Optimizer
         self.optimizer_tab = ttk.Frame(self.main_notebook)
-        self.main_notebook.add(self.optimizer_tab, text=_("game_optimizer"))
+        self.main_notebook.add(self.optimizer_tab, text=f"⚙️  {_('game_optimizer')}")
         self._add_tab_help_icon(self.optimizer_tab, "game_optimizer")
+        # Initialize lists for theme-aware labels
+        self.optimizer_bullet_labels = []
+        self.optimizer_theme_labels = []
         game_optimizer.build_game_optimizer_tab(self, self.optimizer_tab)
 
         # Optimization Suggestions
         self.suggestions_tab = ttk.Frame(self.main_notebook)
-        self.main_notebook.add(self.suggestions_tab, text=_("optimization_suggestions"))
+        self.main_notebook.add(self.suggestions_tab, text=f"💡  {_('optimization_suggestions')}")
         self._add_tab_help_icon(self.suggestions_tab, "optimization_suggestions")
         self.build_optimization_suggestions_tab(self.suggestions_tab)
 
         # Log
         self.log_tab = ttk.Frame(self.main_notebook)
-        self.main_notebook.add(self.log_tab, text=_("log"))
+        self.main_notebook.add(self.log_tab, text=f"📋  {_('log')}")
         self._add_tab_help_icon(self.log_tab, "log")
         self.build_log_tab(self.log_tab)
 
         # Help
         self.help_tab = ttk.Frame(self.main_notebook)
-        self.main_notebook.add(self.help_tab, text=localization._("help_about"))
+        self.main_notebook.add(self.help_tab, text=f"❓  {localization._('help_about')}")
         self.build_help_tab(self.help_tab)
 
         self._set_options_border(self.theme_var.get() == localization._("dark"))
@@ -1111,6 +1185,16 @@ class WoWCleanupTool:
             self.rb_delete.assets = self.assets; self.rb_delete._sync_image()
         if hasattr(self, "rb_trash"):
             self.rb_trash.assets = self.assets; self.rb_trash._sync_image()
+        if hasattr(self, "verbose_cb"):
+            self.verbose_cb.assets = self.assets; self.verbose_cb._sync_image()
+        if hasattr(self, "external_log_fresh_rb"):
+            self.external_log_fresh_rb.assets = self.assets; self.external_log_fresh_rb._sync_image()
+        if hasattr(self, "external_log_append_rb"):
+            self.external_log_append_rb.assets = self.assets; self.external_log_append_rb._sync_image()
+        if hasattr(self, "tree_selall_frame"):
+            self.tree_selall_frame.assets = self.assets; self.tree_selall_frame._sync_image()
+        if hasattr(self, "orphan_selall_frame"):
+            self.orphan_selall_frame.assets = self.assets; self.orphan_selall_frame._sync_image()
         if hasattr(self, "styled_folder_boxes"):
             for cb in self.styled_folder_boxes:
                 cb.assets = self.assets; cb._sync_image()
@@ -1134,12 +1218,12 @@ class WoWCleanupTool:
 
         # File Cleaner
         for iid, var in self.tree_checks.items():
-            img = self.checkbox_on_img if var.get() else self.checkbox_off_img
+            img = self.chk_checked if var.get() else self.chk_unchecked
             self.file_tree.item(iid, image=img)
 
         # Orphan Cleaner
         for iid, var in self.orphan_checks.items():
-            img = self.checkbox_on_img if var.get() else self.checkbox_off_img
+            img = self.chk_checked if var.get() else self.chk_unchecked
             self.orphan_tree.item(iid, image=img)
 
         # Folder cleaner uses per-version custom widgets,
@@ -1641,18 +1725,26 @@ class WoWCleanupTool:
             font=(None, 12, "bold")
         ).pack(anchor="w")
         
-        disclaimer = ttk.Label(
+        # Use tk.Label for disclaimer so we can set theme-aware colors
+        # Dark theme uses orange/yellow for warnings, light theme uses red
+        is_dark = self.settings.get("theme", "light") == "dark"
+        warning_color = "#ff9933" if is_dark else "#cc0000"  # Orange for dark, dark red for light
+        bg_color = "#2e2e2e" if is_dark else "#e6e6e6"
+        
+        self.opt_sug_disclaimer = tk.Label(
             header_frame,
             text=localization._("opt_sug_disclaimer"),
-            foreground="red",
+            fg=warning_color,
+            bg=bg_color,
             font=(None, 9, "italic"),
-            wraplength=max(200, (header_frame.winfo_width() - 40) if header_frame.winfo_width() > 1 else 560)
+            wraplength=max(200, (header_frame.winfo_width() - 40) if header_frame.winfo_width() > 1 else 560),
+            justify="left"
         )
-        disclaimer.pack(anchor="w", pady=(4, 0))
+        self.opt_sug_disclaimer.pack(anchor="w", pady=(4, 0))
         
         # Update wraplength on resize with margin to prevent text cutoff
         def update_disclaimer_wrap(event):
-            disclaimer.configure(wraplength=max(200, header_frame.winfo_width() - 40))
+            self.opt_sug_disclaimer.configure(wraplength=max(200, header_frame.winfo_width() - 40))
         header_frame.bind("<Configure>", update_disclaimer_wrap)
         
         # Create scrollable content area
@@ -1673,6 +1765,11 @@ class WoWCleanupTool:
                 "title": localization._("opt_sug_clean_data_title"),
                 "text": localization._("opt_sug_clean_data_text"),
                 "tooltip": localization._("opt_sug_clean_data_tooltip")
+            },
+            {
+                "title": localization._("opt_sug_reinstall_title"),
+                "text": localization._("opt_sug_reinstall_text"),
+                "tooltip": localization._("opt_sug_reinstall_tooltip")
             },
             {
                 "title": localization._("opt_sug_hdr_title"),
@@ -1697,26 +1794,28 @@ class WoWCleanupTool:
         ]
         
         # Create grid with one column per suggestion - spread across full width
-        # Use 3 columns in first row, 2 columns in second row
+        # Use 3 columns per row with padding to avoid scrollbar overlap
         grid_frame = ttk.Frame(content_frame)
-        grid_frame.pack(fill="both", expand=True, padx=5)
+        grid_frame.pack(fill="both", expand=True, padx=5, pady=5)
         
-        # Configure columns to distribute evenly (3 columns)
+        # Don't use uniform sizing - let columns be independent
+        # Configure columns with weight but no uniform constraint
         for col in range(3):
-            grid_frame.columnconfigure(col, weight=1, uniform="suggestions")
+            grid_frame.columnconfigure(col, weight=1)
         
         for idx, suggestion in enumerate(suggestions):
-            # Calculate row and column for 3-2 layout
-            if idx < 3:
-                row = 0
-                col = idx
-            else:
-                row = 1
-                col = idx - 3
+            # Calculate row and column for 3-column layout
+            row = idx // 3  # Integer division for row
+            col = idx % 3   # Modulo for column
             
-            # Create column for each suggestion
-            column_frame = ttk.Frame(grid_frame, relief="ridge", borderwidth=1, padding=10)
-            column_frame.grid(row=row, column=col, sticky="nsew", padx=5, pady=5)
+            # Create column for each suggestion with increased padding
+            # Use a container frame to limit width
+            container = ttk.Frame(grid_frame)
+            container.grid(row=row, column=col, sticky="w", padx=8, pady=10)
+            
+            column_frame = ttk.Frame(container, relief="ridge", borderwidth=1, padding=15, width=350, height=150)
+            column_frame.pack(fill="both", expand=True)
+            # Don't use pack_propagate(False) - let height adjust to content
             
             # Title with bullet
             title_label = ttk.Label(
@@ -1728,24 +1827,16 @@ class WoWCleanupTool:
             
             # Add tooltip to title with detailed information
             from Modules.ui_helpers import Tooltip
-            Tooltip(title_label, suggestion.get('tooltip', 'Click for more information'))
+            Tooltip(title_label, suggestion.get('tooltip', 'Click for more information'), app=self)
             
-            # Description with dynamic word wrap
+            # Description with dynamic word wrap - set to fixed width minus padding
             desc_label = ttk.Label(
                 column_frame,
                 text=suggestion['text'],
-                wraplength=1,  # Will be updated dynamically
+                wraplength=320,  # Fixed width (350 - 30 for padding)
                 justify="left"
             )
-            desc_label.pack(anchor="w", padx=(15, 0), pady=(4, 0), fill="both", expand=True)
-            
-            # Update wraplength dynamically based on column width
-            def update_wraplength(event, lbl=desc_label):
-                width = event.width - 30  # Account for padding
-                if width > 100:  # Minimum reasonable width
-                    lbl.configure(wraplength=width)
-            
-            column_frame.bind("<Configure>", update_wraplength)
+            desc_label.pack(anchor="w", padx=(15, 0), pady=(6, 0), fill="both", expand=True)
 
     def build_log_tab(self, parent):
         frame = ttk.Frame(parent, padding=10)
@@ -1784,7 +1875,35 @@ class WoWCleanupTool:
             text=localization._("help_copyright"),
             font=(None, 10, "italic"),
         ).pack(anchor="center", pady=(0, 6))
-        ttk.Button(card, text=localization._("check_for_updates"), command=self.check_for_updates).pack(anchor="center", pady=(8, 0))
+        ttk.Button(card, text=localization._("check_for_updates"), command=self.check_for_updates).pack(anchor="center", pady=(8, 8))
+        
+        # Donation buttons frame
+        donation_frame = ttk.Frame(card)
+        donation_frame.pack(anchor="center", pady=(0, 8))
+        
+        # Patreon button
+        patreon_btn = ttk.Button(
+            donation_frame,
+            text=f"🎨 {localization._('support_patreon')}",
+            command=lambda: self._open_url("https://www.patreon.com/c/Myrroddin")
+        )
+        patreon_btn.pack(side="left", padx=(0, 10))
+        
+        # PayPal button
+        paypal_btn = ttk.Button(
+            donation_frame,
+            text=f"💳 {localization._('donate_paypal')}",
+            command=lambda: self._open_url("https://www.paypal.com/paypalme/PVandersypen")
+        )
+        paypal_btn.pack(side="left", padx=(10, 0))
+    
+    def _open_url(self, url):
+        """Open a URL in the default web browser."""
+        import webbrowser
+        try:
+            webbrowser.open(url)
+        except Exception as e:
+            self.log(f"Failed to open URL: {e}", always_log=True)
 
     # ------------- Path selection + detection -------------
     # Path management methods now delegated to Modules.path_manager
@@ -2075,9 +2194,60 @@ class WoWCleanupTool:
 
 # -------------------- Run --------------------
 def main():
-    root = tk.Tk()
-    app = WoWCleanupTool(root)
-    root.mainloop()
+    import tempfile
+    
+    # Create lock file to prevent multiple instances
+    lock_file_path = os.path.join(tempfile.gettempdir(), "wow_cleanup_tool.lock")
+    lock_file = None
+    
+    try:
+        # Try to open and lock the file
+        lock_file = open(lock_file_path, 'w')
+        
+        # Platform-specific locking
+        if platform.system() == "Windows":
+            # On Windows, use msvcrt for file locking
+            import msvcrt
+            try:
+                msvcrt.locking(lock_file.fileno(), msvcrt.LK_NBLCK, 1)
+            except (IOError, OSError):
+                # Lock failed - another instance is running
+                # Silently exit without showing any dialog
+                lock_file.close()
+                sys.exit(0)
+        else:
+            # On Unix-like systems, use fcntl
+            import fcntl
+            try:
+                fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except (IOError, OSError):
+                # Lock failed - another instance is running
+                # Silently exit without showing any dialog
+                lock_file.close()
+                sys.exit(0)
+        
+        # Lock acquired successfully - start the application
+        root = tk.Tk()
+        app = WoWCleanupTool(root)
+        root.mainloop()
+        
+    finally:
+        # Clean up lock file when application exits
+        if lock_file:
+            try:
+                # Release the lock
+                if platform.system() == "Windows":
+                    import msvcrt
+                    msvcrt.locking(lock_file.fileno(), msvcrt.LK_UNLCK, 1)
+                else:
+                    import fcntl
+                    fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+                lock_file.close()
+                # Remove the lock file
+                if os.path.exists(lock_file_path):
+                    os.remove(lock_file_path)
+            except Exception:
+                pass  # Ignore cleanup errors
 
 if __name__ == "__main__":
     main()

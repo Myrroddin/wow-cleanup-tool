@@ -305,22 +305,37 @@ def build_game_optimizer_tab(app, parent):
     # Create tooltip reference (will be populated after scan)
     scan_btn._tooltip = None
 
-    info_label = ttk.Label(
+    # Use tk.Label for theme-aware gray color
+    theme = getattr(app, 'settings', {}).get('theme', 'light') if hasattr(app, 'settings') else 'light'
+    is_dark = theme == 'dark'
+    gray_color = "#a0a0a0" if is_dark else "#808080"
+    bg_color = "#2e2e2e" if is_dark else "#e6e6e6"
+    
+    info_label = tk.Label(
         button_frame,
         text="",
-        foreground="gray",
+        fg=gray_color,
+        bg=bg_color
     )
     info_label.pack(side="left", fill="x", expand=True)
+    # Store reference for theme updates
+    if not hasattr(app, 'optimizer_theme_labels'):
+        app.optimizer_theme_labels = []
+    app.optimizer_theme_labels.append(('info', info_label))
 
     # GPU switch notification label (shown when GPU is switched)
-    gpu_switch_label = ttk.Label(
+    # Use tk.Label for theme-aware blue color
+    blue_color = "#6699ff" if is_dark else "#0000ff"
+    gpu_switch_label = tk.Label(
         frame,
         text="",
-        foreground="blue",
+        fg=blue_color,
+        bg=bg_color,
         wraplength=max(200, frame.winfo_width() - 40),
         justify="left",
     )
     gpu_switch_label.pack(anchor="w", pady=(0, 10))
+    app.optimizer_theme_labels.append(('gpu_switch', gpu_switch_label))
     
     # Update wraplength on resize
     def update_gpu_switch_wraplength(event):
@@ -349,7 +364,7 @@ def _load_cached_hardware(app, info_label, gpu_switch_label, scan_btn, notebook_
     if cached:
         _display_hardware_info(info_label, cached)
         _display_gpu_switch_info(gpu_switch_label, cached)
-        _set_scan_tooltip(scan_btn)
+        _set_scan_tooltip(scan_btn, app=app)
         _populate_version_tabs(app, notebook_container)
     else:
         info_label.configure(
@@ -388,17 +403,18 @@ def _display_gpu_switch_info(gpu_switch_label, hardware):
     else:
         gpu_switch_label.configure(text="")
 
-def _set_scan_tooltip(scan_btn):
+def _set_scan_tooltip(scan_btn, app=None):
     """Attach tooltip to the Scan Hardware button after cache is populated.
 
     Args:
         scan_btn: The Scan Hardware button widget
+        app: Optional reference to main app for theme access
     """
     tooltip_text = localization._("scan_tooltip_refresh")
     if scan_btn._tooltip:
         scan_btn._tooltip.text = tooltip_text
     else:
-        scan_btn._tooltip = Tooltip(scan_btn, tooltip_text)
+        scan_btn._tooltip = Tooltip(scan_btn, tooltip_text, app=app)
 
 # Retail requirement thresholds derived from Blizzard Support article 76459
 RETAIL_REQ = {
@@ -966,6 +982,11 @@ def _populate_version_tabs(app, notebook_container):
     app.optimizer_version_notebook = ttk.Notebook(notebook_container)
     app.optimizer_version_notebook.pack(fill="both", expand=True)
     app.optimizer_version_tabs.clear()
+    # Clear labels for theme refresh
+    if hasattr(app, 'optimizer_bullet_labels'):
+        app.optimizer_bullet_labels.clear()
+    if hasattr(app, 'optimizer_theme_labels'):
+        app.optimizer_theme_labels.clear()
 
     for vpath, vlabel in versions:
         tab = ttk.Frame(app.optimizer_version_notebook)
@@ -1002,14 +1023,25 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
     if not _check_version_directories(version_path):
         # Show instruction message instead of optimizer UI
         instruction_text = localization._("optimizer_launch_required").format(version_label)
-        instruction_label = ttk.Label(
+        # Use tk.Label for theme-aware red color
+        theme = getattr(app, 'settings', {}).get('theme', 'light') if hasattr(app, 'settings') else 'light'
+        is_dark = theme == 'dark'
+        red_color = "#ff6666" if is_dark else "#cc0000"
+        bg_color = "#2e2e2e" if is_dark else "#e6e6e6"
+        
+        instruction_label = tk.Label(
             frame,
             text=instruction_text,
             wraplength=max(200, (frame.winfo_width() - 40) if frame.winfo_width() > 1 else 560),
             justify="left",
-            foreground="red"
+            fg=red_color,
+            bg=bg_color
         )
         instruction_label.pack(anchor="w", pady=(8, 8))
+        # Store reference for theme updates
+        if not hasattr(app, 'optimizer_theme_labels'):
+            app.optimizer_theme_labels = []
+        app.optimizer_theme_labels.append(('instruction', instruction_label))
         
         # Update wraplength on resize with margin to prevent text cutoff
         def update_instruction_wrap(event):
@@ -1064,7 +1096,17 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
         status_line = ttk.Frame(tier_frame)
         status_line.pack(anchor="w")
         
-        ttk.Label(status_line, text=localization._("system_matches").format(localization._(suggested_preset.lower())), foreground="blue", font=(None, 10, "italic")).pack(side="left")
+        # Use tk.Label for theme-aware blue color
+        theme = getattr(app, 'settings', {}).get('theme', 'light') if hasattr(app, 'settings') else 'light'
+        is_dark = theme == 'dark'
+        blue_color = "#6699ff" if is_dark else "#0000ff"
+        bg_color = "#2e2e2e" if is_dark else "#e6e6e6"
+        
+        system_match_label = tk.Label(status_line, text=localization._("system_matches").format(localization._(suggested_preset.lower())), fg=blue_color, bg=bg_color, font=(None, 10, "italic"))
+        system_match_label.pack(side="left")
+        if not hasattr(app, 'optimizer_theme_labels'):
+            app.optimizer_theme_labels = []
+        app.optimizer_theme_labels.append(('system_match', system_match_label))
         
         # Helper function to check optimization status
         def check_optimization_status():
@@ -1096,8 +1138,14 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
         # Initial optimization status check
         optimization_status, status_color = check_optimization_status()
         optimization_status_var = tk.StringVar(value=optimization_status)
-        optimization_status_label = ttk.Label(status_line, textvariable=optimization_status_var, foreground=status_color, font=(None, 9))
+        # Use tk.Label for theme-aware status colors
+        if status_color == "green":
+            fg_color = "#00ff00" if is_dark else "#008000"
+        else:  # orange
+            fg_color = "#ff9933" if is_dark else "#ff8800"
+        optimization_status_label = tk.Label(status_line, textvariable=optimization_status_var, fg=fg_color, bg=bg_color, font=(None, 9))
         optimization_status_label.pack(side="left", padx=(10, 0))
+        app.optimizer_theme_labels.append(('optimization_status', optimization_status_label, optimization_status_var))
 
     # Action buttons - pack at bottom FIRST to reserve space
     btn_frame = ttk.Frame(frame)
@@ -1199,17 +1247,29 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
             preset_tooltip = localization._("preset_tooltip_template").format(
                 localization._(name.lower()), perf_estimate
             )
-            Tooltip(preset_header, preset_tooltip)
+            Tooltip(preset_header, preset_tooltip, app=app)
             
             ttk.Separator(preset_col, orient="horizontal").pack(fill="x", pady=(2, 4))
             
             # Add preset lines
             for line in presets[name]:
-                lbl = ttk.Label(preset_col, text=f"• {line}", font=(None, 8))
+                # Use tk.Label for theme-aware text color
+                theme = getattr(app, 'settings', {}).get('theme', 'light') if hasattr(app, 'settings') else 'light'
+                is_dark = theme == 'dark'
+                text_color = "#ffffff" if is_dark else "#000000"
+                bg_color = "#2e2e2e" if is_dark else "#e6e6e6"
+                
+                lbl = tk.Label(preset_col, text=f"• {line}", font=(None, 8),
+                             fg=text_color, bg=bg_color)
                 lbl.pack(anchor="w")
+                # Store reference for theme updates
+                if not hasattr(app, 'optimizer_bullet_labels'):
+                    app.optimizer_bullet_labels = []
+                app.optimizer_bullet_labels.append(lbl)
+                
                 # Add tooltip with current vs new values
                 from Modules.ui_helpers import Tooltip
-                Tooltip(lbl, create_setting_tooltip(name, line))
+                Tooltip(lbl, create_setting_tooltip(name, line), app=app)
             
             # Add recommended performance settings to each column
             if recommended_perf_settings:
@@ -1224,11 +1284,27 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
                             is_new = setting_name not in current_config
                             prefix = localization._("new_setting_prefix") if is_new else ""
                             
-                            lbl = ttk.Label(preset_col, text=f"{prefix}• {setting_name} = {new_value}", 
-                                          font=(None, 8), foreground="green" if is_new else "black")
-                            lbl.pack(anchor="w")
+                            # Use tk.Label for theme-aware colors
+                            theme = getattr(app, 'settings', {}).get('theme', 'light') if hasattr(app, 'settings') else 'light'
+                            is_dark = theme == 'dark'
                             
-                            Tooltip(lbl, create_perf_setting_tooltip(setting))
+                            if is_new:
+                                # New settings: use green in both themes (lighter green for dark theme)
+                                text_color = "#00ff00" if is_dark else "#008000"
+                            else:
+                                # Existing settings: use theme text color
+                                text_color = "#ffffff" if is_dark else "#000000"
+                            bg_color = "#2e2e2e" if is_dark else "#e6e6e6"
+                            
+                            lbl = tk.Label(preset_col, text=f"{prefix}• {setting_name} = {new_value}", 
+                                         font=(None, 8), fg=text_color, bg=bg_color)
+                            lbl.pack(anchor="w")
+                            # Store reference for theme updates
+                            if not hasattr(app, 'optimizer_bullet_labels'):
+                                app.optimizer_bullet_labels = []
+                            app.optimizer_bullet_labels.append((lbl, is_new))  # Store with is_new flag
+                            
+                            Tooltip(lbl, create_perf_setting_tooltip(setting), app=app)
             
             col += 1
     else:
@@ -1348,7 +1424,16 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
         
         ttk.Button(btn_frame, text=localization._("apply_recommended_settings"), command=apply_recommendations).pack(side="left")
     
-    ttk.Label(btn_frame, textvariable=status_var, foreground="green").pack(side="left", padx=(10,0))
+    # Use tk.Label for theme-aware green color
+    theme = getattr(app, 'settings', {}).get('theme', 'light') if hasattr(app, 'settings') else 'light'
+    is_dark = theme == 'dark'
+    green_color = "#00ff00" if is_dark else "#008000"
+    bg_color = "#2e2e2e" if is_dark else "#e6e6e6"
+    status_label = tk.Label(btn_frame, textvariable=status_var, fg=green_color, bg=bg_color)
+    status_label.pack(side="left", padx=(10,0))
+    if not hasattr(app, 'optimizer_theme_labels'):
+        app.optimizer_theme_labels = []
+    app.optimizer_theme_labels.append(('status', status_label))
 
     return {"status_var": status_var}
 
@@ -1402,7 +1487,7 @@ def _on_scan_hardware(app, info_label, gpu_switch_label, scan_btn, notebook_cont
         set_global_setting("hardware_cache", hardware)
         _display_hardware_info(info_label, hardware)
         _display_gpu_switch_info(gpu_switch_label, hardware)
-        _set_scan_tooltip(scan_btn)
+        _set_scan_tooltip(scan_btn, app=app)
         _populate_version_tabs(app, notebook_container)
         app.log(localization._("hardware_scan_complete"), always_log=True)
     except Exception as e:

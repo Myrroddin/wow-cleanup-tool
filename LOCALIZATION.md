@@ -2,6 +2,40 @@
 
 The WoW Cleanup Tool supports localization in all 11 languages available in World of Warcraft, plus Ukrainian as a bonus language.
 
+## Table of Contents
+
+- [Supported Languages](#supported-languages)
+  - [Official WoW Languages](#official-wow-languages)
+  - [Bonus Languages](#bonus-languages)
+- [Language Detection](#language-detection)
+- [Adding or Updating Translations](#adding-or-updating-translations)
+  - [File Location](#file-location)
+  - [Translation Structure](#translation-structure)
+  - [Using Translations in Code](#using-translations-in-code)
+  - [Adding New Translation Keys](#adding-new-translation-keys)
+  - [Translation Key Guidelines](#translation-key-guidelines)
+- [Current Translation Status](#current-translation-status)
+  - [Recent Updates (November 2025)](#recent-updates-november-2025)
+  - [Fully Translated (12 languages)](#fully-translated-7-languages)
+- [Contributing Translations](#contributing-translations)
+  - [Translation Guidelines](#translation-guidelines)
+- [Testing Translations](#testing-translations)
+- [Language-Specific Notes](#language-specific-notes)
+  - [German (deDE)](#german-dede)
+  - [French (frFR)](#french-frfr)
+  - [Spanish (esES)](#spanish-eses)
+  - [Spanish - Mexico (esMX)](#spanish---mexico-esmx)
+  - [Portuguese (ptBR)](#portuguese-ptbr)
+  - [Korean (koKR)](#korean-kokr)
+  - [Italian (itIT)](#italian-itit)
+  - [Russian (ruRU)](#russian-ruru)
+  - [Ukrainian (ukUA)](#ukrainian-ukua---bonus-language)
+  - [Chinese - Simplified (zhCN)](#chinese---simplified-zhcn)
+  - [Chinese - Traditional (zhTW)](#chinese---traditional-zhtw)
+  - [Spanish](#spanish)
+- [Known Limitations](#known-limitations)
+- [Future Improvements](#future-improvements)
+
 ## Supported Languages
 
 ### Official WoW Languages
@@ -88,29 +122,35 @@ The localization system has been significantly expanded with comprehensive trans
 - ✅ Main UI buttons and labels (Apply, Cancel, Export Log, Clear Log, etc.)
 - ✅ File/Folder/Orphan Cleaner complete with status messages
 - ✅ Game Optimizer dialogs and confirmation messages
+- ✅ Optimization Suggestions tab with 6 manual optimization tips (including Reinstall WoW)
 - ✅ Settings restoration and language change dialogs
 - ✅ Error messages and warnings (send2trash, invalid folders, etc.)
 - ✅ AddOns.txt rebuild summaries
 - ✅ Log export messages
 
-### Fully Translated (7 languages)
+### Fully Translated (12 languages)
 
 All core languages are now 100% complete with comprehensive translations:
 
-- **English (enUS)** - 100% complete (~253 keys)
-- **German (deDE)** - 100% complete (~253 keys)
-- **French (frFR)** - 100% complete (~253 keys)
-- **Spanish - Spain (esES)** - 100% complete (~253 keys)
-- **Spanish - Mexico (esMX)** - 100% complete (~253 keys)
-- **Portuguese - Brazil (ptBR)** - 100% complete (~253 keys)
-- **Korean (koKR)** - 100% complete (~253 keys)
-- **Chinese - Simplified (zhCN)** - 100% complete (~253 keys)
-- **Chinese - Traditional (zhTW)** - 100% complete (~253 keys)
-- **Italian (itIT)** - 100% complete (~253 keys)
-- **Russian (ruRU)** - 100% complete (~253 keys)
-- **Ukrainian (ukUA)** - 100% complete (~253 keys) - Bonus language
+- **English (enUS)** - 100% complete (~262 keys)
+- **German (deDE)** - 100% complete (~262 keys)
+- **French (frFR)** - 100% complete (~262 keys)
+- **Spanish - Spain (esES)** - 100% complete (~262 keys)
+- **Spanish - Mexico (esMX)** - 100% complete (~262 keys)
+- **Portuguese - Brazil (ptBR)** - 100% complete (~262 keys)
+- **Korean (koKR)** - 100% complete (~262 keys)
+- **Chinese - Simplified (zhCN)** - 100% complete (~262 keys)
+- **Chinese - Traditional (zhTW)** - 100% complete (~262 keys)
+- **Italian (itIT)** - 100% complete (~262 keys)
+- **Russian (ruRU)** - 100% complete (~262 keys)
+- **Ukrainian (ukUA)** - 100% complete (~262 keys) - Bonus language
 
 **All 12 languages are now fully translated!** 🎉
+
+**Recent additions:**
+- `opt_sug_reinstall_title` - "Reinstall WoW (Clean Install)" title
+- `opt_sug_reinstall_text` - Brief explanation of the clean reinstall process
+- `opt_sug_reinstall_tooltip` - Detailed why/risk/benefit/how-to guide for clean reinstalls
 
 ## Contributing Translations
 

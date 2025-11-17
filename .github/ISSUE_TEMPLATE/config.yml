@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/Myrroddin/wow-cleanup-tool/blob/main/README.md
+    about: Read the user guide and documentation
+  - name: Technical Details
+    url: https://github.com/Myrroddin/wow-cleanup-tool/blob/main/Technical-Details.md
+    about: Detailed technical documentation and troubleshooting
+  - name: Discussions
+    url: https://github.com/Myrroddin/wow-cleanup-tool/discussions
+    about: Ask questions and discuss with the community

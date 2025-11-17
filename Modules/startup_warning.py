@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from Modules import localization
+from Modules.themes import THEMES
 
 def show_startup_warning(root, settings, save_settings_fn, logger=None):
     """Show the startup warning popup.
@@ -15,9 +16,14 @@ def show_startup_warning(root, settings, save_settings_fn, logger=None):
     if settings.get("hide_warning", False):
         return
 
+    # Get current theme
+    theme = settings.get("theme", "light")
+    theme_data = THEMES.get(theme, THEMES["light"])
+
     popup = tk.Toplevel(root)
     popup.title(_("important_notice"))
     popup.resizable(False, False)
+    popup.configure(bg=theme_data["bg"])
     pw, ph = 460, 210
     root.update_idletasks()
     try:

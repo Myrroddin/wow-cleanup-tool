@@ -289,11 +289,16 @@ TRANSLATIONS = {
         "opt_sug_xmp_title": "Enable XMP Memory Profile",
         "opt_sug_xmp_text": "Access your motherboard BIOS and enable the XMP (Extreme Memory Profile) or DOCP/EOCP setting. This ensures your RAM runs at its rated speed rather than default conservative speeds, improving overall system performance.",
         "opt_sug_xmp_tooltip": "WHY: RAM typically runs at 2133MHz by default even if rated for 3200MHz+. XMP enables advertised speeds.\n\nRISK LEVEL: Moderate - BIOS change. System may fail to boot if RAM is unstable (easy to reset).\n\nEXPECTED BENEFIT: 10-20% CPU performance boost, faster loading times, better 1% lows.\n\nHOW TO ENABLE: Enter BIOS (usually Del/F2 at startup) > Find XMP/DOCP setting > Enable > Save & Exit",
+        "opt_sug_reinstall_title": "Reinstall WoW (Clean Install)",
+        "opt_sug_reinstall_text": "Back up your AddOns and WTF folders, uninstall all WoW versions via Battle.net, reinstall, then restore your backups. This removes accumulated legacy files and obsolete data from years of patches.",
+        "opt_sug_reinstall_tooltip": "WHY: Years of updates leave behind obsolete files, deprecated assets, and fragmented data that slow loading and waste space.\n\nRISK LEVEL: Low - Your settings/addons are preserved in WTF/AddOns folders.\n\nEXPECTED BENEFIT: Faster loading times, reduced disk usage (5-15 GB saved), improved stability.\n\nHOW TO: 1) Back up Interface\\AddOns and WTF folders\n2) Uninstall via Battle.net\n3) Reinstall WoW\n4) Copy backed up folders back",
         
         # Help/About tab - content
         "help_version_label": "WoW Cleanup Tool {}",
         "help_about_description": "A comprehensive maintenance and optimization suite for World of Warcraft.\nClean unnecessary files, manage addons, optimize game performance, and more.\n\nAlways close World of Warcraft before running this tool.",
         "help_copyright": "Copyright © 2025 Paul Vandersypen. Released under the GNU General Public License v3.0 (GPL-3.0-or-later). See the included LICENSE file for full terms.",
+        "support_patreon": "Support on Patreon",
+        "donate_paypal": "Donate via PayPal",
         
         # Game Optimizer - hardware detection messages
         "hardware_detected": "✓ CPU: {} | RAM: {} | GPU: {}",
@@ -668,11 +673,16 @@ TRANSLATIONS = {
         "opt_sug_xmp_title": "XMP-Speicherprofil aktivieren",
         "opt_sug_xmp_text": "Greifen Sie auf das BIOS Ihres Motherboards zu und aktivieren Sie die XMP (Extreme Memory Profile)- oder DOCP/EOCP-Einstellung. Dies stellt sicher, dass Ihr RAM mit der angegebenen Geschwindigkeit läuft, nicht mit konservativen Standardwerten.",
         "opt_sug_xmp_tooltip": "WARUM: RAM läuft standardmäßig mit 2133MHz, selbst wenn es für 3200MHz+ ausgelegt ist. XMP aktiviert die beworbenen Geschwindigkeiten.\n\nRISIKOSTUFE: Moderat - BIOS-Änderung. System kann beim Booten fehlschlagen, wenn RAM instabil ist (leicht zurückzusetzen).\n\nERWARTETER NUTZEN: 10-20% CPU-Leistungsschub, schnellere Ladezeiten, bessere 1%-Lows.\n\nSO AKTIVIEREN: BIOS aufrufen (meist Entf/F2 beim Start) > XMP/DOCP-Einstellung finden > Aktivieren > Speichern & Beenden",
+        "opt_sug_reinstall_title": "WoW neu installieren (Neuinstallation)",
+        "opt_sug_reinstall_text": "Sichern Sie Ihre AddOns- und WTF-Ordner, deinstallieren Sie alle WoW-Versionen über Battle.net, installieren Sie neu und stellen Sie Ihre Backups wieder her. Dies entfernt angesammelte Legacy-Dateien und veraltete Daten aus jahrelangen Patches.",
+        "opt_sug_reinstall_tooltip": "WARUM: Jahre von Updates hinterlassen veraltete Dateien, veraltete Assets und fragmentierte Daten, die das Laden verlangsamen und Speicherplatz verschwenden.\n\nRISIKOSTUFE: Niedrig - Ihre Einstellungen/Addons bleiben in WTF/AddOns-Ordnern erhalten.\n\nERWARTETER NUTZEN: Schnellere Ladezeiten, reduzierte Festplattennutzung (5-15 GB gespart), verbesserte Stabilität.\n\nSO AKTIVIEREN: 1) Interface\\AddOns und WTF sichern\n2) Über Battle.net deinstallieren\n3) WoW neu installieren\n4) Gesicherte Ordner zurückkopieren",
         
         # Help/About tab - content
         "help_version_label": "WoW Bereinigungstool {}",
         "help_about_description": "Eine umfassende Wartungs- und Optimierungssuite für World of Warcraft.\nBereinigen Sie unnötige Dateien, verwalten Sie Addons, optimieren Sie die Spielleistung und mehr.\n\nSchließen Sie World of Warcraft immer, bevor Sie dieses Tool verwenden.",
         "help_copyright": "Copyright © 2025 Paul Vandersypen. Veröffentlicht unter der GNU General Public License v3.0 (GPL-3.0-or-later). Siehe die beigefügte LICENSE-Datei für vollständige Bedingungen.",
+        "support_patreon": "Auf Patreon unterstützen",
+        "donate_paypal": "Via PayPal spenden",
         
         # Game Optimizer - hardware detection messages
         "hardware_detected": "✓ CPU: {} | RAM: {} | GPU: {}",
@@ -998,8 +1008,10 @@ TRANSLATIONS = {
         "addons_txt_log": "[AddOns.txt] {} : {} entrées écrites, {} supprimées",
         "preset_applied_log": "Préréglage {} appliqué pour {}",
         "preset_failed_log": "Échec de l'application du préréglage {} : {}",
+        "change_language": "Changer la langue",
+        "change_language_question": "Changer la langue de {} à {} ?\n\nL'application va redémarrer pour appliquer la nouvelle langue.",
         "language_changed": "Langue modifiée",
-        "language_changed_restart": "La langue a été modifiée. Veuillez redémarrer l'application pour que tous les changements prennent effet.",
+        "language_changed_restart": "Langue modifiée en {}.\nL'application va maintenant redémarrer.",
         "apply": "Appliquer",
         "cancel": "Annuler",
         "scan_bak_old": "Rechercher les fichiers .bak / .old",
@@ -1112,11 +1124,16 @@ TRANSLATIONS = {
         "opt_sug_xmp_title": "Activer le profil mémoire XMP",
         "opt_sug_xmp_text": "Accédez au BIOS de votre carte mère et activez le paramètre XMP (Extreme Memory Profile) ou DOCP/EOCP. Cela garantit que votre RAM fonctionne à sa vitesse nominale plutôt qu'aux vitesses conservatrices par défaut.",
         "opt_sug_xmp_tooltip": "POURQUOI : La RAM fonctionne généralement à 2133MHz par défaut même si elle est conçue pour 3200MHz+. XMP active les vitesses annoncées.\n\nNIVEAU DE RISQUE : Modéré - Modification du BIOS. Le système peut ne pas démarrer si la RAM est instable (facile à réinitialiser).\n\nAVANTAGE ATTENDU : Augmentation de 10-20% des performances CPU, temps de chargement plus rapides, meilleurs 1% lows.\n\nCOMMENT ACTIVER : Entrez dans le BIOS (généralement Suppr/F2 au démarrage) > Trouvez le paramètre XMP/DOCP > Activez > Enregistrez et quittez",
+        "opt_sug_reinstall_title": "Réinstaller WoW (Installation propre)",
+        "opt_sug_reinstall_text": "Sauvegardez vos dossiers AddOns et WTF, désinstallez toutes les versions de WoW via Battle.net, réinstallez, puis restaurez vos sauvegardes. Cela supprime les fichiers hérités accumulés et les données obsolètes des années de correctifs.",
+        "opt_sug_reinstall_tooltip": "POURQUOI : Des années de mises à jour laissent des fichiers obsolètes, des ressources dépréciées et des données fragmentées qui ralentissent le chargement et gaspillent l'espace.\n\nNIVEAU DE RISQUE : Faible - Vos paramètres/addons sont préservés dans les dossiers WTF/AddOns.\n\nAVANTAGE ATTENDU : Temps de chargement plus rapides, utilisation réduite du disque (5-15 Go économisés), stabilité améliorée.\n\nCOMMENT FAIRE : 1) Sauvegarder Interface\\AddOns et WTF\n2) Désinstaller via Battle.net\n3) Réinstaller WoW\n4) Copier les dossiers sauvegardés",
         
         # Help/About tab - content
         "help_version_label": "Outil de nettoyage WoW {}",
         "help_about_description": "Une suite complète de maintenance et d'optimisation pour World of Warcraft.\nNettoyez les fichiers inutiles, gérez les addons, optimisez les performances du jeu, et plus encore.\n\nFermez toujours World of Warcraft avant d'utiliser cet outil.",
         "help_copyright": "Copyright © 2025 Paul Vandersypen. Publié sous la licence publique générale GNU v3.0 (GPL-3.0-or-later). Consultez le fichier LICENSE inclus pour les conditions complètes.",
+        "support_patreon": "Soutenir sur Patreon",
+        "donate_paypal": "Faire un don via PayPal",
         
         # Game Optimizer - hardware detection messages
         "hardware_detected": "✓ CPU : {} | RAM : {} | GPU : {}",
@@ -1379,8 +1396,10 @@ TRANSLATIONS = {
         "addons_txt_log": "[AddOns.txt] {}: {} entradas escritas, {} eliminadas",
         "preset_applied_log": "Ajuste predefinido {} aplicado para {}",
         "preset_failed_log": "Error al aplicar el ajuste predefinido {}: {}",
+        "change_language": "Cambiar idioma",
+        "change_language_question": "¿Cambiar idioma de {} a {}?\n\nLa aplicación se reiniciará para aplicar el nuevo idioma.",
         "language_changed": "Idioma cambiado",
-        "language_changed_restart": "El idioma ha sido cambiado. Por favor, reinicia la aplicación para que todos los cambios surtan efecto.",
+        "language_changed_restart": "Idioma cambiado a {}.\nLa aplicación se reiniciará ahora.",
         "apply": "Aplicar",
         "cancel": "Cancelar",
         "scan_bak_old": "Buscar archivos .bak / .old",
@@ -1493,11 +1512,16 @@ TRANSLATIONS = {
         "opt_sug_xmp_title": "Activar perfil de memoria XMP",
         "opt_sug_xmp_text": "Accede al BIOS de tu placa base y activa la configuración XMP (Extreme Memory Profile) o DOCP/EOCP. Esto asegura que tu RAM funcione a su velocidad nominal en lugar de velocidades conservadoras predeterminadas.",
         "opt_sug_xmp_tooltip": "POR QUÉ: La RAM normalmente funciona a 2133MHz por defecto incluso si está clasificada para 3200MHz+. XMP habilita las velocidades anunciadas.\n\nNIVEL DE RIESGO: Moderado - Cambio de BIOS. El sistema puede no arrancar si la RAM es inestable (fácil de restablecer).\n\nBENEFICIO ESPERADO: Aumento del 10-20% en rendimiento de CPU, tiempos de carga más rápidos, mejores 1% lows.\n\nCÓMO HABILITAR: Entrar al BIOS (normalmente Supr/F2 al iniciar) > Encontrar configuración XMP/DOCP > Habilitar > Guardar y salir",
+        "opt_sug_reinstall_title": "Reinstalar WoW (Instalación limpia)",
+        "opt_sug_reinstall_text": "Haz copia de seguridad de tus carpetas AddOns y WTF, desinstala todas las versiones de WoW a través de Battle.net, reinstala y luego restaura tus copias de seguridad. Esto elimina archivos heredados acumulados y datos obsoletos de años de parches.",
+        "opt_sug_reinstall_tooltip": "POR QUÉ: Años de actualizaciones dejan archivos obsoletos, recursos deprecados y datos fragmentados que ralentizan la carga y desperdician espacio.\n\nNIVEL DE RIESGO: Bajo - Tus configuraciones/addons se conservan en carpetas WTF/AddOns.\n\nBENEFICIO ESPERADO: Tiempos de carga más rápidos, uso de disco reducido (5-15 GB ahorrados), estabilidad mejorada.\n\nCÓMO HACERLO: 1) Respaldar Interface\\AddOns y WTF\n2) Desinstalar vía Battle.net\n3) Reinstalar WoW\n4) Copiar carpetas respaldadas",
         
         # Help/About tab - content
         "help_version_label": "Herramienta de limpieza de WoW {}",
         "help_about_description": "Un conjunto completo de mantenimiento y optimización para World of Warcraft.\nLimpia archivos innecesarios, gestiona addons, optimiza el rendimiento del juego y más.\n\nCierra siempre World of Warcraft antes de ejecutar esta herramienta.",
         "help_copyright": "Copyright © 2025 Paul Vandersypen. Publicado bajo la Licencia Pública General GNU v3.0 (GPL-3.0-or-later). Consulta el archivo LICENSE incluido para conocer los términos completos.",
+        "support_patreon": "Apoyar en Patreon",
+        "donate_paypal": "Donar vía PayPal",
         
         # Game Optimizer - hardware detection messages
         "hardware_detected": "✓ CPU: {} | RAM: {} | GPU: {}",
@@ -1783,12 +1807,10 @@ TRANSLATIONS = {
         "addons_txt_log": "[AddOns.txt] {}: escribió {} entradas, eliminó {}",
         "preset_applied_log": "Aplicado ajuste {} para {}",
         "preset_failed_log": "Error al aplicar ajuste {}: {}",
-        
-        # Language change
+        "change_language": "Cambiar Idioma",
+        "change_language_question": "¿Cambiar idioma de {} a {}?\n\nLa aplicación se reiniciará para aplicar el nuevo idioma.",
         "language_changed": "Idioma Cambiado",
-        "language_changed_restart": "El idioma ha sido cambiado. Por favor, reinicia la aplicación para que todos los cambios tengan efecto.",
-        
-        # Additional buttons and UI elements
+        "language_changed_restart": "Idioma cambiado a {}.\nLa aplicación se reiniciará ahora.",
         "apply": "Aplicar",
         "cancel": "Cancelar",
         "scan_bak_old": "Escanear Archivos .bak / .old",
@@ -1907,11 +1929,16 @@ TRANSLATIONS = {
         "opt_sug_xmp_title": "Habilitar Perfil de Memoria XMP",
         "opt_sug_xmp_text": "Accede al BIOS de tu placa madre y habilita la configuración XMP (Extreme Memory Profile) o DOCP/EOCP. Esto asegura que tu RAM funcione a su velocidad nominal en lugar de velocidades conservadoras predeterminadas, mejorando el rendimiento general del sistema.",
         "opt_sug_xmp_tooltip": "POR QUÉ: La RAM típicamente funciona a 2133MHz por defecto incluso si está clasificada para 3200MHz+. XMP habilita las velocidades anunciadas.\n\nNIVEL DE RIESGO: Moderado - Cambio en BIOS. El sistema puede fallar al arrancar si la RAM es inestable (fácil de resetear).\n\nBENEFICIO ESPERADO: Mejora de rendimiento de CPU del 10-20%, tiempos de carga más rápidos, mejores 1% lows.\n\nCÓMO HABILITAR: Entrar al BIOS (generalmente Del/F2 al iniciar) > Encontrar configuración XMP/DOCP > Habilitar > Guardar y Salir",
+        "opt_sug_reinstall_title": "Reinstalar WoW (Instalación Limpia)",
+        "opt_sug_reinstall_text": "Respalda tus carpetas AddOns y WTF, desinstala todas las versiones de WoW a través de Battle.net, reinstala y luego restaura tus respaldos. Esto elimina archivos heredados acumulados y datos obsoletos de años de parches.",
+        "opt_sug_reinstall_tooltip": "POR QUÉ: Años de actualizaciones dejan archivos obsoletos, recursos deprecados y datos fragmentados que ralentizan la carga y desperdician espacio.\n\nNIVEL DE RIESGO: Bajo - Tus configuraciones/addons se conservan en carpetas WTF/AddOns.\n\nBENEFICIO ESPERADO: Tiempos de carga más rápidos, uso de disco reducido (5-15 GB ahorrados), estabilidad mejorada.\n\nCÓMO HACERLO: 1) Respaldar Interface\\AddOns y WTF\n2) Desinstalar vía Battle.net\n3) Reinstalar WoW\n4) Copiar carpetas respaldadas",
         
         # Help/About tab - content
         "help_version_label": "Herramienta de Limpieza de WoW {}",
         "help_about_description": "Un conjunto completo de mantenimiento y optimización para World of Warcraft.\nLimpia archivos innecesarios, administra addons, optimiza el rendimiento del juego y más.\n\nSiempre cierra World of Warcraft antes de usar esta herramienta.",
         "help_copyright": "Copyright © 2025 Paul Vandersypen. Publicado bajo la Licencia Pública General GNU v3.0 (GPL-3.0-or-later). Consulta el archivo LICENSE incluido para los términos completos.",
+        "support_patreon": "Apoyar en Patreon",
+        "donate_paypal": "Donar vía PayPal",
         
         # Game Optimizer - hardware detection messages
         "hardware_detected": "✓ CPU: {} | RAM: {} | GPU: {}",
@@ -2197,12 +2224,10 @@ TRANSLATIONS = {
         "addons_txt_log": "[AddOns.txt] {}: escreveu {} entradas, removeu {}",
         "preset_applied_log": "Aplicada predefinição {} para {}",
         "preset_failed_log": "Falha ao aplicar predefinição {}: {}",
-        
-        # Language change
+        "change_language": "Alterar Idioma",
+        "change_language_question": "Alterar idioma de {} para {}?\n\nO aplicativo será reiniciado para aplicar o novo idioma.",
         "language_changed": "Idioma Alterado",
-        "language_changed_restart": "O idioma foi alterado. Por favor, reinicie o aplicativo para que todas as alterações tenham efeito.",
-        
-        # Additional buttons and UI elements
+        "language_changed_restart": "Idioma alterado para {}.\nO aplicativo será reiniciado agora.",
         "apply": "Aplicar",
         "cancel": "Cancelar",
         "scan_bak_old": "Escanear Arquivos .bak / .old",
@@ -2321,11 +2346,16 @@ TRANSLATIONS = {
         "opt_sug_xmp_title": "Ativar Perfil de Memória XMP",
         "opt_sug_xmp_text": "Acesse o BIOS da sua placa-mãe e ative a configuração XMP (Extreme Memory Profile) ou DOCP/EOCP. Isso garante que sua RAM funcione na velocidade nominal em vez de velocidades conservadoras padrão, melhorando o desempenho geral do sistema.",
         "opt_sug_xmp_tooltip": "POR QUE: A RAM normalmente funciona a 2133MHz por padrão mesmo se classificada para 3200MHz+. O XMP habilita as velocidades anunciadas.\n\nNÍVEL DE RISCO: Moderado - Mudança no BIOS. O sistema pode falhar ao iniciar se a RAM estiver instável (fácil de resetar).\n\nBENEFÍCIO ESPERADO: Aumento de 10-20% no desempenho da CPU, tempos de carregamento mais rápidos, melhores 1% lows.\n\nCOMO ATIVAR: Entrar no BIOS (geralmente Del/F2 na inicialização) > Encontrar configuração XMP/DOCP > Ativar > Salvar e Sair",
+        "opt_sug_reinstall_title": "Reinstalar WoW (Instalação Limpa)",
+        "opt_sug_reinstall_text": "Faça backup das suas pastas AddOns e WTF, desinstale todas as versões do WoW via Battle.net, reinstale e restaure seus backups. Isso remove arquivos legados acumulados e dados obsoletos de anos de patches.",
+        "opt_sug_reinstall_tooltip": "POR QUE: Anos de atualizações deixam arquivos obsoletos, assets depreciados e dados fragmentados que desaceleram o carregamento e desperdiçam espaço.\n\nNÍVEL DE RISCO: Baixo - Suas configurações/addons são preservados nas pastas WTF/AddOns.\n\nBENEFÍCIO ESPERADO: Tempos de carregamento mais rápidos, uso de disco reduzido (5-15 GB economizados), estabilidade melhorada.\n\nCOMO FAZER: 1) Backup de Interface\\AddOns e WTF\n2) Desinstalar via Battle.net\n3) Reinstalar WoW\n4) Copiar pastas do backup",
         
         # Help/About tab - content
         "help_version_label": "Ferramenta de Limpeza do WoW {}",
         "help_about_description": "Um conjunto abrangente de manutenção e otimização para World of Warcraft.\nLimpe arquivos desnecessários, gerencie addons, otimize o desempenho do jogo e muito mais.\n\nSempre feche o World of Warcraft antes de usar esta ferramenta.",
         "help_copyright": "Copyright © 2025 Paul Vandersypen. Lançado sob a Licença Pública Geral GNU v3.0 (GPL-3.0-or-later). Consulte o arquivo LICENSE incluído para os termos completos.",
+        "support_patreon": "Apoiar no Patreon",
+        "donate_paypal": "Doar via PayPal",
         
         # Game Optimizer - hardware detection messages
         "hardware_detected": "✓ CPU: {} | RAM: {} | GPU: {}",
@@ -2611,12 +2641,10 @@ TRANSLATIONS = {
         "addons_txt_log": "[AddOns.txt] {}: {} voci scritte, {} rimosse",
         "preset_applied_log": "Preset {} applicato per {}",
         "preset_failed_log": "Applicazione preset {} fallita: {}",
-        
-        # Language change
+        "change_language": "Cambia lingua",
+        "change_language_question": "Cambiare lingua da {} a {}?\n\nL\'applicazione verrà riavviata per applicare la nuova lingua.",
         "language_changed": "Lingua cambiata",
-        "language_changed_restart": "La lingua è stata cambiata. Riavvia l'applicazione per applicare tutte le modifiche.",
-        
-        # Additional buttons and UI elements
+        "language_changed_restart": "Lingua cambiata in {}.\nL\'applicazione verrà ora riavviata.",
         "apply": "Applica",
         "cancel": "Annulla",
         "scan_bak_old": "Scansiona file .bak / .old",
@@ -2673,11 +2701,16 @@ TRANSLATIONS = {
         "opt_sug_xmp_title": "Abilita profili memoria XMP",
         "opt_sug_xmp_text": "Accedi al BIOS della scheda madre e abilita XMP (Extreme Memory Profile) o le impostazioni DOCP/EOCP. Questo assicura che la RAM funzioni alla sua velocità nominale invece della velocità predefinita conservativa, migliorando le prestazioni complessive del sistema.",
         "opt_sug_xmp_tooltip": "Motivo: La RAM spesso funziona a 2133MHz di default anche se è valutata per 3200MHz+. XMP abilita le velocità pubblicizzate.\n\nLivello di rischio: Moderato - modifica BIOS. Il sistema potrebbe non avviarsi se la RAM è instabile (facile da resettare).\n\nBenefici attesi: Aumento prestazioni CPU 10-20%, caricamenti più veloci, migliori 1% low.\n\nCome abilitare: Accedi al BIOS (di solito Canc/F2 all'avvio) > Trova impostazioni XMP/DOCP > Abilita > Salva ed esci",
+        "opt_sug_reinstall_title": "Reinstalla WoW (Installazione pulita)",
+        "opt_sug_reinstall_text": "Fai il backup delle cartelle AddOns e WTF, disinstalla tutte le versioni di WoW tramite Battle.net, reinstalla e ripristina i backup. Questo rimuove file legacy accumulati e dati obsoleti da anni di patch.",
+        "opt_sug_reinstall_tooltip": "Motivo: Anni di aggiornamenti lasciano file obsoleti, risorse deprecate e dati frammentati che rallentano il caricamento e sprecano spazio.\n\nLivello di rischio: Basso - Le impostazioni/addon sono preservati nelle cartelle WTF/AddOns.\n\nBenefici attesi: Caricamenti più veloci, uso disco ridotto (5-15 GB risparmiati), stabilità migliorata.\n\nCome fare: 1) Backup di Interface\\AddOns e WTF\n2) Disinstalla tramite Battle.net\n3) Reinstalla WoW\n4) Copia le cartelle di backup",
         
         # Help/About tab - content
         "help_version_label": "Strumento di Pulizia WoW {}",
         "help_about_description": "Suite completa di manutenzione e ottimizzazione per World of Warcraft.\nPulisci file non necessari, gestisci addon, ottimizza le prestazioni di gioco e altro.\n\nChiudi sempre World of Warcraft prima di eseguire questo strumento.",
         "help_copyright": "Copyright © 2025 Paul Vandersypen. Rilasciato sotto i termini della GNU General Public License v3.0 (GPL-3.0-or-later). Consulta il file LICENSE allegato per i termini completi.",
+        "support_patreon": "Supporta su Patreon",
+        "donate_paypal": "Dona tramite PayPal",
         
         # Game Optimizer - hardware detection messages
         "hardware_detected": "✓ CPU: {} | RAM: {} | GPU: {}",
@@ -3024,10 +3057,10 @@ TRANSLATIONS = {
         "addons_txt_log": "[AddOns.txt] {}: записано {}, удалено {}",
         "preset_applied_log": "Пресет {} применён для {}",
         "preset_failed_log": "Не удалось применить пресет {}: {}",
-        
-        # Language change
+        "change_language": "Изменить язык",
+        "change_language_question": "Изменить язык с {} на {}?\n\nПриложение будет перезапущено для применения нового языка.",
         "language_changed": "Язык изменён",
-        "language_changed_restart": "Язык был изменён. Перезапустите приложение, чтобы применить все изменения.",
+        "language_changed_restart": "Язык изменён на {}.\nПриложение будет перезапущено.",
         
         # Additional buttons and UI elements
         "apply": "Применить",
@@ -3086,11 +3119,16 @@ TRANSLATIONS = {
         "opt_sug_xmp_title": "Включить профили памяти XMP",
         "opt_sug_xmp_text": "Войдите в BIOS материнской платы и включите XMP (Extreme Memory Profile) или настройки DOCP/EOCP. Это гарантирует, что ваша оперативная память работает на номинальной скорости вместо консервативной скорости по умолчанию, улучшая общую производительность системы.",
         "opt_sug_xmp_tooltip": "Причина: ОЗУ часто работает на частоте 2133 МГц по умолчанию, даже если рассчитана на 3200 МГц+. XMP включает заявленные скорости.\n\nУровень риска: Средний - изменение BIOS. Система может не загрузиться, если ОЗУ нестабильна (легко сбросить).\n\nОжидаемые преимущества: Увеличение производительности процессора на 10-20%, более быстрая загрузка, лучшие 1% минимумы.\n\nКак включить: Войдите в BIOS (обычно Del/F2 при загрузке) > Найдите настройки XMP/DOCP > Включите > Сохраните и выйдите",
+        "opt_sug_reinstall_title": "Переустановить WoW (Чистая установка)",
+        "opt_sug_reinstall_text": "Создайте резервные копии папок AddOns и WTF, удалите все версии WoW через Battle.net, переустановите и восстановите резервные копии. Это удаляет накопленные устаревшие файлы и устаревшие данные за годы патчей.",
+        "opt_sug_reinstall_tooltip": "Причина: Годы обновлений оставляют устаревшие файлы, устаревшие ресурсы и фрагментированные данные, которые замедляют загрузку и тратят место.\n\nУровень риска: Низкий - Ваши настройки/аддоны сохраняются в папках WTF/AddOns.\n\nОжидаемые преимущества: Более быстрая загрузка, меньше используемого дискового пространства (5-15 ГБ сэкономлено), улучшенная стабильность.\n\nКак сделать: 1) Резервное копирование Interface\\AddOns и WTF\n2) Удалить через Battle.net\n3) Переустановить WoW\n4) Скопировать резервные папки",
         
         # Help/About tab - content
         "help_version_label": "Утилита Очистки WoW {}",
         "help_about_description": "Комплексный набор инструментов для обслуживания и оптимизации World of Warcraft.\nОчищайте ненужные файлы, управляйте аддонами, оптимизируйте производительность игры и многое другое.\n\nВсегда закрывайте World of Warcraft перед запуском этой утилиты.",
         "help_copyright": "Авторские права © 2025 Paul Vandersypen. Выпущено на условиях GNU General Public License v3.0 (GPL-3.0-or-later). Полные условия см. в прилагаемом файле LICENSE.",
+        "support_patreon": "Поддержать на Patreon",
+        "donate_paypal": "Пожертвовать через PayPal",
         
         # Game Optimizer - hardware detection messages
         "hardware_detected": "✓ Процессор: {} | ОЗУ: {} | Видеокарта: {}",
@@ -3438,12 +3476,10 @@ TRANSLATIONS = {
         "addons_txt_log": "[AddOns.txt] {}: {}개 항목 작성, {}개 제거",
         "preset_applied_log": "{} 사전 설정이 {}에 적용됨",
         "preset_failed_log": "{} 사전 설정 적용 실패: {}",
-        
-        # Language change
+        "change_language": "언어 변경",
+        "change_language_question": "언어를 {}에서 {}(으)로 변경하시겠습니까?\n\n새 언어를 적용하기 위해 애플리케이션이 다시 시작됩니다.",
         "language_changed": "언어 변경됨",
-        "language_changed_restart": "언어가 변경되었습니다. 모든 변경 사항이 적용되려면 애플리케이션을 다시 시작하세요.",
-        
-        # Additional buttons and UI elements
+        "language_changed_restart": "언어가 {}(으)로 변경되었습니다.\n애플리케이션이 지금 다시 시작됩니다.",
         "apply": "적용",
         "cancel": "취소",
         "scan_bak_old": ".bak / .old 파일 스캔",
@@ -3562,11 +3598,16 @@ TRANSLATIONS = {
         "opt_sug_xmp_title": "XMP 메모리 프로파일 활성화",
         "opt_sug_xmp_text": "메인보드 BIOS에 액세스하여 XMP(Extreme Memory Profile) 또는 DOCP/EOCP 설정을 활성화하세요. 이렇게 하면 RAM이 기본 보수적인 속도 대신 정격 속도로 작동하여 전체 시스템 성능이 향상됩니다.",
         "opt_sug_xmp_tooltip": "이유: RAM은 3200MHz 이상으로 평가되더라도 일반적으로 기본적으로 2133MHz로 실행됩니다. XMP는 광고된 속도를 활성화합니다.\n\n위험 수준: 보통 - BIOS 변경. RAM이 불안정하면 시스템이 부팅에 실패할 수 있습니다(쉽게 재설정 가능).\n\n예상 이점: CPU 성능 10-20% 향상, 더 빠른 로딩 시간, 더 나은 1% 최저값.\n\n활성화 방법: BIOS 진입(일반적으로 부팅 시 Del/F2) > XMP/DOCP 설정 찾기 > 활성화 > 저장 및 종료",
+        "opt_sug_reinstall_title": "WoW 재설치 (클린 설치)",
+        "opt_sug_reinstall_text": "AddOns 및 WTF 폴더를 백업하고, Battle.net을 통해 모든 WoW 버전을 제거한 후 재설치하고 백업을 복원하세요. 이렇게 하면 수년간의 패치로 누적된 레거시 파일과 오래된 데이터가 제거됩니다.",
+        "opt_sug_reinstall_tooltip": "이유: 수년간의 업데이트로 오래된 파일, 사용 중단된 애셋, 조각난 데이터가 남아 로딩 속도를 늦추고 공간을 낭비합니다.\n\n위험 수준: 낮음 - 설정/애드온은 WTF/AddOns 폴더에 보존됩니다.\n\n예상 이점: 더 빠른 로딩 시간, 디스크 사용량 감소(5-15 GB 절약), 향상된 안정성.\n\n방법: 1) Interface\\AddOns 및 WTF 백업\n2) Battle.net을 통해 제거\n3) WoW 재설치\n4) 백업한 폴더 복사",
         
         # Help/About tab - content
         "help_version_label": "WoW 정리 도구 {}",
         "help_about_description": "World of Warcraft를 위한 포괄적인 유지 관리 및 최적화 도구 모음입니다.\n불필요한 파일을 정리하고, 애드온을 관리하고, 게임 성능을 최적화하는 등의 작업을 수행합니다.\n\n이 도구를 사용하기 전에 항상 World of Warcraft를 종료하세요.",
         "help_copyright": "Copyright © 2025 Paul Vandersypen. GNU General Public License v3.0(GPL-3.0-or-later)에 따라 출시되었습니다. 전체 약관은 포함된 LICENSE 파일을 참조하세요.",
+        "support_patreon": "Patreon에서 후원하기",
+        "donate_paypal": "PayPal로 기부하기",
         
         # Game Optimizer - hardware detection messages
         "hardware_detected": "✓ CPU: {} | RAM: {} | GPU: {}",
@@ -3852,12 +3893,10 @@ TRANSLATIONS = {
         "addons_txt_log": "[AddOns.txt] {}：写入{}个条目，删除{}个",
         "preset_applied_log": "已为{}应用{}预设",
         "preset_failed_log": "应用{}预设失败：{}",
-        
-        # Language change
+        "change_language": "更改语言",
+        "change_language_question": "将语言从 {} 更改为 {}？\n\n应用程序将重新启动以应用新语言。",
         "language_changed": "语言已更改",
-        "language_changed_restart": "语言已更改。请重新启动应用程序以使所有更改生效。",
-        
-        # Additional buttons and UI elements
+        "language_changed_restart": "语言已更改为 {}。\n应用程序现在将重新启动。",
         "apply": "应用",
         "cancel": "取消",
         "scan_bak_old": "扫描.bak / .old文件",
@@ -3912,13 +3951,18 @@ TRANSLATIONS = {
         "opt_sug_sam_text": "检查主板BIOS设置中的智能访问内存（AMD）或可调整大小的BAR（Intel/NVIDIA）。启用此功能可让CPU访问完整的GPU内存，可能会提高性能。",
         "opt_sug_sam_tooltip": "原因：允许CPU一次访问整个GPU内存，而不是小的256MB块，减少瓶颈。\n\n风险级别：中等 - 需要更改BIOS。首先记录当前设置。\n\n预期收益：在GPU密集型场景中提升5-15%的FPS。\n\n要求：\n• AMD：Ryzen 5000+ CPU + RX 6000+ GPU\n• Intel：第10代+ CPU + RTX 3000+ GPU\n• 可能需要BIOS更新",
         "opt_sug_xmp_title": "启用XMP内存配置文件",
-        "opt_sug_xmp_text": "访问主板BIOS并启用XMP（极限内存配置文件）或DOCP/EOCP设置。这可确保您的内存以其额定速度而非默认的保守速度运行，从而提高整体系统性能。",
+        "opt_sug_xmp_text": "访问主板BIOS并启用XMP（极限内存配置文件）或DOCP/EOCP设置。这可确保您的内存以其额定速度而非默认的保守速度运行,从而提高整体系统性能。",
         "opt_sug_xmp_tooltip": "原因：内存通常默认以2133MHz运行，即使额定为3200MHz+。XMP启用广告速度。\n\n风险级别：中等 - BIOS更改。如果内存不稳定，系统可能无法启动（易于重置）。\n\n预期收益：CPU性能提升10-20%，加载时间更快，更好的1%低点。\n\n如何启用：进入BIOS（启动时通常按Del/F2） > 找到XMP/DOCP设置 > 启用 > 保存并退出",
+        "opt_sug_reinstall_title": "重新安装WoW（干净安装）",
+        "opt_sug_reinstall_text": "备份您的AddOns和WTF文件夹，通过Battle.net卸载所有WoW版本，重新安装，然后恢复您的备份。这将删除多年补丁累积的旧文件和过时数据。",
+        "opt_sug_reinstall_tooltip": "原因：多年的更新会留下过时的文件、弃用的资源和碎片化数据，导致加载速度变慢并浪费空间。\n\n风险级别：低 - 您的设置/插件保存在WTF/AddOns文件夹中。\n\n预期收益：更快的加载时间，减少磁盘使用量（节省5-15 GB），提高稳定性。\n\n操作方法：1) 备份Interface\\AddOns和WTF\n2) 通过Battle.net卸载\n3) 重新安装WoW\n4) 复制备份的文件夹",
         
         # Help/About tab - content
         "help_version_label": "魔兽世界清理工具 {}",
         "help_about_description": "魔兽世界的综合维护和优化套件。\n清理不必要的文件，管理插件，优化游戏性能等。\n\n运行此工具前请务必关闭魔兽世界。",
         "help_copyright": "版权所有 © 2025 Paul Vandersypen。根据GNU通用公共许可证v3.0（GPL-3.0-or-later）发布。有关完整条款，请参阅随附的LICENSE文件。",
+        "support_patreon": "在 Patreon 上支持",
+        "donate_paypal": "通过 PayPal 捐赠",
         
         # Game Optimizer - hardware detection messages
         "hardware_detected": "✓ CPU：{} | 内存：{} | GPU：{}",
@@ -4265,12 +4309,10 @@ TRANSLATIONS = {
         "addons_txt_log": "[AddOns.txt] {}：寫入{}個項目，刪除{}個",
         "preset_applied_log": "已為{}套用{}預設",
         "preset_failed_log": "套用{}預設失敗：{}",
-        
-        # Language change
+        "change_language": "變更語言",
+        "change_language_question": "將語言從 {} 變更為 {}？\n\n應用程式將重新啟動以套用新語言。",
         "language_changed": "語言已變更",
-        "language_changed_restart": "語言已變更。請重新啟動應用程式以使所有變更生效。",
-        
-        # Additional buttons and UI elements
+        "language_changed_restart": "語言已變更為 {}。\n應用程式現在將重新啟動。",
         "apply": "套用",
         "cancel": "取消",
         "scan_bak_old": "掃描.bak / .old檔案",
@@ -4327,11 +4369,16 @@ TRANSLATIONS = {
         "opt_sug_xmp_title": "啟用XMP記憶體設定檔",
         "opt_sug_xmp_text": "存取主機板BIOS並啟用XMP（極限記憶體設定檔）或DOCP/EOCP設定。這可確保您的記憶體以其額定速度而非預設的保守速度執行，從而提高整體系統效能。",
         "opt_sug_xmp_tooltip": "原因：記憶體通常預設以2133MHz執行，即使額定為3200MHz+。XMP啟用廣告速度。\n\n風險等級：中等 - BIOS變更。如果記憶體不穩定，系統可能無法啟動（易於重設）。\n\n預期收益：CPU效能提升10-20%，載入時間更快，更好的1%低點。\n\n如何啟用：進入BIOS（啟動時通常按Del/F2） > 找到XMP/DOCP設定 > 啟用 > 儲存並離開",
+        "opt_sug_reinstall_title": "重新安裝WoW（乾淨安裝）",
+        "opt_sug_reinstall_text": "備份您的AddOns和WTF資料夾，透過Battle.net解除安裝所有WoW版本，重新安裝，然後還原您的備份。這將移除多年修補程式累積的舊檔案和過時資料。",
+        "opt_sug_reinstall_tooltip": "原因：多年的更新會留下過時的檔案、棄用的資源和碎片化資料，導致載入速度變慢並浪費空間。\n\n風險等級：低 - 您的設定/插件保存在WTF/AddOns資料夾中。\n\n預期收益：更快的載入時間，減少磁碟使用量（節省5-15 GB），提高穩定性。\n\n操作方法：1) 備份Interface\\AddOns和WTF\n2) 透過Battle.net解除安裝\n3) 重新安裝WoW\n4) 複製備份的資料夾",
         
         # Help/About tab - content
         "help_version_label": "魔獸世界清理工具 {}",
         "help_about_description": "魔獸世界的綜合維護和最佳化套件。\n清理不必要的檔案，管理插件，最佳化遊戲效能等。\n\n執行此工具前請務必關閉魔獸世界。",
         "help_copyright": "版權所有 © 2025 Paul Vandersypen。根據GNU通用公共授權條款v3.0（GPL-3.0-or-later）發布。有關完整條款，請參閱隨附的LICENSE檔案。",
+        "support_patreon": "在 Patreon 上支持",
+        "donate_paypal": "透過 PayPal 捐款",
         
         # Game Optimizer - hardware detection messages
         "hardware_detected": "✓ CPU：{} | 記憶體：{} | GPU：{}",
@@ -4678,10 +4725,10 @@ TRANSLATIONS = {
         "addons_txt_log": "[AddOns.txt] {}: записано {}, видалено {}",
         "preset_applied_log": "Пресет {} застосовано для {}",
         "preset_failed_log": "Не вдалося застосувати пресет {}: {}",
-        
-        # Language change
+        "change_language": "Змінити мову",
+        "change_language_question": "Змінити мову з {} на {}?\n\nПрограма буде перезапущена для застосування нової мови.",
         "language_changed": "Мову змінено",
-        "language_changed_restart": "Мову було змінено. Перезапустіть програму, щоб застосувати всі зміни.",
+        "language_changed_restart": "Мову змінено на {}.\nПрограма буде перезапущена.",
         
         # Additional buttons and UI elements
         "apply": "Застосувати",
@@ -4740,11 +4787,16 @@ TRANSLATIONS = {
         "opt_sug_xmp_title": "Увімкнути профілі пам'яті XMP",
         "opt_sug_xmp_text": "Увійдіть до BIOS материнської плати та увімкніть XMP (Extreme Memory Profile) або налаштування DOCP/EOCP. Це гарантує, що ваша оперативна пам'ять працює на номінальній швидкості замість консервативної швидкості за замовчуванням, покращуючи загальну продуктивність системи.",
         "opt_sug_xmp_tooltip": "Причина: ОЗП часто працює на частоті 2133 МГц за замовчуванням, навіть якщо розрахована на 3200 МГц+. XMP вмикає заявлені швидкості.\n\nРівень ризику: Помірний - зміна BIOS. Система може не завантажитися, якщо ОЗП нестабільна (легко скинути).\n\nОчікувані переваги: Збільшення продуктивності процесора на 10-20%, швидше завантаження, кращі 1% мінімуми.\n\nЯк увімкнути: Увійдіть до BIOS (зазвичай Del/F2 при завантаженні) > Знайдіть налаштування XMP/DOCP > Увімкніть > Збережіть та вийдіть",
+        "opt_sug_reinstall_title": "Перевстановити WoW (Чиста установка)",
+        "opt_sug_reinstall_text": "Створіть резервні копії папок AddOns та WTF, видаліть усі версії WoW через Battle.net, перевстановіть і відновіть резервні копії. Це видаляє накопичені застарілі файли та застарілі дані за роки патчів.",
+        "opt_sug_reinstall_tooltip": "Причина: Роки оновлень залишають застарілі файли, застарілі ресурси та фрагментовані дані, які сповільнюють завантаження та витрачають місце.\n\nРівень ризику: Низький - Ваші налаштування/аддони зберігаються в папках WTF/AddOns.\n\nОчікувані переваги: Швидше завантаження, менше використаного дискового простору (5-15 ГБ заощаджено), покращена стабільність.\n\nЯк зробити: 1) Резервне копіювання Interface\\AddOns та WTF\n2) Видалити через Battle.net\n3) Перевстановити WoW\n4) Скопіювати резервні папки",
         
         # Help/About tab - content
         "help_version_label": "Утиліта Очищення WoW {}",
         "help_about_description": "Комплексний набір інструментів для обслуговування та оптимізації World of Warcraft.\nОчищайте непотрібні файли, керуйте аддонами, оптимізуйте продуктивність гри тощо.\n\nЗавжди закривайте World of Warcraft перед запуском цієї утиліти.",
         "help_copyright": "Авторські права © 2025 Paul Vandersypen. Випущено на умовах GNU General Public License v3.0 (GPL-3.0-or-later). Повні умови див. у доданому файлі LICENSE.",
+        "support_patreon": "Підтримати на Patreon",
+        "donate_paypal": "Пожертвувати через PayPal",
         
         # Game Optimizer - hardware detection messages
         "hardware_detected": "✓ Процесор: {} | ОЗП: {} | Відеокарта: {}",

@@ -23,12 +23,13 @@ class Tooltip:
     # Class-level tracking of all active tooltips
     _all_tooltips = []
 
-    def __init__(self, widget, text, delay=500):
+    def __init__(self, widget, text, delay=500, app=None):
         self.widget = widget
         self.text = text
         self.delay = delay
         self.tip = None
         self.after_id = None
+        self.app = app  # Optional reference to main app for theme access
         widget.bind("<Enter>", self.on_enter, add="+")
         widget.bind("<Leave>", self.on_leave, add="+")
         widget.bind("<ButtonPress>", self.on_leave, add="+")
@@ -58,11 +59,21 @@ class Tooltip:
         tw = tk.Toplevel(self.widget)
         tw.wm_overrideredirect(True)
         tw.wm_geometry(f"+{x}+{y}")
+        
+        # Get theme colors if app is available
+        if self.app and hasattr(self.app, 'theme_data'):
+            bg_color = self.app.theme_data.get("entry_bg", "#ffffe0")
+            fg_color = self.app.theme_data.get("fg", "black")
+        else:
+            # Fallback to light theme colors
+            bg_color = "#ffffe0"
+            fg_color = "black"
+        
         lbl = tk.Label(
             tw,
             text=self.text,
-            bg="#ffffe0",
-            fg="black",
+            bg=bg_color,
+            fg=fg_color,
             relief="solid",
             bd=1,
             padx=6,
