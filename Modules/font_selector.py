@@ -9,6 +9,35 @@ before applying changes.
 import tkinter as tk
 from tkinter import ttk, messagebox
 
+def clean_font_name_for_display(font_name):
+    """Clean font name for display by removing leading non-letter characters and trimming spaces.
+    
+    Args:
+        font_name: The original font name
+        
+    Returns:
+        Cleaned font name with leading non-letter characters removed and spaces trimmed
+    """
+    if not font_name:
+        return ""
+    
+    # Strip all whitespace characters (including Unicode spaces)
+    import re
+    cleaned = font_name.strip()
+    
+    # Remove leading non-letter characters (including all whitespace types)
+    while cleaned and not cleaned[0].isalpha():
+        cleaned = cleaned[1:]
+    
+    # Remove trailing whitespace and non-letter characters
+    while cleaned and not cleaned[-1].isalpha() and not cleaned[-1].isdigit():
+        cleaned = cleaned[:-1]
+    
+    # Final cleanup - replace multiple spaces with single space and strip
+    cleaned = re.sub(r'\s+', ' ', cleaned).strip()
+    
+    return cleaned
+
 def open_font_selector(app):
     """Open a searchable Toplevel that lists font families styled in their own font.
 
@@ -72,14 +101,15 @@ def open_font_selector(app):
     }
 
     def get_filtered_fonts(filter_text=""):
-        """Return list of fonts matching the filter."""
+        """Return list of fonts matching the filter, sorted alphabetically."""
         pattern = filter_text.lower()
         result = []
         for fam in app.font_families:
             if pattern and pattern not in fam.lower():
                 continue
             result.append(fam)
-        return result
+        # Sort by cleaned display name for consistent alphabetical ordering
+        return sorted(result, key=lambda f: clean_font_name_for_display(f).lower())
 
     def load_batch():
         """Load the next batch of fonts into the list."""
@@ -101,9 +131,12 @@ def open_font_selector(app):
         for i in range(state["loaded_count"], batch_end):
             fam = state["filtered_fonts"][i]
             try:
-                lbl = tk.Label(inner, text=fam, anchor="w", font=(fam, size))
-                lbl.pack(fill="x", anchor="w", padx=2, pady=1)
-                lbl._family = fam
+                display_name = clean_font_name_for_display(fam)
+                # Use original font for rendering, but cleaned text to avoid trailing spaces in display
+                # repr() shows if there are hidden characters, but we use cleaned display_name
+                lbl = tk.Label(inner, text=display_name, anchor="w", font=(fam, size), justify="left")
+                lbl.pack(fill="x", anchor="w", padx=2, pady=1, ipadx=0, ipady=0)
+                lbl._family = fam  # Keep original name for actual font application
                 def _on_click(event, f=fam):
                     apply_font_preview(app, f)
                 lbl.bind("<Button-1>", _on_click)

@@ -70,23 +70,42 @@ def parse_geometry(geometry):
         return None
 
 def keep_on_screen(x, y, w, h, sw, sh):
-    """Adjust window position to keep it visible on screen.
+    """Adjust window position to keep at least 20% visible on screen.
+    
+    Allows the window to move to other monitors in multi-monitor setups,
+    but ensures at least 20% of the window remains visible (80% can be off-screen).
     
     Args:
         x, y: Window position
         w, h: Window dimensions
-        sw, sh: Screen dimensions
+        sw, sh: Screen dimensions (primary screen or virtual desktop)
     
     Returns:
         Tuple of (adjusted_x, adjusted_y)
     """
-    margin = 40
-    if x + w < margin: x = margin
-    if x > sw - margin: x = max(0, sw - w - margin)
-    if y + h < margin: y = margin
-    if y > sh - margin: y = max(0, sh - h - margin)
-    x = max(0, min(x, max(0, sw - 50)))
-    y = max(0, min(y, max(0, sh - 50)))
+    # Minimum visible portion: 20% of window dimensions
+    min_visible_w = int(w * 0.2)
+    min_visible_h = int(h * 0.2)
+    
+    # Allow window to extend beyond screen bounds for multi-monitor support
+    # but ensure at least 20% remains visible on the primary screen area
+    
+    # Right edge: ensure at least min_visible_w pixels are visible from the left
+    if x > sw - min_visible_w:
+        x = sw - min_visible_w
+    
+    # Left edge: ensure at least min_visible_w pixels are visible from the right
+    if x + w < min_visible_w:
+        x = min_visible_w - w
+    
+    # Bottom edge: ensure at least min_visible_h pixels are visible from the top
+    if y > sh - min_visible_h:
+        y = sh - min_visible_h
+    
+    # Top edge: ensure at least min_visible_h pixels are visible from the bottom
+    if y + h < min_visible_h:
+        y = min_visible_h - h
+    
     return x, y
 
 def on_configure(app):

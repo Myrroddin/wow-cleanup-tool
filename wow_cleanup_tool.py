@@ -38,6 +38,7 @@ from Modules.tabs.orphan_cleaner_tab import build_orphan_cleaner_tab as _build_o
 import Modules.tree_helpers as tree_helpers
 from Modules.game_validation import is_game_version_valid, show_game_validation_warning
 from Modules import font_selector, geometry, path_manager, ui_refresh, game_optimizer, update_checker, global_settings
+from Modules import localization
 
 VERSION = "v1.0.0"
 
@@ -95,8 +96,9 @@ else:
     Image = ImageTk = ImageDraw = None
 
 class WoWCleanupTool:
-    MIN_W = 760
-    MIN_H = 540
+    # Minimum window size: 25% of 1080p (1920x1080) = 480x270
+    MIN_W = 480
+    MIN_H = 270
 
     VERSION_FOLDERS = [
         ("_classic_era_", "Classic Era"),
@@ -150,6 +152,31 @@ class WoWCleanupTool:
         # and allow user settings to override the detected default family.
         self.font_families = sorted(list(avail))
         self.font_family_var = tk.StringVar(value=self.settings.get("font_family", self.default_font.cget("family")))
+        
+        # Create a separate display variable with cleaned font name
+        def clean_font_name_for_display(font_name):
+            """Clean font name for display by removing leading non-letter characters and trimming spaces."""
+            import re
+            if not font_name:
+                return ""
+            cleaned = font_name.strip()
+            # Remove leading non-letter characters
+            while cleaned and not cleaned[0].isalpha():
+                cleaned = cleaned[1:]
+            # Remove trailing non-alphanumeric characters except spaces between words
+            while cleaned and not cleaned[-1].isalpha() and not cleaned[-1].isdigit():
+                cleaned = cleaned[:-1]
+            # Replace multiple spaces with single space and strip
+            cleaned = re.sub(r'\s+', ' ', cleaned).strip()
+            return cleaned
+        
+        self.font_family_display_var = tk.StringVar(value=clean_font_name_for_display(self.font_family_var.get()))
+        
+        # Trace changes to keep display var in sync
+        def update_font_display(*args):
+            self.font_family_display_var.set(clean_font_name_for_display(self.font_family_var.get()))
+        self.font_family_var.trace_add("write", update_font_display)
+        
         try:
             # If the user had a saved font, apply it now.
             self.default_font.configure(family=self.font_family_var.get())
@@ -193,14 +220,27 @@ class WoWCleanupTool:
         except Exception:
             pass
 
+        # Initialize localization
+        saved_language = self.settings.get("language", None)
+        if saved_language and saved_language in localization.AVAILABLE_LANGUAGES:
+            localization.set_language(saved_language)
+        else:
+            # Auto-detect system language
+            detected_lang = localization.detect_system_language()
+            localization.set_language(detected_lang)
+            self.settings["language"] = detected_lang
+
         # State
         self.wow_path_var = tk.StringVar(value=self.settings.get("wow_path", ""))
         self.delete_mode = tk.StringVar(value=self.settings.get("delete_mode", "delete"))
         self.theme_var = tk.StringVar(value=self.settings.get("theme", "light"))
+        self.language_var = tk.StringVar(value=localization.get_language())
         self.verbose_var = tk.BooleanVar(value=bool(self.settings.get("verbose_logging", False)))
         self.check_for_updates_var = tk.BooleanVar(value=bool(self.settings.get("check_for_updates", True)))
+        # External log mode: "fresh" creates new file, "append" appends to existing (max 20 sessions)
+        self.external_log_mode_var = tk.StringVar(value=self.settings.get("external_log_mode", "fresh"))
 
-        self.root.title(f"WoW Cleanup Tool {VERSION}")
+        self.root.title(localization._("window_title") + f" {VERSION}")
         geometry.setup_geometry(self)
         ui_refresh.rebuild_assets(self)
         self.build_ui()
@@ -209,7 +249,7 @@ class WoWCleanupTool:
         self.root.bind("<Configure>", lambda e: geometry.on_configure(self), add="+")
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
         self.root.after(200, self.show_startup_warning)
-        self.log(f"Session started — {VERSION}")
+        self.log(localization._("session_started", VERSION))
 
     # -------- Verbose logging helper --------
     def vlog(self, text):
@@ -681,32 +721,48 @@ class WoWCleanupTool:
         except Exception:
             pass
 
+    def change_language(self, *args):
+        """Handle language change and rebuild UI."""
+        new_lang = self.language_var.get()
+        if new_lang != localization.get_language():
+            localization.set_language(new_lang)
+            self.settings["language"] = new_lang
+            save_settings(self.settings)
+            
+            # Show message that restart is recommended
+            messagebox.showinfo(
+                localization._("language_changed"),
+                localization._("language_changed_restart")
+            )
+
     # ------------- UI Build -------------
     def build_ui(self):
+        _ = localization._  # Convenience alias
+        
         # Options with subtle border
         self.options_border = tk.Frame(self.root, bg=self.root.cget("bg"))
         self.options_border.pack(fill="x", padx=10, pady=(10, 8))
-        options = ttk.LabelFrame(self.options_border, text="Options", padding=8)
+        options = ttk.LabelFrame(self.options_border, text=_("options"), padding=8)
         options.pack(fill="x", padx=1, pady=1)
 
-        # Row 0: Label | Entry (half) | Browse | Font size | Theme
-        ttk.Label(options, text="World of Warcraft Folder:").grid(row=0, column=0, sticky="w", padx=(0,6), pady=4)
+        # Row 0: Label | Entry (half) | Browse | Font size | Theme | Language
+        ttk.Label(options, text=_("wow_folder")).grid(row=0, column=0, sticky="w", padx=(0,6), pady=4)
 
         self.folder_entry = ttk.Entry(options, textvariable=self.wow_path_var, width=42)
         self.folder_entry.grid(row=0, column=1, sticky="we", padx=(0,6), pady=4)
 
-        folder_btn = ttk.Button(options, text="Browse...", command=self.select_wow_folder)
+        folder_btn = ttk.Button(options, text=_("browse"), command=self.select_wow_folder)
         folder_btn.grid(row=0, column=2, sticky="w", padx=(0,10), pady=4)
-        Tooltip(folder_btn, "Browse for your World of Warcraft folder.")
+        Tooltip(folder_btn, _("browse_tooltip"))
 
-        ttk.Label(options, text="Font Size:").grid(row=0, column=3, sticky="e", padx=(0,6), pady=4)
+        ttk.Label(options, text=_("font_size")).grid(row=0, column=3, sticky="e", padx=(0,6), pady=4)
         font_spin = ttk.Spinbox(options, from_=6, to=16, textvariable=self.font_size_var, width=5, command=self.update_font_size)
         font_spin.grid(row=0, column=4, sticky="w", padx=(0,10), pady=4)
 
         # Font selection: a searchable selector opened from a button showing current font
-        ttk.Label(options, text="Font:").grid(row=0, column=5, sticky="e", padx=(0,6), pady=4)
+        ttk.Label(options, text=_("font")).grid(row=0, column=5, sticky="e", padx=(0,6), pady=4)
         # Button shows the currently selected font; clicking opens a searchable selector.
-        self.font_button = ttk.Button(options, textvariable=self.font_family_var, command=lambda: font_selector.open_font_selector(self))
+        self.font_button = ttk.Button(options, textvariable=self.font_family_display_var, command=lambda: font_selector.open_font_selector(self))
         self.font_button.grid(row=0, column=6, sticky="w", padx=(0,10), pady=4)
         try:
             # Apply the selected font to the button itself for a live preview.
@@ -718,25 +774,45 @@ class WoWCleanupTool:
         self._font_selector = None
         self._font_label_widgets = []
 
-        ttk.Label(options, text="Theme:").grid(row=0, column=7, sticky="e", padx=(0,6), pady=4)
-        theme_combo = ttk.Combobox(options, textvariable=self.theme_var, values=["light", "dark"], state="readonly", width=10)
-        theme_combo.grid(row=0, column=8, sticky="w", padx=(0,0), pady=4)
+        ttk.Label(options, text=_("theme")).grid(row=0, column=7, sticky="e", padx=(0,6), pady=4)
+        theme_combo = ttk.Combobox(options, textvariable=self.theme_var, values=[_("light"), _("dark")], state="readonly", width=10)
+        theme_combo.grid(row=0, column=8, sticky="w", padx=(0,10), pady=4)
         theme_combo.bind("<<ComboboxSelected>>", lambda e: self._apply_theme())
+
+        ttk.Label(options, text=_("language")).grid(row=0, column=9, sticky="e", padx=(0,6), pady=4)
+        # Create language dropdown with native language names
+        lang_names = [localization.AVAILABLE_LANGUAGES[code] for code in sorted(localization.AVAILABLE_LANGUAGES.keys())]
+        lang_codes = sorted(localization.AVAILABLE_LANGUAGES.keys())
+        self._lang_code_map = dict(zip(lang_names, lang_codes))
+        self._lang_name_map = dict(zip(lang_codes, lang_names))
+        current_lang_name = self._lang_name_map[self.language_var.get()]
+        self.language_display_var = tk.StringVar(value=current_lang_name)
+        language_combo = ttk.Combobox(options, textvariable=self.language_display_var, values=lang_names, state="readonly", width=15)
+        language_combo.grid(row=0, column=10, sticky="w", padx=(0,0), pady=4)
+        
+        def on_language_change(e):
+            selected_name = self.language_display_var.get()
+            selected_code = self._lang_code_map.get(selected_name)
+            if selected_code:
+                self.language_var.set(selected_code)
+                self.change_language()
+        
+        language_combo.bind("<<ComboboxSelected>>", on_language_change)
 
         options.columnconfigure(1, weight=1)   # Entry stretches
 
         # Row 1: File Action label | Delete | Trash | Verbose | Check Updates | Restore
         mode_frame = ttk.Frame(options)
-        mode_frame.grid(row=1, column=0, columnspan=7, sticky="we", pady=(2, 2))
+        mode_frame.grid(row=1, column=0, columnspan=11, sticky="we", pady=(2, 2))
         mode_frame.columnconfigure(10, weight=1)
 
-        ttk.Label(mode_frame, text="File Action:").grid(row=0, column=0, sticky="w", padx=(0,8))
+        ttk.Label(mode_frame, text=_("file_action")).grid(row=0, column=0, sticky="w", padx=(0,8))
 
         self.radio_container = ttk.Frame(mode_frame)
         self.radio_container.grid(row=0, column=1, sticky="w")
 
-        self.rb_delete = ImgRadio(self.radio_container, "Delete Permanently", self.delete_mode, "delete", self.assets)
-        self.rb_trash  = ImgRadio(self.radio_container, "Move to Recycle Bin", self.delete_mode, "trash", self.assets)
+        self.rb_delete = ImgRadio(self.radio_container, _("delete_permanently"), self.delete_mode, "delete", self.assets)
+        self.rb_trash  = ImgRadio(self.radio_container, _("move_to_recycle"), self.delete_mode, "trash", self.assets)
         self.rb_delete.pack(side="left", padx=(0,14))
         self.rb_trash.pack(side="left", padx=(0,14))
         
@@ -746,22 +822,26 @@ class WoWCleanupTool:
             # Force delete mode if trash was previously selected
             if self.delete_mode.get() == "trash":
                 self.delete_mode.set("delete")
-            Tooltip(self.rb_trash, 
-                    "The 'send2trash' package is not installed.\n"
-                    "To enable Recycle Bin support, install it manually:\n\n"
-                    "  pip install send2trash\n\n"
-                    "or:\n\n"
-                    "  python -m pip install --user send2trash")
+            Tooltip(self.rb_trash, _("send2trash_install"))
 
-        self.verbose_cb = ImgCheckbox(mode_frame, "Enable verbose logging", self.verbose_var, self.assets)
+        self.verbose_cb = ImgCheckbox(mode_frame, _("enable_verbose"), self.verbose_var, self.assets)
         self.verbose_cb.grid(row=0, column=2, sticky="w", padx=(10,0))
-        Tooltip(self.verbose_cb, "When enabled, Log captures every processed file/folder/AddOns.txt line.")
+        Tooltip(self.verbose_cb, _("verbose_tooltip"))
 
-        self.check_updates_cb = ImgCheckbox(mode_frame, "Check for updates", self.check_for_updates_var, self.assets)
-        self.check_updates_cb.grid(row=0, column=3, sticky="w", padx=(10,0))
-        Tooltip(self.check_updates_cb, "When enabled, check for new releases on GitHub at startup.")
+        # External log mode
+        ttk.Label(mode_frame, text=_("external_log")).grid(row=0, column=3, sticky="e", padx=(10,6))
+        self.external_log_fresh_rb = ImgRadio(mode_frame, _("fresh"), self.external_log_mode_var, "fresh", self.assets)
+        self.external_log_fresh_rb.grid(row=0, column=4, sticky="w")
+        Tooltip(self.external_log_fresh_rb, _("fresh_tooltip"))
+        self.external_log_append_rb = ImgRadio(mode_frame, _("append"), self.external_log_mode_var, "append", self.assets)
+        self.external_log_append_rb.grid(row=0, column=5, sticky="w", padx=(5,0))
+        Tooltip(self.external_log_append_rb, _("append_tooltip"))
 
-        restore_btn = ttk.Button(mode_frame, text="Restore Defaults", command=self.restore_defaults)
+        self.check_updates_cb = ImgCheckbox(mode_frame, _("check_updates"), self.check_for_updates_var, self.assets)
+        self.check_updates_cb.grid(row=0, column=6, sticky="w", padx=(10,0))
+        Tooltip(self.check_updates_cb, _("check_updates_tooltip"))
+
+        restore_btn = ttk.Button(mode_frame, text=_("restore_defaults"), command=self.restore_defaults)
         restore_btn.grid(row=0, column=9, sticky="e", padx=(10,0))
 
         # Main notebook
@@ -771,27 +851,32 @@ class WoWCleanupTool:
 
         # File Cleaner
         self.cleaner_tab = ttk.Frame(self.main_notebook)
-        self.main_notebook.add(self.cleaner_tab, text="File Cleaner")
+        self.main_notebook.add(self.cleaner_tab, text=_("file_cleaner"))
         self.build_file_cleaner_tree(self.cleaner_tab)
 
         # Folder Cleaner
         self.folder_tab = ttk.Frame(self.main_notebook)
-        self.main_notebook.add(self.folder_tab, text="Folder Cleaner")
+        self.main_notebook.add(self.folder_tab, text=_("folder_cleaner"))
         self.build_folder_cleaner_tab(self.folder_tab)
 
         # Orphan Cleaner
         self.orphan_tab = ttk.Frame(self.main_notebook)
-        self.main_notebook.add(self.orphan_tab, text="Orphan Cleaner")
+        self.main_notebook.add(self.orphan_tab, text=_("orphan_cleaner"))
         self.build_orphan_cleaner_tab(self.orphan_tab)
 
         # Game Optimizer
         self.optimizer_tab = ttk.Frame(self.main_notebook)
-        self.main_notebook.add(self.optimizer_tab, text="Game Optimizer")
+        self.main_notebook.add(self.optimizer_tab, text=_("game_optimizer"))
         game_optimizer.build_game_optimizer_tab(self, self.optimizer_tab)
+
+        # Optimization Suggestions
+        self.suggestions_tab = ttk.Frame(self.main_notebook)
+        self.main_notebook.add(self.suggestions_tab, text=_("optimization_suggestions"))
+        self.build_optimization_suggestions_tab(self.suggestions_tab)
 
         # Log
         self.log_tab = ttk.Frame(self.main_notebook)
-        self.main_notebook.add(self.log_tab, text="Log")
+        self.main_notebook.add(self.log_tab, text=_("log"))
         self.build_log_tab(self.log_tab)
 
         # Help
@@ -1334,6 +1419,96 @@ class WoWCleanupTool:
         )
 
     # ------------- Help & Log -------------
+    def build_optimization_suggestions_tab(self, parent):
+        """Build the Optimization Suggestions tab with manual recommendations."""
+        frame = ttk.Frame(parent, padding=10)
+        frame.pack(fill="both", expand=True)
+        
+        # Header with disclaimer
+        header_frame = ttk.Frame(frame)
+        header_frame.pack(fill="x", pady=(0, 12))
+        
+        ttk.Label(
+            header_frame,
+            text="Manual Optimization Suggestions",
+            font=(None, 12, "bold")
+        ).pack(anchor="w")
+        
+        disclaimer = ttk.Label(
+            header_frame,
+            text="NOTE: This application does NOT perform these optimizations automatically. These are manual suggestions for you to implement.",
+            foreground="red",
+            font=(None, 9, "italic"),
+            wraplength=max(200, (header_frame.winfo_width() - 40) if header_frame.winfo_width() > 1 else 560)
+        )
+        disclaimer.pack(anchor="w", pady=(4, 0))
+        
+        # Update wraplength on resize with margin to prevent text cutoff
+        def update_disclaimer_wrap(event):
+            disclaimer.configure(wraplength=max(200, header_frame.winfo_width() - 40))
+        header_frame.bind("<Configure>", update_disclaimer_wrap)
+        
+        # Create scrollable content area
+        canvas = tk.Canvas(frame, borderwidth=0, highlightthickness=0)
+        scrollbar = ttk.Scrollbar(frame, orient="vertical", command=canvas.yview)
+        content_frame = ttk.Frame(canvas)
+        
+        content_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.create_window((0, 0), window=content_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        
+        # Suggestions list
+        suggestions = [
+            {
+                "title": "Clean Game Data Folder",
+                "text": "If several years or multiple expansions have passed since installing World of Warcraft, consider deleting the Data folder from your main World of Warcraft directory. This *could* reduce game size and improve loading screen performance. The Battle.net launcher will automatically rebuild this folder when needed."
+            },
+            {
+                "title": "Enable HDR (High Dynamic Range)",
+                "text": "Check your operating system's display settings to see if HDR is available. If supported by your monitor, enabling HDR can significantly improve visual clarity and color depth in-game."
+            },
+            {
+                "title": "Verify Monitor Refresh Rate",
+                "text": "Ensure your monitor's refresh rate is set to the maximum supported value in your operating system's display settings. Higher refresh rates provide smoother gameplay and better responsiveness."
+            },
+            {
+                "title": "Enable Smart Access Memory / Resizable BAR",
+                "text": "Check your motherboard BIOS settings for Smart Access Memory (AMD) or Resizable BAR (Intel/NVIDIA). Enabling this feature allows your CPU to access the full GPU memory, potentially improving performance."
+            },
+            {
+                "title": "Enable XMP Memory Profile",
+                "text": "Access your motherboard BIOS and enable the XMP (Extreme Memory Profile) or DOCP/EOCP setting. This ensures your RAM runs at its rated speed rather than default conservative speeds, improving overall system performance."
+            }
+        ]
+        
+        # Create grid with one column per suggestion
+        grid_frame = ttk.Frame(content_frame)
+        grid_frame.pack(fill="both", expand=True, padx=5)
+        
+        for idx, suggestion in enumerate(suggestions):
+            # Create column for each suggestion
+            column_frame = ttk.Frame(grid_frame, relief="ridge", borderwidth=1, padding=10)
+            column_frame.grid(row=0, column=idx, sticky="nsew", padx=5, pady=5)
+            grid_frame.columnconfigure(idx, weight=1)
+            
+            # Title with bullet
+            ttk.Label(
+                column_frame,
+                text=f"•  {suggestion['title']}",
+                font=(None, 10, "bold")
+            ).pack(anchor="w")
+            
+            # Description
+            ttk.Label(
+                column_frame,
+                text=suggestion['text'],
+                wraplength=200,
+                justify="left"
+            ).pack(anchor="w", padx=(15, 0), pady=(4, 0))
+
     def build_log_tab(self, parent):
         frame = ttk.Frame(parent, padding=10)
         frame.pack(fill="both", expand=True)
@@ -1347,7 +1522,12 @@ class WoWCleanupTool:
             self.logger.attach_text_widget(self.log_text)
         except Exception:
             pass
-        ttk.Button(parent, text="Clear Log", command=self.clear_log).pack(anchor="w", padx=10, pady=6)
+        
+        # Button frame for Export and Clear
+        btn_frame = ttk.Frame(parent)
+        btn_frame.pack(anchor="w", padx=10, pady=6)
+        ttk.Button(btn_frame, text="Export Log", command=self.export_log).pack(side="left")
+        ttk.Button(btn_frame, text="Clear Log", command=self.clear_log).pack(side="left", padx=(8,0))
 
     def build_help_tab(self, parent):
         outer = ttk.Frame(parent, padding=12)
@@ -1361,7 +1541,7 @@ class WoWCleanupTool:
             text=("A comprehensive maintenance and optimization suite for World of Warcraft.\n"
                   "Clean unnecessary files, manage addons, optimize game performance, and more.\n\n"
                   "Always close World of Warcraft before running this tool."),
-            wraplength=520, justify="center"
+            wraplength=500, justify="center"
         ).pack(anchor="center", pady=(0, 8))
         ttk.Label(
             card,
@@ -1389,6 +1569,116 @@ class WoWCleanupTool:
         return path_manager.is_valid_wow_install(path)
 
     # ------------- Logging helpers -------------
+    def export_log(self):
+        """Export the current log to an external text file."""
+        try:
+            from tkinter import filedialog
+            import platform
+            
+            # Determine default directory (Documents folder)
+            default_dir = os.path.expanduser("~")
+            if platform.system() == "Windows":
+                # Try to get Documents folder on Windows
+                try:
+                    import ctypes.wintypes
+                    CSIDL_PERSONAL = 5
+                    buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
+                    ctypes.windll.shell32.SHGetFolderPathW(None, CSIDL_PERSONAL, None, 0, buf)
+                    default_dir = buf.value
+                except Exception:
+                    default_dir = os.path.join(os.path.expanduser("~"), "Documents")
+            elif platform.system() == "Darwin":
+                default_dir = os.path.join(os.path.expanduser("~"), "Documents")
+            else:
+                # Linux/Unix - try common locations
+                docs = os.path.join(os.path.expanduser("~"), "Documents")
+                if os.path.exists(docs):
+                    default_dir = docs
+            
+            # Get timestamp for default filename
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            default_filename = f"wow_cleanup_log_{timestamp}.txt"
+            
+            # Ask user where to save
+            filepath = filedialog.asksaveasfilename(
+                title="Export Log",
+                initialdir=default_dir,
+                initialfile=default_filename,
+                defaultextension=".txt",
+                filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")]
+            )
+            
+            if not filepath:
+                return  # User cancelled
+            
+            # Get log content
+            log_lines = self.logger.get_lines()
+            if not log_lines:
+                messagebox.showinfo("Export Log", "Log is empty. Nothing to export.")
+                return
+            
+            # Determine mode
+            mode = self.external_log_mode_var.get()
+            # Max sessions: 10 for verbose logging (more output), 20 for normal logging
+            max_sessions = 10 if self.verbose_var.get() else 20
+            
+            if mode == "fresh":
+                # Fresh mode: overwrite file
+                with open(filepath, "w", encoding="utf-8") as f:
+                    for line in log_lines:
+                        f.write(line + "\n")
+            else:
+                # Append mode: add to existing file with session limit
+                existing_content = ""
+                if os.path.exists(filepath):
+                    try:
+                        with open(filepath, "r", encoding="utf-8") as f:
+                            existing_content = f.read()
+                    except Exception:
+                        existing_content = ""
+                
+                # Parse existing sessions if file exists
+                if existing_content:
+                    # Split by session markers
+                    session_marker = "=" * 80
+                    sessions = []
+                    current_session = []
+                    
+                    for line in existing_content.split("\n"):
+                        if line.strip() == session_marker:
+                            if current_session:
+                                sessions.append("\n".join(current_session))
+                                current_session = []
+                        current_session.append(line)
+                    
+                    # Add last session if exists
+                    if current_session:
+                        sessions.append("\n".join(current_session))
+                    
+                    # Keep only the most recent (max_sessions - 1) to make room for new session
+                    if len(sessions) >= max_sessions:
+                        sessions = sessions[-(max_sessions - 1):]
+                    
+                    # Write back existing sessions
+                    with open(filepath, "w", encoding="utf-8") as f:
+                        for session in sessions:
+                            f.write(session)
+                            if not session.endswith("\n"):
+                                f.write("\n")
+                
+                # Append new session with separator
+                with open(filepath, "a", encoding="utf-8") as f:
+                    f.write("\n" + "="*80 + "\n")
+                    f.write(f"Session: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+                    f.write("="*80 + "\n")
+                    for line in log_lines:
+                        f.write(line + "\n")
+            
+            messagebox.showinfo("Export Log", f"Log exported successfully to:\n{filepath}")
+            
+        except Exception as e:
+            messagebox.showerror("Export Error", f"Failed to export log:\n{str(e)}")
+    
     def clear_log(self):
         try:
             self.logger.clear()
@@ -1527,8 +1817,10 @@ class WoWCleanupTool:
         self.settings["wow_path"] = self.wow_path_var.get()
         self.settings["delete_mode"] = self.delete_mode.get()
         self.settings["theme"] = self.theme_var.get()
+        self.settings["language"] = self.language_var.get()
         self.settings["verbose_logging"] = bool(self.verbose_var.get())
         self.settings["check_for_updates"] = bool(self.check_for_updates_var.get())
+        self.settings["external_log_mode"] = self.external_log_mode_var.get()
         try:
             self.settings["font_size"] = int(self.font_size_var.get())
         except Exception:

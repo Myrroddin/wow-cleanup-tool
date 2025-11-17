@@ -11,11 +11,12 @@ def build_orphan_cleaner_tab(app, parent):
     )
     desc = ttk.Label(parent, padding=(10, 10),
         text=description_text,
-        wraplength=parent.winfo_width(), justify="left")
+        wraplength=max(200, parent.winfo_width() - 40), justify="left")
     desc.pack(fill="x")
 
     def update_wraplength(event):
-        desc.configure(wraplength=parent.winfo_width())
+        # Subtract padding margin to prevent text cutoff
+        desc.configure(wraplength=max(200, parent.winfo_width() - 40))
 
     parent.bind("<Configure>", update_wraplength)
 

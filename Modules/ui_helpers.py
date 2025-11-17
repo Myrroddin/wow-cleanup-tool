@@ -57,7 +57,7 @@ class Tooltip:
             padx=6,
             pady=3,
             justify="left",
-            wraplength=300,
+            wraplength=280,
         )
         lbl.pack()
         self.tip = tw

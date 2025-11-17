@@ -33,7 +33,7 @@ def show_startup_warning(root, settings, save_settings_fn, logger=None):
         frm,
         text=("⚠️ Please ensure World of Warcraft is completely closed before using this tool.\n\n"
               "Running the tool while WoW is open could interfere with the game's files."),
-        wraplength=pw - 24, justify="left"
+        wraplength=pw - 48, justify="left"
     ).pack(pady=(0, 12))
 
     never_show_var = tk.BooleanVar(value=False)

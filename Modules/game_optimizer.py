@@ -35,6 +35,9 @@ def get_hardware_info():
         cpu_name = cpu_future.result()
         gpu_list = gpu_future.result()
     
+    # Check if GPU was switched from integrated to discrete
+    selected_gpu, original_gpu = _select_best_gpu(gpu_list, cpu_name)
+    
     info = {
         "system": platform.system(),
         "processor": platform.processor(),
@@ -43,6 +46,8 @@ def get_hardware_info():
         "cpu_threads": cpu_threads,
         "memory_gb": round(psutil.virtual_memory().total / (1024 ** 3), 1),
         "gpu": gpu_list,
+        "gpu_selected": selected_gpu,
+        "gpu_original": original_gpu,
     }
 
     return info
@@ -174,15 +179,17 @@ def _select_best_gpu(gpu_list, cpu_name):
         cpu_name: String name of the CPU
     
     Returns:
-        str or None: Name of the dedicated GPU to use, or None if no selection needed
+        tuple: (selected_gpu, original_gpu) where selected_gpu is the GPU to use,
+               original_gpu is the first GPU in the list (usually integrated),
+               or (None, None) if no selection needed
     """
     # Skip for Apple Silicon - they don't have dedicated GPUs
     cpu_lower = cpu_name.lower()
     if "apple" in cpu_lower and any(x in cpu_lower for x in ["m1", "m2", "m3", "m4"]):
-        return None
+        return None, None
     
     if not gpu_list or len(gpu_list) < 2:
-        return None
+        return None, None
     
     # Check if we have both integrated and dedicated GPUs
     integrated = []
@@ -194,11 +201,11 @@ def _select_best_gpu(gpu_list, cpu_name):
         else:
             dedicated.append(gpu)
     
-    # If we have both types, return the first dedicated GPU
+    # If we have both types, return the first dedicated GPU and the first integrated
     if integrated and dedicated:
-        return dedicated[0]
+        return dedicated[0], integrated[0]
     
-    return None
+    return None, None
 
 def _detect_gpu_names():
     """Return a list of GPU names across platforms when possible."""
@@ -272,14 +279,14 @@ def build_game_optimizer_tab(app, parent):
     description_label = ttk.Label(
         frame,
         text=description_text,
-        wraplength=frame.winfo_width(),
+        wraplength=max(200, frame.winfo_width() - 40),
         justify="left",
     )
     description_label.pack(anchor="w", pady=(0, 20))
 
     def update_wraplength(event):
-        # Set wraplength to the current frame width
-        description_label.configure(wraplength=frame.winfo_width())
+        # Set wraplength with margin to prevent text cutoff
+        description_label.configure(wraplength=max(200, frame.winfo_width() - 40))
 
     frame.bind("<Configure>", update_wraplength)
 
@@ -290,7 +297,7 @@ def build_game_optimizer_tab(app, parent):
     scan_btn = ttk.Button(
         button_frame,
         text="Scan Hardware",
-        command=lambda: _on_scan_hardware(app, info_label, scan_btn, notebook_container),
+        command=lambda: _on_scan_hardware(app, info_label, gpu_switch_label, scan_btn, notebook_container),
     )
     scan_btn.pack(side="left", padx=(0, 12))
 
@@ -304,6 +311,21 @@ def build_game_optimizer_tab(app, parent):
     )
     info_label.pack(side="left", fill="x", expand=True)
 
+    # GPU switch notification label (shown when GPU is switched)
+    gpu_switch_label = ttk.Label(
+        frame,
+        text="",
+        foreground="blue",
+        wraplength=max(200, frame.winfo_width() - 40),
+        justify="left",
+    )
+    gpu_switch_label.pack(anchor="w", pady=(0, 10))
+    
+    # Update wraplength on resize
+    def update_gpu_switch_wraplength(event):
+        gpu_switch_label.configure(wraplength=max(200, frame.winfo_width() - 40))
+    frame.bind("<Configure>", update_gpu_switch_wraplength, add="+")
+
     # Prepare hidden notebook container for per-version tabs (hidden until needed)
     notebook_container = ttk.Frame(frame)
     # Do not pack notebook_container yet; it will be shown when data exists
@@ -311,19 +333,21 @@ def build_game_optimizer_tab(app, parent):
     app.optimizer_version_tabs = []
 
     # Load cached hardware info and populate tabs if available
-    _load_cached_hardware(app, info_label, scan_btn, notebook_container)
+    _load_cached_hardware(app, info_label, gpu_switch_label, scan_btn, notebook_container)
 
-def _load_cached_hardware(app, info_label, scan_btn, notebook_container):
+def _load_cached_hardware(app, info_label, gpu_switch_label, scan_btn, notebook_container):
     """Load cached hardware info from global settings.
 
     Args:
         app: The WoWCleanupTool instance
         info_label: The label to update with status
+        gpu_switch_label: The label to display GPU switch notification
         scan_btn: The Scan Hardware button widget
     """
     cached = get_global_setting("hardware_cache", None)
     if cached:
         _display_hardware_info(info_label, cached)
+        _display_gpu_switch_info(gpu_switch_label, cached)
         _set_scan_tooltip(scan_btn)
         _populate_version_tabs(app, notebook_container)
     else:
@@ -346,6 +370,25 @@ def _display_hardware_info(info_label, hardware):
     gpu_info = hardware.get("gpu", ["Unknown"])[0] if hardware.get("gpu") else "Unknown"
     text = f"✓ CPU: {cpu_info} | RAM: {ram_info} | GPU: {gpu_info}"
     info_label.configure(text=text)
+
+def _display_gpu_switch_info(gpu_switch_label, hardware):
+    """Display GPU switch notification if applicable.
+    
+    Args:
+        gpu_switch_label: The label to update with GPU switch info
+        hardware: Hardware info dict
+    """
+    gpu_selected = hardware.get("gpu_selected")
+    gpu_original = hardware.get("gpu_original")
+    
+    if gpu_selected and gpu_original:
+        text = (
+            f"ℹ GPU Switch: Configured to use '{gpu_selected}' instead of '{gpu_original}'. "
+            f"This change optimizes performance by using your dedicated GPU for better gaming experience."
+        )
+        gpu_switch_label.configure(text=text)
+    else:
+        gpu_switch_label.configure(text="")
 
 def _set_scan_tooltip(scan_btn):
     """Attach tooltip to the Scan Hardware button after cache is populated.
@@ -541,6 +584,79 @@ def _preset_to_config_settings(preset_name):
     }
     return configs.get(preset_name, [])
 
+def _read_current_config(version_path):
+    """Read current Config.wtf and return dict of setting name -> value.
+    
+    Args:
+        version_path: Path to the WoW version folder
+        
+    Returns:
+        dict: Mapping of setting names to their current values
+    """
+    config_path = os.path.join(version_path, "WTF", "Config.wtf")
+    config_dict = {}
+    
+    if not os.path.exists(config_path):
+        return config_dict
+    
+    try:
+        with open(config_path, "r", encoding="utf-8", errors="ignore") as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith("SET "):
+                    parts = line.split(None, 2)
+                    if len(parts) >= 3:
+                        setting_name = parts[1]
+                        # Extract value, removing quotes
+                        value = parts[2].strip('"')
+                        config_dict[setting_name] = value
+    except Exception:
+        pass
+    
+    return config_dict
+
+def _get_recommended_performance_settings(hardware):
+    """Get recommended performance settings based on hardware that may not be in presets.
+    
+    Args:
+        hardware: Hardware info dict
+        
+    Returns:
+        list: List of recommended CVar settings for performance
+    """
+    recommendations = []
+    
+    if not hardware:
+        return recommendations
+    
+    threads = hardware.get('cpu_threads', 0)
+    cores = hardware.get('cpu_cores', 0)
+    ram_gb = hardware.get('memory_gb', 0)
+    
+    # Threaded optimization
+    if threads >= 12:
+        recommendations.append('SET processAffinityMask "255"')  # Use all cores
+        recommendations.append('SET graphicsMultisampleMode "4"')  # Better quality
+    elif threads >= 8:
+        recommendations.append('SET processAffinityMask "15"')  # Use 4 cores
+    
+    # Physics and multithreading
+    if cores >= 6:
+        recommendations.append('SET physicsInteractionLimit "60"')  # More physics objects
+    
+    # Spell density based on GPU tier (if available)
+    gpu_list = hardware.get('gpu', [])
+    if gpu_list:
+        # High-end GPUs: full spell effects
+        recommendations.append('SET spellClutter "160"')  # Full spell density
+        recommendations.append('SET particleDensity "100"')  # Max particles
+    
+    # Network and cache settings
+    recommendations.append('SET M2Faster "1"')  # Faster model loading
+    recommendations.append('SET textureFilteringMode "5"')  # Trilinear filtering
+    
+    return recommendations
+
 def _apply_settings_to_config(version_path, preset_name, hardware=None):
     """Write preset settings to the version's Config.wtf file.
     
@@ -589,11 +705,19 @@ def _apply_settings_to_config(version_path, preset_name, hardware=None):
             if len(parts) >= 2:
                 config_dict[parts[1]] = setting
         
+        # Add recommended performance settings
+        if hardware:
+            recommended_settings = _get_recommended_performance_settings(hardware)
+            for setting in recommended_settings:
+                parts = setting.split(None, 2)
+                if len(parts) >= 2:
+                    config_dict[parts[1]] = setting
+        
         # GPU selection for Intel/AMD systems with both integrated and dedicated GPUs
         if hardware:
             gpu_list = hardware.get("gpu", [])
             cpu_name = hardware.get("cpu_name", "")
-            dedicated_gpu = _select_best_gpu(gpu_list, cpu_name)
+            dedicated_gpu, _ = _select_best_gpu(gpu_list, cpu_name)
             
             # Only set adapter on Windows builds
             if dedicated_gpu and platform.system() == "Windows":
@@ -719,15 +843,15 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
         instruction_label = ttk.Label(
             frame,
             text=instruction_text,
-            wraplength=frame.winfo_width() if frame.winfo_width() > 1 else 600,
+            wraplength=max(200, (frame.winfo_width() - 40) if frame.winfo_width() > 1 else 560),
             justify="left",
             foreground="red"
         )
         instruction_label.pack(anchor="w", pady=(8, 8))
         
-        # Update wraplength on resize
+        # Update wraplength on resize with margin to prevent text cutoff
         def update_instruction_wrap(event):
-            instruction_label.configure(wraplength=frame.winfo_width())
+            instruction_label.configure(wraplength=max(200, frame.winfo_width() - 40))
         frame.bind("<Configure>", update_instruction_wrap)
         
         return {"instruction_label": instruction_label}
@@ -741,7 +865,7 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
         if hardware:
             gpu_list = hardware.get("gpu", [])
             cpu_name = hardware.get("cpu_name", "")
-            chosen_dedicated = _select_best_gpu(gpu_list, cpu_name)
+            chosen_dedicated, _ = _select_best_gpu(gpu_list, cpu_name)
             if chosen_dedicated:
                 # Use only the dedicated GPU for tier calculations
                 classification_hw["gpu"] = [chosen_dedicated]
@@ -763,23 +887,140 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
         suggested_preset = None
         preset_title = None
 
+    # Read current config values once for all comparisons
+    current_config = _read_current_config(version_path) if (is_retail or is_classic) else {}
+    
+    # Get recommended performance settings once for all uses
+    recommended_perf_settings = _get_recommended_performance_settings(hardware) if (is_retail or is_classic) else []
+
     # System tier summary with suggested preset
     if is_retail or is_classic:
         tier_frame = ttk.Frame(frame)
         tier_frame.pack(fill="x", pady=(0, 8))
-        ttk.Label(tier_frame, text=f"Your system matches: {suggested_preset}", foreground="blue", font=(None, 10, "italic")).pack(anchor="w")
+        
+        # Create horizontal layout for system match and optimization status
+        status_line = ttk.Frame(tier_frame)
+        status_line.pack(anchor="w")
+        
+        ttk.Label(status_line, text=f"Your system matches: {suggested_preset}", foreground="blue", font=(None, 10, "italic")).pack(side="left")
+        
+        # Helper function to check optimization status
+        def check_optimization_status():
+            """Check if all optimizations are applied and return status text and color."""
+            current_cfg = _read_current_config(version_path)
+            suggested_settings = _preset_to_config_settings(suggested_preset)
+            
+            # Combine preset settings and recommended performance settings
+            all_settings = suggested_settings + recommended_perf_settings
+            
+            # Check if ALL settings match current config
+            matches = 0
+            total_settings = len(all_settings)
+            for setting in all_settings:
+                if setting.startswith("SET "):
+                    parts = setting.split(None, 2)
+                    if len(parts) >= 3:
+                        setting_name = parts[1]
+                        expected_value = parts[2].strip('"')
+                        current_value = current_cfg.get(setting_name, "")
+                        if current_value == expected_value:
+                            matches += 1
+            
+            is_optimized = matches == total_settings and total_settings > 0
+            status_text = "✓ Optimization applied" if is_optimized else "⚠ Optimization not yet applied"
+            status_color = "green" if is_optimized else "orange"
+            return status_text, status_color
+        
+        # Initial optimization status check
+        optimization_status, status_color = check_optimization_status()
+        optimization_status_var = tk.StringVar(value=optimization_status)
+        optimization_status_label = ttk.Label(status_line, textvariable=optimization_status_var, foreground=status_color, font=(None, 9))
+        optimization_status_label.pack(side="left", padx=(10, 0))
 
-    # Recommendations
-    rec_frame = ttk.Frame(frame)
-    rec_frame.pack(fill="both", expand=True, pady=(4, 8))
+    # Action buttons - pack at bottom FIRST to reserve space
+    btn_frame = ttk.Frame(frame)
+    btn_frame.pack(side="bottom", fill="x", pady=(8, 0))
+
+    status_var = tk.StringVar(value="")
+
+    # Create scrollable content area for recommendations (pack after button to fill remaining space)
+    content_canvas = tk.Canvas(frame, borderwidth=0, highlightthickness=0)
+    content_scrollbar = ttk.Scrollbar(frame, orient="vertical", command=content_canvas.yview)
+    content_canvas.configure(yscrollcommand=content_scrollbar.set)
+    
+    # Recommendations frame inside canvas
+    rec_frame = ttk.Frame(content_canvas)
+    content_canvas_window = content_canvas.create_window((0, 0), window=rec_frame, anchor="nw")
+    
+    def _on_rec_frame_configure(event):
+        content_canvas.configure(scrollregion=content_canvas.bbox("all"))
+    
+    def _on_canvas_configure(event):
+        content_canvas.itemconfig(content_canvas_window, width=event.width)
+    
+    rec_frame.bind("<Configure>", _on_rec_frame_configure)
+    content_canvas.bind("<Configure>", _on_canvas_configure)
+    
+    # Pack canvas with scrollbar
+    content_canvas.pack(side="left", fill="both", expand=True, pady=(4, 8))
+    content_scrollbar.pack(side="right", fill="y", pady=(4, 8))
 
     # Version-specific presets (Retail or Classic)
     if is_retail or is_classic:
         ttk.Label(rec_frame, text=preset_title, font=(None, 10, "bold")).pack(anchor="w", pady=(0, 6))
         
+        # Note: current_config and recommended_perf_settings already read earlier
+        
         # Create a grid with 4 columns for Low, Medium, High, Ultra
         preset_grid = ttk.Frame(rec_frame)
         preset_grid.pack(fill="both", expand=True)
+        
+        # Helper to create tooltip text for a preset setting
+        def create_setting_tooltip(preset_name, display_line):
+            """Create tooltip showing current value vs new value for a setting."""
+            # Get the CVar settings for this preset
+            cvar_settings = _preset_to_config_settings(preset_name)
+            
+            # Find matching CVar for this display line
+            tooltip_parts = []
+            for cvar in cvar_settings:
+                # Extract setting name and new value from CVar
+                if cvar.startswith("SET "):
+                    parts = cvar.split(None, 2)
+                    if len(parts) >= 3:
+                        setting_name = parts[1]
+                        new_value = parts[2].strip('"')
+                        
+                        # Match display line to setting (rough match)
+                        if ("renderScale" in setting_name and "Render Scale" in display_line) or \
+                           ("TextureResolution" in setting_name and "Texture Quality" in display_line) or \
+                           ("ShadowQuality" in setting_name and "Shadow Quality" in display_line) or \
+                           ("SSAO" in setting_name and "SSAO" in display_line) or \
+                           ("MSAAQuality" in setting_name and "Anti-Aliasing" in display_line) or \
+                           ("VSync" in setting_name and "VSync" in display_line) or \
+                           ("ViewDistance" in setting_name and "View Distance" in display_line) or \
+                           ("EnvironmentDetail" in setting_name and "Environment" in display_line):
+                            
+                            current_value = current_config.get(setting_name, "Not set")
+                            tooltip_parts.append(f"{setting_name}:\nCurrent: {current_value}\nNew: {new_value}")
+            
+            return "\n\n".join(tooltip_parts) if tooltip_parts else "Hover for details"
+        
+        # Helper to create tooltip for recommended performance settings
+        def create_perf_setting_tooltip(setting):
+            """Create tooltip for recommended performance settings."""
+            if setting.startswith("SET "):
+                parts = setting.split(None, 2)
+                if len(parts) >= 3:
+                    setting_name = parts[1]
+                    new_value = parts[2].strip('"')
+                    current_value = current_config.get(setting_name, "Not set")
+                    
+                    tooltip_text = f"{setting_name}:\nCurrent: {current_value}\nRecommended: {new_value}"
+                    if setting_name not in current_config:
+                        tooltip_text += "\n\nThis setting is not currently in your Config.wtf.\nAdding it will improve performance."
+                    return tooltip_text
+            return "Hover for details"
         
         col = 0
         for name in ("Low", "Medium", "High", "Ultra"):
@@ -790,8 +1031,32 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
             ttk.Label(preset_col, text=name, font=(None, 10, "bold")).pack(anchor="w")
             ttk.Separator(preset_col, orient="horizontal").pack(fill="x", pady=(2, 4))
             
+            # Add preset lines
             for line in presets[name]:
-                ttk.Label(preset_col, text=f"• {line}", font=(None, 8)).pack(anchor="w")
+                lbl = ttk.Label(preset_col, text=f"• {line}", font=(None, 8))
+                lbl.pack(anchor="w")
+                # Add tooltip with current vs new values
+                from Modules.ui_helpers import Tooltip
+                Tooltip(lbl, create_setting_tooltip(name, line))
+            
+            # Add recommended performance settings to each column
+            if recommended_perf_settings:
+                ttk.Separator(preset_col, orient="horizontal").pack(fill="x", pady=(6, 4))
+                for setting in recommended_perf_settings:
+                    # Extract setting name and value
+                    if setting.startswith("SET "):
+                        parts = setting.split(None, 2)
+                        if len(parts) >= 3:
+                            setting_name = parts[1]
+                            new_value = parts[2].strip('"')
+                            is_new = setting_name not in current_config
+                            prefix = "[NEW] " if is_new else ""
+                            
+                            lbl = ttk.Label(preset_col, text=f"{prefix}• {setting_name} = {new_value}", 
+                                          font=(None, 8), foreground="green" if is_new else "black")
+                            lbl.pack(anchor="w")
+                            
+                            Tooltip(lbl, create_perf_setting_tooltip(setting))
             
             col += 1
     else:
@@ -809,11 +1074,7 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
         ttk.Label(rec_frame, text=tex).grid(row=1, column=0, sticky="w", padx=(8,0))
         ttk.Label(rec_frame, text=threads_rec).grid(row=2, column=0, sticky="w", padx=(8,0))
 
-    # Action buttons
-    btn_frame = ttk.Frame(frame)
-    btn_frame.pack(fill="x", pady=(8, 0))
-
-    status_var = tk.StringVar(value="")
+    # Populate action buttons (btn_frame already created and packed at bottom)
     
     # Retail or Classic tab: dropdown for preset selection
     if is_retail or is_classic:
@@ -829,6 +1090,11 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
                 msg = f"Applied {chosen} preset for {version_label}"
                 app.log(msg, always_log=True)
                 status_var.set(f"✓ {chosen} preset applied.")
+                
+                # Update optimization status feedback
+                new_status, new_color = check_optimization_status()
+                optimization_status_var.set(f"  —  {new_status}")
+                optimization_status_label.configure(foreground=new_color)
             else:
                 app.log(f"Failed to apply {chosen} preset: {message}", always_log=True)
                 status_var.set(f"✗ Error: {message[:40]}")
@@ -847,7 +1113,7 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
 
     return {"status_var": status_var}
 
-def _on_scan_hardware(app, info_label, scan_btn, notebook_container):
+def _on_scan_hardware(app, info_label, gpu_switch_label, scan_btn, notebook_container):
     """Handle Scan Hardware button press.
 
     Scans system hardware, caches results in global settings, and logs succinctly.
@@ -855,15 +1121,18 @@ def _on_scan_hardware(app, info_label, scan_btn, notebook_container):
     Args:
         app: The WoWCleanupTool instance
         info_label: The label to update with status
+        gpu_switch_label: The label to display GPU switch notification
         scan_btn: The Scan Hardware button widget
     """
     info_label.configure(text="Scanning hardware...")
+    gpu_switch_label.configure(text="")
     app.root.update()
 
     try:
         hardware = get_hardware_info()
         set_global_setting("hardware_cache", hardware)
         _display_hardware_info(info_label, hardware)
+        _display_gpu_switch_info(gpu_switch_label, hardware)
         _set_scan_tooltip(scan_btn)
         _populate_version_tabs(app, notebook_container)
         app.log("Hardware scan complete: cached to global settings.", always_log=True)
