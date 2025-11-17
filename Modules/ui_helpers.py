@@ -19,6 +19,9 @@ class Tooltip:
 
     Usage: Tooltip(widget, "Some text", delay=500)
     """
+    
+    # Class-level tracking of all active tooltips
+    _all_tooltips = []
 
     def __init__(self, widget, text, delay=500):
         self.widget = widget
@@ -29,8 +32,16 @@ class Tooltip:
         widget.bind("<Enter>", self.on_enter, add="+")
         widget.bind("<Leave>", self.on_leave, add="+")
         widget.bind("<ButtonPress>", self.on_leave, add="+")
+        
+        # Register this tooltip
+        Tooltip._all_tooltips.append(self)
 
     def on_enter(self, _=None):
+        # Hide all other tooltips before showing this one
+        for tooltip in Tooltip._all_tooltips:
+            if tooltip is not self:
+                tooltip.hide()
+        
         self.after_id = self.widget.after(self.delay, self.show)
 
     def on_leave(self, _=None):

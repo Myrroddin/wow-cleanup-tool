@@ -38,6 +38,7 @@ from Modules.tabs.orphan_cleaner_tab import build_orphan_cleaner_tab as _build_o
 import Modules.tree_helpers as tree_helpers
 from Modules.game_validation import is_game_version_valid, show_game_validation_warning
 from Modules import font_selector, geometry, path_manager, ui_refresh, game_optimizer, update_checker, global_settings
+from Modules.global_settings import get_global_setting, set_global_setting
 from Modules import localization
 
 VERSION = "v1.0.0"
@@ -249,6 +250,7 @@ class WoWCleanupTool:
         self.root.bind("<Configure>", lambda e: geometry.on_configure(self), add="+")
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
         self.root.after(200, self.show_startup_warning)
+        self.root.after(500, self._apply_smart_defaults)  # Apply smart defaults after UI is ready
         self.log(localization._("session_started", VERSION))
 
     # -------- Verbose logging helper --------
@@ -400,6 +402,175 @@ class WoWCleanupTool:
 
     def _set_options_border(self, show_dark_border: bool):
         ui_refresh.set_options_border(self, show_dark_border)
+
+    def _apply_smart_defaults(self):
+        """Apply smart defaults on first launch: auto-detect WoW path and run hardware scan."""
+        try:
+            # Only apply smart defaults if this appears to be first launch
+            is_first_launch = not self.settings.get("wow_path") or not get_global_setting("hardware_cache")
+            
+            if not is_first_launch:
+                return
+            
+            # Try to auto-detect WoW installation path
+            wow_path = self._auto_detect_wow_path()
+            if wow_path:
+                self.wow_path_var.set(wow_path)
+                self.settings["wow_path"] = wow_path
+                save_settings(self.settings)
+                self.log(f"Auto-detected World of Warcraft installation: {wow_path}", always_log=True)
+            
+            # Run hardware scan automatically if WoW path is set
+            if self.wow_path_var.get() and hasattr(self, 'optimizer_tab'):
+                self.log("Running initial hardware scan...", always_log=True)
+                # Switch to Game Optimizer tab
+                try:
+                    self.main_notebook.select(self.optimizer_tab)
+                except Exception:
+                    pass
+        except Exception as e:
+            self.log(f"Smart defaults error: {str(e)}")
+
+    def _auto_detect_wow_path(self):
+        """Attempt to auto-detect World of Warcraft installation path.
+        
+        Returns:
+            str: Path to WoW folder, or empty string if not found
+        """
+        import platform
+        
+        common_paths = []
+        system = platform.system()
+        
+        if system == "Windows":
+            # Common Windows installation paths
+            drives = ["C:", "D:", "E:"]
+            for drive in drives:
+                common_paths.extend([
+                    f"{drive}\\Program Files (x86)\\World of Warcraft",
+                    f"{drive}\\Program Files\\World of Warcraft",
+                    f"{drive}\\Games\\World of Warcraft",
+                    f"{drive}\\Blizzard Games\\World of Warcraft",
+                ])
+        elif system == "Darwin":  # macOS
+            home = os.path.expanduser("~")
+            common_paths.extend([
+                "/Applications/World of Warcraft",
+                f"{home}/Applications/World of Warcraft",
+                "/Applications/Games/World of Warcraft",
+            ])
+        else:  # Linux
+            home = os.path.expanduser("~")
+            common_paths.extend([
+                f"{home}/.wine/drive_c/Program Files (x86)/World of Warcraft",
+                f"{home}/Games/World of Warcraft",
+                f"{home}/.local/share/lutris/runners/wine/*/World of Warcraft",
+            ])
+        
+        # Check each path
+        for path in common_paths:
+            if os.path.isdir(path):
+                # Verify it's actually a WoW folder by checking for key files
+                if self._verify_wow_folder(path):
+                    return path
+        
+        return ""
+
+    def _verify_wow_folder(self, path):
+        """Verify that a folder is a valid World of Warcraft installation.
+        
+        Args:
+            path: Path to check
+            
+        Returns:
+            bool: True if path contains valid WoW installation
+        """
+        if not os.path.isdir(path):
+            return False
+        
+        # Check for at least one version folder
+        version_folders = ["_retail_", "_classic_era_", "_classic_", "_ptr_", "_beta_"]
+        has_version = any(os.path.isdir(os.path.join(path, vf)) for vf in version_folders)
+        
+        return has_version
+
+    def _add_tab_help_icon(self, tab_frame, tab_key):
+        """Add a help icon to a tab that shows contextual information.
+        
+        Args:
+            tab_frame: The tab's frame widget
+            tab_key: Key for help text lookup
+        """
+        help_texts = {
+            "file_cleaner": (
+                "File Cleaner Help\n\n"
+                "Scans for .bak and .old backup files in your WoW folders.\n\n"
+                "• Click 'Scan' to find backup files\n"
+                "• Select files to remove using checkboxes\n"
+                "• Click 'Process Selected' to delete or move to recycle bin\n\n"
+                "Safe to use: These are backup files that can be removed."
+            ),
+            "folder_cleaner": (
+                "Folder Cleaner Help\n\n"
+                "Removes specific game folders like Cache, Logs, and Screenshots.\n\n"
+                "• Select version (Retail, Classic, etc.)\n"
+                "• Check folders you want to clean\n"
+                "• Click 'Preview' to see what will be removed\n"
+                "• Click 'Process Selected Folders' to clean\n\n"
+                "Note: Cache and logs regenerate automatically."
+            ),
+            "orphan_cleaner": (
+                "Orphan Cleaner Help\n\n"
+                "Finds SavedVariables files for uninstalled addons.\n\n"
+                "• Scans AddOns.txt to find installed addons\n"
+                "• Compares with SavedVariables folder\n"
+                "• Lists orphaned files for removal\n\n"
+                "Helps keep your SavedVariables folder clean."
+            ),
+            "game_optimizer": (
+                "Game Optimizer Help\n\n"
+                "Automatically configures WoW graphics settings based on your hardware.\n\n"
+                "• Click 'Scan Hardware' to detect your system\n"
+                "• Review recommended preset (Low/Medium/High/Ultra)\n"
+                "• Select desired preset from dropdown\n"
+                "• Click 'Apply' to update Config.wtf\n\n"
+                "A backup is created automatically before changes."
+            ),
+            "optimization_suggestions": (
+                "Optimization Suggestions Help\n\n"
+                "Manual optimizations you can perform to improve game performance.\n\n"
+                "• These are NOT performed automatically\n"
+                "• Hover over each suggestion title for detailed information\n"
+                "• Follow instructions carefully\n"
+                "• Some require BIOS changes\n\n"
+                "Risk levels indicated in tooltips."
+            ),
+            "log": (
+                "Log Help\n\n"
+                "View all actions performed by the application.\n\n"
+                "• Real-time log of all operations\n"
+                "• Click 'Export Log' to save to file\n"
+                "• Click 'Clear Log' to reset display\n\n"
+                "Useful for troubleshooting issues."
+            )
+        }
+        
+        help_text = help_texts.get(tab_key, "No help available for this tab.")
+        
+        # Create help button in top-right corner
+        help_btn = ttk.Label(tab_frame, text="❓", font=(None, 12), foreground="blue", cursor="hand2")
+        help_btn.place(relx=1.0, rely=0.0, x=-10, y=5, anchor="ne")
+        
+        # Add tooltip with detailed help
+        from Modules.ui_helpers import Tooltip
+        Tooltip(help_btn, help_text)
+        
+        # Add click handler for detailed help dialog
+        def show_detailed_help(event=None):
+            from tkinter import messagebox
+            messagebox.showinfo(f"{tab_key.replace('_', ' ').title()} Help", help_text)
+        
+        help_btn.bind("<Button-1>", show_detailed_help)
 
     def update_font_size(self):
         size = min(max(int(self.font_size_var.get()), 6), 16)
@@ -722,18 +893,59 @@ class WoWCleanupTool:
             pass
 
     def change_language(self, *args):
-        """Handle language change and rebuild UI."""
+        """Handle language change with confirmation and automatic application."""
+        from tkinter import messagebox
+        import sys
+        import subprocess
+        
         new_lang = self.language_var.get()
-        if new_lang != localization.get_language():
-            localization.set_language(new_lang)
-            self.settings["language"] = new_lang
-            save_settings(self.settings)
+        current_lang = localization.get_language()
+        
+        if new_lang != current_lang:
+            # Get the display names for confirmation
+            new_lang_name = localization.AVAILABLE_LANGUAGES.get(new_lang, new_lang)
+            current_lang_name = localization.AVAILABLE_LANGUAGES.get(current_lang, current_lang)
             
-            # Show message that restart is recommended
-            messagebox.showinfo(
-                localization._("language_changed"),
-                localization._("language_changed_restart")
+            # Show confirmation dialog
+            confirm = messagebox.askyesno(
+                "Change Language",
+                f"Change language from {current_lang_name} to {new_lang_name}?\n\n"
+                "The application will restart to apply the new language.",
+                icon='question'
             )
+            
+            if confirm:
+                # Save the new language preference
+                localization.set_language(new_lang)
+                self.settings["language"] = new_lang
+                save_settings(self.settings)
+                
+                # Show brief confirmation
+                messagebox.showinfo(
+                    "Language Changed",
+                    f"Language changed to {new_lang_name}.\nThe application will now restart."
+                )
+                
+                # Restart the application using subprocess to handle paths with spaces
+                python = sys.executable
+                script = sys.argv[0]
+                
+                # Close current window
+                self.root.destroy()
+                
+                # Start new instance
+                if platform.system() == "Windows":
+                    # Windows: use subprocess.Popen with properly quoted arguments
+                    subprocess.Popen([python, script] + sys.argv[1:], 
+                                   creationflags=subprocess.CREATE_NEW_CONSOLE if sys.stdout is None else 0)
+                else:
+                    # macOS/Linux: use os.execv which handles spaces correctly
+                    os.execv(python, [python, script] + sys.argv[1:])
+            else:
+                # User cancelled - revert to previous language in the dropdown
+                old_lang_name = localization.AVAILABLE_LANGUAGES.get(current_lang, current_lang_name)
+                self.language_display_var.set(old_lang_name)
+                self.language_var.set(current_lang)
 
     # ------------- UI Build -------------
     def build_ui(self):
@@ -781,13 +993,13 @@ class WoWCleanupTool:
 
         ttk.Label(options, text=_("language")).grid(row=0, column=9, sticky="e", padx=(0,6), pady=4)
         # Create language dropdown with native language names
-        lang_names = [localization.AVAILABLE_LANGUAGES[code] for code in sorted(localization.AVAILABLE_LANGUAGES.keys())]
         lang_codes = sorted(localization.AVAILABLE_LANGUAGES.keys())
-        self._lang_code_map = dict(zip(lang_names, lang_codes))
-        self._lang_name_map = dict(zip(lang_codes, lang_names))
+        lang_display_names = [localization.AVAILABLE_LANGUAGES[code] for code in lang_codes]
+        self._lang_code_map = dict(zip(lang_display_names, lang_codes))
+        self._lang_name_map = {code: localization.AVAILABLE_LANGUAGES[code] for code in lang_codes}
         current_lang_name = self._lang_name_map[self.language_var.get()]
         self.language_display_var = tk.StringVar(value=current_lang_name)
-        language_combo = ttk.Combobox(options, textvariable=self.language_display_var, values=lang_names, state="readonly", width=15)
+        language_combo = ttk.Combobox(options, textvariable=self.language_display_var, values=lang_display_names, state="readonly", width=18)
         language_combo.grid(row=0, column=10, sticky="w", padx=(0,0), pady=4)
         
         def on_language_change(e):
@@ -852,31 +1064,37 @@ class WoWCleanupTool:
         # File Cleaner
         self.cleaner_tab = ttk.Frame(self.main_notebook)
         self.main_notebook.add(self.cleaner_tab, text=_("file_cleaner"))
+        self._add_tab_help_icon(self.cleaner_tab, "file_cleaner")
         self.build_file_cleaner_tree(self.cleaner_tab)
 
         # Folder Cleaner
         self.folder_tab = ttk.Frame(self.main_notebook)
         self.main_notebook.add(self.folder_tab, text=_("folder_cleaner"))
+        self._add_tab_help_icon(self.folder_tab, "folder_cleaner")
         self.build_folder_cleaner_tab(self.folder_tab)
 
         # Orphan Cleaner
         self.orphan_tab = ttk.Frame(self.main_notebook)
         self.main_notebook.add(self.orphan_tab, text=_("orphan_cleaner"))
+        self._add_tab_help_icon(self.orphan_tab, "orphan_cleaner")
         self.build_orphan_cleaner_tab(self.orphan_tab)
 
         # Game Optimizer
         self.optimizer_tab = ttk.Frame(self.main_notebook)
         self.main_notebook.add(self.optimizer_tab, text=_("game_optimizer"))
+        self._add_tab_help_icon(self.optimizer_tab, "game_optimizer")
         game_optimizer.build_game_optimizer_tab(self, self.optimizer_tab)
 
         # Optimization Suggestions
         self.suggestions_tab = ttk.Frame(self.main_notebook)
         self.main_notebook.add(self.suggestions_tab, text=_("optimization_suggestions"))
+        self._add_tab_help_icon(self.suggestions_tab, "optimization_suggestions")
         self.build_optimization_suggestions_tab(self.suggestions_tab)
 
         # Log
         self.log_tab = ttk.Frame(self.main_notebook)
         self.main_notebook.add(self.log_tab, text=_("log"))
+        self._add_tab_help_icon(self.log_tab, "log")
         self.build_log_tab(self.log_tab)
 
         # Help
@@ -929,17 +1147,8 @@ class WoWCleanupTool:
 
     # ----------------- Common helpers -----------------
     def _enumerate_versions(self, base):
-        versions = []
-        for folder, label in self.VERSION_FOLDERS:
-            vpath = os.path.join(base, folder)
-            if os.path.isdir(vpath):
-                versions.append((vpath, label))
-            for suf, suffix_label in self.VARIANT_SUFFIXES:
-                variant_folder = folder[:-1] + suf[1:]
-                v2 = os.path.join(base, variant_folder)
-                if os.path.isdir(v2):
-                    versions.append((v2, label + suffix_label))
-        return versions
+        from Modules.version_utils import enumerate_versions_cached
+        return enumerate_versions_cached(base)
 
     # ------------- File Cleaner (Tree) -------------
     def _build_checkbox_images(self):
@@ -1464,50 +1673,81 @@ class WoWCleanupTool:
         suggestions = [
             {
                 "title": "Clean Game Data Folder",
-                "text": "If several years or multiple expansions have passed since installing World of Warcraft, consider deleting the Data folder from your main World of Warcraft directory. This *could* reduce game size and improve loading screen performance. The Battle.net launcher will automatically rebuild this folder when needed."
+                "text": "If several years or multiple expansions have passed since installing World of Warcraft, consider deleting the Data folder from your main World of Warcraft directory. This *could* reduce game size and improve loading screen performance. The Battle.net launcher will automatically rebuild this folder when needed.",
+                "tooltip": "WHY: The Data folder accumulates temporary and cached game assets over time. Deleting it forces a fresh download of optimized files.\n\nRISK LEVEL: Safe - Battle.net will redownload needed files automatically.\n\nEXPECTED BENEFIT: Faster loading screens, reduced disk usage (potentially 10-20 GB saved)."
             },
             {
                 "title": "Enable HDR (High Dynamic Range)",
-                "text": "Check your operating system's display settings to see if HDR is available. If supported by your monitor, enabling HDR can significantly improve visual clarity and color depth in-game."
+                "text": "Check your operating system's display settings to see if HDR is available. If supported by your monitor, enabling HDR can significantly improve visual clarity and color depth in-game.",
+                "tooltip": "WHY: HDR provides wider color gamut and better contrast, making visuals more vibrant and realistic.\n\nRISK LEVEL: Safe - Can be toggled on/off easily in OS settings.\n\nEXPECTED BENEFIT: Dramatically improved visual quality if monitor supports HDR10 or better.\n\nREQUIREMENT: HDR-capable monitor and Windows 10/11 or macOS Catalina+."
             },
             {
                 "title": "Verify Monitor Refresh Rate",
-                "text": "Ensure your monitor's refresh rate is set to the maximum supported value in your operating system's display settings. Higher refresh rates provide smoother gameplay and better responsiveness."
+                "text": "Ensure your monitor's refresh rate is set to the maximum supported value in your operating system's display settings. Higher refresh rates provide smoother gameplay and better responsiveness.",
+                "tooltip": "WHY: Many systems default to 60Hz even when monitors support 120Hz/144Hz/165Hz. This caps your frame rate unnecessarily.\n\nRISK LEVEL: Safe - No hardware risk, easily reversible.\n\nEXPECTED BENEFIT: Smoother gameplay, reduced input lag, better reaction times.\n\nHOW TO CHECK: Windows: Settings > Display > Advanced > Refresh rate\nmacOS: System Preferences > Displays"
             },
             {
                 "title": "Enable Smart Access Memory / Resizable BAR",
-                "text": "Check your motherboard BIOS settings for Smart Access Memory (AMD) or Resizable BAR (Intel/NVIDIA). Enabling this feature allows your CPU to access the full GPU memory, potentially improving performance."
+                "text": "Check your motherboard BIOS settings for Smart Access Memory (AMD) or Resizable BAR (Intel/NVIDIA). Enabling this feature allows your CPU to access the full GPU memory, potentially improving performance.",
+                "tooltip": "WHY: Allows CPU to access entire GPU memory at once instead of small 256MB chunks, reducing bottlenecks.\n\nRISK LEVEL: Moderate - Requires BIOS changes. Document current settings first.\n\nEXPECTED BENEFIT: 5-15% FPS improvement in GPU-intensive scenarios.\n\nREQUIREMENTS:\n• AMD: Ryzen 5000+ CPU + RX 6000+ GPU\n• Intel: 10th gen+ CPU + RTX 3000+ GPU\n• BIOS update may be required"
             },
             {
                 "title": "Enable XMP Memory Profile",
-                "text": "Access your motherboard BIOS and enable the XMP (Extreme Memory Profile) or DOCP/EOCP setting. This ensures your RAM runs at its rated speed rather than default conservative speeds, improving overall system performance."
+                "text": "Access your motherboard BIOS and enable the XMP (Extreme Memory Profile) or DOCP/EOCP setting. This ensures your RAM runs at its rated speed rather than default conservative speeds, improving overall system performance.",
+                "tooltip": "WHY: RAM typically runs at 2133MHz by default even if rated for 3200MHz+. XMP enables advertised speeds.\n\nRISK LEVEL: Moderate - BIOS change. System may fail to boot if RAM is unstable (easy to reset).\n\nEXPECTED BENEFIT: 10-20% CPU performance boost, faster loading times, better 1% lows.\n\nHOW TO ENABLE: Enter BIOS (usually Del/F2 at startup) > Find XMP/DOCP setting > Enable > Save & Exit"
             }
         ]
         
-        # Create grid with one column per suggestion
+        # Create grid with one column per suggestion - spread across full width
+        # Use 3 columns in first row, 2 columns in second row
         grid_frame = ttk.Frame(content_frame)
         grid_frame.pack(fill="both", expand=True, padx=5)
         
+        # Configure columns to distribute evenly (3 columns)
+        for col in range(3):
+            grid_frame.columnconfigure(col, weight=1, uniform="suggestions")
+        
         for idx, suggestion in enumerate(suggestions):
+            # Calculate row and column for 3-2 layout
+            if idx < 3:
+                row = 0
+                col = idx
+            else:
+                row = 1
+                col = idx - 3
+            
             # Create column for each suggestion
             column_frame = ttk.Frame(grid_frame, relief="ridge", borderwidth=1, padding=10)
-            column_frame.grid(row=0, column=idx, sticky="nsew", padx=5, pady=5)
-            grid_frame.columnconfigure(idx, weight=1)
+            column_frame.grid(row=row, column=col, sticky="nsew", padx=5, pady=5)
             
             # Title with bullet
-            ttk.Label(
+            title_label = ttk.Label(
                 column_frame,
                 text=f"•  {suggestion['title']}",
                 font=(None, 10, "bold")
-            ).pack(anchor="w")
+            )
+            title_label.pack(anchor="w", fill="x")
             
-            # Description
-            ttk.Label(
+            # Add tooltip to title with detailed information
+            from Modules.ui_helpers import Tooltip
+            Tooltip(title_label, suggestion.get('tooltip', 'Click for more information'))
+            
+            # Description with dynamic word wrap
+            desc_label = ttk.Label(
                 column_frame,
                 text=suggestion['text'],
-                wraplength=200,
+                wraplength=1,  # Will be updated dynamically
                 justify="left"
-            ).pack(anchor="w", padx=(15, 0), pady=(4, 0))
+            )
+            desc_label.pack(anchor="w", padx=(15, 0), pady=(4, 0), fill="both", expand=True)
+            
+            # Update wraplength dynamically based on column width
+            def update_wraplength(event, lbl=desc_label):
+                width = event.width - 30  # Account for padding
+                if width > 100:  # Minimum reasonable width
+                    lbl.configure(wraplength=width)
+            
+            column_frame.bind("<Configure>", update_wraplength)
 
     def build_log_tab(self, parent):
         frame = ttk.Frame(parent, padding=10)

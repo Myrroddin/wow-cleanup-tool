@@ -38,14 +38,19 @@ def scan_cleanable_folders(version_path, logger=None):
     Returns:
         list: List of (folder_name, absolute_path) tuples for existing cleanable folders
     """
-    found = [
-        (rel, os.path.join(version_path, rel))
-        for rel in DEFAULT_CLEANABLE_FOLDERS
-        if os.path.exists(os.path.join(version_path, rel))
-    ]
-    if logger:
-        for rel, abs_path in found:
-            logger.debug(f"[FolderCleaner] Found: {abs_path}")
+    found = []
+    try:
+        with os.scandir(version_path) as entries:
+            existing_dirs = {entry.name for entry in entries if entry.is_dir(follow_symlinks=False)}
+        
+        for rel in DEFAULT_CLEANABLE_FOLDERS:
+            if rel in existing_dirs:
+                abs_path = os.path.join(version_path, rel)
+                found.append((rel, abs_path))
+                if logger:
+                    logger.debug(f"[FolderCleaner] Found: {abs_path}")
+    except (OSError, PermissionError):
+        pass
 
     return found
 

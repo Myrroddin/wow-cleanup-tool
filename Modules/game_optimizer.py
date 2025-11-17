@@ -383,8 +383,9 @@ def _display_gpu_switch_info(gpu_switch_label, hardware):
     
     if gpu_selected and gpu_original:
         text = (
-            f"ℹ GPU Switch: Configured to use '{gpu_selected}' instead of '{gpu_original}'. "
-            f"This change optimizes performance by using your dedicated GPU for better gaming experience."
+            f"⚠ GPU Switch: Configured to use '{gpu_selected}' instead of '{gpu_original}'. "
+            f"This change optimizes performance by using your dedicated GPU for better gaming experience. "
+            f"This is safe and recommended."
         )
         gpu_switch_label.configure(text=text)
     else:
@@ -657,6 +658,174 @@ def _get_recommended_performance_settings(hardware):
     
     return recommendations
 
+def _create_config_backup(config_path):
+    """Create a timestamped backup of Config.wtf file.
+    
+    Args:
+        config_path: Path to the Config.wtf file
+        
+    Returns:
+        tuple: (success: bool, backup_path: str or None)
+    """
+    if not os.path.exists(config_path):
+        return True, None
+    
+    try:
+        import datetime
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        backup_path = f"{config_path}.backup.{timestamp}"
+        
+        # Copy the file
+        import shutil
+        shutil.copy2(config_path, backup_path)
+        
+        # Clean up old backups (keep only last 5)
+        backup_dir = os.path.dirname(config_path)
+        backup_files = sorted(
+            [f for f in os.listdir(backup_dir) if f.startswith("Config.wtf.backup.")],
+            reverse=True
+        )
+        for old_backup in backup_files[5:]:
+            try:
+                os.remove(os.path.join(backup_dir, old_backup))
+            except Exception:
+                pass
+        
+        return True, backup_path
+    except Exception as e:
+        return False, str(e)
+
+def _check_wow_running():
+    """Check if World of Warcraft is currently running.
+    
+    Returns:
+        bool: True if WoW is running, False otherwise
+    """
+    try:
+        import psutil
+        wow_processes = ["Wow.exe", "WowClassic.exe", "World of Warcraft.exe", "Wow-64.exe"]
+        for proc in psutil.process_iter(['name']):
+            try:
+                if proc.info['name'] in wow_processes:
+                    return True
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                pass
+        return False
+    except Exception:
+        return False
+
+def _save_optimization_history(version_path, version_label, preset_name, changes):
+    """Save optimization change to history file.
+    
+    Args:
+        version_path: Path to the WoW version folder
+        version_label: Version label (e.g., 'Retail')
+        preset_name: Preset that was applied
+        changes: Dict with 'updated' and 'added' lists
+    """
+    try:
+        import datetime
+        import json
+        
+        history_file = os.path.join(version_path, "WTF", "optimization_history.json")
+        
+        # Load existing history
+        history = []
+        if os.path.exists(history_file):
+            try:
+                with open(history_file, "r", encoding="utf-8") as f:
+                    history = json.load(f)
+            except Exception:
+                pass
+        
+        # Add new entry
+        entry = {
+            "timestamp": datetime.datetime.now().isoformat(),
+            "version": version_label,
+            "preset": preset_name,
+            "updated": len(changes.get("updated", [])),
+            "added": len(changes.get("added", [])),
+            "total": len(changes.get("updated", [])) + len(changes.get("added", []))
+        }
+        history.append(entry)
+        
+        # Keep only last 20 entries
+        history = history[-20:]
+        
+        # Save history
+        with open(history_file, "w", encoding="utf-8") as f:
+            json.dump(history, f, indent=2)
+    except Exception:
+        pass
+
+def _get_optimization_history(version_path):
+    """Load optimization history from file.
+    
+    Args:
+        version_path: Path to the WoW version folder
+        
+    Returns:
+        list: List of history entries
+    """
+    try:
+        import json
+        history_file = os.path.join(version_path, "WTF", "optimization_history.json")
+        if os.path.exists(history_file):
+            with open(history_file, "r", encoding="utf-8") as f:
+                return json.load(f)
+    except Exception:
+        pass
+    return []
+
+def _get_preset_performance_estimate(preset_name, hardware):
+    """Estimate performance impact of a preset.
+    
+    Args:
+        preset_name: Name of the preset (Low/Medium/High/Ultra)
+        hardware: Hardware info dict
+        
+    Returns:
+        str: Performance impact description
+    """
+    if not hardware:
+        return "Performance impact depends on your hardware."
+    
+    # Classify hardware
+    ram = hardware.get("memory_gb", 0)
+    threads = hardware.get("cpu_threads", 0)
+    gpu_list = hardware.get("gpu", [])
+    gpu_name = ", ".join(gpu_list).lower()
+    
+    # Determine if hardware is high-end
+    is_high_end = threads >= 12 and ram >= 16 and any(k in gpu_name for k in ["rtx", "rdna 3", "rdna 2"])
+    is_mid_range = threads >= 8 and ram >= 12
+    
+    estimates = {
+        "Low": {
+            "high": "Excellent performance (100+ FPS in most scenarios)",
+            "mid": "Very good performance (80-120 FPS)",
+            "low": "Good performance (60-80 FPS)"
+        },
+        "Medium": {
+            "high": "Excellent performance (90-120 FPS)",
+            "mid": "Good performance (60-90 FPS)",
+            "low": "Moderate performance (45-60 FPS)"
+        },
+        "High": {
+            "high": "Very good performance (70-100 FPS)",
+            "mid": "Good performance (50-70 FPS)",
+            "low": "May struggle in raids (30-50 FPS)"
+        },
+        "Ultra": {
+            "high": "Good performance (60-80 FPS)",
+            "mid": "Moderate performance (40-60 FPS)",
+            "low": "Low performance (20-40 FPS)"
+        }
+    }
+    
+    tier = "high" if is_high_end else ("mid" if is_mid_range else "low")
+    return estimates.get(preset_name, {}).get(tier, "Performance will vary")
+
 def _apply_settings_to_config(version_path, preset_name, hardware=None):
     """Write preset settings to the version's Config.wtf file.
     
@@ -666,20 +835,27 @@ def _apply_settings_to_config(version_path, preset_name, hardware=None):
         hardware: Optional hardware info dict for GPU selection
     
     Returns:
-        tuple: (success: bool, message: str)
+        tuple: (success: bool, message: str, changes_summary: dict or None)
     """
     config_path = os.path.join(version_path, "WTF", "Config.wtf")
     wtf_dir = os.path.dirname(config_path)
     
     # Do not create WTF directory - it must exist from game launch
     if not os.path.exists(wtf_dir):
-        return False, "WTF directory not found. Please launch the game first."
+        return False, "WTF directory not found. Please launch the game first.", None
     
     settings = _preset_to_config_settings(preset_name)
     if not settings:
-        return False, f"Unknown preset: {preset_name}"
+        return False, f"Unknown preset: {preset_name}", None
+    
+    # Create backup before making changes
+    backup_success, backup_info = _create_config_backup(config_path)
+    if not backup_success:
+        return False, f"Failed to create backup: {backup_info}", None
     
     try:
+        # Track changes for summary
+        changes_made = {"updated": [], "added": []}
         # Read existing config if it exists
         existing_lines = []
         if os.path.exists(config_path):
@@ -703,7 +879,12 @@ def _apply_settings_to_config(version_path, preset_name, hardware=None):
         for setting in settings:
             parts = setting.split(None, 2)
             if len(parts) >= 2:
-                config_dict[parts[1]] = setting
+                setting_name = parts[1]
+                if setting_name in config_dict:
+                    changes_made["updated"].append(setting_name)
+                else:
+                    changes_made["added"].append(setting_name)
+                config_dict[setting_name] = setting
         
         # Add recommended performance settings
         if hardware:
@@ -711,7 +892,10 @@ def _apply_settings_to_config(version_path, preset_name, hardware=None):
             for setting in recommended_settings:
                 parts = setting.split(None, 2)
                 if len(parts) >= 2:
-                    config_dict[parts[1]] = setting
+                    setting_name = parts[1]
+                    if setting_name not in config_dict:
+                        changes_made["added"].append(setting_name)
+                    config_dict[setting_name] = setting
         
         # GPU selection for Intel/AMD systems with both integrated and dedicated GPUs
         if hardware:
@@ -729,10 +913,16 @@ def _apply_settings_to_config(version_path, preset_name, hardware=None):
             for key, value in config_dict.items():
                 f.write(value + "\n")
         
-        return True, f"Applied {preset_name} settings to Config.wtf"
+        # Build summary message
+        summary_msg = f"Applied {preset_name} settings to Config.wtf. "
+        summary_msg += f"Updated {len(changes_made['updated'])} settings, added {len(changes_made['added'])} new settings."
+        if backup_info:
+            summary_msg += f" Backup saved."
+        
+        return True, summary_msg, changes_made
     
     except Exception as e:
-        return False, f"Failed to write config: {e}"
+        return False, f"Failed to write config: {e}", None
 
 def _check_version_directories(version_path):
     """Check if the required game directories exist.
@@ -1028,7 +1218,15 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
             preset_col.grid(row=0, column=col, sticky="nsew", padx=4, pady=2)
             preset_grid.columnconfigure(col, weight=1)
             
-            ttk.Label(preset_col, text=name, font=(None, 10, "bold")).pack(anchor="w")
+            preset_header = ttk.Label(preset_col, text=name, font=(None, 10, "bold"))
+            preset_header.pack(anchor="w")
+            
+            # Add performance estimate tooltip to preset header
+            from Modules.ui_helpers import Tooltip
+            perf_estimate = _get_preset_performance_estimate(name, hardware)
+            preset_tooltip = f"{name} Preset\n\nExpected Performance:\n{perf_estimate}\n\nClick 'Apply' below to use this preset."
+            Tooltip(preset_header, preset_tooltip)
+            
             ttk.Separator(preset_col, orient="horizontal").pack(fill="x", pady=(2, 4))
             
             # Add preset lines
@@ -1084,17 +1282,76 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
         preset_dropdown.pack(side="left", padx=(0, 8))
         
         def apply_preset():
+            from tkinter import messagebox
             chosen = preset_var.get()
-            success, message = _apply_settings_to_config(version_path, chosen, hardware)
+            
+            # Validation: Check if WoW is running
+            if _check_wow_running():
+                proceed = messagebox.askyesno(
+                    "World of Warcraft Running",
+                    "World of Warcraft is currently running. Changes will take effect after restarting the game.\n\n"
+                    "Do you want to continue?",
+                    icon='warning'
+                )
+                if not proceed:
+                    status_var.set("Cancelled by user.")
+                    return
+            
+            # Validation: Check file permissions
+            config_path = os.path.join(version_path, "WTF", "Config.wtf")
+            if os.path.exists(config_path):
+                try:
+                    if not os.access(config_path, os.W_OK):
+                        messagebox.showerror(
+                            "Permission Error",
+                            f"Config.wtf is read-only. Please remove the read-only attribute and try again."
+                        )
+                        status_var.set("✗ Config.wtf is read-only.")
+                        return
+                except Exception:
+                    pass
+            
+            # Show confirmation dialog with summary
+            preset_settings = _preset_to_config_settings(chosen)
+            perf_settings = _get_recommended_performance_settings(hardware) if hardware else []
+            total_changes = len(preset_settings) + len(perf_settings)
+            
+            confirm_msg = f"Apply {chosen} preset to {version_label}?\n\n"
+            confirm_msg += f"This will modify {total_changes} graphics settings in Config.wtf.\n"
+            confirm_msg += f"A backup will be created automatically.\n\n"
+            confirm_msg += f"Main changes:\n"
+            confirm_msg += f"• Preset: {chosen} quality settings\n"
+            confirm_msg += f"• Performance: {len(perf_settings)} optimization(s)\n"
+            
+            proceed = messagebox.askyesno("Confirm Apply", confirm_msg, icon='question')
+            if not proceed:
+                status_var.set("Cancelled by user.")
+                return
+            
+            # Apply settings
+            success, message, changes = _apply_settings_to_config(version_path, chosen, hardware)
             if success:
+                # Log with details
                 msg = f"Applied {chosen} preset for {version_label}"
                 app.log(msg, always_log=True)
-                status_var.set(f"✓ {chosen} preset applied.")
+                
+                # Show detailed results
+                if changes:
+                    result_msg = f"✓ {message}\n\n"
+                    result_msg += f"Details:\n"
+                    result_msg += f"• Updated {len(changes['updated'])} existing settings\n"
+                    result_msg += f"• Added {len(changes['added'])} new settings"
+                    status_var.set(f"✓ {len(changes['updated'])+len(changes['added'])} settings applied.")
+                else:
+                    status_var.set(f"✓ {chosen} preset applied.")
                 
                 # Update optimization status feedback
                 new_status, new_color = check_optimization_status()
                 optimization_status_var.set(f"  —  {new_status}")
                 optimization_status_label.configure(foreground=new_color)
+                
+                # Save change to history
+                _save_optimization_history(version_path, version_label, chosen, changes)
             else:
                 app.log(f"Failed to apply {chosen} preset: {message}", always_log=True)
                 status_var.set(f"✗ Error: {message[:40]}")
@@ -1124,12 +1381,42 @@ def _on_scan_hardware(app, info_label, gpu_switch_label, scan_btn, notebook_cont
         gpu_switch_label: The label to display GPU switch notification
         scan_btn: The Scan Hardware button widget
     """
-    info_label.configure(text="Scanning hardware...")
+    # Show progress feedback
+    info_label.configure(text="Scanning CPU...")
     gpu_switch_label.configure(text="")
     app.root.update()
 
     try:
-        hardware = get_hardware_info()
+        # Detect CPU with progress update
+        cpu_cores = psutil.cpu_count(logical=False)
+        cpu_threads = psutil.cpu_count(logical=True)
+        cpu_name = _detect_cpu_name()
+        
+        info_label.configure(text=f"Scanning RAM... (CPU: {cpu_cores}C/{cpu_threads}T detected)")
+        app.root.update()
+        
+        # Detect RAM
+        memory_gb = round(psutil.virtual_memory().total / (1024 ** 3), 1)
+        
+        info_label.configure(text=f"Scanning GPU... (RAM: {memory_gb} GB detected)")
+        app.root.update()
+        
+        # Detect GPU
+        gpu_list = _detect_gpu_names()
+        selected_gpu, original_gpu = _select_best_gpu(gpu_list, cpu_name)
+        
+        hardware = {
+            "system": platform.system(),
+            "processor": platform.processor(),
+            "cpu_name": cpu_name,
+            "cpu_cores": cpu_cores,
+            "cpu_threads": cpu_threads,
+            "memory_gb": memory_gb,
+            "gpu": gpu_list,
+            "gpu_selected": selected_gpu,
+            "gpu_original": original_gpu,
+        }
+        
         set_global_setting("hardware_cache", hardware)
         _display_hardware_info(info_label, hardware)
         _display_gpu_switch_info(gpu_switch_label, hardware)

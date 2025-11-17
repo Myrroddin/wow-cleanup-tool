@@ -6,6 +6,7 @@ Provides caching, memoization, and other performance enhancements.
 
 import functools
 import os
+import time
 from typing import Any, Callable
 
 # Try to import send2trash for safe deletion
@@ -45,6 +46,40 @@ def cache_result(maxsize: int = 128) -> Callable:
         Decorator that caches function results
     """
     return functools.lru_cache(maxsize=maxsize)
+
+def profile_execution(logger=None):
+    """Decorator to profile function execution time.
+    
+    Logs execution time for performance monitoring and optimization.
+    
+    Args:
+        logger: Optional logger instance with .debug() method
+        
+    Returns:
+        Decorator that logs execution time
+        
+    Example:
+        @profile_execution(logger)
+        def expensive_operation():
+            # ... complex code
+            pass
+    """
+    def decorator(func: Callable) -> Callable:
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            start_time = time.time()
+            result = func(*args, **kwargs)
+            elapsed = time.time() - start_time
+            
+            msg = f"[Performance] {func.__name__} took {elapsed:.3f}s"
+            if logger and hasattr(logger, 'debug'):
+                logger.debug(msg)
+            else:
+                print(msg)
+            
+            return result
+        return wrapper
+    return decorator
 
 def delete_files_batch(paths, use_trash=False, logger=None, module_name="FileOps"):
     """Shared utility for deleting or trashing files/folders.

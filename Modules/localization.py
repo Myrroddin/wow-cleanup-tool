@@ -37,6 +37,52 @@ AVAILABLE_LANGUAGES = {
     "zhTW": "繁體中文"
 }
 
+def get_translation_completeness(lang_code):
+    """Get the percentage of translations completed for a language.
+    
+    Args:
+        lang_code: Language code (e.g., 'enUS', 'deDE')
+        
+    Returns:
+        int: Percentage complete (0-100)
+    """
+    if lang_code not in TRANSLATIONS:
+        return 0
+    
+    # English is the reference language
+    english_keys = set(TRANSLATIONS.get("enUS", {}).keys())
+    lang_keys = set(TRANSLATIONS.get(lang_code, {}).keys())
+    
+    if not english_keys:
+        return 0
+    
+    # Calculate percentage of translated keys
+    translated_count = len(lang_keys.intersection(english_keys))
+    total_count = len(english_keys)
+    
+    return int((translated_count / total_count) * 100)
+
+def get_language_display_name(lang_code):
+    """Get display name for a language with completeness indicator.
+    
+    Args:
+        lang_code: Language code (e.g., 'enUS', 'deDE')
+        
+    Returns:
+        str: Display name with optional completeness indicator
+    """
+    base_name = AVAILABLE_LANGUAGES.get(lang_code, lang_code)
+    
+    if lang_code == "enUS":
+        return base_name  # English is always 100%
+    
+    completeness = get_translation_completeness(lang_code)
+    
+    if completeness < 100:
+        return f"{base_name} ({completeness}%)"
+    else:
+        return base_name
+
 # Translation strings
 TRANSLATIONS = {
     "enUS": {
