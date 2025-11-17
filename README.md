@@ -173,6 +173,10 @@ For more troubleshooting help, see the **[Technical Details Wiki](Technical-Deta
 
 Contributions welcome! Please test changes across Windows, macOS, and Linux where possible. See the **[Technical Details Wiki](Technical-Details.md)** for architecture and implementation details.
 
+## Bug Reports & Feature Requests
+
+Found a bug or have a feature request? Please use our **[Issue Tracker](https://github.com/Myrroddin/wow-cleanup-tool/issues)** to report problems or suggest improvements. When reporting bugs, please include your OS, Python version, and steps to reproduce the issue.
+
 ## Support
 
 If you find this tool useful, consider supporting its development:

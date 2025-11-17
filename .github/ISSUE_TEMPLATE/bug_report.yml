@@ -1,0 +1,214 @@
+name: Bug Report
+description: Report a bug or unexpected behavior in WoW Cleanup Tool
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+assignees:
+  - Myrroddin
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the sections below to help us diagnose and fix the issue.
+
+  - type: checkboxes
+    id: prerequisites
+    attributes:
+      label: Prerequisites
+      description: Please confirm the following before submitting
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have read the [Technical Details](https://github.com/Myrroddin/wow-cleanup-tool/blob/main/Technical-Details.md) documentation
+          required: false
+        - label: I am using the latest version of WoW Cleanup Tool
+          required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is
+      placeholder: When I click "Scan for .bak / .old Files", the application freezes...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Detailed steps to reproduce the behavior
+      placeholder: |
+        1. Open WoW Cleanup Tool
+        2. Navigate to File Cleaner tab
+        3. Click "Scan for .bak / .old Files"
+        4. Application becomes unresponsive
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen
+      placeholder: The scan should complete and display found files in the tree view
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened instead
+      placeholder: Application window becomes unresponsive and shows "(Not Responding)" in title bar
+    validations:
+      required: true
+
+  - type: dropdown
+    id: operating-system
+    attributes:
+      label: Operating System
+      description: Which operating system are you using?
+      options:
+        - Windows 11
+        - Windows 10
+        - Windows 8.1/8
+        - macOS (Sequoia/Sonoma/Ventura)
+        - macOS (Monterey or older)
+        - Linux (Ubuntu/Debian)
+        - Linux (Fedora/RHEL)
+        - Linux (Arch/Manjaro)
+        - Linux (Other)
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python Version
+      description: Output of `python --version` or `python3 --version`
+      placeholder: "Python 3.11.5"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: wow-version
+    attributes:
+      label: WoW Version(s) Affected
+      description: Which WoW version(s) are you using when the bug occurs?
+      multiple: true
+      options:
+        - Retail (The War Within)
+        - Classic (Mists of Pandaria)
+        - Classic Era (Vanilla)
+        - PTR (Public Test Realm)
+        - Beta
+        - Not applicable / All versions
+    validations:
+      required: true
+
+  - type: dropdown
+    id: feature
+    attributes:
+      label: Affected Feature
+      description: Which feature/tab is experiencing the issue?
+      options:
+        - File Cleaner
+        - Folder Cleaner
+        - Orphan Cleaner
+        - Game Optimizer
+        - Optimization Suggestions
+        - Settings/Options
+        - Language/Localization
+        - Theme/Appearance
+        - Update Checker
+        - Other / Multiple features
+    validations:
+      required: true
+
+  - type: textarea
+    id: error-message
+    attributes:
+      label: Error Message / Traceback
+      description: If applicable, paste any error messages or Python tracebacks
+      placeholder: |
+        Traceback (most recent call last):
+          File "wow_cleanup_tool.py", line 123, in <module>
+            ...
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: log-output
+    attributes:
+      label: Log Output
+      description: If you have verbose logging enabled, paste relevant log entries
+      placeholder: |
+        [Session Started] — 2025-11-17 14:30:00
+        [File Cleaner] Found: C:\Games\World of Warcraft\_retail_\...
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: settings
+    attributes:
+      label: Relevant Settings
+      description: What settings do you have configured? (Theme, file action, language, etc.)
+      placeholder: |
+        - Theme: Dark
+        - File Action: Move to Recycle Bin
+        - Language: English (enUS)
+        - Verbose Logging: Enabled
+        - WoW Folder: C:\Games\World of Warcraft
+    validations:
+      required: false
+
+  - type: dropdown
+    id: dependencies
+    attributes:
+      label: Optional Dependencies Installed
+      description: Which optional packages do you have installed?
+      multiple: true
+      options:
+        - send2trash (for Recycle Bin support)
+        - Pillow (for screenshot previews)
+        - None / Not sure
+    validations:
+      required: false
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: If applicable, add screenshots to help explain the problem
+      placeholder: Drag and drop images here or paste image URLs
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other context about the problem
+      placeholder: |
+        - This only happens with large WoW installations (500GB+)
+        - Issue started after Windows update KB5012345
+        - Works fine on my other computer with similar setup
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: workarounds
+    attributes:
+      label: Workarounds Attempted
+      description: Have you tried any of these common solutions?
+      options:
+        - label: Restarted the application
+        - label: Verified WoW folder path is correct
+        - label: Closed World of Warcraft before running the tool
+        - label: Ran with administrator/elevated privileges
+        - label: Reinstalled Python dependencies
+        - label: Tried a different WoW version folder
+        - label: Disabled antivirus temporarily
