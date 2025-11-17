@@ -3876,7 +3876,7 @@ TRANSLATIONS = {
         "game_optimizer_title": "游戏优化器",
         "game_optimizer_desc": "根据您的硬件配置优化魔兽世界的性能。",
         "scan_hardware": "扫描硬件",
-        "click_scan_hardware": "点击"扫描硬件"以检测您系统的功能。",
+        "click_scan_hardware": "点击'扫描硬件'以检测您系统的功能。",
         "select_valid_wow_folder": "在选项中选择有效的魔兽世界文件夹以启用按版本视图。",
         "recommended_settings": "推荐设置：",
         "apply_preset_label": "应用预设：",
@@ -3942,7 +3942,7 @@ TRANSLATIONS = {
         "apply_error_status": "✗ 错误：{}",
         
         # Preset tooltips
-        "preset_tooltip_template": "{}预设\n\n预期性能：\n{}\n\n点击下方的"应用"以使用此预设。",
+        "preset_tooltip_template": "{}预设\n\n预期性能：\n{}\n\n点击下方的'应用'以使用此预设。",
         "perf_depends_hardware": "性能影响取决于您的硬件。",
         "perf_will_vary": "性能会有所不同",
         
@@ -4355,7 +4355,7 @@ TRANSLATIONS = {
         "apply_error_status": "✗ 錯誤：{}",
         
         # Preset tooltips
-        "preset_tooltip_template": "{}預設\n\n預期效能：\n{}\n\n點擊下方的「套用」以使用此預設。",
+        "preset_tooltip_template": "{}預設\n\n預期效能：\n{}\n\n點擊下方的'套用'以使用此預設。",
         "perf_depends_hardware": "效能影響取決於您的硬體。",
         "perf_will_vary": "效能會有所不同",
         
