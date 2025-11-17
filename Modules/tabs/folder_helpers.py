@@ -1,6 +1,8 @@
 import os
 import tkinter as tk
 from tkinter import ttk
+from Modules import localization
+_ = localization.get_text
 
 try:
     from PIL import Image, ImageTk
@@ -35,7 +37,7 @@ def build_single_version_tab(app, tab, version_path, version_label):
     master = app.__class__.__module__  # placeholder to use ImgCheckbox from app
     # Use the same ImgCheckbox previously used in the UI
     from Modules.ui_helpers import ImgCheckbox
-    master_cb = ImgCheckbox(toggle_container, "Select / Deselect All Folders", master_var, app.assets)
+    master_cb = ImgCheckbox(toggle_container, _("select_deselect_all_folders"), master_var, app.assets)
     master_cb.pack(side="left", padx=(0,10), pady=4)
     master_var.trace_add("write", lambda *_: app._toggle_all_folders(folder_vars))
 
@@ -52,11 +54,11 @@ def build_single_version_tab(app, tab, version_path, version_label):
             app.styled_folder_boxes.append(cb)
 
     # Process button aligned right on same line
-    ttk.Button(controls, text="Process Selected Folders",
+    ttk.Button(controls, text=_("process_selected_folders"),
                command=lambda: app._process_selected_folders(version_label, folder_vars)).pack(side="right", padx=(10,0), pady=4)
 
     # Screenshots panel (unchanged)
-    shot_panel = ttk.LabelFrame(outer, text="Screenshots (per-file actions)", padding=8)
+    shot_panel = ttk.LabelFrame(outer, text=_("screenshots_per_file"), padding=8)
     shot_panel.pack(fill="both", expand=True, pady=(8, 0))
 
     shots_left = ttk.Frame(shot_panel); shots_left.pack(side="left", fill="both", expand=True)
@@ -73,12 +75,12 @@ def build_single_version_tab(app, tab, version_path, version_label):
 
     shots_controls = ttk.Frame(outer); shots_controls.pack(fill="x", pady=(6, 0))
     shots_select_all_var = tk.BooleanVar(value=False)
-    shots_selall = ImgCheckbox(shots_controls, "Select / Deselect All Screenshot Files", shots_select_all_var, app.assets)
+    shots_selall = ImgCheckbox(shots_controls, _("select_deselect_all_screenshots"), shots_select_all_var, app.assets)
     shots_selall.pack(side="left")
     shots_vars = {}
     shots_select_all_var.trace_add("write", lambda *_: app._toggle_all_screenshot_files(shots_vars))
 
-    preview_label = ttk.Label(shots_right, text="Preview", anchor="center"); preview_label.pack(anchor="n")
+    preview_label = ttk.Label(shots_right, text=_("preview_label"), anchor="center"); preview_label.pack(anchor="n")
     preview_canvas = tk.Canvas(shots_right, width=220, height=220, highlightthickness=1)
     preview_canvas.pack(fill="both", expand=False, pady=(6, 0))
     preview_canvas._img_ref = None
@@ -117,7 +119,7 @@ def build_single_version_tab(app, tab, version_path, version_label):
             app.styled_shot_boxes.append(cb)
             shots_vars[fp] = var
     else:
-        ttk.Label(shots_frame, text="Screenshots folder not found for this version.").pack(anchor="w")
+        ttk.Label(shots_frame, text=_("screenshots_not_found")).pack(anchor="w")
 
     return {"folder_vars": folder_vars, "shots_vars": shots_vars, "preview_canvas": preview_canvas}
 

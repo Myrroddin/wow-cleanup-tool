@@ -40,6 +40,7 @@ Hardware-based graphics preset recommendations and automatic GPU selection for o
 
 ### 📊 Additional Features
 
+- **Multi-language Support**: Full interface translation in 7 languages (English, German, French, Spanish EU/MX, Portuguese, Korean) with 4 more using English fallback. See **[LOCALIZATION.md](LOCALIZATION.md)** for details.
 - **Verbose Logging**: Optional detailed operation logs for troubleshooting
 - **Theme Support**: Light and dark themes with OS-native styling
 - **Font Customization**: Adjustable font family and size (6-16pt)
@@ -138,31 +139,18 @@ python3 wow_cleanup_tool.py
 3. Choose a preset from the dropdown (defaults to suggested tier)
 4. Click "Apply" to write settings to Config.wtf
 
-## Technical Details
+## Technical Information
 
-### Performance Optimizations
-- **Multi-threaded scanning**: File scanning uses ThreadPoolExecutor for parallel directory traversal
-- **Parallel hardware detection**: CPU and GPU detection run simultaneously for 40-50% faster hardware scans
-- **os.scandir**: Fast directory iteration (2-3x faster than os.walk) in File Cleaner and Orphan Cleaner
-- **Compiled regex patterns**: Pre-compiled patterns for file extension matching
-- **Chunked UI updates**: Tree view population in batches to maintain responsiveness
-- **Hardware caching**: System specs cached globally to avoid repeated detection
-- **Incremental font loading**: Font selector loads in batches for smooth UI performance
+For detailed technical documentation including architecture, performance optimizations, cross-platform implementation details, and advanced topics, see the **[Technical Details Wiki](Technical-Details.md)**.
 
-### Cross-Platform Compatibility
-- **Windows**: Full support with native GPU detection (WMIC/PowerShell)
-- **macOS**: Supports Apple Silicon (M1/M2/M3/M4) and Intel Macs (sysctl, system_profiler)
-- **Linux**: GPU detection via lspci, CPU info from /proc/cpuinfo
-
-### Settings Storage
-- **Per-user settings**: Stored in `~/.wow_cleanup_tool/settings.json` (window geometry, font, theme)
-- **Global settings**: Stored in system-wide location (ProgramData on Windows, /etc on Unix) for WoW path, hardware cache, and shared preferences
-
-### GPU Selection Logic
-- Detects both integrated and dedicated GPUs on Intel/AMD systems
-- Automatically configures WoW to use the dedicated GPU via `gxAdapter` CVar (Windows only)
-- Skips GPU adapter setting on macOS/Linux (not applicable)
-- Apple Silicon systems excluded (no dedicated GPU)
+Topics covered in the technical documentation:
+- Module architecture and design patterns
+- Performance optimizations (multi-threading, caching, chunked operations)
+- Cross-platform compatibility details (Windows, macOS, Linux)
+- Hardware detection system internals
+- Config.wtf management and CVar application
+- Localization system (11 languages)
+- Advanced debugging and troubleshooting
 
 ## Example Screenshots
 ![files](https://github.com/user-attachments/assets/2b2680d7-d7c0-4007-b5ad-3e03247f6ff4)
@@ -188,9 +176,24 @@ python3 wow_cleanup_tool.py
 - Close WoW completely before applying optimizer presets
 - Verify Config.wtf was modified (check file timestamp)
 
+For more troubleshooting help, see the **[Technical Details Wiki](Technical-Details.md)**.
+
 ## Contributing
 
-Contributions welcome! Please test changes across Windows, macOS, and Linux where possible.
+Contributions welcome! Please test changes across Windows, macOS, and Linux where possible. See the **[Technical Details Wiki](Technical-Details.md)** for architecture and implementation details.
+
+## Support
+
+If you find this tool useful, consider supporting its development:
+
+[![Patreon](https://img.shields.io/badge/Patreon-F96854?style=for-the-badge&logo=patreon&logoColor=white)](https://www.patreon.com/c/Myrroddin) [![PayPal](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PVandersypen)
+
+## Documentation
+
+- **[README.md](README.md)** - User guide, features, installation, and usage
+- **[Technical Details Wiki](Technical-Details.md)** - Architecture, optimizations, cross-platform details
+- **[LOCALIZATION.md](LOCALIZATION.md)** - Translation guide and language support details
+- **[LICENSE](LICENSE)** - Full GPL-3.0 license text
 
 ## Known Limitations
 
@@ -198,6 +201,8 @@ Contributions welcome! Please test changes across Windows, macOS, and Linux wher
 - "Move to Recycle Bin" option requires send2trash library (disabled with tooltip if not installed)
 - GPU adapter selection only applies on Windows (macOS/Linux use different mechanisms)
 - Extremely large installations (100k+ files) may take 30+ seconds for initial scan
+
+For detailed technical limitations and workarounds, see the **[Technical Details Wiki](Technical-Details.md)**.
 
 ### Graceful Degradation
 

@@ -8,6 +8,7 @@ before applying changes.
 
 import tkinter as tk
 from tkinter import ttk, messagebox
+from Modules import localization
 
 def clean_font_name_for_display(font_name):
     """Clean font name for display by removing leading non-letter characters and trimming spaces.
@@ -61,8 +62,9 @@ def open_font_selector(app):
     prev_family = app.font_family_var.get()
     app._prev_font_family = prev_family
 
+    _ = localization.get_text
     sel = tk.Toplevel(app.root)
-    sel.title("Select Font")
+    sel.title(_("select_font"))
     sel.transient(app.root)
     sel.grab_set()
     sel.geometry("+%d+%d" % (app.root.winfo_rootx() + 60, app.root.winfo_rooty() + 60))
@@ -205,9 +207,9 @@ def open_font_selector(app):
     # Buttons
     btn_frame = ttk.Frame(sel)
     btn_frame.pack(fill="x", padx=8, pady=(0,8))
-    apply_btn = ttk.Button(btn_frame, text="Apply", command=lambda: finalize_font_change(app))
+    apply_btn = ttk.Button(btn_frame, text=_("apply"), command=lambda: finalize_font_change(app))
     apply_btn.pack(side="right", padx=(4,0))
-    cancel_btn = ttk.Button(btn_frame, text="Cancel", command=lambda: cancel_font_change(app))
+    cancel_btn = ttk.Button(btn_frame, text=_("cancel"), command=lambda: cancel_font_change(app))
     cancel_btn.pack(side="right")
 
     def on_close_sel():
@@ -250,6 +252,7 @@ def finalize_font_change(app):
     Args:
         app: The WoWCleanupTool instance
     """
+    _ = localization.get_text
     try:
         new = getattr(app, "_previewed_family", app.font_family_var.get())
         old = getattr(app, "_prev_font_family", None)
@@ -263,7 +266,7 @@ def finalize_font_change(app):
             app._font_selector = None
             return
 
-        ok = messagebox.askyesno("Confirm Font", f"Apply font '{new}' to the application?")
+        ok = messagebox.askyesno(_("confirm_font"), _("apply_font_confirm").format(new))
         if ok:
             try:
                 app.settings["font_family"] = new

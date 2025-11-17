@@ -2,6 +2,7 @@ import os
 import tkinter as tk
 from tkinter import ttk
 from Modules.ui_helpers import ImgCheckbox
+from Modules import localization
 
 def build_folder_cleaner_tab(app, parent):
     """Build a per-version Folder Cleaner notebook into `parent` using `app` for state."""
@@ -20,6 +21,6 @@ def build_folder_cleaner_tab(app, parent):
     else:
         info = ttk.Frame(parent, padding=12)
         info.pack(fill="both", expand=True)
-        ttk.Label(info, text="Select a valid World of Warcraft folder in Options to enable Folder Cleaner.").pack()
+        ttk.Label(info, text=localization._("select_valid_wow_folder_cleaner")).pack()
 
     return app

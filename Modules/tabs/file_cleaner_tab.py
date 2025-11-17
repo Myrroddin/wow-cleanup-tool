@@ -2,6 +2,8 @@ import os
 import tkinter as tk
 from tkinter import ttk
 from Modules.ui_helpers import ImgCheckbox
+from Modules import localization
+_ = localization.get_text
 
 def build_file_cleaner_tree(app, parent):
     """Build the File Cleaner tab UI onto `parent` using `app` for state.
@@ -12,14 +14,14 @@ def build_file_cleaner_tree(app, parent):
     """
     bar = ttk.Frame(parent, padding=10)
     bar.pack(fill="x")
-    ttk.Button(bar, text="Scan for .bak / .old Files", command=app.scan_files_tree).pack(side="left")
-    ttk.Button(bar, text="Expand All", command=app._tree_expand_all).pack(side="left", padx=(8,0))
-    ttk.Button(bar, text="Collapse All", command=app._tree_collapse_all).pack(side="left", padx=(8,0))
+    ttk.Button(bar, text=_("scan_bak_old"), command=app.scan_files_tree).pack(side="left")
+    ttk.Button(bar, text=_("expand_all"), command=app._tree_expand_all).pack(side="left", padx=(8,0))
+    ttk.Button(bar, text=_("collapse_all"), command=app._tree_collapse_all).pack(side="left", padx=(8,0))
     app.tree_select_all_var = tk.BooleanVar(value=False)
-    app.tree_selall_frame = ImgCheckbox(bar, "Select / Deselect All", app.tree_select_all_var, app.assets)
+    app.tree_selall_frame = ImgCheckbox(bar, _("select_deselect_all"), app.tree_select_all_var, app.assets)
     app.tree_selall_frame.pack(side="left", padx=(12,0))
     app.tree_select_all_var.trace_add("write", lambda *_: app._tree_toggle_all())
-    ttk.Button(bar, text="Process Selected Files", command=app.process_selected_files_tree)\
+    ttk.Button(bar, text=_("process_selected_files"), command=app.process_selected_files_tree)\
         .pack(side="left", padx=(8, 0))
     # Use tk.Label instead of ttk.Label so we can color it based on theme
     app.file_scan_status = tk.Label(bar, text="", bg=app.root["bg"], fg="#000000")

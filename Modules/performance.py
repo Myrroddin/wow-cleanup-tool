@@ -8,6 +8,7 @@ import functools
 import os
 import time
 from typing import Any, Callable
+from Modules import localization
 
 # Try to import send2trash for safe deletion
 try:
@@ -71,7 +72,7 @@ def profile_execution(logger=None):
             result = func(*args, **kwargs)
             elapsed = time.time() - start_time
             
-            msg = f"[Performance] {func.__name__} took {elapsed:.3f}s"
+            msg = localization._("performance_execution_time").format(func.__name__, elapsed)
             if logger and hasattr(logger, 'debug'):
                 logger.debug(msg)
             else:
@@ -110,7 +111,7 @@ def delete_files_batch(paths, use_trash=False, logger=None, module_name="FileOps
                 send2trash(fp)
                 used_trash = True
                 if logger:
-                    logger.info(f"[{module_name}] Moved to trash: {fp}")
+                    logger.info(localization._("perf_moved_trash").format(module_name, fp))
             else:
                 # Permanently delete file or folder
                 if os.path.isfile(fp):
@@ -119,12 +120,12 @@ def delete_files_batch(paths, use_trash=False, logger=None, module_name="FileOps
                     import shutil
                     shutil.rmtree(fp)
                 if logger:
-                    logger.info(f"[{module_name}] Deleted: {fp}")
+                    logger.info(localization._("perf_deleted").format(module_name, fp))
             processed += 1
         except (OSError, IOError) as e:
             # Log error but continue with next item
             if logger:
-                logger.error(f"[{module_name}] ERROR deleting {fp}: {e}")
+                logger.error(localization._("perf_error_deleting").format(module_name, fp, e))
     
     permanently_deleted = not real_use_trash
     return processed, permanently_deleted, used_trash

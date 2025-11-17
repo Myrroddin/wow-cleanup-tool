@@ -74,27 +74,39 @@ text = localization._("key", arg1, arg2)
 
 ## Current Translation Status
 
-### Fully Translated
+### Recent Updates (November 2025)
 
-- **English (enUS)** - 100% complete
-- **German (deDE)** - Main UI elements translated
+The localization system has been significantly expanded with comprehensive translations across all major user-facing components:
 
-### Partially Translated
+- ✅ All message boxes and dialog boxes fully localized
+- ✅ Main UI buttons and labels (Apply, Cancel, Export Log, Clear Log, etc.)
+- ✅ File/Folder/Orphan Cleaner complete with status messages
+- ✅ Game Optimizer dialogs and confirmation messages
+- ✅ Settings restoration and language change dialogs
+- ✅ Error messages and warnings (send2trash, invalid folders, etc.)
+- ✅ AddOns.txt rebuild summaries
+- ✅ Log export messages
 
-- **French (frFR)** - Basic UI elements
-- **Spanish (esES)** - Basic UI elements
+### Fully Translated (7 languages)
 
-### Pending Translation
+All core languages are now 100% complete with comprehensive translations:
 
-The following languages currently fallback to English and need translations:
+- **English (enUS)** - 100% complete (~253 keys)
+- **German (deDE)** - 100% complete (~253 keys)
+- **French (frFR)** - 100% complete (~253 keys)
+- **Spanish - Spain (esES)** - 100% complete (~253 keys)
+- **Spanish - Mexico (esMX)** - 100% complete (~253 keys)
+- **Portuguese - Brazil (ptBR)** - 100% complete (~253 keys)
+- **Korean (koKR)** - 100% complete (~253 keys)
 
-- Spanish - Mexico (esMX)
-- Portuguese (ptBR)
-- Italian (itIT)
-- Russian (ruRU)
-- Korean (koKR)
-- Chinese - Simplified (zhCN)
-- Chinese - Traditional (zhTW)
+### Using English Fallback (4 languages)
+
+The following languages are configured to automatically use English translations until native translations are provided:
+
+- **Italian (itIT)** - 0% (uses English)
+- **Russian (ruRU)** - 0% (uses English)
+- **Chinese - Simplified (zhCN)** - 0% (uses English)
+- **Chinese - Traditional (zhTW)** - 0% (uses English)
 
 ## Contributing Translations
 
@@ -128,6 +140,41 @@ We welcome contributions for missing translations! To contribute:
 
 - Uses formal "Sie" form for addressing the user
 - Follows German capitalization rules for nouns
+- All translation keys completed
+- Technical terms properly localized (e.g., "Papierkorb" for Recycle Bin)
+
+### French (frFR)
+
+- Uses formal "vous" form for addressing the user
+- Follows French spacing rules for punctuation
+- All translation keys completed
+- Proper use of accents and diacritics throughout
+
+### Spanish (esES)
+
+- Uses formal "usted" form (implied) for addressing the user
+- European Spanish terminology and spelling
+- All translation keys completed
+
+### Spanish - Mexico (esMX)
+
+- Uses Latin American Spanish terminology
+- Adapted for Mexican and Latin American audiences
+- All translation keys completed
+- Capitalizes UI elements appropriately (e.g., "Vista Previa", "Aplicar")
+
+### Portuguese (ptBR)
+
+- Brazilian Portuguese variant
+- Uses Brazilian spelling and terminology
+- All translation keys completed
+- Formal "você" addressing throughout
+
+### Korean (koKR)
+
+- Uses polite/formal speech level (존댓말)
+- Follows Korean grammar and word order
+- All 211 translation keys completed
 
 ### Chinese
 
@@ -141,14 +188,17 @@ We welcome contributions for missing translations! To contribute:
 
 ## Known Limitations
 
-- Language change requires application restart for full effect
-- Some dynamically generated messages may not be localized
+- Language change triggers a confirmation dialog and automatically restarts the application
 - Font rendering quality may vary by language (especially CJK languages)
+- Languages using English fallback will show 100% English text until translated
 
 ## Future Improvements
 
-- [ ] Complete translations for all 11 languages
-- [ ] Add right-to-left (RTL) support if needed
-- [ ] Improve dynamic UI resizing for different text lengths
-- [ ] Add translation validation tools
-- [ ] Create translation memory for consistency
+- [ ] Complete native translations for remaining 4 languages (itIT, ruRU, zhCN, zhTW)
+- [ ] Add right-to-left (RTL) support if needed for potential future languages
+- [ ] Improve dynamic UI resizing for different text lengths across languages
+- [ ] Add translation validation tools to ensure consistency
+- [ ] Create translation memory for maintaining consistency across updates
+- [ ] Consider community translation contributions via Crowdin or similar platform
+- [ ] Add context-aware tooltips for translators
+- [ ] Implement automated translation completeness checks

@@ -15,6 +15,7 @@ from concurrent.futures import ThreadPoolExecutor
 import psutil
 from Modules.global_settings import get_global_setting, set_global_setting
 from Modules.ui_helpers import Tooltip
+from Modules import localization
 
 def get_hardware_info():
     """Retrieve system hardware information affecting game performance.
@@ -87,7 +88,7 @@ def _detect_cpu_name():
         except Exception:
             pass
         # Last resort
-        return platform.processor() or "Unknown CPU"
+        return platform.processor() or localization._("unknown_cpu")
 
     # macOS (Darwin)
     if system == "Darwin":
@@ -113,7 +114,7 @@ def _detect_cpu_name():
                 return m.group(1).strip()
         except Exception:
             pass
-        return platform.processor() or "Unknown CPU"
+        return platform.processor() or localization._("unknown_cpu")
 
     # Linux and others
     try:
@@ -139,7 +140,7 @@ def _detect_cpu_name():
                 return line.split(":", 1)[1].strip()
     except Exception:
         pass
-    return platform.processor() or "Unknown CPU"
+    return platform.processor() or localization._("unknown_cpu")
 
 def _is_integrated_gpu(gpu_name):
     """Determine if a GPU is integrated (built into CPU).
@@ -224,9 +225,9 @@ def _detect_gpu_names():
                 for line in result.stdout.splitlines()[1:]
                 if line.strip() and line.strip().lower() != "name"
             ]
-            return gpus or ["Not detected"]
+            return gpus or [localization._("not_detected")]
         except Exception:
-            return ["Not detected"]
+            return [localization._("not_detected")]
 
     # macOS
     if system == "Darwin":
@@ -242,9 +243,9 @@ def _detect_gpu_names():
                 line = line.strip()
                 if line.startswith("Chipset Model:"):
                     gpus.append(line.split(":", 1)[1].strip())
-            return gpus or ["Not detected"]
+            return gpus or [localization._("not_detected")]
         except Exception:
-            return ["Not detected"]
+            return [localization._("not_detected")]
 
     # Linux/Other
     try:
@@ -255,9 +256,9 @@ def _detect_gpu_names():
                 # Extract the device description portion
                 part = line.split(":", 2)
                 gpus.append(part[-1].strip() if part else line.strip())
-        return gpus or ["Not detected"]
+        return gpus or [localization._("not_detected")]
     except Exception:
-        return ["Not detected"]
+        return [localization._("not_detected")]
 
 def build_game_optimizer_tab(app, parent):
     """Build the Game Optimizer tab UI.
@@ -270,12 +271,12 @@ def build_game_optimizer_tab(app, parent):
     frame.pack(fill="both", expand=True)
 
     # Title
-    ttk.Label(frame, text="Game Optimizer", font=(None, 14, "bold")).pack(
+    ttk.Label(frame, text=localization._("game_optimizer_title"), font=(None, 14, "bold")).pack(
         anchor="w", pady=(0, 12)
     )
 
     # Description
-    description_text = "Optimizes World of Warcraft's performance based on your hardware configuration."
+    description_text = localization._("game_optimizer_desc")
     description_label = ttk.Label(
         frame,
         text=description_text,
@@ -296,7 +297,7 @@ def build_game_optimizer_tab(app, parent):
 
     scan_btn = ttk.Button(
         button_frame,
-        text="Scan Hardware",
+        text=localization._("scan_hardware"),
         command=lambda: _on_scan_hardware(app, info_label, gpu_switch_label, scan_btn, notebook_container),
     )
     scan_btn.pack(side="left", padx=(0, 12))
@@ -352,7 +353,7 @@ def _load_cached_hardware(app, info_label, gpu_switch_label, scan_btn, notebook_
         _populate_version_tabs(app, notebook_container)
     else:
         info_label.configure(
-            text="Click 'Scan Hardware' to detect your system's capabilities."
+            text=localization._("click_scan_hardware")
         )
 
 def _display_hardware_info(info_label, hardware):
@@ -362,13 +363,13 @@ def _display_hardware_info(info_label, hardware):
         info_label: The label to update
         hardware: Hardware info dict
     """
-    cpu_name = hardware.get('cpu_name', 'Unknown')
+    cpu_name = hardware.get('cpu_name', localization._("unknown_gpu"))
     cores = hardware.get('cpu_cores', '?')
     threads = hardware.get('cpu_threads', '?')
     cpu_info = f"{cpu_name} — {cores}C/{threads}T"
     ram_info = f"{hardware.get('memory_gb', '?')} GB"
-    gpu_info = hardware.get("gpu", ["Unknown"])[0] if hardware.get("gpu") else "Unknown"
-    text = f"✓ CPU: {cpu_info} | RAM: {ram_info} | GPU: {gpu_info}"
+    gpu_info = hardware.get("gpu", [localization._("unknown_gpu")])[0] if hardware.get("gpu") else localization._("unknown_gpu")
+    text = localization._("hardware_detected").format(cpu_info, ram_info, gpu_info)
     info_label.configure(text=text)
 
 def _display_gpu_switch_info(gpu_switch_label, hardware):
@@ -382,11 +383,7 @@ def _display_gpu_switch_info(gpu_switch_label, hardware):
     gpu_original = hardware.get("gpu_original")
     
     if gpu_selected and gpu_original:
-        text = (
-            f"⚠ GPU Switch: Configured to use '{gpu_selected}' instead of '{gpu_original}'. "
-            f"This change optimizes performance by using your dedicated GPU for better gaming experience. "
-            f"This is safe and recommended."
-        )
+        text = localization._("gpu_switch_notification").format(gpu_selected, gpu_original)
         gpu_switch_label.configure(text=text)
     else:
         gpu_switch_label.configure(text="")
@@ -397,10 +394,7 @@ def _set_scan_tooltip(scan_btn):
     Args:
         scan_btn: The Scan Hardware button widget
     """
-    tooltip_text = (
-        "Scanning again is not necessary unless you have changed your CPU, GPU, or RAM.\n"
-        "Click to refresh the cached hardware information."
-    )
+    tooltip_text = localization._("scan_tooltip_refresh")
     if scan_btn._tooltip:
         scan_btn._tooltip.text = tooltip_text
     else:
@@ -788,7 +782,7 @@ def _get_preset_performance_estimate(preset_name, hardware):
         str: Performance impact description
     """
     if not hardware:
-        return "Performance impact depends on your hardware."
+        return localization._("perf_depends_hardware")
     
     # Classify hardware
     ram = hardware.get("memory_gb", 0)
@@ -800,31 +794,13 @@ def _get_preset_performance_estimate(preset_name, hardware):
     is_high_end = threads >= 12 and ram >= 16 and any(k in gpu_name for k in ["rtx", "rdna 3", "rdna 2"])
     is_mid_range = threads >= 8 and ram >= 12
     
-    estimates = {
-        "Low": {
-            "high": "Excellent performance (100+ FPS in most scenarios)",
-            "mid": "Very good performance (80-120 FPS)",
-            "low": "Good performance (60-80 FPS)"
-        },
-        "Medium": {
-            "high": "Excellent performance (90-120 FPS)",
-            "mid": "Good performance (60-90 FPS)",
-            "low": "Moderate performance (45-60 FPS)"
-        },
-        "High": {
-            "high": "Very good performance (70-100 FPS)",
-            "mid": "Good performance (50-70 FPS)",
-            "low": "May struggle in raids (30-50 FPS)"
-        },
-        "Ultra": {
-            "high": "Good performance (60-80 FPS)",
-            "mid": "Moderate performance (40-60 FPS)",
-            "low": "Low performance (20-40 FPS)"
-        }
-    }
-    
+    # Map preset names to translation key prefixes
+    preset_key = preset_name.lower()
     tier = "high" if is_high_end else ("mid" if is_mid_range else "low")
-    return estimates.get(preset_name, {}).get(tier, "Performance will vary")
+    
+    # Build translation key: {preset}_perf_{tier}
+    translation_key = f"{preset_key}_perf_{tier}"
+    return localization._(translation_key)
 
 def _apply_settings_to_config(version_path, preset_name, hardware=None):
     """Write preset settings to the version's Config.wtf file.
@@ -842,16 +818,16 @@ def _apply_settings_to_config(version_path, preset_name, hardware=None):
     
     # Do not create WTF directory - it must exist from game launch
     if not os.path.exists(wtf_dir):
-        return False, "WTF directory not found. Please launch the game first.", None
+        return False, localization._("wtf_not_found"), None
     
     settings = _preset_to_config_settings(preset_name)
     if not settings:
-        return False, f"Unknown preset: {preset_name}", None
+        return False, localization._("unknown_preset").format(preset_name), None
     
     # Create backup before making changes
     backup_success, backup_info = _create_config_backup(config_path)
     if not backup_success:
-        return False, f"Failed to create backup: {backup_info}", None
+        return False, localization._("backup_failed").format(backup_info), None
     
     try:
         # Track changes for summary
@@ -914,15 +890,15 @@ def _apply_settings_to_config(version_path, preset_name, hardware=None):
                 f.write(value + "\n")
         
         # Build summary message
-        summary_msg = f"Applied {preset_name} settings to Config.wtf. "
-        summary_msg += f"Updated {len(changes_made['updated'])} settings, added {len(changes_made['added'])} new settings."
+        summary_msg = localization._("config_updated").format(preset_name)
+        summary_msg += localization._("settings_updated_added").format(len(changes_made['updated']), len(changes_made['added']))
         if backup_info:
-            summary_msg += f" Backup saved."
+            summary_msg += localization._("backup_saved")
         
         return True, summary_msg, changes_made
     
     except Exception as e:
-        return False, f"Failed to write config: {e}", None
+        return False, localization._("config_write_failed").format(e), None
 
 def _check_version_directories(version_path):
     """Check if the required game directories exist.
@@ -962,7 +938,7 @@ def _populate_version_tabs(app, notebook_container):
                 w.destroy()
             info = ttk.Frame(notebook_container, padding=12)
             info.pack(fill="both", expand=True)
-            ttk.Label(info, text="Select a valid World of Warcraft folder in Options to enable per-version views.").pack()
+            ttk.Label(info, text=localization._("select_valid_wow_optimizer")).pack()
             # Do not pack the container if no valid base
             try:
                 notebook_container.pack_forget()
@@ -1000,7 +976,7 @@ def _populate_version_tabs(app, notebook_container):
             widgets = _build_optimizer_version_tab(app, tab, vpath, vlabel, cached)
         except Exception:
             # Fallback: simple info label
-            ttk.Label(tab, text=f"Version: {vlabel}\nPath: {vpath}").pack(anchor="w", padx=8, pady=8)
+            ttk.Label(tab, text=localization._("version_path").format(vlabel, vpath)).pack(anchor="w", padx=8, pady=8)
             widgets = None
         app.optimizer_version_tabs.append((vlabel, vpath, widgets))
 
@@ -1020,16 +996,12 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
     frame = ttk.Frame(tab, padding=8)
     frame.pack(fill="both", expand=True)
 
-    ttk.Label(frame, text=f"Optimizer — {version_label}", font=(None, 12, "bold")).pack(anchor="w", pady=(0, 8))
+    ttk.Label(frame, text=localization._("optimizer_title").format(version_label), font=(None, 12, "bold")).pack(anchor="w", pady=(0, 8))
 
     # Check if required directories exist
     if not _check_version_directories(version_path):
         # Show instruction message instead of optimizer UI
-        instruction_text = (
-            f"The optimizer requires that {version_label} has been launched at least once. "
-            "Please launch World of Warcraft and proceed to the Character Select screen, then quit the game. "
-            "After that, you can use the optimizer to apply graphics presets."
-        )
+        instruction_text = localization._("optimizer_launch_required").format(version_label)
         instruction_label = ttk.Label(
             frame,
             text=instruction_text,
@@ -1066,12 +1038,12 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
         overall, parts = _classify_retail_hardware(classification_hw)
         presets = _build_presets_for_level(overall)
         suggested_preset = _tier_to_suggested_preset(overall)
-        preset_title = "Graphics Presets (Retail):"
+        preset_title = localization._("graphics_presets").format(localization._("version_retail"))
     elif is_classic:
         overall, parts = _classify_classic_hardware(classification_hw)
         presets = _build_presets_for_level(overall)
         suggested_preset = _tier_to_suggested_preset(overall)
-        preset_title = "Graphics Presets (Classic):"
+        preset_title = localization._("graphics_presets_classic").format(localization._("version_classic"))
     else:
         overall = None
         suggested_preset = None
@@ -1092,7 +1064,7 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
         status_line = ttk.Frame(tier_frame)
         status_line.pack(anchor="w")
         
-        ttk.Label(status_line, text=f"Your system matches: {suggested_preset}", foreground="blue", font=(None, 10, "italic")).pack(side="left")
+        ttk.Label(status_line, text=localization._("system_matches").format(localization._(suggested_preset.lower())), foreground="blue", font=(None, 10, "italic")).pack(side="left")
         
         # Helper function to check optimization status
         def check_optimization_status():
@@ -1117,7 +1089,7 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
                             matches += 1
             
             is_optimized = matches == total_settings and total_settings > 0
-            status_text = "✓ Optimization applied" if is_optimized else "⚠ Optimization not yet applied"
+            status_text = localization._("optimization_applied") if is_optimized else localization._("optimization_not_applied")
             status_color = "green" if is_optimized else "orange"
             return status_text, status_color
         
@@ -1191,10 +1163,10 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
                            ("ViewDistance" in setting_name and "View Distance" in display_line) or \
                            ("EnvironmentDetail" in setting_name and "Environment" in display_line):
                             
-                            current_value = current_config.get(setting_name, "Not set")
+                            current_value = current_config.get(setting_name, localization._("not_set"))
                             tooltip_parts.append(f"{setting_name}:\nCurrent: {current_value}\nNew: {new_value}")
             
-            return "\n\n".join(tooltip_parts) if tooltip_parts else "Hover for details"
+            return "\n\n".join(tooltip_parts) if tooltip_parts else localization._("hover_for_details")
         
         # Helper to create tooltip for recommended performance settings
         def create_perf_setting_tooltip(setting):
@@ -1204,13 +1176,13 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
                 if len(parts) >= 3:
                     setting_name = parts[1]
                     new_value = parts[2].strip('"')
-                    current_value = current_config.get(setting_name, "Not set")
+                    current_value = current_config.get(setting_name, localization._("not_set"))
                     
                     tooltip_text = f"{setting_name}:\nCurrent: {current_value}\nRecommended: {new_value}"
                     if setting_name not in current_config:
                         tooltip_text += "\n\nThis setting is not currently in your Config.wtf.\nAdding it will improve performance."
                     return tooltip_text
-            return "Hover for details"
+            return localization._("hover_for_details")
         
         col = 0
         for name in ("Low", "Medium", "High", "Ultra"):
@@ -1218,13 +1190,15 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
             preset_col.grid(row=0, column=col, sticky="nsew", padx=4, pady=2)
             preset_grid.columnconfigure(col, weight=1)
             
-            preset_header = ttk.Label(preset_col, text=name, font=(None, 10, "bold"))
+            preset_header = ttk.Label(preset_col, text=localization._(name.lower()), font=(None, 10, "bold"))
             preset_header.pack(anchor="w")
             
             # Add performance estimate tooltip to preset header
             from Modules.ui_helpers import Tooltip
             perf_estimate = _get_preset_performance_estimate(name, hardware)
-            preset_tooltip = f"{name} Preset\n\nExpected Performance:\n{perf_estimate}\n\nClick 'Apply' below to use this preset."
+            preset_tooltip = localization._("preset_tooltip_template").format(
+                localization._(name.lower()), perf_estimate
+            )
             Tooltip(preset_header, preset_tooltip)
             
             ttk.Separator(preset_col, orient="horizontal").pack(fill="x", pady=(2, 4))
@@ -1248,7 +1222,7 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
                             setting_name = parts[1]
                             new_value = parts[2].strip('"')
                             is_new = setting_name not in current_config
-                            prefix = "[NEW] " if is_new else ""
+                            prefix = localization._("new_setting_prefix") if is_new else ""
                             
                             lbl = ttk.Label(preset_col, text=f"{prefix}• {setting_name} = {new_value}", 
                                           font=(None, 8), foreground="green" if is_new else "black")
@@ -1268,7 +1242,7 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
         else:
             tex = "Texture Quality: Low"
         threads_rec = "Background Threads: 4" if threads >= 8 else "Background Threads: 2"
-        ttk.Label(rec_frame, text="Recommended Settings:").grid(row=0, column=0, sticky="w")
+        ttk.Label(rec_frame, text=localization._("recommended_settings")).grid(row=0, column=0, sticky="w")
         ttk.Label(rec_frame, text=tex).grid(row=1, column=0, sticky="w", padx=(8,0))
         ttk.Label(rec_frame, text=threads_rec).grid(row=2, column=0, sticky="w", padx=(8,0))
 
@@ -1276,25 +1250,36 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
     
     # Retail or Classic tab: dropdown for preset selection
     if is_retail or is_classic:
-        preset_var = tk.StringVar(value=suggested_preset)
-        ttk.Label(btn_frame, text="Apply Preset:").pack(side="left", padx=(0, 6))
-        preset_dropdown = ttk.Combobox(btn_frame, textvariable=preset_var, values=["Low", "Medium", "High", "Ultra"], state="readonly", width=12)
+        # Translate suggested preset for display
+        suggested_preset_translated = localization._(suggested_preset.lower()) if suggested_preset else ""
+        preset_var = tk.StringVar(value=suggested_preset_translated)
+        ttk.Label(btn_frame, text=localization._("apply_preset_label")).pack(side="left", padx=(0, 6))
+        preset_values = [localization._("low"), localization._("medium"), localization._("high"), localization._("ultra")]
+        preset_dropdown = ttk.Combobox(btn_frame, textvariable=preset_var, values=preset_values, state="readonly", width=12)
         preset_dropdown.pack(side="left", padx=(0, 8))
         
         def apply_preset():
             from tkinter import messagebox
-            chosen = preset_var.get()
+            # Convert translated display value back to English internal value
+            chosen_display = preset_var.get()
+            # Reverse lookup to get English preset name
+            preset_map = {
+                localization._("low"): "Low",
+                localization._("medium"): "Medium",
+                localization._("high"): "High",
+                localization._("ultra"): "Ultra"
+            }
+            chosen = preset_map.get(chosen_display, chosen_display)  # fallback to display value if not found
             
             # Validation: Check if WoW is running
             if _check_wow_running():
                 proceed = messagebox.askyesno(
-                    "World of Warcraft Running",
-                    "World of Warcraft is currently running. Changes will take effect after restarting the game.\n\n"
-                    "Do you want to continue?",
+                    localization._("wow_running_title"),
+                    localization._("wow_running_message"),
                     icon='warning'
                 )
                 if not proceed:
-                    status_var.set("Cancelled by user.")
+                    status_var.set(localization._("cancelled_by_user"))
                     return
             
             # Validation: Check file permissions
@@ -1303,10 +1288,10 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
                 try:
                     if not os.access(config_path, os.W_OK):
                         messagebox.showerror(
-                            "Permission Error",
-                            f"Config.wtf is read-only. Please remove the read-only attribute and try again."
+                            localization._("permission_error_title"),
+                            localization._("permission_error_message")
                         )
-                        status_var.set("✗ Config.wtf is read-only.")
+                        status_var.set(localization._("config_readonly_status"))
                         return
                 except Exception:
                     pass
@@ -1316,34 +1301,31 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
             perf_settings = _get_recommended_performance_settings(hardware) if hardware else []
             total_changes = len(preset_settings) + len(perf_settings)
             
-            confirm_msg = f"Apply {chosen} preset to {version_label}?\n\n"
-            confirm_msg += f"This will modify {total_changes} graphics settings in Config.wtf.\n"
-            confirm_msg += f"A backup will be created automatically.\n\n"
-            confirm_msg += f"Main changes:\n"
-            confirm_msg += f"• Preset: {chosen} quality settings\n"
-            confirm_msg += f"• Performance: {len(perf_settings)} optimization(s)\n"
+            confirm_msg = localization._("confirm_apply_message").format(
+                chosen, version_label, total_changes, chosen, len(perf_settings)
+            )
             
-            proceed = messagebox.askyesno("Confirm Apply", confirm_msg, icon='question')
+            proceed = messagebox.askyesno(localization._("confirm_apply_title"), confirm_msg, icon='question')
             if not proceed:
-                status_var.set("Cancelled by user.")
+                status_var.set(localization._("cancelled_by_user"))
                 return
             
             # Apply settings
             success, message, changes = _apply_settings_to_config(version_path, chosen, hardware)
             if success:
                 # Log with details
-                msg = f"Applied {chosen} preset for {version_label}"
+                msg = localization._("applied_preset_log").format(chosen, version_label)
                 app.log(msg, always_log=True)
                 
                 # Show detailed results
                 if changes:
                     result_msg = f"✓ {message}\n\n"
-                    result_msg += f"Details:\n"
-                    result_msg += f"• Updated {len(changes['updated'])} existing settings\n"
-                    result_msg += f"• Added {len(changes['added'])} new settings"
-                    status_var.set(f"✓ {len(changes['updated'])+len(changes['added'])} settings applied.")
+                    result_msg += f"{localization._("details_colon")}\n"
+                    result_msg += f"{localization._("updated_settings").format(len(changes['updated']))}\n"
+                    result_msg += f"{localization._("added_settings").format(len(changes['added']))}"
+                    status_var.set(localization._("settings_applied_status").format(len(changes['updated'])+len(changes['added'])))
                 else:
-                    status_var.set(f"✓ {chosen} preset applied.")
+                    status_var.set(localization._("preset_applied_status").format(chosen))
                 
                 # Update optimization status feedback
                 new_status, new_color = check_optimization_status()
@@ -1353,18 +1335,18 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
                 # Save change to history
                 _save_optimization_history(version_path, version_label, chosen, changes)
             else:
-                app.log(f"Failed to apply {chosen} preset: {message}", always_log=True)
-                status_var.set(f"✗ Error: {message[:40]}")
+                app.log(localization._("apply_preset_failed_log").format(chosen, message), always_log=True)
+                status_var.set(localization._("apply_error_status").format(message[:40]))
         
-        ttk.Button(btn_frame, text="Apply", command=apply_preset).pack(side="left")
+        ttk.Button(btn_frame, text=localization._("apply"), command=apply_preset).pack(side="left")
     else:
         # Generic apply for other versions
         def apply_recommendations():
-            msg = f"Applied optimizer recommendations for {version_label}"
+            msg = localization._("applied_preset_log").format(localization._("recommended_settings"), version_label)
             app.log(msg, always_log=True)
-            status_var.set("✓ Recommendations applied.")
+            status_var.set(localization._("recommendations_applied"))
         
-        ttk.Button(btn_frame, text="Apply Recommended Settings", command=apply_recommendations).pack(side="left")
+        ttk.Button(btn_frame, text=localization._("apply_recommended_settings"), command=apply_recommendations).pack(side="left")
     
     ttk.Label(btn_frame, textvariable=status_var, foreground="green").pack(side="left", padx=(10,0))
 
@@ -1382,7 +1364,7 @@ def _on_scan_hardware(app, info_label, gpu_switch_label, scan_btn, notebook_cont
         scan_btn: The Scan Hardware button widget
     """
     # Show progress feedback
-    info_label.configure(text="Scanning CPU...")
+    info_label.configure(text=localization._("scanning_cpu"))
     gpu_switch_label.configure(text="")
     app.root.update()
 
@@ -1392,13 +1374,13 @@ def _on_scan_hardware(app, info_label, gpu_switch_label, scan_btn, notebook_cont
         cpu_threads = psutil.cpu_count(logical=True)
         cpu_name = _detect_cpu_name()
         
-        info_label.configure(text=f"Scanning RAM... (CPU: {cpu_cores}C/{cpu_threads}T detected)")
+        info_label.configure(text=localization._("scanning_ram_detected").format(cpu_cores, cpu_threads))
         app.root.update()
         
         # Detect RAM
         memory_gb = round(psutil.virtual_memory().total / (1024 ** 3), 1)
         
-        info_label.configure(text=f"Scanning GPU... (RAM: {memory_gb} GB detected)")
+        info_label.configure(text=localization._("scanning_gpu_detected").format(memory_gb))
         app.root.update()
         
         # Detect GPU
@@ -1422,7 +1404,8 @@ def _on_scan_hardware(app, info_label, gpu_switch_label, scan_btn, notebook_cont
         _display_gpu_switch_info(gpu_switch_label, hardware)
         _set_scan_tooltip(scan_btn)
         _populate_version_tabs(app, notebook_container)
-        app.log("Hardware scan complete: cached to global settings.", always_log=True)
+        app.log(localization._("hardware_scan_complete"), always_log=True)
     except Exception as e:
-        info_label.configure(text=f"✗ Error: {str(e)[:50]}")
-        app.log(f"Hardware scan failed: {str(e)}", always_log=True)
+        info_label.configure(text=localization._("scan_error").format(str(e)[:50]))
+        app.log(localization._("hardware_scan_failed").format(str(e)), always_log=True)
+

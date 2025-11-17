@@ -16,6 +16,7 @@ Functions:
 """
 import os
 import shutil
+from Modules import localization
 from Modules.performance import delete_files_batch, HAS_TRASH
 
 DEFAULT_CLEANABLE_FOLDERS = [
@@ -38,6 +39,7 @@ def scan_cleanable_folders(version_path, logger=None):
     Returns:
         list: List of (folder_name, absolute_path) tuples for existing cleanable folders
     """
+    _ = localization.get_text
     found = []
     try:
         with os.scandir(version_path) as entries:
@@ -48,7 +50,7 @@ def scan_cleanable_folders(version_path, logger=None):
                 abs_path = os.path.join(version_path, rel)
                 found.append((rel, abs_path))
                 if logger:
-                    logger.debug(f"[FolderCleaner] Found: {abs_path}")
+                    logger.debug(_("folder_cleaner_found").format(abs_path))
     except (OSError, PermissionError):
         pass
 
@@ -70,6 +72,7 @@ def scan_all_versions(versions, logger=None):
         dict: Mapping of version_label -> list of (folder_name, abs_path) tuples
               Only includes versions that have cleanable folders
     """
+    _ = localization.get_text
     results = {}
     total = 0
     for vpath, vlabel in versions:
@@ -78,7 +81,7 @@ def scan_all_versions(versions, logger=None):
             results[vlabel] = lst
             total += len(lst)
     if logger:
-        logger.info(f"[FolderCleaner] Total cleanable folders: {total}")
+        logger.info(_("folder_cleaner_total").format(total))
     return results
 
 def clean_folders(paths, use_trash=False, logger=None):

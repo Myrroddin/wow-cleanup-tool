@@ -8,6 +8,7 @@ Keeps file selection and path validation logic separate from the main UI.
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox
+from Modules import localization
 
 def find_wow_root(path):
     """Find the WoW installation root by walking up from a selected path.
@@ -59,17 +60,17 @@ def select_wow_folder(app):
     Args:
         app: The WoWCleanupTool instance
     """
-    folder = filedialog.askdirectory(title="Select World of Warcraft Folder")
+    folder = filedialog.askdirectory(title=localization._("select_wow_folder_title"))
     if not folder: return
     corrected = find_wow_root(folder)
     if not is_valid_wow_install(corrected):
-        if not messagebox.askyesno("Unrecognized Installation", "The selected folder doesn't appear valid.\n\nContinue anyway?"):
+        if not messagebox.askyesno(localization._("unrecognized_installation"), localization._("folder_not_valid_continue")):
             return
     app.wow_path_var.set(corrected)
     app.settings["wow_path"] = corrected
     from Modules.settings import save_settings
     save_settings(app.settings)
-    app.log(f"WoW folder set: {corrected}")
+    app.log(localization._("wow_folder_set").format(corrected))
     refresh_folder_cleaner_tabs(app)
 
 def refresh_folder_cleaner_tabs(app):

@@ -5,6 +5,7 @@ Provides caching and shared utilities for version enumeration and path handling.
 import os
 import time
 from pathlib import Path
+from Modules import localization
 
 # Cache for version enumeration
 _VERSION_CACHE = {}
@@ -34,28 +35,28 @@ def enumerate_versions_cached(base_path, ttl_seconds=60):
     # Enumerate versions
     versions = []
     version_folders = [
-        ("_classic_era_", "Classic Era"),
-        ("_classic_", "Classic"),
-        ("_retail_", "Retail"),
+        ("_classic_era_", "version_classic_era"),
+        ("_classic_", "version_classic"),
+        ("_retail_", "version_retail"),
     ]
     variant_suffixes = [
-        ("_ptr_", " PTR"),
-        ("_beta_", " Beta"),
+        ("_ptr_", "version_ptr"),
+        ("_beta_", "version_beta"),
     ]
     
     try:
         with os.scandir(base_path) as entries:
             existing_dirs = {entry.name for entry in entries if entry.is_dir(follow_symlinks=False)}
         
-        for folder, label in version_folders:
+        for folder, label_key in version_folders:
             if folder in existing_dirs:
                 vpath = os.path.join(base_path, folder)
-                versions.append((vpath, label))
-            for suf, suffix_label in variant_suffixes:
+                versions.append((vpath, localization._(label_key)))
+            for suf, suffix_key in variant_suffixes:
                 variant_folder = folder[:-1] + suf[1:]
                 if variant_folder in existing_dirs:
                     v2 = os.path.join(base_path, variant_folder)
-                    versions.append((v2, label + suffix_label))
+                    versions.append((v2, localization._(label_key) + " " + localization._(suffix_key)))
     except (OSError, PermissionError):
         pass
     

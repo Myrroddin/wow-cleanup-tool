@@ -32,9 +32,9 @@ from Modules.folder_cleaner import scan_all_versions, clean_folders, HAS_TRASH a
 from Modules.settings import load_settings, save_settings, SETTINGS_FILE
 from Modules.ui_helpers import Tooltip, ImgAssets, ImgCheckbox, ImgRadio
 from Modules.logger import Logger
-from Modules.tabs.file_cleaner_tab import build_file_cleaner_tree as _build_file_cleaner_tab
-from Modules.tabs.folder_cleaner_tab import build_folder_cleaner_tab as _build_folder_cleaner_tab
-from Modules.tabs.orphan_cleaner_tab import build_orphan_cleaner_tab as _build_orphan_cleaner_tab
+from Modules.Tabs.file_cleaner_tab import build_file_cleaner_tree as _build_file_cleaner_tab
+from Modules.Tabs.folder_cleaner_tab import build_folder_cleaner_tab as _build_folder_cleaner_tab
+from Modules.Tabs.orphan_cleaner_tab import build_orphan_cleaner_tab as _build_orphan_cleaner_tab
 import Modules.tree_helpers as tree_helpers
 from Modules.game_validation import is_game_version_valid, show_game_validation_warning
 from Modules import font_selector, geometry, path_manager, ui_refresh, game_optimizer, update_checker, global_settings
@@ -102,13 +102,13 @@ class WoWCleanupTool:
     MIN_H = 270
 
     VERSION_FOLDERS = [
-        ("_classic_era_", "Classic Era"),
-        ("_classic_", "Classic"),
-        ("_retail_", "Retail"),
+        ("_classic_era_", "version_classic_era"),
+        ("_classic_", "version_classic"),
+        ("_retail_", "version_retail"),
     ]
     VARIANT_SUFFIXES = [
-        ("_ptr_", " PTR"),
-        ("_beta_", " Beta"),
+        ("_ptr_", "version_ptr"),
+        ("_beta_", "version_beta"),
     ]
 
     def __init__(self, root):
@@ -234,7 +234,9 @@ class WoWCleanupTool:
         # State
         self.wow_path_var = tk.StringVar(value=self.settings.get("wow_path", ""))
         self.delete_mode = tk.StringVar(value=self.settings.get("delete_mode", "delete"))
-        self.theme_var = tk.StringVar(value=self.settings.get("theme", "light"))
+        # Theme: translate stored English value to current language for display
+        stored_theme = self.settings.get("theme", "light")
+        self.theme_var = tk.StringVar(value=localization._(stored_theme))
         self.language_var = tk.StringVar(value=localization.get_language())
         self.verbose_var = tk.BooleanVar(value=bool(self.settings.get("verbose_logging", False)))
         self.check_for_updates_var = tk.BooleanVar(value=bool(self.settings.get("check_for_updates", True)))
@@ -762,9 +764,9 @@ class WoWCleanupTool:
         # Buttons
         btn_frame = ttk.Frame(sel)
         btn_frame.pack(fill="x", padx=8, pady=(0,8))
-        apply_btn = ttk.Button(btn_frame, text="Apply", command=lambda: self._finalize_font_change())
+        apply_btn = ttk.Button(btn_frame, text=localization._("apply"), command=lambda: self._finalize_font_change())
         apply_btn.pack(side="right", padx=(4,0))
-        cancel_btn = ttk.Button(btn_frame, text="Cancel", command=lambda: self._cancel_font_change())
+        cancel_btn = ttk.Button(btn_frame, text=localization._("cancel"), command=lambda: self._cancel_font_change())
         cancel_btn.pack(side="right")
 
         def on_close_sel():
@@ -811,7 +813,7 @@ class WoWCleanupTool:
                 self._font_selector = None
                 return
 
-            ok = messagebox.askyesno("Confirm Font", f"Apply font '{new}' to the application?")
+            ok = messagebox.askyesno(localization._("confirm_font"), localization._("apply_font_question").format(new))
             if ok:
                 try:
                     self.settings["font_family"] = new
@@ -908,9 +910,8 @@ class WoWCleanupTool:
             
             # Show confirmation dialog
             confirm = messagebox.askyesno(
-                "Change Language",
-                f"Change language from {current_lang_name} to {new_lang_name}?\n\n"
-                "The application will restart to apply the new language.",
+                localization._("change_language"),
+                localization._("change_language_question").format(current_lang_name, new_lang_name),
                 icon='question'
             )
             
@@ -922,8 +923,8 @@ class WoWCleanupTool:
                 
                 # Show brief confirmation
                 messagebox.showinfo(
-                    "Language Changed",
-                    f"Language changed to {new_lang_name}.\nThe application will now restart."
+                    localization._("language_changed"),
+                    localization._("language_changed_restart").format(new_lang_name)
                 )
                 
                 # Restart the application using subprocess to handle paths with spaces
@@ -1099,10 +1100,10 @@ class WoWCleanupTool:
 
         # Help
         self.help_tab = ttk.Frame(self.main_notebook)
-        self.main_notebook.add(self.help_tab, text="Help / About")
+        self.main_notebook.add(self.help_tab, text=localization._("help_about"))
         self.build_help_tab(self.help_tab)
 
-        self._set_options_border(self.theme_var.get() == "dark")
+        self._set_options_border(self.theme_var.get() == localization._("dark"))
 
     # track styled widgets for refresh (theme switch)
     def _refresh_styled_checkables(self):
@@ -1198,7 +1199,7 @@ class WoWCleanupTool:
         base = self.wow_path_var.get().strip()
         if not base or not os.path.isdir(base):
             self._file_scan_in_progress = False
-            messagebox.showerror("Invalid Folder", "Please select a valid WoW folder first.")
+            messagebox.showerror(localization._("invalid_folder"), localization._("select_valid_wow_first"))
             return
 
         versions = self._enumerate_versions(base)
@@ -1267,9 +1268,9 @@ class WoWCleanupTool:
                                 pass
                         try:
                             if total_count:
-                                self.file_scan_status.configure(text=f"Found {total_count} file(s) across versions.")
+                                self.file_scan_status.configure(text=localization._("found_files_count").format(total_count))
                             else:
-                                self.file_scan_status.configure(text="No .bak or .old files found.")
+                                self.file_scan_status.configure(text=localization._("no_bak_old_found"))
                         except Exception:
                             pass
                         self.log(f"File Cleaner scan: {total_count} match(es).")
@@ -1280,7 +1281,7 @@ class WoWCleanupTool:
                     self.root.after(0, insert_chunk)
                 else:
                     try:
-                        self.file_scan_status.configure(text="No .bak or .old files found.")
+                        self.file_scan_status.configure(text=localization._("no_bak_old_found"))
                     except Exception:
                         pass
                     self.log("File Cleaner scan: 0 match(es).")
@@ -1303,7 +1304,7 @@ class WoWCleanupTool:
             if self.tree_checks.get(iid, False)
         ]
         if not selected:
-            messagebox.showinfo("No Selection", "No files selected for processing.")
+            messagebox.showinfo(localization._("no_selection"), localization._("no_files_selected"))
             return
 
         # Verify game installation is valid before proceeding
@@ -1316,14 +1317,14 @@ class WoWCleanupTool:
 
         use_trash_requested = (self.delete_mode.get() == "trash")
         action = (
-            "move to Recycle Bin/Trash"
+            localization._("move_to_trash")
             if use_trash_requested and HAS_TRASH
-            else "delete permanently"
+            else localization._("delete_permanently_action")
         )
 
         if not messagebox.askyesno(
-            "Confirm",
-            f"Are you sure you want to {action} {len(selected)} file(s)?"
+            localization._("confirm"),
+            localization._("confirm_action_files").format(action, len(selected))
         ):
             return
 
@@ -1337,13 +1338,13 @@ class WoWCleanupTool:
         # Handle the case where trash was requested but isn't available
         if use_trash_requested and not HAS_TRASH:
             messagebox.showwarning(
-                "send2trash missing",
-                "The 'send2trash' module is unavailable. Files were deleted permanently."
+                localization._("send2trash_missing"),
+                localization._("send2trash_unavailable_files")
             )
             self.log("Warning: send2trash not installed; deletions were permanent.")
 
         self.log(f"File Cleaner: processed {processed} file(s).")
-        messagebox.showinfo("Completed", f"Processed {processed} file(s).")
+        messagebox.showinfo(localization._("completed"), localization._("processed_files_count").format(processed))
 
         # Refresh the tree to reflect deletions
         self.scan_files_tree()
@@ -1353,12 +1354,12 @@ class WoWCleanupTool:
         return _build_folder_cleaner_tab(self, parent)
 
     def _build_single_version_tab(self, tab, version_path, version_label):
-        from Modules.tabs.folder_helpers import build_single_version_tab as _bsv
+        from Modules.Tabs.folder_helpers import build_single_version_tab as _bsv
         return _bsv(self, tab, version_path, version_label)
 
     def _show_preview(self, canvas: tk.Canvas, path: str):
         try:
-            from Modules.tabs.folder_helpers import show_preview as _show_preview
+            from Modules.Tabs.folder_helpers import show_preview as _show_preview
             _show_preview(self, canvas, path)
         except Exception:
             try:
@@ -1388,7 +1389,7 @@ class WoWCleanupTool:
         ]
 
         if not selected:
-            messagebox.showinfo("No Selection", "No folders were selected for cleanup.")
+            messagebox.showinfo(localization._("no_selection"), localization._("no_folders_selected"))
             return
 
         # Verify game installation is valid before proceeding
@@ -1402,14 +1403,14 @@ class WoWCleanupTool:
 
         use_trash_requested = self.delete_mode.get() == "trash"
         action = (
-            "move to Recycle Bin/Trash"
+            localization._("move_to_trash")
             if use_trash_requested and FOLDER_HAS_TRASH
-            else "delete permanently"
+            else localization._("delete_permanently_action")
         )
 
         if not messagebox.askyesno(
-            "Confirm",
-            f"Are you sure you want to {action} {len(selected)} folder(s)?"
+            localization._("confirm"),
+            localization._("confirm_action_folders").format(action, len(selected))
         ):
             return
 
@@ -1421,14 +1422,13 @@ class WoWCleanupTool:
 
         if use_trash_requested and not FOLDER_HAS_TRASH:
             messagebox.showwarning(
-                "send2trash missing",
-                "The 'send2trash' module is unavailable. "
-                "Folders were deleted permanently."
+                localization._("send2trash_missing"),
+                localization._("send2trash_unavailable_folders")
             )
             self.log("Warning: send2trash not installed; deletions were permanent.")
 
         self.log(f"Folder Cleaner: processed {processed} folder(s).")
-        messagebox.showinfo("Completed", f"Processed {processed} folder(s).")
+        messagebox.showinfo(localization._("completed"), localization._("processed_folders_count").format(processed))
 
         # Rebuild UI for this version tab
         # This calls _build_single_version_tab again to refresh the toggles
@@ -1499,7 +1499,7 @@ class WoWCleanupTool:
 
         base = self.wow_path_var.get().strip()
         if not base or not os.path.isdir(base):
-            messagebox.showerror("Invalid Folder", "Please select a valid WoW folder first.")
+            messagebox.showerror(localization._("invalid_folder"), localization._("select_valid_wow_first"))
             return
 
         versions = self._enumerate_versions(base)
@@ -1527,11 +1527,11 @@ class WoWCleanupTool:
 
         if total:
             self.orphan_scan_status.configure(
-                text=f"Found {total} orphan SavedVariable(s)."
+                text=localization._("found_orphans_count").format(total)
             )
         else:
             self.orphan_scan_status.configure(
-                text="No orphaned SavedVariables found."
+                text=localization._("no_orphans_found")
             )
 
         self.log(f"Orphan Cleaner scan: {total} orphan(s).")
@@ -1544,7 +1544,7 @@ class WoWCleanupTool:
         ]
 
         if not selected:
-            messagebox.showinfo("No Selection", "No orphaned files selected.")
+            messagebox.showinfo(localization._("no_selection"), localization._("no_orphans_selected"))
             return
 
         # Verify game installation is valid before proceeding with orphan deletion
@@ -1557,14 +1557,14 @@ class WoWCleanupTool:
 
         use_trash_requested = (self.delete_mode.get() == "trash")
         action = (
-            "move to Recycle Bin/Trash"
+            localization._("move_to_trash")
             if use_trash_requested and HAS_TRASH
-            else "delete permanently"
+            else localization._("delete_permanently_action")
         )
 
         if not messagebox.askyesno(
-            "Confirm",
-            f"Are you sure you want to {action} {len(selected)} orphaned SavedVariables?"
+            localization._("confirm"),
+            localization._("confirm_action_orphans").format(action, len(selected))
         ):
             return
 
@@ -1576,13 +1576,13 @@ class WoWCleanupTool:
 
         if use_trash_requested and not HAS_TRASH:
             messagebox.showwarning(
-                "send2trash missing",
-                "The 'send2trash' module is unavailable. Files were deleted permanently."
+                localization._("send2trash_missing"),
+                localization._("send2trash_unavailable_files")
             )
             self.log("Warning: send2trash not installed; deletions were permanent.")
 
         self.log(f"Orphan Cleaner: processed {processed} orphan(s).")
-        messagebox.showinfo("Completed", f"Processed {processed} orphan(s).")
+        messagebox.showinfo(localization._("completed"), localization._("processed_orphans_count").format(processed))
 
         # Refresh
         self.scan_orphan_savedvars()
@@ -1591,7 +1591,7 @@ class WoWCleanupTool:
         base = self.wow_path_var.get().strip()
         if not base or not os.path.isdir(base):
             messagebox.showerror(
-                "Invalid Folder", "Please select a valid WoW folder first."
+                localization._("invalid_folder"), localization._("select_valid_wow_first")
             )
             return
 
@@ -1621,10 +1621,8 @@ class WoWCleanupTool:
             )
 
         messagebox.showinfo(
-            "Completed",
-            f"Rebuilt AddOns.txt entries.\n"
-            f"Total written: {total_written}\n"
-            f"Total removed: {total_removed}",
+            localization._("completed"),
+            localization._("rebuilt_addons_summary").format(total_written, total_removed)
         )
 
     # ------------- Help & Log -------------
@@ -1639,13 +1637,13 @@ class WoWCleanupTool:
         
         ttk.Label(
             header_frame,
-            text="Manual Optimization Suggestions",
+            text=localization._("opt_sug_header"),
             font=(None, 12, "bold")
         ).pack(anchor="w")
         
         disclaimer = ttk.Label(
             header_frame,
-            text="NOTE: This application does NOT perform these optimizations automatically. These are manual suggestions for you to implement.",
+            text=localization._("opt_sug_disclaimer"),
             foreground="red",
             font=(None, 9, "italic"),
             wraplength=max(200, (header_frame.winfo_width() - 40) if header_frame.winfo_width() > 1 else 560)
@@ -1672,29 +1670,29 @@ class WoWCleanupTool:
         # Suggestions list
         suggestions = [
             {
-                "title": "Clean Game Data Folder",
-                "text": "If several years or multiple expansions have passed since installing World of Warcraft, consider deleting the Data folder from your main World of Warcraft directory. This *could* reduce game size and improve loading screen performance. The Battle.net launcher will automatically rebuild this folder when needed.",
-                "tooltip": "WHY: The Data folder accumulates temporary and cached game assets over time. Deleting it forces a fresh download of optimized files.\n\nRISK LEVEL: Safe - Battle.net will redownload needed files automatically.\n\nEXPECTED BENEFIT: Faster loading screens, reduced disk usage (potentially 10-20 GB saved)."
+                "title": localization._("opt_sug_clean_data_title"),
+                "text": localization._("opt_sug_clean_data_text"),
+                "tooltip": localization._("opt_sug_clean_data_tooltip")
             },
             {
-                "title": "Enable HDR (High Dynamic Range)",
-                "text": "Check your operating system's display settings to see if HDR is available. If supported by your monitor, enabling HDR can significantly improve visual clarity and color depth in-game.",
-                "tooltip": "WHY: HDR provides wider color gamut and better contrast, making visuals more vibrant and realistic.\n\nRISK LEVEL: Safe - Can be toggled on/off easily in OS settings.\n\nEXPECTED BENEFIT: Dramatically improved visual quality if monitor supports HDR10 or better.\n\nREQUIREMENT: HDR-capable monitor and Windows 10/11 or macOS Catalina+."
+                "title": localization._("opt_sug_hdr_title"),
+                "text": localization._("opt_sug_hdr_text"),
+                "tooltip": localization._("opt_sug_hdr_tooltip")
             },
             {
-                "title": "Verify Monitor Refresh Rate",
-                "text": "Ensure your monitor's refresh rate is set to the maximum supported value in your operating system's display settings. Higher refresh rates provide smoother gameplay and better responsiveness.",
-                "tooltip": "WHY: Many systems default to 60Hz even when monitors support 120Hz/144Hz/165Hz. This caps your frame rate unnecessarily.\n\nRISK LEVEL: Safe - No hardware risk, easily reversible.\n\nEXPECTED BENEFIT: Smoother gameplay, reduced input lag, better reaction times.\n\nHOW TO CHECK: Windows: Settings > Display > Advanced > Refresh rate\nmacOS: System Preferences > Displays"
+                "title": localization._("opt_sug_refresh_title"),
+                "text": localization._("opt_sug_refresh_text"),
+                "tooltip": localization._("opt_sug_refresh_tooltip")
             },
             {
-                "title": "Enable Smart Access Memory / Resizable BAR",
-                "text": "Check your motherboard BIOS settings for Smart Access Memory (AMD) or Resizable BAR (Intel/NVIDIA). Enabling this feature allows your CPU to access the full GPU memory, potentially improving performance.",
-                "tooltip": "WHY: Allows CPU to access entire GPU memory at once instead of small 256MB chunks, reducing bottlenecks.\n\nRISK LEVEL: Moderate - Requires BIOS changes. Document current settings first.\n\nEXPECTED BENEFIT: 5-15% FPS improvement in GPU-intensive scenarios.\n\nREQUIREMENTS:\n• AMD: Ryzen 5000+ CPU + RX 6000+ GPU\n• Intel: 10th gen+ CPU + RTX 3000+ GPU\n• BIOS update may be required"
+                "title": localization._("opt_sug_sam_title"),
+                "text": localization._("opt_sug_sam_text"),
+                "tooltip": localization._("opt_sug_sam_tooltip")
             },
             {
-                "title": "Enable XMP Memory Profile",
-                "text": "Access your motherboard BIOS and enable the XMP (Extreme Memory Profile) or DOCP/EOCP setting. This ensures your RAM runs at its rated speed rather than default conservative speeds, improving overall system performance.",
-                "tooltip": "WHY: RAM typically runs at 2133MHz by default even if rated for 3200MHz+. XMP enables advertised speeds.\n\nRISK LEVEL: Moderate - BIOS change. System may fail to boot if RAM is unstable (easy to reset).\n\nEXPECTED BENEFIT: 10-20% CPU performance boost, faster loading times, better 1% lows.\n\nHOW TO ENABLE: Enter BIOS (usually Del/F2 at startup) > Find XMP/DOCP setting > Enable > Save & Exit"
+                "title": localization._("opt_sug_xmp_title"),
+                "text": localization._("opt_sug_xmp_text"),
+                "tooltip": localization._("opt_sug_xmp_tooltip")
             }
         ]
         
@@ -1766,33 +1764,27 @@ class WoWCleanupTool:
         # Button frame for Export and Clear
         btn_frame = ttk.Frame(parent)
         btn_frame.pack(anchor="w", padx=10, pady=6)
-        ttk.Button(btn_frame, text="Export Log", command=self.export_log).pack(side="left")
-        ttk.Button(btn_frame, text="Clear Log", command=self.clear_log).pack(side="left", padx=(8,0))
+        ttk.Button(btn_frame, text=localization._("export_log"), command=self.export_log).pack(side="left")
+        ttk.Button(btn_frame, text=localization._("clear_log"), command=self.clear_log).pack(side="left", padx=(8,0))
 
     def build_help_tab(self, parent):
         outer = ttk.Frame(parent, padding=12)
         outer.pack(fill="both", expand=True)
         card = ttk.Frame(outer, padding=14, relief="groove")
         card.pack(padx=20, pady=20, fill="both", expand=False)
-        ttk.Label(card, text=f"WoW Cleanup Tool {VERSION}",
+        ttk.Label(card, text=localization._("help_version_label").format(VERSION),
                   font=(None, 14, "bold")).pack(anchor="center", pady=(0, 8))
         ttk.Label(
             card,
-            text=("A comprehensive maintenance and optimization suite for World of Warcraft.\n"
-                  "Clean unnecessary files, manage addons, optimize game performance, and more.\n\n"
-                  "Always close World of Warcraft before running this tool."),
+            text=localization._("help_about_description"),
             wraplength=500, justify="center"
         ).pack(anchor="center", pady=(0, 8))
         ttk.Label(
             card,
-            text=(
-                "Copyright © 2025 Paul Vandersypen. "
-                "Released under the GNU General Public License v3.0 (GPL-3.0-or-later). "
-                "See the included LICENSE file for full terms."
-            ),
+            text=localization._("help_copyright"),
             font=(None, 10, "italic"),
         ).pack(anchor="center", pady=(0, 6))
-        ttk.Button(card, text="Check for Updates", command=self.check_for_updates).pack(anchor="center", pady=(8, 0))
+        ttk.Button(card, text=localization._("check_for_updates"), command=self.check_for_updates).pack(anchor="center", pady=(8, 0))
 
     # ------------- Path selection + detection -------------
     # Path management methods now delegated to Modules.path_manager
@@ -1854,7 +1846,7 @@ class WoWCleanupTool:
             # Get log content
             log_lines = self.logger.get_lines()
             if not log_lines:
-                messagebox.showinfo("Export Log", "Log is empty. Nothing to export.")
+                messagebox.showinfo(localization._("export_log"), localization._("log_empty_nothing_export"))
                 return
             
             # Determine mode
@@ -2001,7 +1993,7 @@ class WoWCleanupTool:
             # Prefer spawning a fresh process then exiting this one; if that fails,
             # fall back to closing the UI and letting the user relaunch manually.
             try:
-                messagebox.showinfo("Restored", "Settings restored to defaults. The application will now restart.")
+                messagebox.showinfo(localization._("restored"), localization._("settings_restored_restart"))
             except Exception:
                 # If message box fails for any reason, continue with restart.
                 pass
@@ -2024,7 +2016,7 @@ class WoWCleanupTool:
             except Exception:
                 # If spawning a new process fails, gracefully close the UI.
                 try:
-                    messagebox.showinfo("Restored", "Settings restored to defaults. Please restart the application manually.")
+                    messagebox.showinfo(localization._("restored"), localization._("settings_restored_manual"))
                 except Exception:
                     pass
                 try:
@@ -2032,7 +2024,7 @@ class WoWCleanupTool:
                 except Exception:
                     pass
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to restore defaults: {e}")
+            messagebox.showerror(localization._("error"), localization._("failed_restore_defaults").format(e))
 
     def check_for_updates(self):
         update_checker.check_for_updates(VERSION, parent_window=self.root)
@@ -2056,7 +2048,16 @@ class WoWCleanupTool:
         geometry.save_geometry(self)
         self.settings["wow_path"] = self.wow_path_var.get()
         self.settings["delete_mode"] = self.delete_mode.get()
-        self.settings["theme"] = self.theme_var.get()
+        # Convert displayed translated values back to English for storage
+        theme_display = self.theme_var.get()
+        theme = "light"  # default
+        if theme_display == localization._("dark"):
+            theme = "dark"
+        elif theme_display == localization._("light"):
+            theme = "light"
+        else:
+            theme = theme_display.lower()  # fallback
+        self.settings["theme"] = theme
         self.settings["language"] = self.language_var.get()
         self.settings["verbose_logging"] = bool(self.verbose_var.get())
         self.settings["check_for_updates"] = bool(self.check_for_updates_var.get())

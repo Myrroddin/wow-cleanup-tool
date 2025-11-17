@@ -11,6 +11,7 @@ Functions:
 import os
 import os.path
 import re
+from Modules import localization
 
 # Try to import send2trash for safe deletion to recycle bin/trash
 # If unavailable, files will be permanently deleted instead
@@ -33,6 +34,7 @@ def scan_bak_old_in_version(version_path, logger=None):
     Returns:
         list[str]: Absolute file paths found under this version
     """
+    _ = localization.get_text
     matches = []
     for rootd, _dirs, files in os.walk(version_path):
         for fname in files:
@@ -41,11 +43,12 @@ def scan_bak_old_in_version(version_path, logger=None):
                 fpath = os.path.join(rootd, fname)
                 matches.append(fpath)
                 if logger:
-                    logger.debug(f"[FileCleaner] Found file: {fpath}")
+                    logger.debug(_("file_cleaner_found_file").format(fpath))
     return matches
 
 def find_bak_old_files(versions, logger=None):
     """Scan versions for .bak/.old files using os.scandir for speed."""
+    _ = localization.get_text
     results = {}
     total = 0
 
@@ -58,7 +61,7 @@ def find_bak_old_files(versions, logger=None):
                             if _BAK_OLD_PATTERN.search(entry.name):
                                 out_list.append(entry.path)
                                 if logger:
-                                    logger.debug(f"[FileCleaner] Found: {entry.path}")
+                                    logger.debug(_("file_cleaner_found").format(entry.path))
                         elif entry.is_dir(follow_symlinks=False):
                             _scan_dir(entry.path, out_list)
                     except (OSError, PermissionError):
@@ -76,7 +79,7 @@ def find_bak_old_files(versions, logger=None):
             total += len(vlabel_files)
 
     if logger:
-        logger.info(f"[FileCleaner] Total .bak/.old files found: {total}")
+        logger.info(_("file_cleaner_total_found").format(total))
     return results
 
 def delete_files(paths, use_trash=False, logger=None):
@@ -100,6 +103,7 @@ def delete_files(paths, use_trash=False, logger=None):
         - permanently_deleted_flag: True if files were permanently deleted (not in trash)
         - used_trash_flag: True if files were moved to trash (even if only some)
     """
+    _ = localization.get_text
     processed = 0
     used_trash = False
     real_use_trash = use_trash and HAS_TRASH
@@ -109,15 +113,15 @@ def delete_files(paths, use_trash=False, logger=None):
                 send2trash(fp)
                 used_trash = True
                 if logger:
-                    logger.info(f"[FileCleaner] Moved to trash: {fp}")
+                    logger.info(_("file_cleaner_moved_trash").format(fp))
             else:
                 os.remove(fp)
                 if logger:
-                    logger.info(f"[FileCleaner] Deleted: {fp}")
+                    logger.info(_("file_cleaner_deleted").format(fp))
             processed += 1
         except (OSError, IOError) as e:
             if logger:
-                logger.error(f"[FileCleaner] ERROR deleting {fp}: {e}")
+                logger.error(_("file_cleaner_error_deleting").format(fp, e))
     permanently_deleted = not real_use_trash
     return processed, permanently_deleted, used_trash
 

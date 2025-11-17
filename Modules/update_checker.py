@@ -8,6 +8,7 @@ import urllib.request
 import urllib.error
 import json
 from tkinter import messagebox
+from Modules import localization
 
 GITHUB_REPO = "Myrroddin/wow-cleanup-tool"
 GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_REPO}/releases/latest"
@@ -25,6 +26,7 @@ def check_for_updates(current_version: str, parent_window=None):
     Returns:
         dict: {'has_update': bool, 'latest_version': str or None, 'error': str or None}
     """
+    _ = localization.get_text
     try:
         with urllib.request.urlopen(GITHUB_API_URL, timeout=5) as response:
             data = json.loads(response.read().decode())
@@ -56,8 +58,8 @@ def check_for_updates(current_version: str, parent_window=None):
             }
             if parent_window:
                 messagebox.showinfo(
-                    "No Updates Available",
-                    f"You are running {current_version}.\n\nNo releases have been published yet.",
+                    _("no_updates_available"),
+                    _("no_releases_published").format(current_version),
                 )
         else:
             result = {
@@ -67,8 +69,8 @@ def check_for_updates(current_version: str, parent_window=None):
             }
             if parent_window:
                 messagebox.showwarning(
-                    "Update Check Failed",
-                    f"Could not check for updates:\n\nHTTP {e.code}: {e.reason}",
+                    _("update_check_failed"),
+                    _("update_check_http_error").format(e.code, e.reason),
                 )
         return result
     except urllib.error.URLError as e:
@@ -79,8 +81,8 @@ def check_for_updates(current_version: str, parent_window=None):
         }
         if parent_window:
             messagebox.showwarning(
-                "Update Check Failed",
-                f"Could not check for updates:\n\n{e}",
+                _("update_check_failed"),
+                _("update_check_network_error").format(e),
             )
         return result
     except Exception as e:
@@ -91,8 +93,8 @@ def check_for_updates(current_version: str, parent_window=None):
         }
         if parent_window:
             messagebox.showerror(
-                "Update Check Error",
-                f"An error occurred while checking for updates:\n\n{e}",
+                _("update_check_error"),
+                _("update_check_exception").format(e),
             )
         return result
 
@@ -130,28 +132,27 @@ def _show_update_dialog(has_update: bool, current: str, latest: str):
         current: Current version string
         latest: Latest version string
     """
+    _ = localization.get_text
     if has_update:
         messagebox.showinfo(
-            "Update Available",
-            f"A new version is available!\n\n"
-            f"Current: {current}\n"
-            f"Latest: {latest}\n\n"
-            f"Visit the GitHub page to download the latest version.",
+            _("update_available"),
+            _("update_available_message").format(current, latest),
         )
     else:
         messagebox.showinfo(
-            "Up to Date",
-            f"You are running the latest version ({current}).",
+            _("up_to_date"),
+            _("up_to_date_message").format(current),
         )
 
 def open_github_page():
     """Open the project's GitHub page in the default browser."""
+    _ = localization.get_text
     import webbrowser
     url = f"https://github.com/{GITHUB_REPO}"
     try:
         webbrowser.open(url)
     except Exception as e:
         messagebox.showerror(
-            "Error",
-            f"Could not open browser:\n\n{e}",
+            _("error_title"),
+            _("browser_open_error").format(e),
         )

@@ -23,6 +23,7 @@ Functions:
     rebuild_addons_txt: Rebuild AddOns.txt files to match installed addons
 """
 import os
+from Modules import localization
 
 # Try to import send2trash for safe deletion to recycle bin/trash
 # If unavailable, files will be permanently deleted instead
@@ -213,7 +214,7 @@ def scan_orphans(versions, logger=None):
                             total += 1
                             if logger:
                                 logger.debug(
-                                    f"[OrphanCleaner] Found orphan in {vlabel}: {entry.path}"
+                                    localization._("orphan_found_in").format(vlabel, entry.path)
                                 )
 
             except (OSError, IOError):
@@ -225,7 +226,7 @@ def scan_orphans(versions, logger=None):
             results[vlabel] = version_orphans
 
     if logger:
-        logger.info(f"[OrphanCleaner] Total orphaned SavedVariables: {total}")
+        logger.info(localization._("orphan_total_found").format(total))
 
     return results
 
@@ -261,18 +262,18 @@ def delete_orphans(paths, use_trash=False, logger=None):
                 send2trash(fp)
                 used_trash = True
                 if logger:
-                    logger.info(f"[OrphanCleaner] Moved to trash: {fp}")
+                    logger.info(localization._("orphan_moved_trash").format(fp))
             else:
                 # Permanently delete file
                 os.remove(fp)
                 if logger:
-                    logger.info(f"[OrphanCleaner] Deleted: {fp}")
+                    logger.info(localization._("orphan_deleted").format(fp))
             processed += 1
 
         except (OSError, IOError) as e:
             # Log error but continue with next file
             if logger:
-                logger.error(f"[OrphanCleaner] ERROR deleting {fp}: {e}")
+                logger.error(localization._("orphan_error_deleting").format(fp, e))
 
     permanently_deleted = not real_use_trash
     return processed, permanently_deleted, used_trash
@@ -420,16 +421,16 @@ def rebuild_addons_txt(version_root, installed_addons, logger=None):
                         removed_map[addons_txt] = removed
 
                         if logger:
-                            logger.info(f"[OrphanCleaner] Rebuilt: {addons_txt}")
+                            logger.info(localization._("orphan_rebuilt_addons").format(addons_txt))
 
                     except (OSError, IOError) as e:
                         if logger:
                             logger.error(
-                                f"[OrphanCleaner] ERROR writing AddOns.txt {addons_txt}: {e}"
+                                localization._("orphan_error_writing_addons").format(addons_txt, e)
                             )
 
     except (OSError, IOError) as e:
         if logger:
-            logger.error(f"[OrphanCleaner] ERROR during AddOns.txt rebuild: {e}")
+            logger.error(localization._("orphan_error_rebuild").format(e))
 
     return rebuilt_map, removed_map
