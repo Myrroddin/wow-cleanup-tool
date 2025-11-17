@@ -1,8 +1,10 @@
 # Localization Guide
 
-The WoW Cleanup Tool supports localization in all 11 languages available in World of Warcraft.
+The WoW Cleanup Tool supports localization in all 11 languages available in World of Warcraft, plus Ukrainian as a bonus language.
 
 ## Supported Languages
+
+### Official WoW Languages
 
 - **enUS** - English (Default)
 - **deDE** - German (Deutsch)
@@ -15,6 +17,10 @@ The WoW Cleanup Tool supports localization in all 11 languages available in Worl
 - **koKR** - Korean (한국어)
 - **zhCN** - Chinese - Simplified (简体中文)
 - **zhTW** - Chinese - Traditional (繁體中文)
+
+### Bonus Languages
+
+- **ukUA** - Ukrainian (Українська) - Community requested addition
 
 ## Language Detection
 
@@ -98,15 +104,13 @@ All core languages are now 100% complete with comprehensive translations:
 - **Spanish - Mexico (esMX)** - 100% complete (~253 keys)
 - **Portuguese - Brazil (ptBR)** - 100% complete (~253 keys)
 - **Korean (koKR)** - 100% complete (~253 keys)
+- **Chinese - Simplified (zhCN)** - 100% complete (~253 keys)
+- **Chinese - Traditional (zhTW)** - 100% complete (~253 keys)
+- **Italian (itIT)** - 100% complete (~253 keys)
+- **Russian (ruRU)** - 100% complete (~253 keys)
+- **Ukrainian (ukUA)** - 100% complete (~253 keys) - Bonus language
 
-### Using English Fallback (4 languages)
-
-The following languages are configured to automatically use English translations until native translations are provided:
-
-- **Italian (itIT)** - 0% (uses English)
-- **Russian (ruRU)** - 0% (uses English)
-- **Chinese - Simplified (zhCN)** - 0% (uses English)
-- **Chinese - Traditional (zhTW)** - 0% (uses English)
+**All 12 languages are now fully translated!** 🎉
 
 ## Contributing Translations
 
@@ -174,12 +178,50 @@ We welcome contributions for missing translations! To contribute:
 
 - Uses polite/formal speech level (존댓말)
 - Follows Korean grammar and word order
-- All 211 translation keys completed
+- All translation keys completed
 
-### Chinese
+### Italian (itIT)
 
-- **zhCN** - Simplified Chinese (used in mainland China)
-- **zhTW** - Traditional Chinese (used in Taiwan, Hong Kong, Macau)
+- Uses formal "Lei" addressing
+- Follows Italian capitalization and punctuation rules
+- All translation keys completed
+- Technical terms properly localized (e.g., "Cestino" for Recycle Bin)
+- UI terminology consistent with Windows/macOS Italian localizations
+
+### Russian (ruRU)
+
+- Uses formal "вы" (vy) addressing
+- Follows Russian grammar and case system
+- All translation keys completed
+- Cyrillic script throughout
+- Technical terms properly localized (e.g., "Корзина" for Recycle Bin)
+- UI terminology consistent with Russian Windows/macOS localizations
+
+### Ukrainian (ukUA) - Bonus Language
+
+- Uses formal "ви" (vy) addressing
+- Follows Ukrainian grammar and case system
+- All translation keys completed
+- Cyrillic script throughout (Ukrainian alphabet)
+- Technical terms properly localized (e.g., "Кошик" for Recycle Bin)
+- UI terminology consistent with Ukrainian Windows/macOS localizations
+- Added as community-requested bonus language beyond WoW's official 11 languages
+
+### Chinese - Simplified (zhCN)
+
+- Used in mainland China
+- Uses Simplified Chinese characters (简体中文)
+- All translation keys completed
+- Uses "魔兽世界" for World of Warcraft
+- Follows mainland China terminology and conventions
+
+### Chinese - Traditional (zhTW)
+
+- Used in Taiwan, Hong Kong, and Macau
+- Uses Traditional Chinese characters (繁體中文)
+- All translation keys completed
+- Uses "魔獸世界" for World of Warcraft
+- Follows Taiwan/Hong Kong terminology and conventions
 
 ### Spanish
 
@@ -189,13 +231,12 @@ We welcome contributions for missing translations! To contribute:
 ## Known Limitations
 
 - Language change triggers a confirmation dialog and automatically restarts the application
-- Font rendering quality may vary by language (especially CJK languages)
-- Languages using English fallback will show 100% English text until translated
+- Font rendering quality may vary by language (especially CJK and Cyrillic languages)
+- Some translations may need refinement based on community feedback
 
 ## Future Improvements
 
-- [ ] Complete native translations for remaining 4 languages (itIT, ruRU, zhCN, zhTW)
-- [ ] Add right-to-left (RTL) support if needed for potential future languages
+- [ ] Add right-to-left (RTL) support if needed for potential future languages (Arabic, Hebrew)
 - [ ] Improve dynamic UI resizing for different text lengths across languages
 - [ ] Add translation validation tools to ensure consistency
 - [ ] Create translation memory for maintaining consistency across updates

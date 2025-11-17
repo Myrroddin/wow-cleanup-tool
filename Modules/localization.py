@@ -1,7 +1,7 @@
 """
 Localization module for WoW Cleanup Tool.
 
-Supports the 11 languages available in World of Warcraft:
+Supports the 11 languages available in World of Warcraft plus Ukrainian:
 - English (enUS)
 - German (deDE)
 - French (frFR)
@@ -13,6 +13,7 @@ Supports the 11 languages available in World of Warcraft:
 - Korean (koKR)
 - Chinese - Simplified (zhCN)
 - Chinese - Traditional (zhTW)
+- Ukrainian (ukUA) - Bonus language
 """
 
 import os
@@ -34,7 +35,8 @@ AVAILABLE_LANGUAGES = {
     "ruRU": "Русский",
     "koKR": "한국어",
     "zhCN": "简体中文",
-    "zhTW": "繁體中文"
+    "zhTW": "繁體中文",
+    "ukUA": "Українська"
 }
 
 def get_translation_completeness(lang_code):
@@ -2469,8 +2471,832 @@ TRANSLATIONS = {
         "folder_cleaner_total": "[Limpador de Pastas] Total de pastas limpáveis: {}",
     },
     
-    "itIT": {},  # Will use English fallback
-    "ruRU": {},  # Will use English fallback
+    "itIT": {
+        # Window title
+        "window_title": "Strumento di Pulizia WoW",
+        
+        # Menu/Tab names
+        "file_cleaner": "Pulizia File",
+        "folder_cleaner": "Pulizia Cartelle",
+        "orphan_cleaner": "Pulizia Orfani",
+        "game_optimizer": "Ottimizzazione Gioco",
+        "optimization_suggestions": "Suggerimenti di Ottimizzazione",
+        "log": "Registro",
+        "help_about": "Aiuto/Info",
+        
+        # Options section
+        "options": "Opzioni",
+        "wow_folder": "Cartella WoW:",
+        "browse": "Sfoglia...",
+        "browse_tooltip": "Sfoglia la cartella di World of Warcraft.",
+        "font_size": "Dimensione carattere:",
+        "font": "Carattere:",
+        "theme": "Tema:",
+        "language": "Lingua:",
+        "file_action": "Azione file:",
+        "delete_permanently": "Elimina definitivamente",
+        "move_to_recycle": "Sposta nel Cestino",
+        "enable_verbose": "Abilita registro dettagliato",
+        "verbose_tooltip": "Quando abilitato, il registro registra ogni file/cartella/riga di AddOns.txt elaborati.",
+        "external_log": "Registro esterno:",
+        "fresh": "Nuovo",
+        "fresh_tooltip": "Crea un nuovo file di registro ad ogni esportazione (sovrascrive quello esistente).",
+        "append": "Aggiungi",
+        "append_tooltip": "Aggiunge ogni esportazione al file di registro esistente (mantiene 10-20 sessioni a seconda della verbosità).",
+        "check_updates": "Verifica aggiornamenti",
+        "check_updates_tooltip": "Quando abilitato, controlla le nuove versioni su GitHub all'avvio.",
+        "restore_defaults": "Ripristina predefiniti",
+        "light": "Chiaro",
+        "dark": "Scuro",
+        
+        # File Cleaner
+        "scan": "Scansiona",
+        "select_all": "Seleziona tutto",
+        "expand_all": "Espandi tutto",
+        "collapse_all": "Comprimi tutto",
+        "process_selected": "Elabora selezionati",
+        "scanning": "Scansione in corso…",
+        "no_bak_old_found": "Nessun file .bak o .old trovato.",
+        "files_found": "{} file trovati.",
+        
+        # Folder Cleaner
+        "version": "Versione:",
+        "path": "Percorso:",
+        "preview": "Anteprima",
+        "toggle_all": "Commuta tutti",
+        "process_folders": "Elabora cartelle selezionate",
+        
+        # Orphan Cleaner
+        "rebuild_addons": "Ricostruisci AddOns.txt",
+        "no_orphans_found": "Nessun SavedVariables orfano trovato.",
+        "orphans_found": "{} SavedVariable orfani trovati.",
+        
+        # Game Optimizer
+        "scan_hardware": "Scansiona hardware",
+        "system_matches": "Il tuo sistema corrisponde a:",
+        "optimization_applied": "✓ Ottimizzazione applicata",
+        "optimization_not_applied": "⚠ Ottimizzazione non ancora applicata",
+        "graphics_presets": "Preset grafici ({}):",
+        "graphics_presets_classic": "Preset grafici ({}):",
+        "apply_preset": "Applica preset:",
+        "apply": "Applica",
+        "preset_applied": "✓ Preset {} applicato.",
+        "error": "✗ Errore: {}",
+        "low": "Basso",
+        "medium": "Medio",
+        "high": "Alto",
+        "ultra": "Ultra",
+        
+        # Optimization Suggestions
+        "manual_suggestions": "Suggerimenti di Ottimizzazione Manuale",
+        "manual_disclaimer": "Nota: questa applicazione NON esegue automaticamente queste ottimizzazioni. Questi sono suggerimenti che devi implementare manualmente.",
+        "clean_data_folder": "Pulisci la cartella Data del gioco",
+        "clean_data_text": "Se sono passati alcuni anni o diverse espansioni da quando hai installato WoW, considera di eliminare la cartella Data nella directory principale di World of Warcraft. Questo *potrebbe* ridurre la dimensione del gioco e migliorare le prestazioni dello schermo di caricamento. Il launcher Battle.net ricostruirà automaticamente questa cartella quando necessario.",
+        "enable_hdr": "Abilita HDR (High Dynamic Range)",
+        "enable_hdr_text": "Controlla le impostazioni di visualizzazione del sistema operativo per vedere se HDR è disponibile. Se il tuo monitor lo supporta, abilitare HDR può migliorare significativamente la chiarezza visiva e la profondità del colore nel gioco.",
+        "verify_refresh": "Verifica la frequenza di aggiornamento del monitor",
+        "verify_refresh_text": "Assicurati che la frequenza di aggiornamento del monitor sia impostata al massimo supportato nelle impostazioni di visualizzazione del sistema operativo. Frequenze più elevate forniscono un'esperienza di gioco più fluida e una migliore reattività.",
+        "enable_sam": "Abilita Smart Access Memory/Resizable BAR",
+        "enable_sam_text": "Controlla le impostazioni del BIOS della scheda madre per Smart Access Memory (AMD) o Resizable BAR (Intel/NVIDIA). L'abilitazione consente alla CPU di accedere all'intera memoria GPU, migliorando potenzialmente le prestazioni.",
+        "enable_xmp": "Abilita profili memoria XMP",
+        "enable_xmp_text": "Accedi al BIOS della scheda madre e abilita XMP (Extreme Memory Profile) o le impostazioni DOCP/EOCP. Questo assicura che la RAM funzioni alla sua velocità nominale invece della velocità predefinita conservativa, migliorando le prestazioni complessive del sistema.",
+        
+        # Log tab
+        "export_log": "Esporta registro",
+        "clear_log": "Cancella registro",
+        
+        # Help/About
+        "about_text": "Suite completa di manutenzione e ottimizzazione per World of Warcraft.\nPulisci file non necessari, gestisci addon, ottimizza le prestazioni di gioco e altro.\n\nChiudi sempre World of Warcraft prima di eseguire questo strumento.",
+        "copyright": "Copyright © 2025 Paul Vandersypen. Rilasciato sotto i termini della GNU General Public License v3.0 (GPL-3.0-or-later). Consulta il file LICENSE allegato per i termini completi.",
+        
+        # Dialogs
+        "invalid_folder": "Cartella non valida",
+        "select_valid_wow": "Seleziona prima una cartella WoW valida.",
+        "no_selection": "Nessuna selezione",
+        "no_files_selected": "Nessun file selezionato da elaborare.",
+        "no_folders_selected": "Nessuna cartella selezionata da pulire.",
+        "no_orphans_selected": "Nessun orfano selezionato.",
+        "confirm": "Conferma",
+        "confirm_action": "Sei sicuro di voler {} {} {}?",
+        "file_s": " file",
+        "folder_s": " cartelle",
+        "orphaned_savedvars": " SavedVariables orfani",
+        "completed": "Completato",
+        "processed": "{} {} elaborati.",
+        "send2trash_missing": "send2trash mancante",
+        "send2trash_unavailable": "Il modulo 'send2trash' non è disponibile. I file sono stati eliminati definitivamente.",
+        "send2trash_install": "Il pacchetto 'send2trash' non è installato.\nPer abilitare il supporto del Cestino, installa manualmente:\n\n  pip install send2trash\n\no:\n\n  python -m pip install --user send2trash",
+        "restore_defaults_confirm": "Ripristinare tutte le impostazioni ai valori predefiniti?",
+        "restart_required": "Impostazioni ripristinate. L'applicazione verrà ora riavviata.",
+        "error_title": "Errore",
+        "restore_error": "Ripristino predefiniti fallito: {}",
+        "confirm_font": "Conferma carattere",
+        "apply_font_confirm": "Applicare il carattere '{}' all'applicazione?",
+        "select_font": "Seleziona carattere",
+        "export_log_title": "Esporta registro",
+        "log_empty": "Il registro è vuoto. Niente da esportare.",
+        "log_exported": "Registro esportato con successo in:\n{}",
+        "export_error": "Errore esportazione",
+        "export_failed": "Esportazione registro fallita:\n{}",
+        "addons_rebuilt": "Voci AddOns.txt ricostruite.\nTotale scritte: {}\nTotale rimosse: {}",
+        
+        # Log messages
+        "session_started": "Sessione avviata — {}",
+        "file_scan": "Scansione pulizia file: {} corrispondenze.",
+        "orphan_scan": "Scansione pulizia orfani: {} orfani.",
+        "file_processed": "Pulizia file: {} file elaborati.",
+        "folder_processed": "Pulizia cartelle: {} cartelle elaborate.",
+        "orphan_processed": "Pulizia orfani: {} orfani elaborati.",
+        "send2trash_warning": "Avviso: send2trash non installato; le eliminazioni sono permanenti.",
+        "addons_txt_log": "[AddOns.txt] {}: {} voci scritte, {} rimosse",
+        "preset_applied_log": "Preset {} applicato per {}",
+        "preset_failed_log": "Applicazione preset {} fallita: {}",
+        
+        # Language change
+        "language_changed": "Lingua cambiata",
+        "language_changed_restart": "La lingua è stata cambiata. Riavvia l'applicazione per applicare tutte le modifiche.",
+        
+        # Additional buttons and UI elements
+        "apply": "Applica",
+        "cancel": "Annulla",
+        "scan_bak_old": "Scansiona file .bak / .old",
+        "expand_all": "Espandi tutto",
+        "collapse_all": "Comprimi tutto",
+        "select_deselect_all": "Seleziona/Deseleziona tutto",
+        "process_selected_files": "Elabora file selezionati",
+        "scan_orphaned": "Scansiona SavedVariables orfani",
+        "process_selected_folders": "Elabora cartelle selezionate",
+        "select_deselect_all_folders": "Seleziona/Deseleziona tutte le cartelle",
+        "select_deselect_all_screenshots": "Seleziona/Deseleziona tutti gli screenshot",
+        "screenshots_per_file": "Screenshot (per azione file)",
+        "check_for_updates": "Verifica aggiornamenti",
+        
+        # Game Optimizer
+        "game_optimizer_title": "Ottimizzatore Gioco",
+        "game_optimizer_desc": "Ottimizza le prestazioni di World of Warcraft in base alla tua configurazione hardware.",
+        "scan_hardware": "Scansiona hardware",
+        "click_scan_hardware": "Clicca 'Scansiona hardware' per rilevare le capacità del tuo sistema.",
+        "select_valid_wow_folder": "Seleziona una cartella WoW valida nelle Opzioni per abilitare le visualizzazioni per versione.",
+        "recommended_settings": "Impostazioni consigliate:",
+        "apply_preset_label": "Applica preset:",
+        "apply_recommended_settings": "Applica impostazioni consigliate",
+        "scanning_cpu": "Scansione CPU in corso...",
+        "scanning_ram": "Scansione RAM in corso... (CPU rilevata: {} core/{} thread)",
+        "scanning_gpu": "Scansione GPU in corso... (RAM rilevata: {} GB)",
+        
+        # Startup warning
+        "important_notice": "Avviso importante",
+        "startup_warning_text": "⚠️ Prima di usare questo strumento, assicurati che World of Warcraft sia completamente chiuso.\n\nEseguire lo strumento mentre WoW è aperto potrebbe interferire con i file di gioco.",
+        "do_not_show_again": "Non mostrare più questo avviso",
+        "ok": "OK",
+        
+        # Folder cleaner
+        "select_valid_wow_folder_cleaner": "Seleziona una cartella WoW valida nelle Opzioni per abilitare il Pulitore Cartelle.",
+        "preview_label": "Anteprima",
+        "screenshots_not_found": "Cartella Screenshot non trovata per questa versione.",
+        
+        # Optimization Suggestions tab - detailed content
+        "opt_sug_header": "Suggerimenti di Ottimizzazione Manuale",
+        "opt_sug_disclaimer": "Nota: questa applicazione NON esegue automaticamente queste ottimizzazioni. Questi sono suggerimenti che devi implementare manualmente.",
+        "opt_sug_clean_data_title": "Pulisci la cartella Data del gioco",
+        "opt_sug_clean_data_text": "Se sono passati alcuni anni o diverse espansioni da quando hai installato WoW, considera di eliminare la cartella Data nella directory principale di World of Warcraft. Questo *potrebbe* ridurre la dimensione del gioco e migliorare le prestazioni dello schermo di caricamento. Il launcher Battle.net ricostruirà automaticamente questa cartella quando necessario.",
+        "opt_sug_clean_data_tooltip": "Motivo: La cartella Data accumula risorse di gioco temporanee e in cache nel tempo. Eliminarla forza un nuovo download di file ottimizzati.\n\nLivello di rischio: Sicuro - Battle.net scaricherà automaticamente i file necessari.\n\nBenefici attesi: Schermate di caricamento più veloci, ridotto utilizzo disco (potenziale risparmio 10-20 GB).",
+        "opt_sug_hdr_title": "Abilita HDR (High Dynamic Range)",
+        "opt_sug_hdr_text": "Controlla le impostazioni di visualizzazione del sistema operativo per vedere se HDR è disponibile. Se il tuo monitor lo supporta, abilitare HDR può migliorare significativamente la chiarezza visiva e la profondità del colore nel gioco.",
+        "opt_sug_hdr_tooltip": "Motivo: HDR offre una gamma di colori più ampia e un migliore contrasto, rendendo gli effetti visivi più vividi e realistici.\n\nLivello di rischio: Sicuro - facilmente attivabile/disattivabile nelle impostazioni OS.\n\nBenefici attesi: Miglioramento significativo della qualità visiva se il monitor supporta HDR10 o superiore.\n\nRequisiti: Monitor compatibile HDR e Windows 10/11 o macOS Catalina+.",
+        "opt_sug_refresh_title": "Verifica la frequenza di aggiornamento del monitor",
+        "opt_sug_refresh_text": "Assicurati che la frequenza di aggiornamento del monitor sia impostata al massimo supportato nelle impostazioni di visualizzazione del sistema operativo. Frequenze più elevate forniscono un'esperienza di gioco più fluida e una migliore reattività.",
+        "opt_sug_refresh_tooltip": "Motivo: Molti sistemi impostano di default 60Hz anche se i monitor supportano 120Hz/144Hz/165Hz. Questo limita inutilmente la frequenza dei fotogrammi.\n\nLivello di rischio: Sicuro - nessun rischio hardware, facile da ripristinare.\n\nBenefici attesi: Gameplay più fluido, riduzione latenza input, miglior tempo di risposta.\n\nCome verificare: Windows: Impostazioni > Display > Avanzate > Frequenza di aggiornamento\nmacOS: Preferenze di Sistema > Monitor",
+        "opt_sug_sam_title": "Abilita Smart Access Memory/Resizable BAR",
+        "opt_sug_sam_text": "Controlla le impostazioni del BIOS della scheda madre per Smart Access Memory (AMD) o Resizable BAR (Intel/NVIDIA). L'abilitazione consente alla CPU di accedere all'intera memoria GPU, migliorando potenzialmente le prestazioni.",
+        "opt_sug_sam_tooltip": "Motivo: Consente alla CPU di accedere all'intera memoria GPU in una volta, invece di piccoli blocchi da 256MB, riducendo i colli di bottiglia.\n\nLivello di rischio: Moderato - richiede modifiche al BIOS. Annota prima le impostazioni attuali.\n\nBenefici attesi: Aumento FPS 5-15% in scene intensive GPU.\n\nRequisiti:\n• AMD: CPU Ryzen 5000+ + GPU RX 6000+\n• Intel: CPU 10a gen+ + GPU RTX 3000+\n• Potrebbe richiedere aggiornamento BIOS",
+        "opt_sug_xmp_title": "Abilita profili memoria XMP",
+        "opt_sug_xmp_text": "Accedi al BIOS della scheda madre e abilita XMP (Extreme Memory Profile) o le impostazioni DOCP/EOCP. Questo assicura che la RAM funzioni alla sua velocità nominale invece della velocità predefinita conservativa, migliorando le prestazioni complessive del sistema.",
+        "opt_sug_xmp_tooltip": "Motivo: La RAM spesso funziona a 2133MHz di default anche se è valutata per 3200MHz+. XMP abilita le velocità pubblicizzate.\n\nLivello di rischio: Moderato - modifica BIOS. Il sistema potrebbe non avviarsi se la RAM è instabile (facile da resettare).\n\nBenefici attesi: Aumento prestazioni CPU 10-20%, caricamenti più veloci, migliori 1% low.\n\nCome abilitare: Accedi al BIOS (di solito Canc/F2 all'avvio) > Trova impostazioni XMP/DOCP > Abilita > Salva ed esci",
+        
+        # Help/About tab - content
+        "help_version_label": "Strumento di Pulizia WoW {}",
+        "help_about_description": "Suite completa di manutenzione e ottimizzazione per World of Warcraft.\nPulisci file non necessari, gestisci addon, ottimizza le prestazioni di gioco e altro.\n\nChiudi sempre World of Warcraft prima di eseguire questo strumento.",
+        "help_copyright": "Copyright © 2025 Paul Vandersypen. Rilasciato sotto i termini della GNU General Public License v3.0 (GPL-3.0-or-later). Consulta il file LICENSE allegato per i termini completi.",
+        
+        # Game Optimizer - hardware detection messages
+        "hardware_detected": "✓ CPU: {} | RAM: {} | GPU: {}",
+        "gpu_switch_notification": "⚠ Cambio GPU: Impostato per usare '{}' invece di '{}'. Questa modifica ottimizza le prestazioni utilizzando la tua GPU dedicata per una migliore esperienza di gioco. È sicuro e consigliato.",
+        "scan_tooltip_refresh": "Non è necessario scansionare di nuovo a meno che non hai modificato CPU, GPU o RAM.\nClicca per aggiornare le informazioni hardware nella cache.",
+        "scanning_ram_detected": "Scansione RAM in corso... (CPU rilevata: {} core/{} thread)",
+        "scanning_gpu_detected": "Scansione GPU in corso... (RAM rilevata: {} GB)",
+        "apply_preset_label": "Applica preset:",
+        
+        # Game Optimizer - Config.wtf modification dialogs
+        "wow_running_title": "WoW in esecuzione",
+        "wow_running_message": "World of Warcraft è attualmente in esecuzione. Le modifiche avranno effetto dopo il riavvio del gioco.\n\nVuoi continuare?",
+        "permission_error_title": "Errore permessi",
+        "permission_error_message": "Config.wtf è in sola lettura. Rimuovi l'attributo di sola lettura e riprova.",
+        "config_readonly_status": "✗ Config.wtf è in sola lettura.",
+        "confirm_apply_title": "Conferma applicazione",
+        "confirm_apply_message": "Applicare il preset {} a {}?\n\nQuesto modificherà {} impostazioni grafiche in Config.wtf.\nVerrà creato automaticamente un backup.\n\nModifiche principali:\n• Preset: Impostazioni qualità {}\n• Prestazioni: {} ottimizzazioni",
+        "cancelled_by_user": "Annullato dall'utente.",
+        "settings_applied_status": "✓ {} impostazioni applicate.",
+        "preset_applied_status": "✓ Preset {} applicato.",
+        "apply_error_status": "✗ Errore: {}",
+        
+        # Preset tooltips
+        "preset_tooltip_template": "Preset {}\n\nPrestazioni attese:\n{}\n\nClicca 'Applica' qui sotto per usare questo preset.",
+        "perf_depends_hardware": "L'impatto sulle prestazioni dipende dal tuo hardware.",
+        "perf_will_vary": "Le prestazioni varieranno",
+        
+        # Low preset performance estimates
+        "low_perf_high": "Prestazioni eccellenti (100+ FPS nella maggior parte degli scenari)",
+        "low_perf_mid": "Prestazioni molto buone (80-120 FPS)",
+        "low_perf_low": "Buone prestazioni (60-80 FPS)",
+        
+        # Medium preset performance estimates
+        "medium_perf_high": "Prestazioni eccellenti (90-120 FPS)",
+        "medium_perf_mid": "Buone prestazioni (60-90 FPS)",
+        "medium_perf_low": "Prestazioni moderate (45-60 FPS)",
+        
+        # High preset performance estimates
+        "high_perf_high": "Prestazioni molto buone (70-100 FPS)",
+        "high_perf_mid": "Buone prestazioni (50-70 FPS)",
+        "high_perf_low": "Potrebbe avere difficoltà in raid (30-50 FPS)",
+        
+        # Ultra preset performance estimates
+        "ultra_perf_high": "Buone prestazioni (60-80 FPS)",
+        "ultra_perf_mid": "Prestazioni moderate (40-60 FPS)",
+        "ultra_perf_low": "Prestazioni inferiori (20-40 FPS)",
+        
+        # WoW version names
+        "version_retail": "Retail",
+        "version_classic": "Classic",
+        "version_classic_era": "Classic Era",
+        "version_ptr": "PTR",
+        "version_beta": "Beta",
+        
+        # Game Optimizer - additional strings
+        "not_detected": "Non rilevato",
+        "unknown_cpu": "CPU sconosciuta",
+        "unknown_gpu": "Sconosciuta",
+        "not_set": "Non impostato",
+        "hover_for_details": "Passa sopra per i dettagli",
+        
+        # Orphan Cleaner - log messages
+        "orphan_found_in": "[Pulizia Orfani] Trovato orfano in {0}: {1}",
+        "orphan_total_found": "[Pulizia Orfani] Totale SavedVariables orfani: {0}",
+        "orphan_moved_trash": "[Pulizia Orfani] Spostato nel cestino: {0}",
+        "orphan_deleted": "[Pulizia Orfani] Eliminato: {0}",
+        "orphan_error_deleting": "[Pulizia Orfani] Errore eliminazione {0}: {1}",
+        "orphan_rebuilt_addons": "[Pulizia Orfani] Ricostruito: {0}",
+        "orphan_error_writing_addons": "[Pulizia Orfani] Errore scrittura AddOns.txt {0}: {1}",
+        "orphan_error_rebuild": "[Pulizia Orfani] Errore durante ricostruzione AddOns.txt: {0}",
+        "new_setting_prefix": "[Nuovo] ",
+        "details_colon": "Dettagli:",
+        "updated_settings": "• Aggiornate {} impostazioni esistenti",
+        "added_settings": "• Aggiunte {} nuove impostazioni",
+        
+        # Path Manager
+        "select_wow_folder_title": "Seleziona cartella WoW",
+        "unrecognized_installation": "Installazione non riconosciuta",
+        "folder_not_valid_continue": "La cartella selezionata sembra non valida.\n\nVuoi continuare comunque?",
+        "wow_folder_set": "Cartella WoW impostata: {}",
+        
+        # Performance
+        "performance_execution_time": "[Prestazioni] {} ha richiesto {:.3f} secondi",
+        "perf_moved_trash": "[{}] Spostato nel cestino: {}",
+        "perf_deleted": "[{}] Eliminato: {}",
+        "perf_error_deleting": "[{}] Errore eliminazione {}: {}",
+        
+        "select_valid_wow_optimizer": "Seleziona una cartella WoW valida nelle Opzioni per abilitare le visualizzazioni per versione.",
+        "select_valid_wow_folder_cleaner": "Seleziona una cartella WoW valida nelle Opzioni per abilitare il Pulitore Cartelle.",
+        
+        # Main UI - Buttons and Messages
+        "apply": "Applica",
+        "cancel": "Annulla",
+        "export_log": "Esporta registro",
+        "clear_log": "Cancella registro",
+        "confirm_font_change": "Conferma cambio carattere",
+        "font_change_restart_required": "Il cambio di carattere richiede il riavvio dell'applicazione.\nVuoi riavviare ora?",
+        "restart": "Riavvia",
+        "later": "Più tardi",
+        "confirm_language_change": "Conferma cambio lingua",
+        "language_change_restart_required": "Il cambio di lingua richiede il riavvio dell'applicazione per avere effetto.\n\nVuoi riavviare ora?",
+        "language_change_restart_message": "Riavvia l'applicazione per applicare il cambio di lingua.",
+        "invalid_folder_title": "Cartella non valida",
+        
+        # Common Messages
+        "invalid_folder_select_valid_wow": "Seleziona una cartella WoW valida nelle Opzioni.",
+        "scanning_files": "Scansione file in corso...",
+        "scanning_folders": "Scansione cartelle in corso...",
+        "scanning_orphans": "Scansione addon orfani in corso...",
+        "no_files_selected": "Nessun file selezionato",
+        "no_folders_selected": "Nessuna cartella selezionata",
+        "no_orphans_selected": "Nessun orfano selezionato",
+        
+        # File Cleaner
+        "select_files_to_delete": "Seleziona almeno un file da eliminare.",
+        "confirm_delete_files_title": "Conferma eliminazione file",
+        "confirm_delete_files_message": "Sei sicuro di voler eliminare {0} file?",
+        "files_moved_to_recycle_bin": "{0} file spostati nel Cestino.",
+        "files_deletion_complete": "{0} file eliminati con successo.",
+        
+        # Folder Cleaner
+        "select_folders_to_delete": "Seleziona almeno una cartella da eliminare.",
+        "confirm_delete_folders_title": "Conferma eliminazione cartelle",
+        "confirm_delete_folders_message": "Sei sicuro di voler eliminare {0} cartelle?",
+        
+        # Orphan Cleaner
+        "select_orphans_to_delete": "Seleziona almeno un addon orfano da eliminare.",
+        "confirm_delete_orphans_title": "Conferma eliminazione orfani",
+        "confirm_delete_orphans_message": "Sei sicuro di voler eliminare {0} addon orfani?\n\nQuesto eliminerà anche tutti i file SavedVariables correlati.",
+        "orphans_moved_to_recycle_bin": "{0} addon orfani spostati nel Cestino.",
+        "orphans_deletion_complete": "{0} addon orfani eliminati con successo.",
+        
+        # Actions
+        "folders_moved_to_recycle_bin": "{0} cartelle spostate nel Cestino.",
+        "folders_deletion_complete": "{0} cartelle eliminate con successo.",
+        
+        # send2trash Warnings
+        "send2trash_not_available_files": "send2trash non disponibile. I file verranno eliminati definitivamente.",
+        "send2trash_not_available_folders": "send2trash non disponibile. Le cartelle verranno eliminate definitivamente.",
+        "send2trash_not_available_orphans": "send2trash non disponibile. Gli addon orfani verranno eliminati definitivamente.",
+        
+        # AddOns.txt Rebuild
+        "addons_txt_rebuild_summary": "AddOns.txt ricostruito con successo!\n\nAddon trovati: {0}\nPersonaggi: {1}\nProfili: {2}",
+        
+        # Log Export
+        "log_export_empty": "Il registro è vuoto. Niente da esportare.",
+        
+        # Settings Restore
+        "settings_restored_title": "Impostazioni ripristinate",
+        "settings_restored_to_defaults": "Le impostazioni sono state ripristinate ai valori predefiniti.",
+        "settings_restored_restart_required": "Le impostazioni sono state ripristinate ai valori predefiniti.\nRiavvia l'applicazione per applicare tutte le modifiche.",
+        
+        # Orphan Cleaner Tab
+        "orphan_description_part1": "Cerca SavedVariables di addon (.lua / .lua.bak) senza addon installato corrispondente (Interface/AddOns) in tutte le versioni WoW rilevate. Scansiona cartelle SavedVariables di account, server e personaggi. L'elaborazione ricostruisce anche AddOns.txt per corrispondere agli addon installati (preservando lo stato abilitato/disabilitato quando possibile).",
+        "orphan_description_part2": "Nota: I file Blizzard_*.lua sono dati del gioco core e vengono automaticamente ignorati per sicurezza (ma i loro backup .lua.bak potrebbero essere eliminati).",
+        "wtf_not_found": "Directory WTF non trovata. Avvia prima il gioco.",
+        "unknown_preset": "Preset sconosciuto: {}",
+        "backup_failed": "Creazione backup fallita: {}",
+        "config_write_failed": "Scrittura configurazione fallita: {}",
+        "config_updated": "{} impostazioni applicate a Config.wtf.",
+        "settings_updated_added": "{} impostazioni aggiornate, {} nuove impostazioni aggiunte.",
+        "backup_saved": " Backup salvato.",
+        "version_path": "Versione: {}\nPercorso: {}",
+        "optimizer_launch_required": "L'ottimizzatore richiede che {} sia stato avviato almeno una volta. Avvia WoW e raggiungi la schermata di selezione personaggio, poi esci dal gioco. Dopo di che, potrai usare l'ottimizzatore per applicare i preset grafici.",
+        "system_matches": "Il tuo sistema corrisponde a: {}",
+        "optimizer_title": "Ottimizzatore — {}",
+        "recommendations_applied": "✓ Impostazioni consigliate applicate.",
+        "applied_preset_log": "Preset {} applicato per {}",
+        "apply_preset_failed_log": "Applicazione preset {} fallita: {}",
+        "hardware_scan_complete": "Scansione hardware completata: salvato nelle impostazioni globali.",
+        "hardware_scan_failed": "Scansione hardware fallita: {}",
+        "scan_error": "✗ Errore: {}",
+        
+        # Game Validation
+        "invalid_game_installation": "Installazione gioco non valida",
+        "game_installation_incomplete": "L'installazione di World of Warcraft sembra incompleta.\n\nEsegui il gioco almeno una volta per inizializzare le cartelle Interface e WTF.\n\nDopo aver eseguito il gioco, potrai usare questo strumento per pulire la tua installazione.",
+        
+        # Startup Warning
+        "user_disabled_warning": "L'utente ha disabilitato l'avviso di avvio.",
+        
+        # Update Checker
+        "no_updates_available": "Nessun aggiornamento disponibile",
+        "no_releases_published": "Stai eseguendo {}.\n\nNessuna release pubblicata ancora.",
+        "update_check_failed": "Verifica aggiornamento fallita",
+        "update_check_http_error": "Impossibile verificare aggiornamenti:\n\nHTTP {}: {}",
+        "update_check_network_error": "Impossibile verificare aggiornamenti:\n\n{}",
+        "update_check_error": "Errore verifica aggiornamento",
+        "update_check_exception": "Errore durante verifica aggiornamenti:\n\n{}",
+        "update_available": "Aggiornamento disponibile",
+        "update_available_message": "È disponibile una nuova versione!\n\nVersione attuale: {}\nUltima versione: {}\n\nVisita la pagina GitHub per scaricare l'ultima versione.",
+        "up_to_date": "Aggiornato",
+        "up_to_date_message": "Stai eseguendo l'ultima versione ({}).",
+        "browser_open_error": "Impossibile aprire il browser:\n\n{}",
+        
+        # File Cleaner - Log messages
+        "file_cleaner_found_file": "[Pulizia File] Trovato file: {}",
+        "file_cleaner_found": "[Pulizia File] Trovato: {}",
+        "file_cleaner_total_found": "[Pulizia File] Totale file .bak/.old trovati: {}",
+        "file_cleaner_moved_trash": "[Pulizia File] Spostato nel cestino: {}",
+        "file_cleaner_deleted": "[Pulizia File] Eliminato: {}",
+        "file_cleaner_error_deleting": "[Pulizia File] Errore eliminazione {}: {}",
+        
+        # Folder Cleaner - Log messages
+        "folder_cleaner_found": "[Pulizia Cartelle] Trovato: {}",
+        "folder_cleaner_total": "[Pulizia Cartelle] Totale cartelle pulibili: {}",
+    },
+    "ruRU": {
+        # Window title
+        "window_title": "Утилита Очистки WoW",
+        
+        # Menu/Tab names
+        "file_cleaner": "Очистка Файлов",
+        "folder_cleaner": "Очистка Папок",
+        "orphan_cleaner": "Очистка Сирот",
+        "game_optimizer": "Оптимизация Игры",
+        "optimization_suggestions": "Советы по Оптимизации",
+        "log": "Журнал",
+        "help_about": "Справка/О программе",
+        
+        # Options section
+        "options": "Параметры",
+        "wow_folder": "Папка WoW:",
+        "browse": "Обзор...",
+        "browse_tooltip": "Выберите папку World of Warcraft.",
+        "font_size": "Размер шрифта:",
+        "font": "Шрифт:",
+        "theme": "Тема:",
+        "language": "Язык:",
+        "file_action": "Действие с файлами:",
+        "delete_permanently": "Удалить навсегда",
+        "move_to_recycle": "Переместить в Корзину",
+        "enable_verbose": "Подробный журнал",
+        "verbose_tooltip": "При включении журнал записывает каждый обработанный файл/папку/строку AddOns.txt.",
+        "external_log": "Внешний журнал:",
+        "fresh": "Новый",
+        "fresh_tooltip": "Создавать новый файл журнала при каждом экспорте (перезаписывает существующий).",
+        "append": "Добавить",
+        "append_tooltip": "Добавлять каждый экспорт к существующему файлу журнала (сохраняет 10-20 сеансов в зависимости от подробности).",
+        "check_updates": "Проверять обновления",
+        "check_updates_tooltip": "При включении проверяет наличие новых версий на GitHub при запуске.",
+        "restore_defaults": "Восстановить настройки",
+        "light": "Светлая",
+        "dark": "Тёмная",
+        
+        # File Cleaner
+        "scan": "Сканировать",
+        "select_all": "Выбрать всё",
+        "expand_all": "Развернуть всё",
+        "collapse_all": "Свернуть всё",
+        "process_selected": "Обработать выбранное",
+        "scanning": "Сканирование…",
+        "no_bak_old_found": "Файлы .bak или .old не найдены.",
+        "files_found": "Найдено файлов: {}.",
+        
+        # Folder Cleaner
+        "version": "Версия:",
+        "path": "Путь:",
+        "preview": "Предпросмотр",
+        "toggle_all": "Переключить всё",
+        "process_folders": "Обработать выбранные папки",
+        
+        # Orphan Cleaner
+        "rebuild_addons": "Перестроить AddOns.txt",
+        "no_orphans_found": "Осиротевших SavedVariables не найдено.",
+        "orphans_found": "Найдено {} осиротевших SavedVariables.",
+        
+        # Game Optimizer
+        "scan_hardware": "Сканировать оборудование",
+        "system_matches": "Ваша система соответствует:",
+        "optimization_applied": "✓ Оптимизация применена",
+        "optimization_not_applied": "⚠ Оптимизация ещё не применена",
+        "graphics_presets": "Графические пресеты ({}):",
+        "graphics_presets_classic": "Графические пресеты ({}):",
+        "apply_preset": "Применить пресет:",
+        "apply": "Применить",
+        "preset_applied": "✓ Пресет {} применён.",
+        "error": "✗ Ошибка: {}",
+        "low": "Низкие",
+        "medium": "Средние",
+        "high": "Высокие",
+        "ultra": "Ультра",
+        
+        # Optimization Suggestions
+        "manual_suggestions": "Рекомендации по Ручной Оптимизации",
+        "manual_disclaimer": "Примечание: это приложение НЕ выполняет эти оптимизации автоматически. Это рекомендации, которые вы должны реализовать вручную.",
+        "clean_data_folder": "Очистить папку Data игры",
+        "clean_data_text": "Если прошло несколько лет или дополнений с момента установки WoW, рассмотрите возможность удаления папки Data в главном каталоге World of Warcraft. Это *может* уменьшить размер игры и улучшить производительность экрана загрузки. Лаунчер Battle.net автоматически восстановит эту папку при необходимости.",
+        "enable_hdr": "Включить HDR (расширенный динамический диапазон)",
+        "enable_hdr_text": "Проверьте настройки дисплея операционной системы, доступен ли HDR. Если ваш монитор поддерживает его, включение HDR может значительно улучшить визуальную чёткость и глубину цвета в игре.",
+        "verify_refresh": "Проверьте частоту обновления монитора",
+        "verify_refresh_text": "Убедитесь, что частота обновления монитора установлена на максимально поддерживаемую в настройках дисплея операционной системы. Более высокая частота обеспечивает более плавный игровой процесс и лучшую отзывчивость.",
+        "enable_sam": "Включить Smart Access Memory/Resizable BAR",
+        "enable_sam_text": "Проверьте настройки BIOS материнской платы на наличие Smart Access Memory (AMD) или Resizable BAR (Intel/NVIDIA). Включение позволяет процессору получать доступ ко всей памяти GPU, потенциально улучшая производительность.",
+        "enable_xmp": "Включить профили памяти XMP",
+        "enable_xmp_text": "Войдите в BIOS материнской платы и включите XMP (Extreme Memory Profile) или настройки DOCP/EOCP. Это гарантирует, что ваша оперативная память работает на номинальной скорости вместо консервативной скорости по умолчанию, улучшая общую производительность системы.",
+        
+        # Log tab
+        "export_log": "Экспортировать журнал",
+        "clear_log": "Очистить журнал",
+        
+        # Help/About
+        "about_text": "Комплексный набор инструментов для обслуживания и оптимизации World of Warcraft.\nОчищайте ненужные файлы, управляйте аддонами, оптимизируйте производительность игры и многое другое.\n\nВсегда закрывайте World of Warcraft перед запуском этой утилиты.",
+        "copyright": "Авторские права © 2025 Paul Vandersypen. Выпущено на условиях GNU General Public License v3.0 (GPL-3.0-or-later). Полные условия см. в прилагаемом файле LICENSE.",
+        
+        # Dialogs
+        "invalid_folder": "Недействительная папка",
+        "select_valid_wow": "Пожалуйста, сначала выберите действительную папку WoW.",
+        "no_selection": "Нет выбора",
+        "no_files_selected": "Файлы для обработки не выбраны.",
+        "no_folders_selected": "Папки для очистки не выбраны.",
+        "no_orphans_selected": "Осиротевшие файлы не выбраны.",
+        "confirm": "Подтверждение",
+        "confirm_action": "Вы уверены, что хотите {} {} {}?",
+        "file_s": " файл(ов)",
+        "folder_s": " папок(и)",
+        "orphaned_savedvars": " осиротевших SavedVariables",
+        "completed": "Завершено",
+        "processed": "Обработано {} {}.",
+        "send2trash_missing": "send2trash отсутствует",
+        "send2trash_unavailable": "Модуль 'send2trash' недоступен. Файлы были удалены безвозвратно.",
+        "send2trash_install": "Пакет 'send2trash' не установлен.\nЧтобы включить поддержку Корзины, установите вручную:\n\n  pip install send2trash\n\nили:\n\n  python -m pip install --user send2trash",
+        "restore_defaults_confirm": "Восстановить все настройки по умолчанию?",
+        "restart_required": "Настройки восстановлены. Приложение будет перезапущено.",
+        "error_title": "Ошибка",
+        "restore_error": "Не удалось восстановить настройки по умолчанию: {}",
+        "confirm_font": "Подтвердить шрифт",
+        "apply_font_confirm": "Применить шрифт '{}' к приложению?",
+        "select_font": "Выбрать шрифт",
+        "export_log_title": "Экспорт журнала",
+        "log_empty": "Журнал пуст. Нечего экспортировать.",
+        "log_exported": "Журнал успешно экспортирован в:\n{}",
+        "export_error": "Ошибка экспорта",
+        "export_failed": "Не удалось экспортировать журнал:\n{}",
+        "addons_rebuilt": "Записи AddOns.txt перестроены.\nВсего записано: {}\nВсего удалено: {}",
+        
+        # Log messages
+        "session_started": "Сеанс начат — {}",
+        "file_scan": "Сканирование очистки файлов: {} совпадений.",
+        "orphan_scan": "Сканирование очистки сирот: {} сирот.",
+        "file_processed": "Очистка файлов: обработано {} файлов.",
+        "folder_processed": "Очистка папок: обработано {} папок.",
+        "orphan_processed": "Очистка сирот: обработано {} сирот.",
+        "send2trash_warning": "Предупреждение: send2trash не установлен; удаления безвозвратны.",
+        "addons_txt_log": "[AddOns.txt] {}: записано {}, удалено {}",
+        "preset_applied_log": "Пресет {} применён для {}",
+        "preset_failed_log": "Не удалось применить пресет {}: {}",
+        
+        # Language change
+        "language_changed": "Язык изменён",
+        "language_changed_restart": "Язык был изменён. Перезапустите приложение, чтобы применить все изменения.",
+        
+        # Additional buttons and UI elements
+        "apply": "Применить",
+        "cancel": "Отмена",
+        "scan_bak_old": "Сканировать файлы .bak / .old",
+        "expand_all": "Развернуть всё",
+        "collapse_all": "Свернуть всё",
+        "select_deselect_all": "Выбрать/Снять выбор со всех",
+        "process_selected_files": "Обработать выбранные файлы",
+        "scan_orphaned": "Сканировать осиротевшие SavedVariables",
+        "process_selected_folders": "Обработать выбранные папки",
+        "select_deselect_all_folders": "Выбрать/Снять выбор со всех папок",
+        "select_deselect_all_screenshots": "Выбрать/Снять выбор со всех скриншотов",
+        "screenshots_per_file": "Скриншоты (для действия с файлами)",
+        "check_for_updates": "Проверить обновления",
+        
+        # Game Optimizer
+        "game_optimizer_title": "Оптимизатор Игры",
+        "game_optimizer_desc": "Оптимизируйте производительность World of Warcraft на основе вашей аппаратной конфигурации.",
+        "scan_hardware": "Сканировать оборудование",
+        "click_scan_hardware": "Нажмите 'Сканировать оборудование', чтобы определить возможности вашей системы.",
+        "select_valid_wow_folder": "Выберите действительную папку WoW в Параметрах, чтобы включить просмотр по версиям.",
+        "recommended_settings": "Рекомендуемые настройки:",
+        "apply_preset_label": "Применить пресет:",
+        "apply_recommended_settings": "Применить рекомендуемые настройки",
+        "scanning_cpu": "Сканирование процессора...",
+        "scanning_ram": "Сканирование ОЗУ... (обнаружен процессор: {} ядер/{} потоков)",
+        "scanning_gpu": "Сканирование видеокарты... (обнаружено ОЗУ: {} ГБ)",
+        
+        # Startup warning
+        "important_notice": "Важное уведомление",
+        "startup_warning_text": "⚠️ Перед использованием этой утилиты убедитесь, что World of Warcraft полностью закрыт.\n\nЗапуск утилиты при открытом WoW может помешать работе файлов игры.",
+        "do_not_show_again": "Больше не показывать это предупреждение",
+        "ok": "ОК",
+        
+        # Folder cleaner
+        "select_valid_wow_folder_cleaner": "Выберите действительную папку WoW в Параметрах, чтобы включить Очистку Папок.",
+        "preview_label": "Предпросмотр",
+        "screenshots_not_found": "Папка Screenshots не найдена для этой версии.",
+        
+        # Optimization Suggestions tab - detailed content
+        "opt_sug_header": "Рекомендации по Ручной Оптимизации",
+        "opt_sug_disclaimer": "Примечание: это приложение НЕ выполняет эти оптимизации автоматически. Это рекомендации, которые вы должны реализовать вручную.",
+        "opt_sug_clean_data_title": "Очистить папку Data игры",
+        "opt_sug_clean_data_text": "Если прошло несколько лет или дополнений с момента установки WoW, рассмотрите возможность удаления папки Data в главном каталоге World of Warcraft. Это *может* уменьшить размер игры и улучшить производительность экрана загрузки. Лаунчер Battle.net автоматически восстановит эту папку при необходимости.",
+        "opt_sug_clean_data_tooltip": "Причина: Папка Data со временем накапливает временные и кэшированные игровые ресурсы. Её удаление заставляет загрузить оптимизированные файлы заново.\n\nУровень риска: Безопасно - Battle.net автоматически загрузит необходимые файлы.\n\nОжидаемые преимущества: Более быстрая загрузка экранов, меньшее использование диска (потенциальная экономия 10-20 ГБ).",
+        "opt_sug_hdr_title": "Включить HDR (расширенный динамический диапазон)",
+        "opt_sug_hdr_text": "Проверьте настройки дисплея операционной системы, доступен ли HDR. Если ваш монитор поддерживает его, включение HDR может значительно улучшить визуальную чёткость и глубину цвета в игре.",
+        "opt_sug_hdr_tooltip": "Причина: HDR обеспечивает более широкую цветовую гамму и лучшую контрастность, делая визуальные эффекты более яркими и реалистичными.\n\nУровень риска: Безопасно - легко включается/выключается в настройках ОС.\n\nОжидаемые преимущества: Значительное улучшение визуального качества, если монитор поддерживает HDR10 или выше.\n\nТребования: Монитор с поддержкой HDR и Windows 10/11 или macOS Catalina+.",
+        "opt_sug_refresh_title": "Проверьте частоту обновления монитора",
+        "opt_sug_refresh_text": "Убедитесь, что частота обновления монитора установлена на максимально поддерживаемую в настройках дисплея операционной системы. Более высокая частота обеспечивает более плавный игровой процесс и лучшую отзывчивость.",
+        "opt_sug_refresh_tooltip": "Причина: Многие системы по умолчанию устанавливают 60 Гц, даже если мониторы поддерживают 120 Гц/144 Гц/165 Гц. Это без необходимости ограничивает частоту кадров.\n\nУровень риска: Безопасно - нет риска для оборудования, легко вернуть.\n\nОжидаемые преимущества: Более плавный игровой процесс, меньшая задержка ввода, лучшее время отклика.\n\nКак проверить: Windows: Параметры > Дисплей > Дополнительно > Частота обновления\nmacOS: Системные настройки > Мониторы",
+        "opt_sug_sam_title": "Включить Smart Access Memory/Resizable BAR",
+        "opt_sug_sam_text": "Проверьте настройки BIOS материнской платы на наличие Smart Access Memory (AMD) или Resizable BAR (Intel/NVIDIA). Включение позволяет процессору получать доступ ко всей памяти GPU, потенциально улучшая производительность.",
+        "opt_sug_sam_tooltip": "Причина: Позволяет процессору получать доступ ко всей памяти GPU за раз, вместо небольших блоков по 256 МБ, уменьшая узкие места.\n\nУровень риска: Средний - требует изменения BIOS. Сначала запишите текущие настройки.\n\nОжидаемые преимущества: Увеличение FPS на 5-15% в GPU-интенсивных сценах.\n\nТребования:\n• AMD: Процессор Ryzen 5000+ + видеокарта RX 6000+\n• Intel: Процессор 10-го поколения+ + видеокарта RTX 3000+\n• Может потребоваться обновление BIOS",
+        "opt_sug_xmp_title": "Включить профили памяти XMP",
+        "opt_sug_xmp_text": "Войдите в BIOS материнской платы и включите XMP (Extreme Memory Profile) или настройки DOCP/EOCP. Это гарантирует, что ваша оперативная память работает на номинальной скорости вместо консервативной скорости по умолчанию, улучшая общую производительность системы.",
+        "opt_sug_xmp_tooltip": "Причина: ОЗУ часто работает на частоте 2133 МГц по умолчанию, даже если рассчитана на 3200 МГц+. XMP включает заявленные скорости.\n\nУровень риска: Средний - изменение BIOS. Система может не загрузиться, если ОЗУ нестабильна (легко сбросить).\n\nОжидаемые преимущества: Увеличение производительности процессора на 10-20%, более быстрая загрузка, лучшие 1% минимумы.\n\nКак включить: Войдите в BIOS (обычно Del/F2 при загрузке) > Найдите настройки XMP/DOCP > Включите > Сохраните и выйдите",
+        
+        # Help/About tab - content
+        "help_version_label": "Утилита Очистки WoW {}",
+        "help_about_description": "Комплексный набор инструментов для обслуживания и оптимизации World of Warcraft.\nОчищайте ненужные файлы, управляйте аддонами, оптимизируйте производительность игры и многое другое.\n\nВсегда закрывайте World of Warcraft перед запуском этой утилиты.",
+        "help_copyright": "Авторские права © 2025 Paul Vandersypen. Выпущено на условиях GNU General Public License v3.0 (GPL-3.0-or-later). Полные условия см. в прилагаемом файле LICENSE.",
+        
+        # Game Optimizer - hardware detection messages
+        "hardware_detected": "✓ Процессор: {} | ОЗУ: {} | Видеокарта: {}",
+        "gpu_switch_notification": "⚠ Переключение видеокарты: Настроено использование '{}' вместо '{}'. Это изменение оптимизирует производительность, используя вашу дискретную видеокарту для лучшего игрового опыта. Это безопасно и рекомендуется.",
+        "scan_tooltip_refresh": "Не нужно сканировать снова, если вы не меняли процессор, видеокарту или ОЗУ.\nНажмите, чтобы обновить кэшированную информацию об оборудовании.",
+        "scanning_ram_detected": "Сканирование ОЗУ... (обнаружен процессор: {} ядер/{} потоков)",
+        "scanning_gpu_detected": "Сканирование видеокарты... (обнаружено ОЗУ: {} ГБ)",
+        "apply_preset_label": "Применить пресет:",
+        
+        # Game Optimizer - Config.wtf modification dialogs
+        "wow_running_title": "WoW запущен",
+        "wow_running_message": "World of Warcraft в настоящее время запущен. Изменения вступят в силу после перезапуска игры.\n\nПродолжить?",
+        "permission_error_title": "Ошибка прав доступа",
+        "permission_error_message": "Config.wtf доступен только для чтения. Удалите атрибут только для чтения и повторите попытку.",
+        "config_readonly_status": "✗ Config.wtf доступен только для чтения.",
+        "confirm_apply_title": "Подтвердить применение",
+        "confirm_apply_message": "Применить пресет {} к {}?\n\nЭто изменит {} графических настроек в Config.wtf.\nРезервная копия будет создана автоматически.\n\nОсновные изменения:\n• Пресет: Настройки качества {}\n• Производительность: {} оптимизаций",
+        "cancelled_by_user": "Отменено пользователем.",
+        "settings_applied_status": "✓ Применено {} настроек.",
+        "preset_applied_status": "✓ Пресет {} применён.",
+        "apply_error_status": "✗ Ошибка: {}",
+        
+        # Preset tooltips
+        "preset_tooltip_template": "Пресет {}\n\nОжидаемая производительность:\n{}\n\nНажмите 'Применить' ниже, чтобы использовать этот пресет.",
+        "perf_depends_hardware": "Влияние на производительность зависит от вашего оборудования.",
+        "perf_will_vary": "Производительность будет варьироваться",
+        
+        # Low preset performance estimates
+        "low_perf_high": "Отличная производительность (100+ FPS в большинстве сценариев)",
+        "low_perf_mid": "Очень хорошая производительность (80-120 FPS)",
+        "low_perf_low": "Хорошая производительность (60-80 FPS)",
+        
+        # Medium preset performance estimates
+        "medium_perf_high": "Отличная производительность (90-120 FPS)",
+        "medium_perf_mid": "Хорошая производительность (60-90 FPS)",
+        "medium_perf_low": "Умеренная производительность (45-60 FPS)",
+        
+        # High preset performance estimates
+        "high_perf_high": "Очень хорошая производительность (70-100 FPS)",
+        "high_perf_mid": "Хорошая производительность (50-70 FPS)",
+        "high_perf_low": "Могут быть трудности в рейдах (30-50 FPS)",
+        
+        # Ultra preset performance estimates
+        "ultra_perf_high": "Хорошая производительность (60-80 FPS)",
+        "ultra_perf_mid": "Умеренная производительность (40-60 FPS)",
+        "ultra_perf_low": "Низкая производительность (20-40 FPS)",
+        
+        # WoW version names
+        "version_retail": "Retail",
+        "version_classic": "Classic",
+        "version_classic_era": "Classic Era",
+        "version_ptr": "PTR",
+        "version_beta": "Beta",
+        
+        # Game Optimizer - additional strings
+        "not_detected": "Не обнаружено",
+        "unknown_cpu": "Неизвестный процессор",
+        "unknown_gpu": "Неизвестная",
+        "not_set": "Не установлено",
+        "hover_for_details": "Наведите для подробностей",
+        
+        # Orphan Cleaner - log messages
+        "orphan_found_in": "[Очистка Сирот] Найден сирота в {0}: {1}",
+        "orphan_total_found": "[Очистка Сирот] Всего осиротевших SavedVariables: {0}",
+        "orphan_moved_trash": "[Очистка Сирот] Перемещено в корзину: {0}",
+        "orphan_deleted": "[Очистка Сирот] Удалено: {0}",
+        "orphan_error_deleting": "[Очистка Сирот] Ошибка удаления {0}: {1}",
+        "orphan_rebuilt_addons": "[Очистка Сирот] Перестроено: {0}",
+        "orphan_error_writing_addons": "[Очистка Сирот] Ошибка записи AddOns.txt {0}: {1}",
+        "orphan_error_rebuild": "[Очистка Сирот] Ошибка при перестроении AddOns.txt: {0}",
+        "new_setting_prefix": "[Новое] ",
+        "details_colon": "Подробности:",
+        "updated_settings": "• Обновлено {} существующих настроек",
+        "added_settings": "• Добавлено {} новых настроек",
+        
+        # Path Manager
+        "select_wow_folder_title": "Выбор папки WoW",
+        "unrecognized_installation": "Нераспознанная установка",
+        "folder_not_valid_continue": "Выбранная папка не является действительной.\n\nВсё равно продолжить?",
+        "wow_folder_set": "Папка WoW установлена: {}",
+        
+        # Performance
+        "performance_execution_time": "[Производительность] {} заняло {:.3f} секунд",
+        "perf_moved_trash": "[{}] Перемещено в корзину: {}",
+        "perf_deleted": "[{}] Удалено: {}",
+        "perf_error_deleting": "[{}] Ошибка удаления {}: {}",
+        
+        "select_valid_wow_optimizer": "Выберите действительную папку WoW в Параметрах, чтобы включить просмотр по версиям.",
+        "select_valid_wow_folder_cleaner": "Выберите действительную папку WoW в Параметрах, чтобы включить Очистку Папок.",
+        
+        # Main UI - Buttons and Messages
+        "apply": "Применить",
+        "cancel": "Отмена",
+        "export_log": "Экспортировать журнал",
+        "clear_log": "Очистить журнал",
+        "confirm_font_change": "Подтвердить изменение шрифта",
+        "font_change_restart_required": "Изменение шрифта требует перезапуска приложения.\nПерезапустить сейчас?",
+        "restart": "Перезапустить",
+        "later": "Позже",
+        "confirm_language_change": "Подтвердить изменение языка",
+        "language_change_restart_required": "Изменение языка требует перезапуска приложения, чтобы вступить в силу.\n\nПерезапустить сейчас?",
+        "language_change_restart_message": "Перезапустите приложение, чтобы применить изменение языка.",
+        "invalid_folder_title": "Недействительная папка",
+        
+        # Common Messages
+        "invalid_folder_select_valid_wow": "Выберите действительную папку WoW в Параметрах.",
+        "scanning_files": "Сканирование файлов...",
+        "scanning_folders": "Сканирование папок...",
+        "scanning_orphans": "Сканирование осиротевших аддонов...",
+        "no_files_selected": "Файлы не выбраны",
+        "no_folders_selected": "Папки не выбраны",
+        "no_orphans_selected": "Осиротевшие файлы не выбраны",
+        
+        # File Cleaner
+        "select_files_to_delete": "Выберите хотя бы один файл для удаления.",
+        "confirm_delete_files_title": "Подтвердить удаление файлов",
+        "confirm_delete_files_message": "Вы уверены, что хотите удалить {0} файлов?",
+        "files_moved_to_recycle_bin": "{0} файлов перемещено в Корзину.",
+        "files_deletion_complete": "{0} файлов успешно удалено.",
+        
+        # Folder Cleaner
+        "select_folders_to_delete": "Выберите хотя бы одну папку для удаления.",
+        "confirm_delete_folders_title": "Подтвердить удаление папок",
+        "confirm_delete_folders_message": "Вы уверены, что хотите удалить {0} папок?",
+        
+        # Orphan Cleaner
+        "select_orphans_to_delete": "Выберите хотя бы один осиротевший аддон для удаления.",
+        "confirm_delete_orphans_title": "Подтвердить удаление осиротевших файлов",
+        "confirm_delete_orphans_message": "Вы уверены, что хотите удалить {0} осиротевших аддонов?\n\nЭто также удалит все связанные файлы SavedVariables.",
+        "orphans_moved_to_recycle_bin": "{0} осиротевших аддонов перемещено в Корзину.",
+        "orphans_deletion_complete": "{0} осиротевших аддонов успешно удалено.",
+        
+        # Actions
+        "folders_moved_to_recycle_bin": "{0} папок перемещено в Корзину.",
+        "folders_deletion_complete": "{0} папок успешно удалено.",
+        
+        # send2trash Warnings
+        "send2trash_not_available_files": "send2trash недоступен. Файлы будут удалены безвозвратно.",
+        "send2trash_not_available_folders": "send2trash недоступен. Папки будут удалены безвозвратно.",
+        "send2trash_not_available_orphans": "send2trash недоступен. Осиротевшие аддоны будут удалены безвозвратно.",
+        
+        # AddOns.txt Rebuild
+        "addons_txt_rebuild_summary": "AddOns.txt успешно перестроен!\n\nНайдено аддонов: {0}\nПерсонажей: {1}\nПрофилей: {2}",
+        
+        # Log Export
+        "log_export_empty": "Журнал пуст. Нечего экспортировать.",
+        
+        # Settings Restore
+        "settings_restored_title": "Настройки восстановлены",
+        "settings_restored_to_defaults": "Настройки восстановлены по умолчанию.",
+        "settings_restored_restart_required": "Настройки восстановлены по умолчанию.\nПерезапустите приложение, чтобы применить все изменения.",
+        
+        # Orphan Cleaner Tab
+        "orphan_description_part1": "Поиск SavedVariables аддонов (.lua / .lua.bak) без соответствующего установленного аддона (Interface/AddOns) во всех обнаруженных версиях WoW. Сканирует папки SavedVariables учётных записей, серверов и персонажей. Обработка также перестраивает AddOns.txt в соответствии с установленными аддонами (по возможности сохраняя состояние включено/отключено).",
+        "orphan_description_part2": "Примечание: Файлы Blizzard_*.lua являются основными данными игры и автоматически игнорируются для безопасности (но их резервные копии .lua.bak могут быть удалены).",
+        "wtf_not_found": "Каталог WTF не найден. Сначала запустите игру.",
+        "unknown_preset": "Неизвестный пресет: {}",
+        "backup_failed": "Не удалось создать резервную копию: {}",
+        "config_write_failed": "Не удалось записать конфигурацию: {}",
+        "config_updated": "Применено {} настроек к Config.wtf.",
+        "settings_updated_added": "Обновлено {} настроек, добавлено {} новых настроек.",
+        "backup_saved": " Резервная копия сохранена.",
+        "version_path": "Версия: {}\nПуть: {}",
+        "optimizer_launch_required": "Оптимизатор требует, чтобы {} был запущен хотя бы один раз. Запустите WoW и дойдите до экрана выбора персонажа, затем выйдите из игры. После этого вы сможете использовать оптимизатор для применения графических пресетов.",
+        "system_matches": "Ваша система соответствует: {}",
+        "optimizer_title": "Оптимизатор — {}",
+        "recommendations_applied": "✓ Рекомендуемые настройки применены.",
+        "applied_preset_log": "Пресет {} применён для {}",
+        "apply_preset_failed_log": "Не удалось применить пресет {}: {}",
+        "hardware_scan_complete": "Сканирование оборудования завершено: сохранено в глобальных настройках.",
+        "hardware_scan_failed": "Не удалось выполнить сканирование оборудования: {}",
+        "scan_error": "✗ Ошибка: {}",
+        
+        # Game Validation
+        "invalid_game_installation": "Недействительная установка игры",
+        "game_installation_incomplete": "Установка World of Warcraft кажется неполной.\n\nЗапустите игру хотя бы один раз, чтобы инициализировать папки Interface и WTF.\n\nПосле запуска игры вы сможете использовать эту утилиту для очистки установки.",
+        
+        # Startup Warning
+        "user_disabled_warning": "Пользователь отключил предупреждение при запуске.",
+        
+        # Update Checker
+        "no_updates_available": "Обновления недоступны",
+        "no_releases_published": "Вы используете {}.\n\nНикаких релизов ещё не опубликовано.",
+        "update_check_failed": "Не удалось проверить обновления",
+        "update_check_http_error": "Не удалось проверить обновления:\n\nHTTP {}: {}",
+        "update_check_network_error": "Не удалось проверить обновления:\n\n{}",
+        "update_check_error": "Ошибка проверки обновлений",
+        "update_check_exception": "Ошибка при проверке обновлений:\n\n{}",
+        "update_available": "Доступно обновление",
+        "update_available_message": "Доступна новая версия!\n\nТекущая версия: {}\nПоследняя версия: {}\n\nПосетите страницу GitHub, чтобы загрузить последнюю версию.",
+        "up_to_date": "Актуальная версия",
+        "up_to_date_message": "Вы используете последнюю версию ({}).",
+        "browser_open_error": "Не удалось открыть браузер:\n\n{}",
+        
+        # File Cleaner - Log messages
+        "file_cleaner_found_file": "[Очистка Файлов] Найден файл: {}",
+        "file_cleaner_found": "[Очистка Файлов] Найдено: {}",
+        "file_cleaner_total_found": "[Очистка Файлов] Всего найдено файлов .bak/.old: {}",
+        "file_cleaner_moved_trash": "[Очистка Файлов] Перемещено в корзину: {}",
+        "file_cleaner_deleted": "[Очистка Файлов] Удалено: {}",
+        "file_cleaner_error_deleting": "[Очистка Файлов] Ошибка удаления {}: {}",
+        
+        # Folder Cleaner - Log messages
+        "folder_cleaner_found": "[Очистка Папок] Найдено: {}",
+        "folder_cleaner_total": "[Очистка Папок] Всего папок, доступных для очистки: {}",
+    },
     
     "koKR": {
         # Window title
@@ -2886,8 +3712,1245 @@ TRANSLATIONS = {
         "folder_cleaner_total": "[폴더 정리] 총 정리 가능한 폴더: {}",
     },
     
-    "zhCN": {},  # Will use English fallback
-    "zhTW": {},  # Will use English fallback
+    "zhCN": {
+        # Window title
+        "window_title": "魔兽世界清理工具",
+        
+        # Menu/Tab names
+        "file_cleaner": "文件清理",
+        "folder_cleaner": "文件夹清理",
+        "orphan_cleaner": "孤立文件清理",
+        "game_optimizer": "游戏优化",
+        "optimization_suggestions": "优化建议",
+        "log": "日志",
+        "help_about": "帮助/关于",
+        
+        # Options section
+        "options": "选项",
+        "wow_folder": "魔兽世界文件夹：",
+        "browse": "浏览...",
+        "browse_tooltip": "浏览您的魔兽世界文件夹。",
+        "font_size": "字体大小：",
+        "font": "字体：",
+        "theme": "主题：",
+        "language": "语言：",
+        "file_action": "文件操作：",
+        "delete_permanently": "永久删除",
+        "move_to_recycle": "移至回收站",
+        "enable_verbose": "启用详细日志",
+        "verbose_tooltip": "启用后，日志将记录每个处理的文件/文件夹/AddOns.txt行。",
+        "external_log": "外部日志：",
+        "fresh": "新建",
+        "fresh_tooltip": "每次导出时创建新的日志文件（覆盖现有文件）。",
+        "append": "追加",
+        "append_tooltip": "将每次导出追加到现有日志文件（根据详细程度保留10-20个会话）。",
+        "check_updates": "检查更新",
+        "check_updates_tooltip": "启用后，将在启动时检查GitHub上的新版本。",
+        "restore_defaults": "恢复默认设置",
+        "light": "浅色",
+        "dark": "深色",
+        
+        # File Cleaner
+        "scan": "扫描",
+        "select_all": "全选",
+        "expand_all": "全部展开",
+        "collapse_all": "全部折叠",
+        "process_selected": "处理选中项",
+        "scanning": "扫描中…",
+        "no_bak_old_found": "未找到.bak或.old文件。",
+        "files_found": "找到{}个文件。",
+        
+        # Folder Cleaner
+        "version": "版本：",
+        "path": "路径：",
+        "preview": "预览",
+        "toggle_all": "全部切换",
+        "process_folders": "处理选中的文件夹",
+        
+        # Orphan Cleaner
+        "rebuild_addons": "重建AddOns.txt",
+        "no_orphans_found": "未找到孤立的SavedVariables。",
+        "orphans_found": "找到{}个孤立的SavedVariable。",
+        
+        # Game Optimizer
+        "scan_hardware": "扫描硬件",
+        "system_matches": "您的系统匹配：",
+        "optimization_applied": "✓ 已应用优化",
+        "optimization_not_applied": "⚠ 尚未应用优化",
+        "graphics_presets": "图形预设（{}）：",
+        "graphics_presets_classic": "图形预设（{}）：",
+        "apply_preset": "应用预设：",
+        "apply": "应用",
+        "preset_applied": "✓ 已应用{}预设。",
+        "error": "✗ 错误：{}",
+        "low": "低",
+        "medium": "中",
+        "high": "高",
+        "ultra": "极致",
+        
+        # Optimization Suggestions
+        "manual_suggestions": "手动优化建议",
+        "manual_disclaimer": "注意：此应用程序不会自动执行这些优化。这些是您需要手动实施的建议。",
+        "clean_data_folder": "清理游戏数据文件夹",
+        "clean_data_text": "如果安装魔兽世界后已经过了几年或多个资料片，请考虑删除魔兽世界主目录中的Data文件夹。这*可能*会减小游戏大小并提高加载屏幕性能。Battle.net启动器会在需要时自动重建此文件夹。",
+        "enable_hdr": "启用HDR（高动态范围）",
+        "enable_hdr_text": "检查操作系统的显示设置以查看HDR是否可用。如果您的显示器支持，启用HDR可以显著提高游戏内的视觉清晰度和色彩深度。",
+        "verify_refresh": "验证显示器刷新率",
+        "verify_refresh_text": "确保在操作系统的显示设置中将显示器的刷新率设置为支持的最大值。更高的刷新率可提供更流畅的游戏体验和更好的响应性。",
+        "enable_sam": "启用智能访问内存/可调整大小的BAR",
+        "enable_sam_text": "检查主板BIOS设置中的智能访问内存（AMD）或可调整大小的BAR（Intel/NVIDIA）。启用此功能可让CPU访问完整的GPU内存，可能会提高性能。",
+        "enable_xmp": "启用XMP内存配置文件",
+        "enable_xmp_text": "访问主板BIOS并启用XMP（极限内存配置文件）或DOCP/EOCP设置。这可确保您的内存以其额定速度而非默认的保守速度运行，从而提高整体系统性能。",
+        
+        # Log tab
+        "export_log": "导出日志",
+        "clear_log": "清除日志",
+        
+        # Help/About
+        "about_text": "魔兽世界的综合维护和优化套件。\n清理不必要的文件，管理插件，优化游戏性能等。\n\n运行此工具前请务必关闭魔兽世界。",
+        "copyright": "版权所有 © 2025 Paul Vandersypen。根据GNU通用公共许可证v3.0（GPL-3.0-or-later）发布。有关完整条款，请参阅随附的LICENSE文件。",
+        
+        # Dialogs
+        "invalid_folder": "无效的文件夹",
+        "select_valid_wow": "请先选择有效的魔兽世界文件夹。",
+        "no_selection": "未选择",
+        "no_files_selected": "未选择要处理的文件。",
+        "no_folders_selected": "未选择要清理的文件夹。",
+        "no_orphans_selected": "未选择孤立文件。",
+        "confirm": "确认",
+        "confirm_action": "确定要{}{}{}吗？",
+        "file_s": "个文件",
+        "folder_s": "个文件夹",
+        "orphaned_savedvars": "个孤立的SavedVariables",
+        "completed": "已完成",
+        "processed": "已处理{}{}。",
+        "send2trash_missing": "缺少send2trash",
+        "send2trash_unavailable": "'send2trash'模块不可用。文件已被永久删除。",
+        "send2trash_install": "未安装'send2trash'包。\n要启用回收站支持，请手动安装：\n\n  pip install send2trash\n\n或：\n\n  python -m pip install --user send2trash",
+        "restore_defaults_confirm": "将所有设置恢复为默认值？",
+        "restart_required": "设置已恢复。应用程序现在将重新启动。",
+        "error_title": "错误",
+        "restore_error": "恢复默认设置失败：{}",
+        "confirm_font": "确认字体",
+        "apply_font_confirm": "将字体'{}'应用到应用程序？",
+        "select_font": "选择字体",
+        "export_log_title": "导出日志",
+        "log_empty": "日志为空。没有可导出的内容。",
+        "log_exported": "日志已成功导出到：\n{}",
+        "export_error": "导出错误",
+        "export_failed": "导出日志失败：\n{}",
+        "addons_rebuilt": "已重建AddOns.txt条目。\n总共写入：{}\n总共删除：{}",
+        
+        # Log messages
+        "session_started": "会话已开始 — {}",
+        "file_scan": "文件清理扫描：{}个匹配项。",
+        "orphan_scan": "孤立文件清理扫描：{}个孤立文件。",
+        "file_processed": "文件清理：已处理{}个文件。",
+        "folder_processed": "文件夹清理：已处理{}个文件夹。",
+        "orphan_processed": "孤立文件清理：已处理{}个孤立文件。",
+        "send2trash_warning": "警告：未安装send2trash；删除是永久性的。",
+        "addons_txt_log": "[AddOns.txt] {}：写入{}个条目，删除{}个",
+        "preset_applied_log": "已为{}应用{}预设",
+        "preset_failed_log": "应用{}预设失败：{}",
+        
+        # Language change
+        "language_changed": "语言已更改",
+        "language_changed_restart": "语言已更改。请重新启动应用程序以使所有更改生效。",
+        
+        # Additional buttons and UI elements
+        "apply": "应用",
+        "cancel": "取消",
+        "scan_bak_old": "扫描.bak / .old文件",
+        "expand_all": "全部展开",
+        "collapse_all": "全部折叠",
+        "select_deselect_all": "全选/取消全选",
+        "process_selected_files": "处理选中的文件",
+        "scan_orphaned": "扫描孤立的SavedVariables",
+        "process_selected_folders": "处理选中的文件夹",
+        "select_deselect_all_folders": "全选/取消全选所有文件夹",
+        "select_deselect_all_screenshots": "全选/取消全选所有截图文件",
+        "screenshots_per_file": "截图（按文件操作）",
+        "check_for_updates": "检查更新",
+        
+        # Game Optimizer
+        "game_optimizer_title": "游戏优化器",
+        "game_optimizer_desc": "根据您的硬件配置优化魔兽世界的性能。",
+        "scan_hardware": "扫描硬件",
+        "click_scan_hardware": "点击"扫描硬件"以检测您系统的功能。",
+        "select_valid_wow_folder": "在选项中选择有效的魔兽世界文件夹以启用按版本视图。",
+        "recommended_settings": "推荐设置：",
+        "apply_preset_label": "应用预设：",
+        "apply_recommended_settings": "应用推荐设置",
+        "scanning_cpu": "正在扫描CPU...",
+        "scanning_ram": "正在扫描内存...（已检测到CPU：{}核/{}线程）",
+        "scanning_gpu": "正在扫描GPU...（已检测到内存：{} GB）",
+        
+        # Startup warning
+        "important_notice": "重要提示",
+        "startup_warning_text": "⚠️ 在使用此工具之前，请确保魔兽世界已完全关闭。\n\n在魔兽世界打开时运行该工具可能会干扰游戏文件。",
+        "do_not_show_again": "不再显示此警告",
+        "ok": "确定",
+        
+        # Folder cleaner
+        "select_valid_wow_folder_cleaner": "在选项中选择有效的魔兽世界文件夹以启用文件夹清理器。",
+        "preview_label": "预览",
+        "screenshots_not_found": "未找到此版本的截图文件夹。",
+        
+        # Optimization Suggestions tab - detailed content
+        "opt_sug_header": "手动优化建议",
+        "opt_sug_disclaimer": "注意：此应用程序不会自动执行这些优化。这些是您需要手动实施的建议。",
+        "opt_sug_clean_data_title": "清理游戏数据文件夹",
+        "opt_sug_clean_data_text": "如果安装魔兽世界后已经过了几年或多个资料片，请考虑删除魔兽世界主目录中的Data文件夹。这*可能*会减小游戏大小并提高加载屏幕性能。Battle.net启动器会在需要时自动重建此文件夹。",
+        "opt_sug_clean_data_tooltip": "原因：Data文件夹会随着时间的推移累积临时和缓存的游戏资源。删除它会强制重新下载优化的文件。\n\n风险级别：安全 - Battle.net将自动重新下载所需文件。\n\n预期收益：更快的加载屏幕，减少磁盘使用量（可能节省10-20 GB）。",
+        "opt_sug_hdr_title": "启用HDR（高动态范围）",
+        "opt_sug_hdr_text": "检查操作系统的显示设置以查看HDR是否可用。如果您的显示器支持，启用HDR可以显著提高游戏内的视觉清晰度和色彩深度。",
+        "opt_sug_hdr_tooltip": "原因：HDR提供更广的色域和更好的对比度，使视觉效果更加生动和逼真。\n\n风险级别：安全 - 可在操作系统设置中轻松开关。\n\n预期收益：如果显示器支持HDR10或更高版本，视觉质量会显著提升。\n\n要求：支持HDR的显示器和Windows 10/11或macOS Catalina+。",
+        "opt_sug_refresh_title": "验证显示器刷新率",
+        "opt_sug_refresh_text": "确保在操作系统的显示设置中将显示器的刷新率设置为支持的最大值。更高的刷新率可提供更流畅的游戏体验和更好的响应性。",
+        "opt_sug_refresh_tooltip": "原因：即使显示器支持120Hz/144Hz/165Hz，许多系统默认为60Hz。这会不必要地限制帧率。\n\n风险级别：安全 - 无硬件风险，易于恢复。\n\n预期收益：更流畅的游戏体验，减少输入延迟，更好的反应时间。\n\n如何检查：Windows：设置 > 显示 > 高级 > 刷新率\nmacOS：系统偏好设置 > 显示器",
+        "opt_sug_sam_title": "启用智能访问内存/可调整大小的BAR",
+        "opt_sug_sam_text": "检查主板BIOS设置中的智能访问内存（AMD）或可调整大小的BAR（Intel/NVIDIA）。启用此功能可让CPU访问完整的GPU内存，可能会提高性能。",
+        "opt_sug_sam_tooltip": "原因：允许CPU一次访问整个GPU内存，而不是小的256MB块，减少瓶颈。\n\n风险级别：中等 - 需要更改BIOS。首先记录当前设置。\n\n预期收益：在GPU密集型场景中提升5-15%的FPS。\n\n要求：\n• AMD：Ryzen 5000+ CPU + RX 6000+ GPU\n• Intel：第10代+ CPU + RTX 3000+ GPU\n• 可能需要BIOS更新",
+        "opt_sug_xmp_title": "启用XMP内存配置文件",
+        "opt_sug_xmp_text": "访问主板BIOS并启用XMP（极限内存配置文件）或DOCP/EOCP设置。这可确保您的内存以其额定速度而非默认的保守速度运行，从而提高整体系统性能。",
+        "opt_sug_xmp_tooltip": "原因：内存通常默认以2133MHz运行，即使额定为3200MHz+。XMP启用广告速度。\n\n风险级别：中等 - BIOS更改。如果内存不稳定，系统可能无法启动（易于重置）。\n\n预期收益：CPU性能提升10-20%，加载时间更快，更好的1%低点。\n\n如何启用：进入BIOS（启动时通常按Del/F2） > 找到XMP/DOCP设置 > 启用 > 保存并退出",
+        
+        # Help/About tab - content
+        "help_version_label": "魔兽世界清理工具 {}",
+        "help_about_description": "魔兽世界的综合维护和优化套件。\n清理不必要的文件，管理插件，优化游戏性能等。\n\n运行此工具前请务必关闭魔兽世界。",
+        "help_copyright": "版权所有 © 2025 Paul Vandersypen。根据GNU通用公共许可证v3.0（GPL-3.0-or-later）发布。有关完整条款，请参阅随附的LICENSE文件。",
+        
+        # Game Optimizer - hardware detection messages
+        "hardware_detected": "✓ CPU：{} | 内存：{} | GPU：{}",
+        "gpu_switch_notification": "⚠ GPU切换：配置为使用'{}'而不是'{}'。此更改通过使用您的独立GPU来优化性能，以获得更好的游戏体验。这是安全且推荐的。",
+        "scan_tooltip_refresh": "除非您更改了CPU、GPU或内存，否则无需再次扫描。\n点击刷新缓存的硬件信息。",
+        "scanning_ram_detected": "正在扫描内存...（已检测到CPU：{}核/{}线程）",
+        "scanning_gpu_detected": "正在扫描GPU...（已检测到内存：{} GB）",
+        "apply_preset_label": "应用预设：",
+        
+        # Game Optimizer - Config.wtf modification dialogs
+        "wow_running_title": "魔兽世界正在运行",
+        "wow_running_message": "魔兽世界当前正在运行。更改将在重新启动游戏后生效。\n\n是否要继续？",
+        "permission_error_title": "权限错误",
+        "permission_error_message": "Config.wtf是只读的。请删除只读属性，然后重试。",
+        "config_readonly_status": "✗ Config.wtf是只读的。",
+        "confirm_apply_title": "确认应用",
+        "confirm_apply_message": "将{}预设应用到{}？\n\n这将修改Config.wtf中的{}个图形设置。\n将自动创建备份。\n\n主要更改：\n• 预设：{}质量设置\n• 性能：{}个优化",
+        "cancelled_by_user": "用户取消。",
+        "settings_applied_status": "✓ 已应用{}设置。",
+        "preset_applied_status": "✓ 已应用{}预设。",
+        "apply_error_status": "✗ 错误：{}",
+        
+        # Preset tooltips
+        "preset_tooltip_template": "{}预设\n\n预期性能：\n{}\n\n点击下方的"应用"以使用此预设。",
+        "perf_depends_hardware": "性能影响取决于您的硬件。",
+        "perf_will_vary": "性能会有所不同",
+        
+        # Low preset performance estimates
+        "low_perf_high": "出色的性能（大多数场景100+ FPS）",
+        "low_perf_mid": "非常好的性能（80-120 FPS）",
+        "low_perf_low": "良好的性能（60-80 FPS）",
+        
+        # Medium preset performance estimates
+        "medium_perf_high": "出色的性能（90-120 FPS）",
+        "medium_perf_mid": "良好的性能（60-90 FPS）",
+        "medium_perf_low": "中等性能（45-60 FPS）",
+        
+        # High preset performance estimates
+        "high_perf_high": "非常好的性能（70-100 FPS）",
+        "high_perf_mid": "良好的性能（50-70 FPS）",
+        "high_perf_low": "在团队副本中可能吃力（30-50 FPS）",
+        
+        # Ultra preset performance estimates
+        "ultra_perf_high": "良好的性能（60-80 FPS）",
+        "ultra_perf_mid": "中等性能（40-60 FPS）",
+        "ultra_perf_low": "较低性能（20-40 FPS）",
+        
+        # WoW version names
+        "version_retail": "正式服",
+        "version_classic": "怀旧服",
+        "version_classic_era": "经典旧世",
+        "version_ptr": "测试服",
+        "version_beta": "测试服",
+        
+        # Game Optimizer - additional strings
+        "not_detected": "未检测到",
+        "unknown_cpu": "未知CPU",
+        "unknown_gpu": "未知",
+        "not_set": "未设置",
+        "hover_for_details": "悬停查看详情",
+        
+        # Orphan Cleaner - log messages
+        "orphan_found_in": "[孤立文件清理] 在{0}中发现孤立文件：{1}",
+        "orphan_total_found": "[孤立文件清理] 孤立的SavedVariables总数：{0}",
+        "orphan_moved_trash": "[孤立文件清理] 已移至回收站：{0}",
+        "orphan_deleted": "[孤立文件清理] 已删除：{0}",
+        "orphan_error_deleting": "[孤立文件清理] 删除{0}时出错：{1}",
+        "orphan_rebuilt_addons": "[孤立文件清理] 已重建：{0}",
+        "orphan_error_writing_addons": "[孤立文件清理] 写入AddOns.txt {0}时出错：{1}",
+        "orphan_error_rebuild": "[孤立文件清理] AddOns.txt重建期间出错：{0}",
+        "new_setting_prefix": "[新] ",
+        "details_colon": "详情：",
+        "updated_settings": "• 更新了{0}个现有设置",
+        "added_settings": "• 添加了{0}个新设置",
+        
+        # Path Manager
+        "select_wow_folder_title": "选择魔兽世界文件夹",
+        "unrecognized_installation": "无法识别的安装",
+        "folder_not_valid_continue": "所选文件夹似乎无效。\n\n仍要继续吗？",
+        "wow_folder_set": "魔兽世界文件夹已设置：{}",
+        
+        # Performance
+        "performance_execution_time": "[性能] {}耗时{:.3f}秒",
+        "perf_moved_trash": "[{}] 已移至回收站：{}",
+        "perf_deleted": "[{}] 已删除：{}",
+        "perf_error_deleting": "[{}] 删除{}时出错：{}",
+        
+        "select_valid_wow_optimizer": "在选项中选择有效的魔兽世界文件夹以启用按版本视图。",
+        "select_valid_wow_folder_cleaner": "在选项中选择有效的魔兽世界文件夹以启用文件夹清理器。",
+        
+        # Main UI - Buttons and Messages
+        "apply": "应用",
+        "cancel": "取消",
+        "export_log": "导出日志",
+        "clear_log": "清除日志",
+        "confirm_font_change": "确认字体更改",
+        "font_change_restart_required": "字体更改需要重新启动应用程序。\n是否要立即重新启动？",
+        "restart": "重新启动",
+        "later": "稍后",
+        "confirm_language_change": "确认语言更改",
+        "language_change_restart_required": "语言更改需要重新启动应用程序才能生效。\n\n是否要立即重新启动？",
+        "language_change_restart_message": "请重新启动应用程序以使语言更改生效。",
+        "invalid_folder_title": "无效的文件夹",
+        
+        # Common Messages
+        "invalid_folder_select_valid_wow": "请在选项中选择有效的魔兽世界文件夹。",
+        "scanning_files": "正在扫描文件...",
+        "scanning_folders": "正在扫描文件夹...",
+        "scanning_orphans": "正在扫描孤立的插件...",
+        "no_files_selected": "未选择文件",
+        "no_folders_selected": "未选择文件夹",
+        "no_orphans_selected": "未选择孤立文件",
+        
+        # File Cleaner
+        "select_files_to_delete": "请至少选择一个要删除的文件。",
+        "confirm_delete_files_title": "确认删除文件",
+        "confirm_delete_files_message": "确定要删除{0}个文件吗？",
+        "files_moved_to_recycle_bin": "{0}个文件已移至回收站。",
+        "files_deletion_complete": "{0}个文件已成功删除。",
+        
+        # Folder Cleaner
+        "select_folders_to_delete": "请至少选择一个要删除的文件夹。",
+        "confirm_delete_folders_title": "确认删除文件夹",
+        "confirm_delete_folders_message": "确定要删除{0}个文件夹吗？",
+        
+        # Orphan Cleaner
+        "select_orphans_to_delete": "请至少选择一个要删除的孤立插件。",
+        "confirm_delete_orphans_title": "确认删除孤立文件",
+        "confirm_delete_orphans_message": "确定要删除{0}个孤立插件吗？\n\n这也将删除所有相关的SavedVariables文件。",
+        "orphans_moved_to_recycle_bin": "{0}个孤立插件已移至回收站。",
+        "orphans_deletion_complete": "{0}个孤立插件已成功删除。",
+        
+        # Actions
+        "folders_moved_to_recycle_bin": "{0}个文件夹已移至回收站。",
+        "folders_deletion_complete": "{0}个文件夹已成功删除。",
+        
+        # send2trash Warnings
+        "send2trash_not_available_files": "send2trash不可用。文件将被永久删除。",
+        "send2trash_not_available_folders": "send2trash不可用。文件夹将被永久删除。",
+        "send2trash_not_available_orphans": "send2trash不可用。孤立插件将被永久删除。",
+        
+        # AddOns.txt Rebuild
+        "addons_txt_rebuild_summary": "AddOns.txt已成功重建！\n\n找到的插件：{0}\n角色：{1}\n配置文件：{2}",
+        
+        # Log Export
+        "log_export_empty": "日志为空。没有可导出的内容。",
+        
+        # Settings Restore
+        "settings_restored_title": "设置已恢复",
+        "settings_restored_to_defaults": "设置已恢复为默认值。",
+        "settings_restored_restart_required": "设置已恢复为默认值。\n请重新启动应用程序以使所有更改生效。",
+        
+        # Orphan Cleaner Tab
+        "orphan_description_part1": "在所有检测到的魔兽世界版本中搜索没有相应已安装插件（Interface/AddOns）的插件SavedVariables（.lua / .lua.bak）。扫描账户、服务器和角色SavedVariables文件夹。处理还会重建AddOns.txt以匹配已安装的插件（尽可能保留启用/禁用状态）。",
+        "orphan_description_part2": "注意：Blizzard_*.lua文件是核心游戏数据，为安全起见会自动忽略（但其.lua.bak备份可能会被删除）。",
+        "wtf_not_found": "未找到WTF目录。请先启动游戏。",
+        "unknown_preset": "未知预设：{}",
+        "backup_failed": "创建备份失败：{}",
+        "config_write_failed": "写入配置失败：{}",
+        "config_updated": "已将{}个设置应用到Config.wtf。",
+        "settings_updated_added": "更新了{}个设置，添加了{}个新设置。",
+        "backup_saved": " 备份已保存。",
+        "version_path": "版本：{}\n路径：{}",
+        "optimizer_launch_required": "优化器要求至少启动过一次{}。请启动魔兽世界并进入角色选择屏幕，然后退出游戏。之后，您可以使用优化器应用图形预设。",
+        "system_matches": "您的系统匹配：{}",
+        "optimizer_title": "优化器 — {}",
+        "recommendations_applied": "✓ 已应用推荐设置。",
+        "applied_preset_log": "已为{}应用{}预设",
+        "apply_preset_failed_log": "应用{}预设失败：{}",
+        "hardware_scan_complete": "硬件扫描完成：已缓存到全局设置。",
+        "hardware_scan_failed": "硬件扫描失败：{}",
+        "scan_error": "✗ 错误：{}",
+        
+        # Game Validation
+        "invalid_game_installation": "无效的游戏安装",
+        "game_installation_incomplete": "魔兽世界安装似乎不完整。\n\n请至少运行一次游戏以初始化Interface和WTF文件夹。\n\n运行游戏后，您可以使用此工具清理您的安装。",
+        
+        # Startup Warning
+        "user_disabled_warning": "用户已禁用启动警告。",
+        
+        # Update Checker
+        "no_updates_available": "无可用更新",
+        "no_releases_published": "您正在运行{}。\n\n尚未发布任何版本。",
+        "update_check_failed": "更新检查失败",
+        "update_check_http_error": "无法检查更新：\n\nHTTP {}：{}",
+        "update_check_network_error": "无法检查更新：\n\n{}",
+        "update_check_error": "更新检查错误",
+        "update_check_exception": "检查更新时发生错误：\n\n{}",
+        "update_available": "有可用更新",
+        "update_available_message": "有新版本可用！\n\n当前版本：{}\n最新版本：{}\n\n访问GitHub页面下载最新版本。",
+        "up_to_date": "已是最新版本",
+        "up_to_date_message": "您正在运行最新版本（{}）。",
+        "browser_open_error": "无法打开浏览器：\n\n{}",
+        
+        # File Cleaner - Log messages
+        "file_cleaner_found_file": "[文件清理] 找到文件：{}",
+        "file_cleaner_found": "[文件清理] 找到：{}",
+        "file_cleaner_total_found": "[文件清理] 找到的.bak/.old文件总数：{}",
+        "file_cleaner_moved_trash": "[文件清理] 已移至回收站：{}",
+        "file_cleaner_deleted": "[文件清理] 已删除：{}",
+        "file_cleaner_error_deleting": "[文件清理] 删除{}时出错：{}",
+        
+        # Folder Cleaner - Log messages
+        "folder_cleaner_found": "[文件夹清理] 找到：{}",
+        "folder_cleaner_total": "[文件夹清理] 可清理的文件夹总数：{}",
+    },
+    "zhTW": {
+        # Window title
+        "window_title": "魔獸世界清理工具",
+        
+        # Menu/Tab names
+        "file_cleaner": "檔案清理",
+        "folder_cleaner": "資料夾清理",
+        "orphan_cleaner": "孤立檔案清理",
+        "game_optimizer": "遊戲最佳化",
+        "optimization_suggestions": "最佳化建議",
+        "log": "日誌",
+        "help_about": "說明/關於",
+        
+        # Options section
+        "options": "選項",
+        "wow_folder": "魔獸世界資料夾：",
+        "browse": "瀏覽...",
+        "browse_tooltip": "瀏覽您的魔獸世界資料夾。",
+        "font_size": "字型大小：",
+        "font": "字型：",
+        "theme": "主題：",
+        "language": "語言：",
+        "file_action": "檔案操作：",
+        "delete_permanently": "永久刪除",
+        "move_to_recycle": "移至資源回收筒",
+        "enable_verbose": "啟用詳細日誌",
+        "verbose_tooltip": "啟用後，日誌將記錄每個處理的檔案/資料夾/AddOns.txt行。",
+        "external_log": "外部日誌：",
+        "fresh": "新建",
+        "fresh_tooltip": "每次匯出時建立新的日誌檔案（覆蓋現有檔案）。",
+        "append": "附加",
+        "append_tooltip": "將每次匯出附加到現有日誌檔案（根據詳細程度保留10-20個工作階段）。",
+        "check_updates": "檢查更新",
+        "check_updates_tooltip": "啟用後，將在啟動時檢查GitHub上的新版本。",
+        "restore_defaults": "還原預設值",
+        "light": "淺色",
+        "dark": "深色",
+        
+        # File Cleaner
+        "scan": "掃描",
+        "select_all": "全選",
+        "expand_all": "全部展開",
+        "collapse_all": "全部摺疊",
+        "process_selected": "處理選取項目",
+        "scanning": "掃描中…",
+        "no_bak_old_found": "未找到.bak或.old檔案。",
+        "files_found": "找到{}個檔案。",
+        
+        # Folder Cleaner
+        "version": "版本：",
+        "path": "路徑：",
+        "preview": "預覽",
+        "toggle_all": "全部切換",
+        "process_folders": "處理選取的資料夾",
+        
+        # Orphan Cleaner
+        "rebuild_addons": "重建AddOns.txt",
+        "no_orphans_found": "未找到孤立的SavedVariables。",
+        "orphans_found": "找到{}個孤立的SavedVariable。",
+        
+        # Game Optimizer
+        "scan_hardware": "掃描硬體",
+        "system_matches": "您的系統符合：",
+        "optimization_applied": "✓ 已套用最佳化",
+        "optimization_not_applied": "⚠ 尚未套用最佳化",
+        "graphics_presets": "圖形預設（{}）：",
+        "graphics_presets_classic": "圖形預設（{}）：",
+        "apply_preset": "套用預設：",
+        "apply": "套用",
+        "preset_applied": "✓ 已套用{}預設。",
+        "error": "✗ 錯誤：{}",
+        "low": "低",
+        "medium": "中",
+        "high": "高",
+        "ultra": "極致",
+        
+        # Optimization Suggestions
+        "manual_suggestions": "手動最佳化建議",
+        "manual_disclaimer": "注意：此應用程式不會自動執行這些最佳化。這些是您需要手動實施的建議。",
+        "clean_data_folder": "清理遊戲資料資料夾",
+        "clean_data_text": "如果安裝魔獸世界後已經過了幾年或多個資料片，請考慮刪除魔獸世界主目錄中的Data資料夾。這*可能*會減小遊戲大小並提高載入畫面效能。Battle.net啟動器會在需要時自動重建此資料夾。",
+        "enable_hdr": "啟用HDR（高動態範圍）",
+        "enable_hdr_text": "檢查作業系統的顯示設定以查看HDR是否可用。如果您的顯示器支援，啟用HDR可以顯著提高遊戲內的視覺清晰度和色彩深度。",
+        "verify_refresh": "驗證顯示器更新率",
+        "verify_refresh_text": "確保在作業系統的顯示設定中將顯示器的更新率設定為支援的最大值。更高的更新率可提供更流暢的遊戲體驗和更好的反應性。",
+        "enable_sam": "啟用智慧存取記憶體/可調整大小的BAR",
+        "enable_sam_text": "檢查主機板BIOS設定中的智慧存取記憶體（AMD）或可調整大小的BAR（Intel/NVIDIA）。啟用此功能可讓CPU存取完整的GPU記憶體，可能會提高效能。",
+        "enable_xmp": "啟用XMP記憶體設定檔",
+        "enable_xmp_text": "存取主機板BIOS並啟用XMP（極限記憶體設定檔）或DOCP/EOCP設定。這可確保您的記憶體以其額定速度而非預設的保守速度執行，從而提高整體系統效能。",
+        
+        # Log tab
+        "export_log": "匯出日誌",
+        "clear_log": "清除日誌",
+        
+        # Help/About
+        "about_text": "魔獸世界的綜合維護和最佳化套件。\n清理不必要的檔案，管理插件，最佳化遊戲效能等。\n\n執行此工具前請務必關閉魔獸世界。",
+        "copyright": "版權所有 © 2025 Paul Vandersypen。根據GNU通用公共授權條款v3.0（GPL-3.0-or-later）發布。有關完整條款，請參閱隨附的LICENSE檔案。",
+        
+        # Dialogs
+        "invalid_folder": "無效的資料夾",
+        "select_valid_wow": "請先選擇有效的魔獸世界資料夾。",
+        "no_selection": "未選擇",
+        "no_files_selected": "未選擇要處理的檔案。",
+        "no_folders_selected": "未選擇要清理的資料夾。",
+        "no_orphans_selected": "未選擇孤立檔案。",
+        "confirm": "確認",
+        "confirm_action": "確定要{}{}{}嗎？",
+        "file_s": "個檔案",
+        "folder_s": "個資料夾",
+        "orphaned_savedvars": "個孤立的SavedVariables",
+        "completed": "已完成",
+        "processed": "已處理{}{}。",
+        "send2trash_missing": "缺少send2trash",
+        "send2trash_unavailable": "'send2trash'模組不可用。檔案已被永久刪除。",
+        "send2trash_install": "未安裝'send2trash'套件。\n要啟用資源回收筒支援，請手動安裝：\n\n  pip install send2trash\n\n或：\n\n  python -m pip install --user send2trash",
+        "restore_defaults_confirm": "將所有設定還原為預設值？",
+        "restart_required": "設定已還原。應用程式現在將重新啟動。",
+        "error_title": "錯誤",
+        "restore_error": "還原預設值失敗：{}",
+        "confirm_font": "確認字型",
+        "apply_font_confirm": "將字型'{}'套用到應用程式？",
+        "select_font": "選擇字型",
+        "export_log_title": "匯出日誌",
+        "log_empty": "日誌為空。沒有可匯出的內容。",
+        "log_exported": "日誌已成功匯出到：\n{}",
+        "export_error": "匯出錯誤",
+        "export_failed": "匯出日誌失敗：\n{}",
+        "addons_rebuilt": "已重建AddOns.txt項目。\n總共寫入：{}\n總共刪除：{}",
+        
+        # Log messages
+        "session_started": "工作階段已開始 — {}",
+        "file_scan": "檔案清理掃描：{}個符合項目。",
+        "orphan_scan": "孤立檔案清理掃描：{}個孤立檔案。",
+        "file_processed": "檔案清理：已處理{}個檔案。",
+        "folder_processed": "資料夾清理：已處理{}個資料夾。",
+        "orphan_processed": "孤立檔案清理：已處理{}個孤立檔案。",
+        "send2trash_warning": "警告：未安裝send2trash；刪除是永久性的。",
+        "addons_txt_log": "[AddOns.txt] {}：寫入{}個項目，刪除{}個",
+        "preset_applied_log": "已為{}套用{}預設",
+        "preset_failed_log": "套用{}預設失敗：{}",
+        
+        # Language change
+        "language_changed": "語言已變更",
+        "language_changed_restart": "語言已變更。請重新啟動應用程式以使所有變更生效。",
+        
+        # Additional buttons and UI elements
+        "apply": "套用",
+        "cancel": "取消",
+        "scan_bak_old": "掃描.bak / .old檔案",
+        "expand_all": "全部展開",
+        "collapse_all": "全部摺疊",
+        "select_deselect_all": "全選/取消全選",
+        "process_selected_files": "處理選取的檔案",
+        "scan_orphaned": "掃描孤立的SavedVariables",
+        "process_selected_folders": "處理選取的資料夾",
+        "select_deselect_all_folders": "全選/取消全選所有資料夾",
+        "select_deselect_all_screenshots": "全選/取消全選所有螢幕截圖檔案",
+        "screenshots_per_file": "螢幕截圖（按檔案操作）",
+        "check_for_updates": "檢查更新",
+        
+        # Game Optimizer
+        "game_optimizer_title": "遊戲最佳化器",
+        "game_optimizer_desc": "根據您的硬體配置最佳化魔獸世界的效能。",
+        "scan_hardware": "掃描硬體",
+        "click_scan_hardware": "點擊「掃描硬體」以偵測您系統的功能。",
+        "select_valid_wow_folder": "在選項中選擇有效的魔獸世界資料夾以啟用按版本檢視。",
+        "recommended_settings": "建議設定：",
+        "apply_preset_label": "套用預設：",
+        "apply_recommended_settings": "套用建議設定",
+        "scanning_cpu": "正在掃描CPU...",
+        "scanning_ram": "正在掃描記憶體...（已偵測到CPU：{}核心/{}執行緒）",
+        "scanning_gpu": "正在掃描GPU...（已偵測到記憶體：{} GB）",
+        
+        # Startup warning
+        "important_notice": "重要提示",
+        "startup_warning_text": "⚠️ 在使用此工具之前，請確保魔獸世界已完全關閉。\n\n在魔獸世界開啟時執行該工具可能會干擾遊戲檔案。",
+        "do_not_show_again": "不再顯示此警告",
+        "ok": "確定",
+        
+        # Folder cleaner
+        "select_valid_wow_folder_cleaner": "在選項中選擇有效的魔獸世界資料夾以啟用資料夾清理器。",
+        "preview_label": "預覽",
+        "screenshots_not_found": "未找到此版本的螢幕截圖資料夾。",
+        
+        # Optimization Suggestions tab - detailed content
+        "opt_sug_header": "手動最佳化建議",
+        "opt_sug_disclaimer": "注意：此應用程式不會自動執行這些最佳化。這些是您需要手動實施的建議。",
+        "opt_sug_clean_data_title": "清理遊戲資料資料夾",
+        "opt_sug_clean_data_text": "如果安裝魔獸世界後已經過了幾年或多個資料片，請考慮刪除魔獸世界主目錄中的Data資料夾。這*可能*會減小遊戲大小並提高載入畫面效能。Battle.net啟動器會在需要時自動重建此資料夾。",
+        "opt_sug_clean_data_tooltip": "原因：Data資料夾會隨著時間的推移累積暫存和快取的遊戲資源。刪除它會強制重新下載最佳化的檔案。\n\n風險等級：安全 - Battle.net將自動重新下載所需檔案。\n\n預期收益：更快的載入畫面，減少磁碟使用量（可能節省10-20 GB）。",
+        "opt_sug_hdr_title": "啟用HDR（高動態範圍）",
+        "opt_sug_hdr_text": "檢查作業系統的顯示設定以查看HDR是否可用。如果您的顯示器支援，啟用HDR可以顯著提高遊戲內的視覺清晰度和色彩深度。",
+        "opt_sug_hdr_tooltip": "原因：HDR提供更廣的色域和更好的對比度，使視覺效果更加生動和逼真。\n\n風險等級：安全 - 可在作業系統設定中輕鬆開關。\n\n預期收益：如果顯示器支援HDR10或更高版本，視覺品質會顯著提升。\n\n要求：支援HDR的顯示器和Windows 10/11或macOS Catalina+。",
+        "opt_sug_refresh_title": "驗證顯示器更新率",
+        "opt_sug_refresh_text": "確保在作業系統的顯示設定中將顯示器的更新率設定為支援的最大值。更高的更新率可提供更流暢的遊戲體驗和更好的反應性。",
+        "opt_sug_refresh_tooltip": "原因：即使顯示器支援120Hz/144Hz/165Hz，許多系統預設為60Hz。這會不必要地限制畫面更新率。\n\n風險等級：安全 - 無硬體風險，易於恢復。\n\n預期收益：更流暢的遊戲體驗，減少輸入延遲，更好的反應時間。\n\n如何檢查：Windows：設定 > 顯示 > 進階 > 更新率\nmacOS：系統偏好設定 > 顯示器",
+        "opt_sug_sam_title": "啟用智慧存取記憶體/可調整大小的BAR",
+        "opt_sug_sam_text": "檢查主機板BIOS設定中的智慧存取記憶體（AMD）或可調整大小的BAR（Intel/NVIDIA）。啟用此功能可讓CPU存取完整的GPU記憶體，可能會提高效能。",
+        "opt_sug_sam_tooltip": "原因：允許CPU一次存取整個GPU記憶體，而不是小的256MB區塊，減少瓶頸。\n\n風險等級：中等 - 需要變更BIOS。首先記錄目前設定。\n\n預期收益：在GPU密集型場景中提升5-15%的FPS。\n\n要求：\n• AMD：Ryzen 5000+ CPU + RX 6000+ GPU\n• Intel：第10代+ CPU + RTX 3000+ GPU\n• 可能需要BIOS更新",
+        "opt_sug_xmp_title": "啟用XMP記憶體設定檔",
+        "opt_sug_xmp_text": "存取主機板BIOS並啟用XMP（極限記憶體設定檔）或DOCP/EOCP設定。這可確保您的記憶體以其額定速度而非預設的保守速度執行，從而提高整體系統效能。",
+        "opt_sug_xmp_tooltip": "原因：記憶體通常預設以2133MHz執行，即使額定為3200MHz+。XMP啟用廣告速度。\n\n風險等級：中等 - BIOS變更。如果記憶體不穩定，系統可能無法啟動（易於重設）。\n\n預期收益：CPU效能提升10-20%，載入時間更快，更好的1%低點。\n\n如何啟用：進入BIOS（啟動時通常按Del/F2） > 找到XMP/DOCP設定 > 啟用 > 儲存並離開",
+        
+        # Help/About tab - content
+        "help_version_label": "魔獸世界清理工具 {}",
+        "help_about_description": "魔獸世界的綜合維護和最佳化套件。\n清理不必要的檔案，管理插件，最佳化遊戲效能等。\n\n執行此工具前請務必關閉魔獸世界。",
+        "help_copyright": "版權所有 © 2025 Paul Vandersypen。根據GNU通用公共授權條款v3.0（GPL-3.0-or-later）發布。有關完整條款，請參閱隨附的LICENSE檔案。",
+        
+        # Game Optimizer - hardware detection messages
+        "hardware_detected": "✓ CPU：{} | 記憶體：{} | GPU：{}",
+        "gpu_switch_notification": "⚠ GPU切換：設定為使用'{}'而不是'{}'。此變更透過使用您的獨立GPU來最佳化效能，以獲得更好的遊戲體驗。這是安全且建議的。",
+        "scan_tooltip_refresh": "除非您變更了CPU、GPU或記憶體，否則無需再次掃描。\n點擊重新整理快取的硬體資訊。",
+        "scanning_ram_detected": "正在掃描記憶體...（已偵測到CPU：{}核心/{}執行緒）",
+        "scanning_gpu_detected": "正在掃描GPU...（已偵測到記憶體：{} GB）",
+        "apply_preset_label": "套用預設：",
+        
+        # Game Optimizer - Config.wtf modification dialogs
+        "wow_running_title": "魔獸世界正在執行",
+        "wow_running_message": "魔獸世界目前正在執行。變更將在重新啟動遊戲後生效。\n\n是否要繼續？",
+        "permission_error_title": "權限錯誤",
+        "permission_error_message": "Config.wtf是唯讀的。請移除唯讀屬性，然後重試。",
+        "config_readonly_status": "✗ Config.wtf是唯讀的。",
+        "confirm_apply_title": "確認套用",
+        "confirm_apply_message": "將{}預設套用到{}？\n\n這將修改Config.wtf中的{}個圖形設定。\n將自動建立備份。\n\n主要變更：\n• 預設：{}品質設定\n• 效能：{}個最佳化",
+        "cancelled_by_user": "使用者取消。",
+        "settings_applied_status": "✓ 已套用{}設定。",
+        "preset_applied_status": "✓ 已套用{}預設。",
+        "apply_error_status": "✗ 錯誤：{}",
+        
+        # Preset tooltips
+        "preset_tooltip_template": "{}預設\n\n預期效能：\n{}\n\n點擊下方的「套用」以使用此預設。",
+        "perf_depends_hardware": "效能影響取決於您的硬體。",
+        "perf_will_vary": "效能會有所不同",
+        
+        # Low preset performance estimates
+        "low_perf_high": "出色的效能（大多數場景100+ FPS）",
+        "low_perf_mid": "非常好的效能（80-120 FPS）",
+        "low_perf_low": "良好的效能（60-80 FPS）",
+        
+        # Medium preset performance estimates
+        "medium_perf_high": "出色的效能（90-120 FPS）",
+        "medium_perf_mid": "良好的效能（60-90 FPS）",
+        "medium_perf_low": "中等效能（45-60 FPS）",
+        
+        # High preset performance estimates
+        "high_perf_high": "非常好的效能（70-100 FPS）",
+        "high_perf_mid": "良好的效能（50-70 FPS）",
+        "high_perf_low": "在團隊副本中可能吃力（30-50 FPS）",
+        
+        # Ultra preset performance estimates
+        "ultra_perf_high": "良好的效能（60-80 FPS）",
+        "ultra_perf_mid": "中等效能（40-60 FPS）",
+        "ultra_perf_low": "較低效能（20-40 FPS）",
+        
+        # WoW version names
+        "version_retail": "正式伺服器",
+        "version_classic": "懷舊伺服器",
+        "version_classic_era": "經典舊世",
+        "version_ptr": "測試伺服器",
+        "version_beta": "測試伺服器",
+        
+        # Game Optimizer - additional strings
+        "not_detected": "未偵測到",
+        "unknown_cpu": "未知CPU",
+        "unknown_gpu": "未知",
+        "not_set": "未設定",
+        "hover_for_details": "懸停檢視詳情",
+        
+        # Orphan Cleaner - log messages
+        "orphan_found_in": "[孤立檔案清理] 在{0}中發現孤立檔案：{1}",
+        "orphan_total_found": "[孤立檔案清理] 孤立的SavedVariables總數：{0}",
+        "orphan_moved_trash": "[孤立檔案清理] 已移至資源回收筒：{0}",
+        "orphan_deleted": "[孤立檔案清理] 已刪除：{0}",
+        "orphan_error_deleting": "[孤立檔案清理] 刪除{0}時發生錯誤：{1}",
+        "orphan_rebuilt_addons": "[孤立檔案清理] 已重建：{0}",
+        "orphan_error_writing_addons": "[孤立檔案清理] 寫入AddOns.txt {0}時發生錯誤：{1}",
+        "orphan_error_rebuild": "[孤立檔案清理] AddOns.txt重建期間發生錯誤：{0}",
+        "new_setting_prefix": "[新] ",
+        "details_colon": "詳情：",
+        "updated_settings": "• 更新了{0}個現有設定",
+        "added_settings": "• 新增了{0}個新設定",
+        
+        # Path Manager
+        "select_wow_folder_title": "選擇魔獸世界資料夾",
+        "unrecognized_installation": "無法識別的安裝",
+        "folder_not_valid_continue": "所選資料夾似乎無效。\n\n仍要繼續嗎？",
+        "wow_folder_set": "魔獸世界資料夾已設定：{}",
+        
+        # Performance
+        "performance_execution_time": "[效能] {}耗時{:.3f}秒",
+        "perf_moved_trash": "[{}] 已移至資源回收筒：{}",
+        "perf_deleted": "[{}] 已刪除：{}",
+        "perf_error_deleting": "[{}] 刪除{}時發生錯誤：{}",
+        
+        "select_valid_wow_optimizer": "在選項中選擇有效的魔獸世界資料夾以啟用按版本檢視。",
+        "select_valid_wow_folder_cleaner": "在選項中選擇有效的魔獸世界資料夾以啟用資料夾清理器。",
+        
+        # Main UI - Buttons and Messages
+        "apply": "套用",
+        "cancel": "取消",
+        "export_log": "匯出日誌",
+        "clear_log": "清除日誌",
+        "confirm_font_change": "確認字型變更",
+        "font_change_restart_required": "字型變更需要重新啟動應用程式。\n是否要立即重新啟動？",
+        "restart": "重新啟動",
+        "later": "稍後",
+        "confirm_language_change": "確認語言變更",
+        "language_change_restart_required": "語言變更需要重新啟動應用程式才能生效。\n\n是否要立即重新啟動？",
+        "language_change_restart_message": "請重新啟動應用程式以使語言變更生效。",
+        "invalid_folder_title": "無效的資料夾",
+        
+        # Common Messages
+        "invalid_folder_select_valid_wow": "請在選項中選擇有效的魔獸世界資料夾。",
+        "scanning_files": "正在掃描檔案...",
+        "scanning_folders": "正在掃描資料夾...",
+        "scanning_orphans": "正在掃描孤立的插件...",
+        "no_files_selected": "未選擇檔案",
+        "no_folders_selected": "未選擇資料夾",
+        "no_orphans_selected": "未選擇孤立檔案",
+        
+        # File Cleaner
+        "select_files_to_delete": "請至少選擇一個要刪除的檔案。",
+        "confirm_delete_files_title": "確認刪除檔案",
+        "confirm_delete_files_message": "確定要刪除{0}個檔案嗎？",
+        "files_moved_to_recycle_bin": "{0}個檔案已移至資源回收筒。",
+        "files_deletion_complete": "{0}個檔案已成功刪除。",
+        
+        # Folder Cleaner
+        "select_folders_to_delete": "請至少選擇一個要刪除的資料夾。",
+        "confirm_delete_folders_title": "確認刪除資料夾",
+        "confirm_delete_folders_message": "確定要刪除{0}個資料夾嗎？",
+        
+        # Orphan Cleaner
+        "select_orphans_to_delete": "請至少選擇一個要刪除的孤立插件。",
+        "confirm_delete_orphans_title": "確認刪除孤立檔案",
+        "confirm_delete_orphans_message": "確定要刪除{0}個孤立插件嗎？\n\n這也將刪除所有相關的SavedVariables檔案。",
+        "orphans_moved_to_recycle_bin": "{0}個孤立插件已移至資源回收筒。",
+        "orphans_deletion_complete": "{0}個孤立插件已成功刪除。",
+        
+        # Actions
+        "folders_moved_to_recycle_bin": "{0}個資料夾已移至資源回收筒。",
+        "folders_deletion_complete": "{0}個資料夾已成功刪除。",
+        
+        # send2trash Warnings
+        "send2trash_not_available_files": "send2trash不可用。檔案將被永久刪除。",
+        "send2trash_not_available_folders": "send2trash不可用。資料夾將被永久刪除。",
+        "send2trash_not_available_orphans": "send2trash不可用。孤立插件將被永久刪除。",
+        
+        # AddOns.txt Rebuild
+        "addons_txt_rebuild_summary": "AddOns.txt已成功重建！\n\n找到的插件：{0}\n角色：{1}\n設定檔：{2}",
+        
+        # Log Export
+        "log_export_empty": "日誌為空。沒有可匯出的內容。",
+        
+        # Settings Restore
+        "settings_restored_title": "設定已還原",
+        "settings_restored_to_defaults": "設定已還原為預設值。",
+        "settings_restored_restart_required": "設定已還原為預設值。\n請重新啟動應用程式以使所有變更生效。",
+        
+        # Orphan Cleaner Tab
+        "orphan_description_part1": "在所有偵測到的魔獸世界版本中搜尋沒有相應已安裝插件（Interface/AddOns）的插件SavedVariables（.lua / .lua.bak）。掃描帳號、伺服器和角色SavedVariables資料夾。處理還會重建AddOns.txt以符合已安裝的插件（盡可能保留啟用/停用狀態）。",
+        "orphan_description_part2": "注意：Blizzard_*.lua檔案是核心遊戲資料，為安全起見會自動忽略（但其.lua.bak備份可能會被刪除）。",
+        "wtf_not_found": "未找到WTF目錄。請先啟動遊戲。",
+        "unknown_preset": "未知預設：{}",
+        "backup_failed": "建立備份失敗：{}",
+        "config_write_failed": "寫入設定失敗：{}",
+        "config_updated": "已將{}個設定套用到Config.wtf。",
+        "settings_updated_added": "更新了{}個設定，新增了{}個新設定。",
+        "backup_saved": " 備份已儲存。",
+        "version_path": "版本：{}\n路徑：{}",
+        "optimizer_launch_required": "最佳化器要求至少啟動過一次{}。請啟動魔獸世界並進入角色選擇畫面，然後結束遊戲。之後，您可以使用最佳化器套用圖形預設。",
+        "system_matches": "您的系統符合：{}",
+        "optimizer_title": "最佳化器 — {}",
+        "recommendations_applied": "✓ 已套用建議設定。",
+        "applied_preset_log": "已為{}套用{}預設",
+        "apply_preset_failed_log": "套用{}預設失敗：{}",
+        "hardware_scan_complete": "硬體掃描完成：已快取到全域設定。",
+        "hardware_scan_failed": "硬體掃描失敗：{}",
+        "scan_error": "✗ 錯誤：{}",
+        
+        # Game Validation
+        "invalid_game_installation": "無效的遊戲安裝",
+        "game_installation_incomplete": "魔獸世界安裝似乎不完整。\n\n請至少執行一次遊戲以初始化Interface和WTF資料夾。\n\n執行遊戲後，您可以使用此工具清理您的安裝。",
+        
+        # Startup Warning
+        "user_disabled_warning": "使用者已停用啟動警告。",
+        
+        # Update Checker
+        "no_updates_available": "無可用更新",
+        "no_releases_published": "您正在執行{}。\n\n尚未發布任何版本。",
+        "update_check_failed": "更新檢查失敗",
+        "update_check_http_error": "無法檢查更新：\n\nHTTP {}：{}",
+        "update_check_network_error": "無法檢查更新：\n\n{}",
+        "update_check_error": "更新檢查錯誤",
+        "update_check_exception": "檢查更新時發生錯誤：\n\n{}",
+        "update_available": "有可用更新",
+        "update_available_message": "有新版本可用！\n\n目前版本：{}\n最新版本：{}\n\n瀏覽GitHub頁面下載最新版本。",
+        "up_to_date": "已是最新版本",
+        "up_to_date_message": "您正在執行最新版本（{}）。",
+        "browser_open_error": "無法開啟瀏覽器：\n\n{}",
+        
+        # File Cleaner - Log messages
+        "file_cleaner_found_file": "[檔案清理] 找到檔案：{}",
+        "file_cleaner_found": "[檔案清理] 找到：{}",
+        "file_cleaner_total_found": "[檔案清理] 找到的.bak/.old檔案總數：{}",
+        "file_cleaner_moved_trash": "[檔案清理] 已移至資源回收筒：{}",
+        "file_cleaner_deleted": "[檔案清理] 已刪除：{}",
+        "file_cleaner_error_deleting": "[檔案清理] 刪除{}時發生錯誤：{}",
+        
+        # Folder Cleaner - Log messages
+        "folder_cleaner_found": "[資料夾清理] 找到：{}",
+        "folder_cleaner_total": "[資料夾清理] 可清理的資料夾總數：{}",
+    },
+    "ukUA": {
+        # Window title
+        "window_title": "Утиліта Очищення WoW",
+        
+        # Menu/Tab names
+        "file_cleaner": "Очищення Файлів",
+        "folder_cleaner": "Очищення Папок",
+        "orphan_cleaner": "Очищення Сиріт",
+        "game_optimizer": "Оптимізація Гри",
+        "optimization_suggestions": "Поради з Оптимізації",
+        "log": "Журнал",
+        "help_about": "Довідка/Про програму",
+        
+        # Options section
+        "options": "Параметри",
+        "wow_folder": "Папка WoW:",
+        "browse": "Огляд...",
+        "browse_tooltip": "Оберіть папку World of Warcraft.",
+        "font_size": "Розмір шрифту:",
+        "font": "Шрифт:",
+        "theme": "Тема:",
+        "language": "Мова:",
+        "file_action": "Дія з файлами:",
+        "delete_permanently": "Видалити назавжди",
+        "move_to_recycle": "Перемістити до Кошика",
+        "enable_verbose": "Детальний журнал",
+        "verbose_tooltip": "Якщо увімкнено, журнал записує кожен оброблений файл/папку/рядок AddOns.txt.",
+        "external_log": "Зовнішній журнал:",
+        "fresh": "Новий",
+        "fresh_tooltip": "Створювати новий файл журналу при кожному експорті (перезаписує існуючий).",
+        "append": "Додати",
+        "append_tooltip": "Додавати кожен експорт до існуючого файлу журналу (зберігає 10-20 сеансів залежно від деталізації).",
+        "check_updates": "Перевіряти оновлення",
+        "check_updates_tooltip": "Якщо увімкнено, перевіряє наявність нових версій на GitHub при запуску.",
+        "restore_defaults": "Відновити налаштування",
+        "light": "Світла",
+        "dark": "Темна",
+        
+        # File Cleaner
+        "scan": "Сканувати",
+        "select_all": "Вибрати все",
+        "expand_all": "Розгорнути все",
+        "collapse_all": "Згорнути все",
+        "process_selected": "Обробити вибране",
+        "scanning": "Сканування…",
+        "no_bak_old_found": "Файли .bak або .old не знайдено.",
+        "files_found": "Знайдено файлів: {}.",
+        
+        # Folder Cleaner
+        "version": "Версія:",
+        "path": "Шлях:",
+        "preview": "Попередній перегляд",
+        "toggle_all": "Перемкнути все",
+        "process_folders": "Обробити вибрані папки",
+        
+        # Orphan Cleaner
+        "rebuild_addons": "Перебудувати AddOns.txt",
+        "no_orphans_found": "Осиротілих SavedVariables не знайдено.",
+        "orphans_found": "Знайдено {} осиротілих SavedVariables.",
+        
+        # Game Optimizer
+        "scan_hardware": "Сканувати обладнання",
+        "system_matches": "Ваша система відповідає:",
+        "optimization_applied": "✓ Оптимізацію застосовано",
+        "optimization_not_applied": "⚠ Оптимізацію ще не застосовано",
+        "graphics_presets": "Графічні пресети ({}):",
+        "graphics_presets_classic": "Графічні пресети ({}):",
+        "apply_preset": "Застосувати пресет:",
+        "apply": "Застосувати",
+        "preset_applied": "✓ Пресет {} застосовано.",
+        "error": "✗ Помилка: {}",
+        "low": "Низькі",
+        "medium": "Середні",
+        "high": "Високі",
+        "ultra": "Ультра",
+        
+        # Optimization Suggestions
+        "manual_suggestions": "Рекомендації з Ручної Оптимізації",
+        "manual_disclaimer": "Примітка: ця програма НЕ виконує ці оптимізації автоматично. Це рекомендації, які ви маєте реалізувати вручну.",
+        "clean_data_folder": "Очистити папку Data гри",
+        "clean_data_text": "Якщо минуло кілька років або доповнень з моменту встановлення WoW, розгляньте можливість видалення папки Data у головному каталозі World of Warcraft. Це *може* зменшити розмір гри та покращити продуктивність екрана завантаження. Лаунчер Battle.net автоматично відновить цю папку за потреби.",
+        "enable_hdr": "Увімкнути HDR (розширений динамічний діапазон)",
+        "enable_hdr_text": "Перевірте налаштування дисплея операційної системи, чи доступний HDR. Якщо ваш монітор підтримує його, увімкнення HDR може значно покращити візуальну чіткість та глибину кольору в грі.",
+        "verify_refresh": "Перевірте частоту оновлення монітора",
+        "verify_refresh_text": "Переконайтеся, що частота оновлення монітора встановлена на максимально підтримувану в налаштуваннях дисплея операційної системи. Вища частота забезпечує плавніший ігровий процес та кращу чуйність.",
+        "enable_sam": "Увімкнути Smart Access Memory/Resizable BAR",
+        "enable_sam_text": "Перевірте налаштування BIOS материнської плати на наявність Smart Access Memory (AMD) або Resizable BAR (Intel/NVIDIA). Увімкнення дозволяє процесору отримувати доступ до всієї пам'яті GPU, потенційно покращуючи продуктивність.",
+        "enable_xmp": "Увімкнути профілі пам'яті XMP",
+        "enable_xmp_text": "Увійдіть до BIOS материнської плати та увімкніть XMP (Extreme Memory Profile) або налаштування DOCP/EOCP. Це гарантує, що ваша оперативна пам'ять працює на номінальній швидкості замість консервативної швидкості за замовчуванням, покращуючи загальну продуктивність системи.",
+        
+        # Log tab
+        "export_log": "Експортувати журнал",
+        "clear_log": "Очистити журнал",
+        
+        # Help/About
+        "about_text": "Комплексний набір інструментів для обслуговування та оптимізації World of Warcraft.\nОчищайте непотрібні файли, керуйте аддонами, оптимізуйте продуктивність гри тощо.\n\nЗавжди закривайте World of Warcraft перед запуском цієї утиліти.",
+        "copyright": "Авторські права © 2025 Paul Vandersypen. Випущено на умовах GNU General Public License v3.0 (GPL-3.0-or-later). Повні умови див. у доданому файлі LICENSE.",
+        
+        # Dialogs
+        "invalid_folder": "Недійсна папка",
+        "select_valid_wow": "Будь ласка, спочатку оберіть дійсну папку WoW.",
+        "no_selection": "Немає вибору",
+        "no_files_selected": "Файли для обробки не вибрано.",
+        "no_folders_selected": "Папки для очищення не вибрано.",
+        "no_orphans_selected": "Осиротілі файли не вибрано.",
+        "confirm": "Підтвердження",
+        "confirm_action": "Ви впевнені, що хочете {} {} {}?",
+        "file_s": " файл(ів)",
+        "folder_s": " папок(и)",
+        "orphaned_savedvars": " осиротілих SavedVariables",
+        "completed": "Завершено",
+        "processed": "Оброблено {} {}.",
+        "send2trash_missing": "send2trash відсутній",
+        "send2trash_unavailable": "Модуль 'send2trash' недоступний. Файли було видалено безповоротно.",
+        "send2trash_install": "Пакет 'send2trash' не встановлено.\nЩоб увімкнути підтримку Кошика, встановіть вручну:\n\n  pip install send2trash\n\nабо:\n\n  python -m pip install --user send2trash",
+        "restore_defaults_confirm": "Відновити всі налаштування за замовчуванням?",
+        "restart_required": "Налаштування відновлено. Програму буде перезапущено.",
+        "error_title": "Помилка",
+        "restore_error": "Не вдалося відновити налаштування за замовчуванням: {}",
+        "confirm_font": "Підтвердити шрифт",
+        "apply_font_confirm": "Застосувати шрифт '{}' до програми?",
+        "select_font": "Обрати шрифт",
+        "export_log_title": "Експорт журналу",
+        "log_empty": "Журнал порожній. Нема чого експортувати.",
+        "log_exported": "Журнал успішно експортовано до:\n{}",
+        "export_error": "Помилка експорту",
+        "export_failed": "Не вдалося експортувати журнал:\n{}",
+        "addons_rebuilt": "Записи AddOns.txt перебудовано.\nВсього записано: {}\nВсього видалено: {}",
+        
+        # Log messages
+        "session_started": "Сеанс розпочато — {}",
+        "file_scan": "Сканування очищення файлів: {} збігів.",
+        "orphan_scan": "Сканування очищення сиріт: {} сиріт.",
+        "file_processed": "Очищення файлів: оброблено {} файлів.",
+        "folder_processed": "Очищення папок: оброблено {} папок.",
+        "orphan_processed": "Очищення сиріт: оброблено {} сиріт.",
+        "send2trash_warning": "Попередження: send2trash не встановлено; видалення безповоротні.",
+        "addons_txt_log": "[AddOns.txt] {}: записано {}, видалено {}",
+        "preset_applied_log": "Пресет {} застосовано для {}",
+        "preset_failed_log": "Не вдалося застосувати пресет {}: {}",
+        
+        # Language change
+        "language_changed": "Мову змінено",
+        "language_changed_restart": "Мову було змінено. Перезапустіть програму, щоб застосувати всі зміни.",
+        
+        # Additional buttons and UI elements
+        "apply": "Застосувати",
+        "cancel": "Скасувати",
+        "scan_bak_old": "Сканувати файли .bak / .old",
+        "expand_all": "Розгорнути все",
+        "collapse_all": "Згорнути все",
+        "select_deselect_all": "Вибрати/Скасувати вибір всіх",
+        "process_selected_files": "Обробити вибрані файли",
+        "scan_orphaned": "Сканувати осиротілі SavedVariables",
+        "process_selected_folders": "Обробити вибрані папки",
+        "select_deselect_all_folders": "Вибрати/Скасувати вибір всіх папок",
+        "select_deselect_all_screenshots": "Вибрати/Скасувати вибір всіх скріншотів",
+        "screenshots_per_file": "Скріншоти (для дії з файлами)",
+        "check_for_updates": "Перевірити оновлення",
+        
+        # Game Optimizer
+        "game_optimizer_title": "Оптимізатор Гри",
+        "game_optimizer_desc": "Оптимізуйте продуктивність World of Warcraft на основі вашої апаратної конфігурації.",
+        "scan_hardware": "Сканувати обладнання",
+        "click_scan_hardware": "Натисніть 'Сканувати обладнання', щоб визначити можливості вашої системи.",
+        "select_valid_wow_folder": "Оберіть дійсну папку WoW у Параметрах, щоб увімкнути перегляд за версіями.",
+        "recommended_settings": "Рекомендовані налаштування:",
+        "apply_preset_label": "Застосувати пресет:",
+        "apply_recommended_settings": "Застосувати рекомендовані налаштування",
+        "scanning_cpu": "Сканування процесора...",
+        "scanning_ram": "Сканування ОЗП... (виявлено процесор: {} ядер/{} потоків)",
+        "scanning_gpu": "Сканування відеокарти... (виявлено ОЗП: {} ГБ)",
+        
+        # Startup warning
+        "important_notice": "Важливе повідомлення",
+        "startup_warning_text": "⚠️ Перед використанням цієї утиліти переконайтеся, що World of Warcraft повністю закрито.\n\nЗапуск утиліти при відкритому WoW може завадити роботі файлів гри.",
+        "do_not_show_again": "Більше не показувати це попередження",
+        "ok": "Гаразд",
+        
+        # Folder cleaner
+        "select_valid_wow_folder_cleaner": "Оберіть дійсну папку WoW у Параметрах, щоб увімкнути Очищення Папок.",
+        "preview_label": "Попередній перегляд",
+        "screenshots_not_found": "Папку Screenshots не знайдено для цієї версії.",
+        
+        # Optimization Suggestions tab - detailed content
+        "opt_sug_header": "Рекомендації з Ручної Оптимізації",
+        "opt_sug_disclaimer": "Примітка: ця програма НЕ виконує ці оптимізації автоматично. Це рекомендації, які ви маєте реалізувати вручну.",
+        "opt_sug_clean_data_title": "Очистити папку Data гри",
+        "opt_sug_clean_data_text": "Якщо минуло кілька років або доповнень з моменту встановлення WoW, розгляньте можливість видалення папки Data у головному каталозі World of Warcraft. Це *може* зменшити розмір гри та покращити продуктивність екрана завантаження. Лаунчер Battle.net автоматично відновить цю папку за потреби.",
+        "opt_sug_clean_data_tooltip": "Причина: Папка Data з часом накопичує тимчасові та кешовані ігрові ресурси. Її видалення примушує завантажити оптимізовані файли знову.\n\nРівень ризику: Безпечно - Battle.net автоматично завантажить необхідні файли.\n\nОчікувані переваги: Швидше завантаження екранів, менше використання диска (потенційна економія 10-20 ГБ).",
+        "opt_sug_hdr_title": "Увімкнути HDR (розширений динамічний діапазон)",
+        "opt_sug_hdr_text": "Перевірте налаштування дисплея операційної системи, чи доступний HDR. Якщо ваш монітор підтримує його, увімкнення HDR може значно покращити візуальну чіткість та глибину кольору в грі.",
+        "opt_sug_hdr_tooltip": "Причина: HDR забезпечує ширшу колірну гаму та кращу контрастність, роблячи візуальні ефекти яскравішими та реалістичнішими.\n\nРівень ризику: Безпечно - легко вмикається/вимикається в налаштуваннях ОС.\n\nОчікувані переваги: Значне покращення візуальної якості, якщо монітор підтримує HDR10 або вище.\n\nВимоги: Монітор з підтримкою HDR та Windows 10/11 або macOS Catalina+.",
+        "opt_sug_refresh_title": "Перевірте частоту оновлення монітора",
+        "opt_sug_refresh_text": "Переконайтеся, що частота оновлення монітора встановлена на максимально підтримувану в налаштуваннях дисплея операційної системи. Вища частота забезпечує плавніший ігровий процес та кращу чуйність.",
+        "opt_sug_refresh_tooltip": "Причина: Багато систем за замовчуванням встановлюють 60 Гц, навіть якщо монітори підтримують 120 Гц/144 Гц/165 Гц. Це без потреби обмежує частоту кадрів.\n\nРівень ризику: Безпечно - немає ризику для обладнання, легко повернути.\n\nОчікувані переваги: Плавніший ігровий процес, менша затримка вводу, кращий час відгуку.\n\nЯк перевірити: Windows: Параметри > Дисплей > Додатково > Частота оновлення\nmacOS: Системні налаштування > Монітори",
+        "opt_sug_sam_title": "Увімкнути Smart Access Memory/Resizable BAR",
+        "opt_sug_sam_text": "Перевірте налаштування BIOS материнської плати на наявність Smart Access Memory (AMD) або Resizable BAR (Intel/NVIDIA). Увімкнення дозволяє процесору отримувати доступ до всієї пам'яті GPU, потенційно покращуючи продуктивність.",
+        "opt_sug_sam_tooltip": "Причина: Дозволяє процесору отримувати доступ до всієї пам'яті GPU за раз, замість невеликих блоків по 256 МБ, зменшуючи вузькі місця.\n\nРівень ризику: Помірний - вимагає зміни BIOS. Спочатку запишіть поточні налаштування.\n\nОчікувані переваги: Збільшення FPS на 5-15% у GPU-інтенсивних сценах.\n\nВимоги:\n• AMD: Процесор Ryzen 5000+ + відеокарта RX 6000+\n• Intel: Процесор 10-го покоління+ + відеокарта RTX 3000+\n• Може знадобитися оновлення BIOS",
+        "opt_sug_xmp_title": "Увімкнути профілі пам'яті XMP",
+        "opt_sug_xmp_text": "Увійдіть до BIOS материнської плати та увімкніть XMP (Extreme Memory Profile) або налаштування DOCP/EOCP. Це гарантує, що ваша оперативна пам'ять працює на номінальній швидкості замість консервативної швидкості за замовчуванням, покращуючи загальну продуктивність системи.",
+        "opt_sug_xmp_tooltip": "Причина: ОЗП часто працює на частоті 2133 МГц за замовчуванням, навіть якщо розрахована на 3200 МГц+. XMP вмикає заявлені швидкості.\n\nРівень ризику: Помірний - зміна BIOS. Система може не завантажитися, якщо ОЗП нестабільна (легко скинути).\n\nОчікувані переваги: Збільшення продуктивності процесора на 10-20%, швидше завантаження, кращі 1% мінімуми.\n\nЯк увімкнути: Увійдіть до BIOS (зазвичай Del/F2 при завантаженні) > Знайдіть налаштування XMP/DOCP > Увімкніть > Збережіть та вийдіть",
+        
+        # Help/About tab - content
+        "help_version_label": "Утиліта Очищення WoW {}",
+        "help_about_description": "Комплексний набір інструментів для обслуговування та оптимізації World of Warcraft.\nОчищайте непотрібні файли, керуйте аддонами, оптимізуйте продуктивність гри тощо.\n\nЗавжди закривайте World of Warcraft перед запуском цієї утиліти.",
+        "help_copyright": "Авторські права © 2025 Paul Vandersypen. Випущено на умовах GNU General Public License v3.0 (GPL-3.0-or-later). Повні умови див. у доданому файлі LICENSE.",
+        
+        # Game Optimizer - hardware detection messages
+        "hardware_detected": "✓ Процесор: {} | ОЗП: {} | Відеокарта: {}",
+        "gpu_switch_notification": "⚠ Перемикання відеокарти: Налаштовано використання '{}' замість '{}'. Ця зміна оптимізує продуктивність, використовуючи вашу дискретну відеокарту для кращого ігрового досвіду. Це безпечно та рекомендовано.",
+        "scan_tooltip_refresh": "Не потрібно сканувати знову, якщо ви не змінювали процесор, відеокарту або ОЗП.\nНатисніть, щоб оновити кешовану інформацію про обладнання.",
+        "scanning_ram_detected": "Сканування ОЗП... (виявлено процесор: {} ядер/{} потоків)",
+        "scanning_gpu_detected": "Сканування відеокарти... (виявлено ОЗП: {} ГБ)",
+        "apply_preset_label": "Застосувати пресет:",
+        
+        # Game Optimizer - Config.wtf modification dialogs
+        "wow_running_title": "WoW запущено",
+        "wow_running_message": "World of Warcraft наразі запущено. Зміни наберуть чинності після перезапуску гри.\n\nПродовжити?",
+        "permission_error_title": "Помилка прав доступу",
+        "permission_error_message": "Config.wtf доступний лише для читання. Видаліть атрибут лише для читання та повторіть спробу.",
+        "config_readonly_status": "✗ Config.wtf доступний лише для читання.",
+        "confirm_apply_title": "Підтвердити застосування",
+        "confirm_apply_message": "Застосувати пресет {} до {}?\n\nЦе змінить {} графічних налаштувань у Config.wtf.\nРезервну копію буде створено автоматично.\n\nОсновні зміни:\n• Пресет: Налаштування якості {}\n• Продуктивність: {} оптимізацій",
+        "cancelled_by_user": "Скасовано користувачем.",
+        "settings_applied_status": "✓ Застосовано {} налаштувань.",
+        "preset_applied_status": "✓ Пресет {} застосовано.",
+        "apply_error_status": "✗ Помилка: {}",
+        
+        # Preset tooltips
+        "preset_tooltip_template": "Пресет {}\n\nОчікувана продуктивність:\n{}\n\nНатисніть 'Застосувати' нижче, щоб використати цей пресет.",
+        "perf_depends_hardware": "Вплив на продуктивність залежить від вашого обладнання.",
+        "perf_will_vary": "Продуктивність варіюватиметься",
+        
+        # Low preset performance estimates
+        "low_perf_high": "Чудова продуктивність (100+ FPS у більшості сценаріїв)",
+        "low_perf_mid": "Дуже гарна продуктивність (80-120 FPS)",
+        "low_perf_low": "Гарна продуктивність (60-80 FPS)",
+        
+        # Medium preset performance estimates
+        "medium_perf_high": "Чудова продуктивність (90-120 FPS)",
+        "medium_perf_mid": "Гарна продуктивність (60-90 FPS)",
+        "medium_perf_low": "Помірна продуктивність (45-60 FPS)",
+        
+        # High preset performance estimates
+        "high_perf_high": "Дуже гарна продуктивність (70-100 FPS)",
+        "high_perf_mid": "Гарна продуктивність (50-70 FPS)",
+        "high_perf_low": "Можуть бути труднощі в рейдах (30-50 FPS)",
+        
+        # Ultra preset performance estimates
+        "ultra_perf_high": "Гарна продуктивність (60-80 FPS)",
+        "ultra_perf_mid": "Помірна продуктивність (40-60 FPS)",
+        "ultra_perf_low": "Низька продуктивність (20-40 FPS)",
+        
+        # WoW version names
+        "version_retail": "Retail",
+        "version_classic": "Classic",
+        "version_classic_era": "Classic Era",
+        "version_ptr": "PTR",
+        "version_beta": "Beta",
+        
+        # Game Optimizer - additional strings
+        "not_detected": "Не виявлено",
+        "unknown_cpu": "Невідомий процесор",
+        "unknown_gpu": "Невідома",
+        "not_set": "Не встановлено",
+        "hover_for_details": "Наведіть для подробиць",
+        
+        # Orphan Cleaner - log messages
+        "orphan_found_in": "[Очищення Сиріт] Знайдено сироту в {0}: {1}",
+        "orphan_total_found": "[Очищення Сиріт] Всього осиротілих SavedVariables: {0}",
+        "orphan_moved_trash": "[Очищення Сиріт] Переміщено до кошика: {0}",
+        "orphan_deleted": "[Очищення Сиріт] Видалено: {0}",
+        "orphan_error_deleting": "[Очищення Сиріт] Помилка видалення {0}: {1}",
+        "orphan_rebuilt_addons": "[Очищення Сиріт] Перебудовано: {0}",
+        "orphan_error_writing_addons": "[Очищення Сиріт] Помилка запису AddOns.txt {0}: {1}",
+        "orphan_error_rebuild": "[Очищення Сиріт] Помилка при перебудові AddOns.txt: {0}",
+        "new_setting_prefix": "[Нове] ",
+        "details_colon": "Подробиці:",
+        "updated_settings": "• Оновлено {} існуючих налаштувань",
+        "added_settings": "• Додано {} нових налаштувань",
+        
+        # Path Manager
+        "select_wow_folder_title": "Вибір папки WoW",
+        "unrecognized_installation": "Нерозпізнане встановлення",
+        "folder_not_valid_continue": "Обрана папка не є дійсною.\n\nВсе одно продовжити?",
+        "wow_folder_set": "Папку WoW встановлено: {}",
+        
+        # Performance
+        "performance_execution_time": "[Продуктивність] {} зайняло {:.3f} секунд",
+        "perf_moved_trash": "[{}] Переміщено до кошика: {}",
+        "perf_deleted": "[{}] Видалено: {}",
+        "perf_error_deleting": "[{}] Помилка видалення {}: {}",
+        
+        "select_valid_wow_optimizer": "Оберіть дійсну папку WoW у Параметрах, щоб увімкнути перегляд за версіями.",
+        "select_valid_wow_folder_cleaner": "Оберіть дійсну папку WoW у Параметрах, щоб увімкнути Очищення Папок.",
+        
+        # Main UI - Buttons and Messages
+        "apply": "Застосувати",
+        "cancel": "Скасувати",
+        "export_log": "Експортувати журнал",
+        "clear_log": "Очистити журнал",
+        "confirm_font_change": "Підтвердити зміну шрифту",
+        "font_change_restart_required": "Зміна шрифту вимагає перезапуску програми.\nПерезапустити зараз?",
+        "restart": "Перезапустити",
+        "later": "Пізніше",
+        "confirm_language_change": "Підтвердити зміну мови",
+        "language_change_restart_required": "Зміна мови вимагає перезапуску програми, щоб набути чинності.\n\nПерезапустити зараз?",
+        "language_change_restart_message": "Перезапустіть програму, щоб застосувати зміну мови.",
+        "invalid_folder_title": "Недійсна папка",
+        
+        # Common Messages
+        "invalid_folder_select_valid_wow": "Оберіть дійсну папку WoW у Параметрах.",
+        "scanning_files": "Сканування файлів...",
+        "scanning_folders": "Сканування папок...",
+        "scanning_orphans": "Сканування осиротілих аддонів...",
+        "no_files_selected": "Файли не вибрано",
+        "no_folders_selected": "Папки не вибрано",
+        "no_orphans_selected": "Осиротілі файли не вибрано",
+        
+        # File Cleaner
+        "select_files_to_delete": "Оберіть принаймні один файл для видалення.",
+        "confirm_delete_files_title": "Підтвердити видалення файлів",
+        "confirm_delete_files_message": "Ви впевнені, що хочете видалити {0} файлів?",
+        "files_moved_to_recycle_bin": "{0} файлів переміщено до Кошика.",
+        "files_deletion_complete": "{0} файлів успішно видалено.",
+        
+        # Folder Cleaner
+        "select_folders_to_delete": "Оберіть принаймні одну папку для видалення.",
+        "confirm_delete_folders_title": "Підтвердити видалення папок",
+        "confirm_delete_folders_message": "Ви впевнені, що хочете видалити {0} папок?",
+        
+        # Orphan Cleaner
+        "select_orphans_to_delete": "Оберіть принаймні один осиротілий аддон для видалення.",
+        "confirm_delete_orphans_title": "Підтвердити видалення осиротілих файлів",
+        "confirm_delete_orphans_message": "Ви впевнені, що хочете видалити {0} осиротілих аддонів?\n\nЦе також видалить усі пов'язані файли SavedVariables.",
+        "orphans_moved_to_recycle_bin": "{0} осиротілих аддонів переміщено до Кошика.",
+        "orphans_deletion_complete": "{0} осиротілих аддонів успішно видалено.",
+        
+        # Actions
+        "folders_moved_to_recycle_bin": "{0} папок переміщено до Кошика.",
+        "folders_deletion_complete": "{0} папок успішно видалено.",
+        
+        # send2trash Warnings
+        "send2trash_not_available_files": "send2trash недоступний. Файли будуть видалені безповоротно.",
+        "send2trash_not_available_folders": "send2trash недоступний. Папки будуть видалені безповоротно.",
+        "send2trash_not_available_orphans": "send2trash недоступний. Осиротілі аддони будуть видалені безповоротно.",
+        
+        # AddOns.txt Rebuild
+        "addons_txt_rebuild_summary": "AddOns.txt успішно перебудовано!\n\nЗнайдено аддонів: {0}\nПерсонажів: {1}\nПрофілів: {2}",
+        
+        # Log Export
+        "log_export_empty": "Журнал порожній. Нема чого експортувати.",
+        
+        # Settings Restore
+        "settings_restored_title": "Налаштування відновлено",
+        "settings_restored_to_defaults": "Налаштування відновлено за замовчуванням.",
+        "settings_restored_restart_required": "Налаштування відновлено за замовчуванням.\nПерезапустіть програму, щоб застосувати всі зміни.",
+        
+        # Orphan Cleaner Tab
+        "orphan_description_part1": "Пошук SavedVariables аддонів (.lua / .lua.bak) без відповідного встановленого аддона (Interface/AddOns) у всіх виявлених версіях WoW. Сканує папки SavedVariables облікових записів, серверів та персонажів. Обробка також перебудовує AddOns.txt відповідно до встановлених аддонів (по можливості зберігаючи стан увімкнено/вимкнено).",
+        "orphan_description_part2": "Примітка: Файли Blizzard_*.lua є основними даними гри та автоматично ігноруються для безпеки (але їхні резервні копії .lua.bak можуть бути видалені).",
+        "wtf_not_found": "Каталог WTF не знайдено. Спочатку запустіть гру.",
+        "unknown_preset": "Невідомий пресет: {}",
+        "backup_failed": "Не вдалося створити резервну копію: {}",
+        "config_write_failed": "Не вдалося записати конфігурацію: {}",
+        "config_updated": "Застосовано {} налаштувань до Config.wtf.",
+        "settings_updated_added": "Оновлено {} налаштувань, додано {} нових налаштувань.",
+        "backup_saved": " Резервну копію збережено.",
+        "version_path": "Версія: {}\nШлях: {}",
+        "optimizer_launch_required": "Оптимізатор вимагає, щоб {} було запущено принаймні один раз. Запустіть WoW і дійдіть до екрана вибору персонажа, потім вийдіть з гри. Після цього ви зможете використовувати оптимізатор для застосування графічних пресетів.",
+        "system_matches": "Ваша система відповідає: {}",
+        "optimizer_title": "Оптимізатор — {}",
+        "recommendations_applied": "✓ Рекомендовані налаштування застосовано.",
+        "applied_preset_log": "Пресет {} застосовано для {}",
+        "apply_preset_failed_log": "Не вдалося застосувати пресет {}: {}",
+        "hardware_scan_complete": "Сканування обладнання завершено: збережено в глобальних налаштуваннях.",
+        "hardware_scan_failed": "Не вдалося виконати сканування обладнання: {}",
+        "scan_error": "✗ Помилка: {}",
+        
+        # Game Validation
+        "invalid_game_installation": "Недійсне встановлення гри",
+        "game_installation_incomplete": "Встановлення World of Warcraft здається неповним.\n\nЗапустіть гру принаймні один раз, щоб ініціалізувати папки Interface та WTF.\n\nПісля запуску гри ви зможете використовувати цю утиліту для очищення встановлення.",
+        
+        # Startup Warning
+        "user_disabled_warning": "Користувач вимкнув попередження при запуску.",
+        
+        # Update Checker
+        "no_updates_available": "Оновлення недоступні",
+        "no_releases_published": "Ви використовуєте {}.\n\nЖодних релізів ще не опубліковано.",
+        "update_check_failed": "Не вдалося перевірити оновлення",
+        "update_check_http_error": "Не вдалося перевірити оновлення:\n\nHTTP {}: {}",
+        "update_check_network_error": "Не вдалося перевірити оновлення:\n\n{}",
+        "update_check_error": "Помилка перевірки оновлень",
+        "update_check_exception": "Помилка при перевірці оновлень:\n\n{}",
+        "update_available": "Доступне оновлення",
+        "update_available_message": "Доступна нова версія!\n\nПоточна версія: {}\nОстання версія: {}\n\nВідвідайте сторінку GitHub, щоб завантажити останню версію.",
+        "up_to_date": "Актуальна версія",
+        "up_to_date_message": "Ви використовуєте останню версію ({}).",
+        "browser_open_error": "Не вдалося відкрити браузер:\n\n{}",
+        
+        # File Cleaner - Log messages
+        "file_cleaner_found_file": "[Очищення Файлів] Знайдено файл: {}",
+        "file_cleaner_found": "[Очищення Файлів] Знайдено: {}",
+        "file_cleaner_total_found": "[Очищення Файлів] Всього знайдено файлів .bak/.old: {}",
+        "file_cleaner_moved_trash": "[Очищення Файлів] Переміщено до кошика: {}",
+        "file_cleaner_deleted": "[Очищення Файлів] Видалено: {}",
+        "file_cleaner_error_deleting": "[Очищення Файлів] Помилка видалення {}: {}",
+        
+        # Folder Cleaner - Log messages
+        "folder_cleaner_found": "[Очищення Папок] Знайдено: {}",
+        "folder_cleaner_total": "[Очищення Папок] Всього папок, доступних для очищення: {}",
+    },
 }
 
 # Add fallback for languages that haven't been fully translated yet

@@ -33,7 +33,7 @@ Modules/
 ├── path_manager.py          # Cross-platform path management
 ├── settings.py              # User preferences persistence
 ├── global_settings.py       # System-wide configuration
-├── localization.py          # Multi-language support (11 languages)
+├── localization.py          # Multi-language support (12 languages)
 ├── performance.py           # Hardware scanning utilities
 ├── update_checker.py        # GitHub release monitoring
 ├── logger.py                # Verbose logging system
@@ -569,19 +569,25 @@ Before writing Config.wtf:
 
 ### Supported Languages
 
-11 languages with varying completion levels:
+12 languages - all fully translated:
 
-**Fully Translated (7)**:
+**Official WoW Languages (11)**:
 - English (enUS) - Base language
 - German (deDE)
 - French (frFR)
 - Spanish - Spain (esES)
 - Spanish - Mexico (esMX)
 - Portuguese - Brazil (ptBR)
+- Italian (itIT)
+- Russian (ruRU)
 - Korean (koKR)
+- Chinese - Simplified (zhCN)
+- Chinese - Traditional (zhTW)
 
-**Stubs (4)**: Italian, Russian, Chinese (Simplified), Chinese (Traditional)
-- Fall back to English when translation missing
+**Bonus Languages (1)**:
+- Ukrainian (ukUA) - Community-requested addition
+
+**Translation Coverage**: All 12 languages have 100% coverage (~253 keys each)
 
 ### Dictionary-Based System
 

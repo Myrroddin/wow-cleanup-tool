@@ -40,13 +40,20 @@ Hardware-based graphics preset recommendations and automatic GPU selection for o
 
 ### 📊 Additional Features
 
-- **Multi-language Support**: Full interface translation in 7 languages (English, German, French, Spanish EU/MX, Portuguese, Korean) with 4 more using English fallback. See **[LOCALIZATION.md](LOCALIZATION.md)** for details.
+- **Multi-language Support**: Full interface translation in all 11 official WoW languages plus Ukrainian (12 total). All languages 100% complete. See **[LOCALIZATION.md](LOCALIZATION.md)** for details.
 - **Verbose Logging**: Optional detailed operation logs for troubleshooting
 - **Theme Support**: Light and dark themes with OS-native styling
 - **Font Customization**: Adjustable font family and size (6-16pt)
 - **Update Checker**: Automatic GitHub release checking at startup
 - **Geometry Persistence**: Window size and position saved between sessions
 - **Multi-version Support**: Automatically detects all installed WoW versions including PTR and Beta
+
+## Screenshots
+
+![File Cleaner](https://github.com/user-attachments/assets/2b2680d7-d7c0-4007-b5ad-3e03247f6ff4)
+![Folder Cleaner](https://github.com/user-attachments/assets/5da620f1-e3e8-4ff9-abe9-4e85117a07ed)
+![Orphan Cleaner](https://github.com/user-attachments/assets/e33a7e8e-d217-4f13-9b8b-c3c66f8015f0)
+![Game Optimizer](https://github.com/user-attachments/assets/d9b031de-d4c6-4326-a26f-cf9ac7a61ac9)
 
 ## Safety Precautions
 
@@ -77,10 +84,9 @@ Hardware-based graphics preset recommendations and automatic GPU selection for o
 
 ### 🛡️ Safe Practices
 
-- **Test on one version first**: Try File/Folder/Orphan cleaners on a single WoW version before running on all versions
-- **Use Recycle Bin mode**: Enable "Move to Recycle Bin" in settings for reversible deletions
-- **Review selections**: Uncheck items you're unsure about before processing
-- **Enable Verbose Logging**: Helps track exactly what was changed (useful for troubleshooting)
+- **Test on one version first** before running on all WoW versions
+- **Use "Move to Recycle Bin"** for reversible deletions
+- **Enable Verbose Logging** to track exactly what was changed
 
 ## Installation & Usage
 
@@ -141,22 +147,7 @@ python3 wow_cleanup_tool.py
 
 ## Technical Information
 
-For detailed technical documentation including architecture, performance optimizations, cross-platform implementation details, and advanced topics, see the **[Technical Details Wiki](Technical-Details.md)**.
-
-Topics covered in the technical documentation:
-- Module architecture and design patterns
-- Performance optimizations (multi-threading, caching, chunked operations)
-- Cross-platform compatibility details (Windows, macOS, Linux)
-- Hardware detection system internals
-- Config.wtf management and CVar application
-- Localization system (11 languages)
-- Advanced debugging and troubleshooting
-
-## Example Screenshots
-![files](https://github.com/user-attachments/assets/2b2680d7-d7c0-4007-b5ad-3e03247f6ff4)
-![folders](https://github.com/user-attachments/assets/5da620f1-e3e8-4ff9-abe9-4e85117a07ed)
-![orphans](https://github.com/user-attachments/assets/e33a7e8e-d217-4f13-9b8b-c3c66f8015f0)
-![optimizer](https://github.com/user-attachments/assets/d9b031de-d4c6-4326-a26f-cf9ac7a61ac9)
+For detailed technical documentation including architecture, performance optimizations, cross-platform implementation, hardware detection internals, and advanced debugging, see the **[Technical Details Wiki](Technical-Details.md)**.
 
 ## Troubleshooting
 
@@ -197,20 +188,11 @@ If you find this tool useful, consider supporting its development:
 
 ## Known Limitations
 
-- Screenshot previews require Pillow library (disabled with helpful tooltip if not installed)
-- "Move to Recycle Bin" option requires send2trash library (disabled with tooltip if not installed)
-- GPU adapter selection only applies on Windows (macOS/Linux use different mechanisms)
-- Extremely large installations (100k+ files) may take 30+ seconds for initial scan
+- **Optional dependencies**: Screenshot previews require Pillow; "Move to Recycle Bin" requires send2trash. Missing libraries result in disabled UI elements with installation tooltips.
+- **GPU adapter selection**: Windows only (macOS/Linux use different mechanisms)
+- **Large installations**: 100k+ files may take 30+ seconds for initial scan
 
 For detailed technical limitations and workarounds, see the **[Technical Details Wiki](Technical-Details.md)**.
-
-### Graceful Degradation
-
-The tool implements graceful degradation for optional dependencies:
-- **Missing send2trash**: "Move to Recycle Bin" radio button is disabled and greyed out. Hovering shows installation instructions.
-- **Missing Pillow**: Screenshot preview canvas is disabled and greyed out. All screenshot checkboxes remain functional for deletion, but preview-on-click is unavailable.
-
-Both features display tooltips with manual installation commands when the dependency is missing.
 
 ## License
 
