@@ -1420,7 +1420,12 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
                 # Update optimization status feedback
                 new_status, new_color = check_optimization_status()
                 optimization_status_var.set(f"  —  {new_status}")
-                optimization_status_label.configure(foreground=new_color)
+                # Convert color string to theme-aware hex color
+                if new_color == "green":
+                    fg_color = "#00ff00" if is_dark else "#008000"
+                else:  # orange
+                    fg_color = "#ff9933" if is_dark else "#ff8800"
+                optimization_status_label.configure(foreground=fg_color)
                 
                 # Save change to history
                 _save_optimization_history(version_path, version_label, chosen, changes)
