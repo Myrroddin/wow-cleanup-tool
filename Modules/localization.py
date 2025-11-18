@@ -240,7 +240,14 @@ TRANSLATIONS = {
         "process_selected_folders": "Process Selected Folders",
         "select_deselect_all_folders": "Select / Deselect All Folders",
         "select_deselect_all_screenshots": "Select / Deselect All Screenshot Files",
+        "process_selected_screenshots": "Process Selected Screenshots",
+        "no_screenshots_selected": "No screenshots selected.",
+        "confirm_action_screenshots": "{} {} screenshot file(s)?",
+        "processed_screenshots_count": "Processed {} screenshot(s).",
         "screenshots_per_file": "Screenshots (per-file actions)",
+        "folder_screenshots": "Screenshots",
+        "folder_logs": "Logs",
+        "folder_errors": "Errors",
         "check_for_updates": "Check for Updates",
         
         # Game Optimizer
@@ -265,6 +272,7 @@ TRANSLATIONS = {
         # Folder cleaner
         "select_valid_wow_folder_cleaner": "Select a valid World of Warcraft folder in Options to enable Folder Cleaner.",
         "preview_label": "Preview",
+        "preview_hint": "(Click image to enlarge • Click again or press Esc to close)",
         "screenshots_not_found": "Screenshots folder not found for this version.",
         
         # Optimization Suggestions tab - detailed content
@@ -639,6 +647,10 @@ TRANSLATIONS = {
         "process_selected_folders": "Ausgewählte Ordner verarbeiten",
         "select_deselect_all_folders": "Alle Ordner auswählen / Abwählen",
         "select_deselect_all_screenshots": "Alle Screenshot-Dateien auswählen / Abwählen",
+        "process_selected_screenshots": "Ausgewählte Screenshots verarbeiten",
+        "no_screenshots_selected": "Keine Screenshots ausgewählt.",
+        "confirm_action_screenshots": "{} {} Screenshot-Datei(en)?",
+        "processed_screenshots_count": "{} Screenshot(s) verarbeitet.",
         "screenshots_per_file": "Screenshots (Aktionen pro Datei)",
         "check_for_updates": "Auf Updates prüfen",
         "game_optimizer_title": "Spiel-Optimierer",
@@ -658,6 +670,7 @@ TRANSLATIONS = {
         "ok": "OK",
         "select_valid_wow_folder_cleaner": "Wählen Sie einen gültigen World of Warcraft-Ordner in den Optionen aus, um die Ordnerbereinigung zu aktivieren.",
         "preview_label": "Vorschau",
+        "preview_hint": "(Bild anklicken zum Vergrößern • Erneut klicken oder Esc drücken zum Schließen)",
         "screenshots_not_found": "Screenshots-Ordner für diese Version nicht gefunden.",
         
         # Optimization Suggestions tab - detailed content
@@ -1036,7 +1049,14 @@ TRANSLATIONS = {
         "process_selected_folders": "Traiter les dossiers sélectionnés",
         "select_deselect_all_folders": "Sélectionner / Désélectionner tous les dossiers",
         "select_deselect_all_screenshots": "Sélectionner / Désélectionner toutes les captures d'écran",
+        "process_selected_screenshots": "Traiter les captures d'écran sélectionnées",
+        "no_screenshots_selected": "Aucune capture d'écran sélectionnée.",
+        "confirm_action_screenshots": "{} {} fichier(s) de capture d'écran ?",
+        "processed_screenshots_count": "{} capture(s) d'écran traitée(s).",
         "screenshots_per_file": "Captures d'écran (actions par fichier)",
+        "folder_screenshots": "Captures d'écran",
+        "folder_logs": "Journaux",
+        "folder_errors": "Erreurs",
         "check_for_updates": "Vérifier les mises à jour",
         "game_optimizer_title": "Optimiseur de jeu",
         "game_optimizer_desc": "Optimise les performances de World of Warcraft en fonction de votre configuration matérielle.",
@@ -1055,6 +1075,7 @@ TRANSLATIONS = {
         "ok": "OK",
         "select_valid_wow_folder_cleaner": "Sélectionnez un dossier World of Warcraft valide dans les options pour activer le nettoyeur de dossiers.",
         "preview_label": "Aperçu",
+        "preview_hint": "(Cliquez sur l'image pour agrandir • Cliquez à nouveau ou appuyez sur Échap pour fermer)",
         "screenshots_not_found": "Dossier de captures d'écran introuvable pour cette version.",
         
         # Main UI - Buttons and Messages
@@ -1434,7 +1455,14 @@ TRANSLATIONS = {
         "process_selected_folders": "Procesar carpetas seleccionadas",
         "select_deselect_all_folders": "Seleccionar / Deseleccionar todas las carpetas",
         "select_deselect_all_screenshots": "Seleccionar / Deseleccionar todas las capturas de pantalla",
+        "process_selected_screenshots": "Procesar capturas de pantalla seleccionadas",
+        "no_screenshots_selected": "No hay capturas de pantalla seleccionadas.",
+        "confirm_action_screenshots": "¿{} {} archivo(s) de captura de pantalla?",
+        "processed_screenshots_count": "{} captura(s) de pantalla procesada(s).",
         "screenshots_per_file": "Capturas de pantalla (acciones por archivo)",
+        "folder_screenshots": "Capturas de pantalla",
+        "folder_logs": "Registros",
+        "folder_errors": "Errores",
         "check_for_updates": "Buscar actualizaciones",
         "game_optimizer_title": "Optimizador de juego",
         "game_optimizer_desc": "Optimiza el rendimiento de World of Warcraft según la configuración de tu hardware.",
@@ -1453,6 +1481,7 @@ TRANSLATIONS = {
         "ok": "Aceptar",
         "select_valid_wow_folder_cleaner": "Selecciona una carpeta válida de World of Warcraft en Opciones para habilitar el limpiador de carpetas.",
         "preview_label": "Vista previa",
+        "preview_hint": "(Haz clic en la imagen para ampliar • Haz clic de nuevo o pulsa Esc para cerrar)",
         "screenshots_not_found": "Carpeta de capturas de pantalla no encontrada para esta versión.",
         
         # Main UI - Buttons and Messages
@@ -1856,7 +1885,14 @@ TRANSLATIONS = {
         "process_selected_folders": "Procesar Carpetas Seleccionadas",
         "select_deselect_all_folders": "Seleccionar / Deseleccionar Todas las Carpetas",
         "select_deselect_all_screenshots": "Seleccionar / Deseleccionar Todas las Capturas de Pantalla",
+        "process_selected_screenshots": "Procesar Capturas de Pantalla Seleccionadas",
+        "no_screenshots_selected": "No hay capturas de pantalla seleccionadas.",
+        "confirm_action_screenshots": "¿{} {} archivo(s) de captura de pantalla?",
+        "processed_screenshots_count": "{} captura(s) de pantalla procesada(s).",
         "screenshots_per_file": "Capturas de Pantalla (acciones por archivo)",
+        "folder_screenshots": "Capturas de Pantalla",
+        "folder_logs": "Registros",
+        "folder_errors": "Errores",
         "check_for_updates": "Buscar Actualizaciones",
         
         # Game Optimizer
@@ -1881,6 +1917,7 @@ TRANSLATIONS = {
         # Folder cleaner
         "select_valid_wow_folder_cleaner": "Selecciona una carpeta válida de World of Warcraft en Opciones para habilitar el Limpiador de Carpetas.",
         "preview_label": "Vista Previa",
+        "preview_hint": "(Haz clic en la imagen para ampliar • Haz clic de nuevo o presiona Esc para cerrar)",
         "screenshots_not_found": "Carpeta de Capturas de Pantalla no encontrada para esta versión.",
         
         # Main UI - Buttons and Messages
@@ -2284,7 +2321,14 @@ TRANSLATIONS = {
         "process_selected_folders": "Processar Pastas Selecionadas",
         "select_deselect_all_folders": "Selecionar / Desselecionar Todas as Pastas",
         "select_deselect_all_screenshots": "Selecionar / Desselecionar Todas as Capturas de Tela",
+        "process_selected_screenshots": "Processar Capturas de Tela Selecionadas",
+        "no_screenshots_selected": "Nenhuma captura de tela selecionada.",
+        "confirm_action_screenshots": "{} {} arquivo(s) de captura de tela?",
+        "processed_screenshots_count": "{} captura(s) de tela processada(s).",
         "screenshots_per_file": "Capturas de Tela (ações por arquivo)",
+        "folder_screenshots": "Capturas de Tela",
+        "folder_logs": "Registros",
+        "folder_errors": "Erros",
         "check_for_updates": "Verificar Atualizações",
         
         # Game Optimizer
@@ -2309,6 +2353,7 @@ TRANSLATIONS = {
         # Folder cleaner
         "select_valid_wow_folder_cleaner": "Selecione uma pasta válida do World of Warcraft nas Opções para ativar o Limpador de Pastas.",
         "preview_label": "Visualizar",
+        "preview_hint": "(Clique na imagem para ampliar • Clique novamente ou pressione Esc para fechar)",
         "screenshots_not_found": "Pasta de Capturas de Tela não encontrada para esta versão.",
         
         # Main UI - Buttons and Messages
@@ -2712,7 +2757,14 @@ TRANSLATIONS = {
         "process_selected_folders": "Elabora cartelle selezionate",
         "select_deselect_all_folders": "Seleziona/Deseleziona tutte le cartelle",
         "select_deselect_all_screenshots": "Seleziona/Deseleziona tutti gli screenshot",
+        "process_selected_screenshots": "Elabora Screenshot Selezionati",
+        "no_screenshots_selected": "Nessuno screenshot selezionato.",
+        "confirm_action_screenshots": "{} {} file di screenshot?",
+        "processed_screenshots_count": "{} screenshot elaborati.",
         "screenshots_per_file": "Screenshot (per azione file)",
+        "folder_screenshots": "Screenshot",
+        "folder_logs": "Registri",
+        "folder_errors": "Errori",
         "check_for_updates": "Verifica aggiornamenti",
         
         # Game Optimizer
@@ -2737,6 +2789,7 @@ TRANSLATIONS = {
         # Folder cleaner
         "select_valid_wow_folder_cleaner": "Seleziona una cartella WoW valida nelle Opzioni per abilitare il Pulitore Cartelle.",
         "preview_label": "Anteprima",
+        "preview_hint": "(Clicca sull'immagine per ingrandire • Clicca di nuovo o premi Esc per chiudere)",
         "screenshots_not_found": "Cartella Screenshot non trovata per questa versione.",
         
         # Optimization Suggestions tab - detailed content
@@ -3141,7 +3194,14 @@ TRANSLATIONS = {
         "process_selected_folders": "Обработать выбранные папки",
         "select_deselect_all_folders": "Выбрать/Снять выбор со всех папок",
         "select_deselect_all_screenshots": "Выбрать/Снять выбор со всех скриншотов",
+        "process_selected_screenshots": "Обработать выбранные скриншоты",
+        "no_screenshots_selected": "Скриншоты не выбраны.",
+        "confirm_action_screenshots": "{} {} файл(ов) скриншотов?",
+        "processed_screenshots_count": "Обработано {} скриншот(ов).",
         "screenshots_per_file": "Скриншоты (для действия с файлами)",
+        "folder_screenshots": "Скриншоты",
+        "folder_logs": "Журналы",
+        "folder_errors": "Ошибки",
         "check_for_updates": "Проверить обновления",
         
         # Game Optimizer
@@ -3166,6 +3226,7 @@ TRANSLATIONS = {
         # Folder cleaner
         "select_valid_wow_folder_cleaner": "Выберите действительную папку WoW в Параметрах, чтобы включить Очистку Папок.",
         "preview_label": "Предпросмотр",
+        "preview_hint": "(Нажмите на изображение для увеличения • Нажмите снова или нажмите Esc для закрытия)",
         "screenshots_not_found": "Папка Screenshots не найдена для этой версии.",
         
         # Optimization Suggestions tab - detailed content
@@ -3569,7 +3630,14 @@ TRANSLATIONS = {
         "process_selected_folders": "선택한 폴더 처리",
         "select_deselect_all_folders": "모든 폴더 선택 / 선택 해제",
         "select_deselect_all_screenshots": "모든 스크린샷 선택 / 선택 해제",
+        "process_selected_screenshots": "선택한 스크린샷 처리",
+        "no_screenshots_selected": "선택한 스크린샷이 없습니다.",
+        "confirm_action_screenshots": "{} {} 스크린샷 파일?",
+        "processed_screenshots_count": "{} 스크린샷 처리됨.",
         "screenshots_per_file": "스크린샷 (파일당 작업)",
+        "folder_screenshots": "스크린샷",
+        "folder_logs": "로그",
+        "folder_errors": "오류",
         "check_for_updates": "업데이트 확인",
         
         # Game Optimizer
@@ -3594,6 +3662,7 @@ TRANSLATIONS = {
         # Folder cleaner
         "select_valid_wow_folder_cleaner": "옵션에서 유효한 World of Warcraft 폴더를 선택하여 폴더 정리를 활성화하세요.",
         "preview_label": "미리보기",
+        "preview_hint": "(이미지를 클릭하여 확대 • 다시 클릭하거나 Esc를 눌러 닫기)",
         "screenshots_not_found": "이 버전의 스크린샷 폴더를 찾을 수 없습니다.",
         
         # Main UI - Buttons and Messages
@@ -3997,7 +4066,14 @@ TRANSLATIONS = {
         "process_selected_folders": "处理选中的文件夹",
         "select_deselect_all_folders": "全选/取消全选所有文件夹",
         "select_deselect_all_screenshots": "全选/取消全选所有截图文件",
+        "process_selected_screenshots": "处理选定的截图",
+        "no_screenshots_selected": "未选择截图。",
+        "confirm_action_screenshots": "{}{}个截图文件？",
+        "processed_screenshots_count": "已处理{}个截图。",
         "screenshots_per_file": "截图（按文件操作）",
+        "folder_screenshots": "截图",
+        "folder_logs": "日志",
+        "folder_errors": "错误",
         "check_for_updates": "检查更新",
         
         # Game Optimizer
@@ -4022,6 +4098,7 @@ TRANSLATIONS = {
         # Folder cleaner
         "select_valid_wow_folder_cleaner": "在选项中选择有效的魔兽世界文件夹以启用文件夹清理器。",
         "preview_label": "预览",
+        "preview_hint": "(点击图片放大 • 再次点击或按 Esc 关闭)",
         "screenshots_not_found": "未找到此版本的截图文件夹。",
         
         # Optimization Suggestions tab - detailed content
@@ -4424,7 +4501,14 @@ TRANSLATIONS = {
         "process_selected_folders": "處理選取的資料夾",
         "select_deselect_all_folders": "全選/取消全選所有資料夾",
         "select_deselect_all_screenshots": "全選/取消全選所有螢幕截圖檔案",
+        "process_selected_screenshots": "處理選定的螢幕截圖",
+        "no_screenshots_selected": "未選擇螢幕截圖。",
+        "confirm_action_screenshots": "{}{}個螢幕截圖檔案？",
+        "processed_screenshots_count": "已處理{}個螢幕截圖。",
         "screenshots_per_file": "螢幕截圖（按檔案操作）",
+        "folder_screenshots": "螢幕截圖",
+        "folder_logs": "日誌",
+        "folder_errors": "錯誤",
         "check_for_updates": "檢查更新",
         
         # Game Optimizer
@@ -4449,6 +4533,7 @@ TRANSLATIONS = {
         # Folder cleaner
         "select_valid_wow_folder_cleaner": "在選項中選擇有效的魔獸世界資料夾以啟用資料夾清理器。",
         "preview_label": "預覽",
+        "preview_hint": "(點擊圖片放大 • 再次點擊或按 Esc 關閉)",
         "screenshots_not_found": "未找到此版本的螢幕截圖資料夾。",
         
         # Optimization Suggestions tab - detailed content
@@ -4853,7 +4938,14 @@ TRANSLATIONS = {
         "process_selected_folders": "Обробити вибрані папки",
         "select_deselect_all_folders": "Вибрати/Скасувати вибір всіх папок",
         "select_deselect_all_screenshots": "Вибрати/Скасувати вибір всіх скріншотів",
+        "process_selected_screenshots": "Обробити вибрані скріншоти",
+        "no_screenshots_selected": "Скріншоти не вибрано.",
+        "confirm_action_screenshots": "{} {} файл(ів) скріншотів?",
+        "processed_screenshots_count": "Оброблено {} скріншот(ів).",
         "screenshots_per_file": "Скріншоти (для дії з файлами)",
+        "folder_screenshots": "Скріншоти",
+        "folder_logs": "Журнали",
+        "folder_errors": "Помилки",
         "check_for_updates": "Перевірити оновлення",
         
         # Game Optimizer
@@ -4878,6 +4970,7 @@ TRANSLATIONS = {
         # Folder cleaner
         "select_valid_wow_folder_cleaner": "Оберіть дійсну папку WoW у Параметрах, щоб увімкнути Очищення Папок.",
         "preview_label": "Попередній перегляд",
+        "preview_hint": "(Клацніть на зображення для збільшення • Клацніть знову або натисніть Esc для закриття)",
         "screenshots_not_found": "Папку Screenshots не знайдено для цієї версії.",
         
         # Optimization Suggestions tab - detailed content

@@ -9,6 +9,77 @@ try:
 except Exception:
     Image = ImageTk = None
 
+def show_preview(app, canvas: tk.Canvas, path: str):
+    if not Image or not ImageTk or not path or not os.path.exists(path):
+        canvas.delete("all"); canvas._img_ref = None; canvas._img_path = None; return
+    try:
+        img = Image.open(path)
+        canvas.update_idletasks()
+        cw = max(200, int(canvas.winfo_width()))
+        ch = max(200, int(canvas.winfo_height()))
+        img.thumbnail((cw, ch))
+        tkimg = ImageTk.PhotoImage(img)
+        canvas.delete("all")
+        cx, cy = cw // 2, ch // 2
+        canvas.create_image(cx, cy, image=tkimg)
+        canvas._img_ref = tkimg
+        # Store the path for popup functionality
+        canvas._img_path = path
+    except Exception:
+        canvas.delete("all"); canvas._img_ref = None; canvas._img_path = None
+
+def show_popup_image(app, path: str):
+    """Show image in a popup window at max 25% of screen size."""
+    if not Image or not ImageTk or not path or not os.path.exists(path):
+        return
+    
+    try:
+        # Create popup window - use app.root as the parent
+        popup = tk.Toplevel(app.root)
+        popup.title(os.path.basename(path))
+        popup.transient(app.root)
+        
+        # Apply theme colors to popup window
+        theme = getattr(app, 'settings', {}).get('theme', 'light') if hasattr(app, 'settings') else 'light'
+        from Modules.themes import THEMES
+        theme_data = THEMES.get(theme, THEMES["light"])
+        popup.configure(bg=theme_data["bg"])
+        
+        # Get screen dimensions
+        screen_width = popup.winfo_screenwidth()
+        screen_height = popup.winfo_screenheight()
+        
+        # Calculate max size (25% of screen)
+        max_width = int(screen_width * 0.25)
+        max_height = int(screen_height * 0.25)
+        
+        # Load and resize image
+        img = Image.open(path)
+        img.thumbnail((max_width, max_height), Image.Resampling.LANCZOS)
+        
+        # Create canvas for the image with theme-aware background
+        canvas = tk.Canvas(popup, width=img.width, height=img.height, 
+                          highlightthickness=0, bg=theme_data["bg"])
+        canvas.pack()
+        
+        # Display image
+        tkimg = ImageTk.PhotoImage(img)
+        canvas.create_image(img.width // 2, img.height // 2, image=tkimg)
+        canvas._img_ref = tkimg
+        
+        # Click to close
+        canvas.bind("<Button-1>", lambda e: popup.destroy())
+        popup.bind("<Escape>", lambda e: popup.destroy())
+        
+        # Center the popup window
+        popup.update_idletasks()
+        x = (screen_width - img.width) // 2
+        y = (screen_height - img.height) // 2
+        popup.geometry(f"{img.width}x{img.height}+{x}+{y}")
+        
+    except Exception:
+        pass  # Silently fail if image can't be opened
+
 def build_single_version_tab(app, tab, version_path, version_label):
     outer = ttk.Frame(tab, padding=10)
     outer.pack(fill="both", expand=True)
@@ -47,13 +118,20 @@ def build_single_version_tab(app, tab, version_path, version_label):
     if not hasattr(app, 'styled_shot_boxes'):
         app.styled_shot_boxes = []
     
-    # Place folder toggles side-by-side (except Screenshots handled below)
+    # Map folder names to localization keys
+    folder_name_keys = {
+        "Screenshots": "folder_screenshots",
+        "Logs": "folder_logs",
+        "Errors": "folder_errors"
+    }
+    
+    # Place folder toggles side-by-side
     for name, path in targets.items():
-        if name == "Screenshots":
-            continue
         if os.path.isdir(path):
             var = tk.BooleanVar(value=False)
-            cb = ImgCheckbox(toggle_container, f"{name}", var, app.assets)
+            # Use localized folder name
+            display_name = _(folder_name_keys.get(name, name))
+            cb = ImgCheckbox(toggle_container, display_name, var, app.assets)
             cb.pack(side="left", padx=(0,10), pady=4)
             folder_vars[name] = (var, path, cb)
             app.styled_folder_boxes.append(cb)
@@ -84,11 +162,20 @@ def build_single_version_tab(app, tab, version_path, version_label):
     shots_selall.pack(side="left")
     shots_vars = {}
     shots_select_all_var.trace_add("write", lambda *_: app._toggle_all_screenshot_files(shots_vars))
+    
+    # Process button for selected screenshots
+    ttk.Button(shots_controls, text=_("process_selected_screenshots"),
+               command=lambda: app._process_selected_screenshots(version_label, shots_vars)).pack(side="right", padx=(10,0))
 
     preview_label = ttk.Label(shots_right, text=_("preview_label"), anchor="center"); preview_label.pack(anchor="n")
+    preview_hint = ttk.Label(shots_right, text=_("preview_hint"), anchor="center", font=("TkDefaultFont", 8)); preview_hint.pack(anchor="n")
     preview_canvas = tk.Canvas(shots_right, width=220, height=220, highlightthickness=1)
     preview_canvas.pack(fill="both", expand=False, pady=(6, 0))
     preview_canvas._img_ref = None
+    preview_canvas._img_path = None
+    # Bind canvas click to show popup (will only work when there's an image)
+    if Image and ImageTk:
+        preview_canvas.bind("<Button-1>", lambda e: show_popup_image(app, preview_canvas._img_path) if preview_canvas._img_path else None)
     
     # Disable preview if Pillow not available
     if not Image or not ImageTk:
@@ -125,27 +212,13 @@ def build_single_version_tab(app, tab, version_path, version_label):
             cb.pack(anchor="w", fill="x", padx=4, pady=1)
             # Only bind preview if Pillow is available
             if Image and ImageTk:
-                cb.bind("<ButtonRelease-1>", lambda e, p=fp: show_preview(app, preview_canvas, p))
+                # Unbind the text label's default toggle behavior
+                cb.text_label.unbind("<Button-1>")
+                # Bind only the text label to show preview (not the checkbox)
+                cb.text_label.bind("<Button-1>", lambda e, p=fp: show_preview(app, preview_canvas, p))
             app.styled_shot_boxes.append(cb)
             shots_vars[fp] = var
     else:
         ttk.Label(shots_frame, text=_("screenshots_not_found")).pack(anchor="w")
 
-    return {"folder_vars": folder_vars, "shots_vars": shots_vars, "preview_canvas": preview_canvas}
-
-def show_preview(app, canvas: tk.Canvas, path: str):
-    if not Image or not ImageTk or not path or not os.path.exists(path):
-        canvas.delete("all"); canvas._img_ref = None; return
-    try:
-        img = Image.open(path)
-        canvas.update_idletasks()
-        cw = max(200, int(canvas.winfo_width()))
-        ch = max(200, int(canvas.winfo_height()))
-        img.thumbnail((cw, ch))
-        tkimg = ImageTk.PhotoImage(img)
-        canvas.delete("all")
-        cx, cy = cw // 2, ch // 2
-        canvas.create_image(cx, cy, image=tkimg)
-        canvas._img_ref = tkimg
-    except Exception:
-        canvas.delete("all"); canvas._img_ref = None
+    return {"folder_vars": folder_vars, "shots_vars": shots_vars, "preview_canvas": preview_canvas, "shots_select_all_var": shots_select_all_var}

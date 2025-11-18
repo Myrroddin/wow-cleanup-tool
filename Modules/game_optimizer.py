@@ -209,8 +209,19 @@ def _select_best_gpu(gpu_list, cpu_name):
     return None, None
 
 def _detect_gpu_names():
-    """Return a list of GPU names across platforms when possible."""
+    """Detect and return GPU names for the current platform.
+    
+    Uses platform-specific commands to identify installed graphics cards:
+    - Windows: WMIC to query Win32_VideoController
+    - macOS: system_profiler for display chipset information
+    - Linux: lspci to search for VGA/Display controllers
+    
+    Returns:
+        list: GPU names, or single-item list with localized "not_detected" message
+    """
     system = platform.system()
+    not_detected = [localization._("not_detected")]  # Cache to avoid 4 repeated lookups
+    
     # Windows
     if system == "Windows":
         try:
@@ -225,10 +236,10 @@ def _detect_gpu_names():
                 for line in result.stdout.splitlines()[1:]
                 if line.strip() and line.strip().lower() != "name"
             ]
-            return gpus or [localization._("not_detected")]
+            return gpus or not_detected
         except Exception:
-            return [localization._("not_detected")]
-
+            return not_detected
+    
     # macOS
     if system == "Darwin":
         try:
@@ -243,10 +254,10 @@ def _detect_gpu_names():
                 line = line.strip()
                 if line.startswith("Chipset Model:"):
                     gpus.append(line.split(":", 1)[1].strip())
-            return gpus or [localization._("not_detected")]
+            return gpus or not_detected
         except Exception:
-            return [localization._("not_detected")]
-
+            return not_detected
+    
     # Linux/Other
     try:
         result = subprocess.run(["lspci"], capture_output=True, text=True, timeout=5)
@@ -256,9 +267,9 @@ def _detect_gpu_names():
                 # Extract the device description portion
                 part = line.split(":", 2)
                 gpus.append(part[-1].strip() if part else line.strip())
-        return gpus or [localization._("not_detected")]
+        return gpus or not_detected
     except Exception:
-        return [localization._("not_detected")]
+        return not_detected
 
 def build_game_optimizer_tab(app, parent):
     """Build the Game Optimizer tab UI.
@@ -464,12 +475,15 @@ def _classify_gpu_level_classic(gpu_list, system):
     return "below"
 
 def _classify_retail_hardware(hardware):
+    # Cache hardware attributes to avoid redundant dictionary lookups
     ram = hardware.get("memory_gb") or 0
     cores = hardware.get("cpu_cores") or 0
     threads = hardware.get("cpu_threads") or 0
+    gpu_selected = hardware.get("gpu_selected")
+    system = hardware.get("system")
     # Use selected GPU if available (discrete over integrated), otherwise use full GPU list
-    gpu_to_classify = [hardware.get("gpu_selected")] if hardware.get("gpu_selected") else hardware.get("gpu")
-    gpu_level = _classify_gpu_level(gpu_to_classify, hardware.get("system"))
+    gpu_to_classify = [gpu_selected] if gpu_selected else hardware.get("gpu")
+    gpu_level = _classify_gpu_level(gpu_to_classify, system)
 
     levels = []
     levels.append("rec" if ram >= RETAIL_REQ["rec"]["ram_gb"] else ("min" if ram >= RETAIL_REQ["min"]["ram_gb"] else "below"))
@@ -481,12 +495,15 @@ def _classify_retail_hardware(hardware):
 
 def _classify_classic_hardware(hardware):
     """Classify hardware for Classic/Classic Era using lower thresholds."""
+    # Cache hardware attributes to avoid redundant dictionary lookups
     ram = hardware.get("memory_gb") or 0
     cores = hardware.get("cpu_cores") or 0
     threads = hardware.get("cpu_threads") or 0
+    gpu_selected = hardware.get("gpu_selected")
+    system = hardware.get("system")
     # Use selected GPU if available (discrete over integrated), otherwise use full GPU list
-    gpu_to_classify = [hardware.get("gpu_selected")] if hardware.get("gpu_selected") else hardware.get("gpu")
-    gpu_level = _classify_gpu_level_classic(gpu_to_classify, hardware.get("system"))
+    gpu_to_classify = [gpu_selected] if gpu_selected else hardware.get("gpu")
+    gpu_level = _classify_gpu_level_classic(gpu_to_classify, system)
 
     levels = []
     levels.append("rec" if ram >= CLASSIC_REQ["rec"]["ram_gb"] else ("min" if ram >= CLASSIC_REQ["min"]["ram_gb"] else "below"))
@@ -1255,14 +1272,16 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
             
             ttk.Separator(preset_col, orient="horizontal").pack(fill="x", pady=(2, 4))
             
+            # Cache theme colors once before loop to avoid repeated lookups
+            theme = getattr(app, 'settings', {}).get('theme', 'light') if hasattr(app, 'settings') else 'light'
+            is_dark = theme == 'dark'
+            text_color = "#ffffff" if is_dark else "#000000"
+            bg_color = "#2e2e2e" if is_dark else "#e6e6e6"
+            green_color = "#00ff00" if is_dark else "#008000"  # For new settings
+            
             # Add preset lines
             for line in presets[name]:
                 # Use tk.Label for theme-aware text color
-                theme = getattr(app, 'settings', {}).get('theme', 'light') if hasattr(app, 'settings') else 'light'
-                is_dark = theme == 'dark'
-                text_color = "#ffffff" if is_dark else "#000000"
-                bg_color = "#2e2e2e" if is_dark else "#e6e6e6"
-                
                 lbl = tk.Label(preset_col, text=f"• {line}", font=(None, 8),
                              fg=text_color, bg=bg_color)
                 lbl.pack(anchor="w")
@@ -1288,20 +1307,11 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
                             is_new = setting_name not in current_config
                             prefix = localization._("new_setting_prefix") if is_new else ""
                             
-                            # Use tk.Label for theme-aware colors
-                            theme = getattr(app, 'settings', {}).get('theme', 'light') if hasattr(app, 'settings') else 'light'
-                            is_dark = theme == 'dark'
-                            
-                            if is_new:
-                                # New settings: use green in both themes (lighter green for dark theme)
-                                text_color = "#00ff00" if is_dark else "#008000"
-                            else:
-                                # Existing settings: use theme text color
-                                text_color = "#ffffff" if is_dark else "#000000"
-                            bg_color = "#2e2e2e" if is_dark else "#e6e6e6"
+                            # Use cached theme colors
+                            label_text_color = green_color if is_new else text_color
                             
                             lbl = tk.Label(preset_col, text=f"{prefix}• {setting_name} = {new_value}", 
-                                         font=(None, 8), fg=text_color, bg=bg_color)
+                                         font=(None, 8), fg=label_text_color, bg=bg_color)
                             lbl.pack(anchor="w")
                             # Store reference for theme updates
                             if not hasattr(app, 'optimizer_bullet_labels'):

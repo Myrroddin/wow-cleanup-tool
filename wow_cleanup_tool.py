@@ -152,7 +152,7 @@ class WoWCleanupTool:
 
         # Build a sorted list of all available font families for the Font dropdown
         # and allow user settings to override the detected default family.
-        self.font_families = sorted(list(avail))
+        self.font_families = sorted(avail)
         self.font_family_var = tk.StringVar(value=self.settings.get("font_family", self.default_font.cget("family")))
         
         # Create a separate display variable with cleaned font name
@@ -362,8 +362,14 @@ class WoWCleanupTool:
 
     # ------------- Theme -------------
     def _apply_theme(self):
-        # Determine theme
-        theme = self.theme_var.get().lower()
+        # Determine theme - convert from translated display value to English
+        theme_display = self.theme_var.get()
+        if theme_display == localization._("dark"):
+            theme = "dark"
+        elif theme_display == localization._("light"):
+            theme = "light"
+        else:
+            theme = theme_display.lower()  # fallback
 
         # Load theme colors at class level
         from Modules.themes import THEMES
@@ -988,9 +994,38 @@ class WoWCleanupTool:
             )
             
             if confirm:
+                # Save all current settings before restart (same as on_close)
+                geometry.save_geometry(self)
+                self.settings["wow_path"] = self.wow_path_var.get()
+                self.settings["delete_mode"] = self.delete_mode.get()
+                
+                # Convert displayed translated values back to English for storage
+                theme_display = self.theme_var.get()
+                theme = "light"  # default
+                if theme_display == localization._("dark"):
+                    theme = "dark"
+                elif theme_display == localization._("light"):
+                    theme = "light"
+                else:
+                    theme = theme_display.lower()  # fallback
+                self.settings["theme"] = theme
+                
                 # Save the new language preference
                 localization.set_language(new_lang)
                 self.settings["language"] = new_lang
+                
+                self.settings["verbose_logging"] = bool(self.verbose_var.get())
+                self.settings["check_for_updates"] = bool(self.check_for_updates_var.get())
+                self.settings["external_log_mode"] = self.external_log_mode_var.get()
+                try:
+                    self.settings["font_size"] = int(self.font_size_var.get())
+                except Exception:
+                    pass
+                try:
+                    self.settings["font_family"] = self.font_family_var.get()
+                except Exception:
+                    pass
+                
                 save_settings(self.settings)
                 
                 # Show brief confirmation
@@ -1197,10 +1232,10 @@ class WoWCleanupTool:
         if hasattr(self, "_build_checkbox_images"):
             self._build_checkbox_images()
             if hasattr(self, "file_tree"):
-                for iid in list(getattr(self, "tree_checks", {}).keys()):
+                for iid in getattr(self, "tree_checks", {}):
                     self._tree_set_icon(iid)
             if hasattr(self, "orphan_tree"):
-                for iid in list(getattr(self, "orphan_checks", {}).keys()):
+                for iid in getattr(self, "orphan_checks", {}):
                     self._orphan_tree_set_icon(iid)
 
     def _reload_all_custom_checkboxes(self):
@@ -1211,12 +1246,14 @@ class WoWCleanupTool:
 
         # File Cleaner
         for iid, var in self.tree_checks.items():
-            img = self.chk_checked if var.get() else self.chk_unchecked
+            # var is a boolean, not a BooleanVar
+            img = self.chk_checked if var else self.chk_unchecked
             self.file_tree.item(iid, image=img)
 
         # Orphan Cleaner
         for iid, var in self.orphan_checks.items():
-            img = self.chk_checked if var.get() else self.chk_unchecked
+            # var is a boolean, not a BooleanVar
+            img = self.chk_checked if var else self.chk_unchecked
             self.orphan_tree.item(iid, image=img)
 
         # Folder cleaner uses per-version custom widgets,
@@ -1257,11 +1294,28 @@ class WoWCleanupTool:
         return tree_helpers.tree_collapse_all(self)
 
     def scan_files_tree(self):
+        """Scan WoW versions for .bak and .old files in a background thread.
+        
+        Clears existing tree data, validates WoW path, then spawns a worker thread
+        to scan all versions using ThreadPoolExecutor. Results are applied to the
+        UI tree incrementally to maintain responsiveness.
+        
+        Thread Safety:
+            - Uses root.after() to schedule UI updates on the main thread
+            - Prevents concurrent scans with _file_scan_in_progress flag
+            - All UI modifications happen on main thread via callbacks
+        
+        Side Effects:
+            - Clears file_tree widget contents
+            - Resets tree_checks and tree_paths dictionaries
+            - Updates file_scan_status label during scan
+            - Sets _file_scan_in_progress flag during operation
+        """
         # Prevent concurrent scans
         if getattr(self, "_file_scan_in_progress", False):
             return
         self._file_scan_in_progress = True
-
+        
         # Clear old tree visually and show scanning status
         for n in self.file_tree.get_children(""):
             self.file_tree.delete(n)
@@ -1269,7 +1323,7 @@ class WoWCleanupTool:
         self.tree_paths.clear()
         self.tree_select_all_var.set(False)
         try:
-            self.file_scan_status.configure(text="Scanning…")
+            self.file_scan_status.configure(text=localization._("scanning"))
         except Exception:
             pass
 
@@ -1375,6 +1429,18 @@ class WoWCleanupTool:
         t.start()
 
     def process_selected_files_tree(self):
+        """
+        Process (delete/trash) selected .bak/.old files from the File Cleaner tab.
+        
+        Validates game installation integrity before deletion, confirms with user,
+        then delegates to backend delete_files(). Refreshes tree on completion.
+        
+        Side Effects:
+            - Shows warning if no files selected
+            - Blocks deletion if game installation invalid
+            - Prompts user for confirmation dialog
+            - Updates tree after deletion
+        """
         selected = [
             path
             for iid, path in self.tree_paths.items()
@@ -1525,6 +1591,90 @@ class WoWCleanupTool:
         any_unchecked = any(not v.get() for v in shots_vars.values())
         for v in shots_vars.values():
             v.set(any_unchecked)
+        # Update visual appearance for all screenshot checkboxes
+        if hasattr(self, 'styled_shot_boxes'):
+            for cb in self.styled_shot_boxes:
+                cb._sync_image()
+
+    def _reset_screenshot_select_all(self, version_label):
+        """Reset the select/deselect all screenshots toggle for a version tab."""
+        if hasattr(self, 'version_tabs'):
+            for vlabel, vpath, widgets in self.version_tabs:
+                if vlabel == version_label and widgets:
+                    shots_select_all_var = widgets.get("shots_select_all_var")
+                    if shots_select_all_var:
+                        shots_select_all_var.set(False)
+                    break
+
+    def _process_selected_screenshots(self, version_label, shots_vars):
+        """
+        Process (delete/trash) selected screenshot files from the Folder Cleaner tab.
+        
+        Args:
+            version_label: Version label (e.g., 'Retail', 'Classic')
+            shots_vars: Dictionary mapping file paths to BooleanVar checkboxes
+        """
+        from tkinter import messagebox
+        from Modules.file_cleaner import delete_files
+        
+        # Get selected screenshot files
+        selected = [path for path, var in shots_vars.items() if var.get()]
+        
+        if not selected:
+            messagebox.showinfo(localization._("no_selection"), localization._("no_screenshots_selected"))
+            return
+        
+        # Confirm deletion
+        action = localization._("move_to_trash") if self.delete_mode.get() == "trash" else localization._("delete_permanently_action")
+        confirm_msg = localization._("confirm_action_screenshots").format(action, len(selected))
+        
+        if not messagebox.askyesno(localization._("confirm"), confirm_msg):
+            return
+        
+        # Delete files
+        use_trash = (self.delete_mode.get() == "trash")
+        processed, permanently_deleted, used_trash = delete_files(
+            selected,
+            use_trash=use_trash,
+            logger=self if self.verbose_var.get() else None
+        )
+        
+        self.log(f"Folder Cleaner ({version_label}): Processed {processed} screenshot(s).")
+        
+        # Check if Screenshots folder is now empty of image files and delete if so
+        if processed > 0:
+            # Get the Screenshots folder path for this version
+            screenshots_folder = None
+            if hasattr(self, 'folder_paths') and version_label in self.folder_paths:
+                screenshots_folder = self.folder_paths[version_label].get("Screenshots")
+            
+            if screenshots_folder and os.path.isdir(screenshots_folder):
+                # Check if there are any remaining image files
+                try:
+                    remaining_images = []
+                    for fname in os.listdir(screenshots_folder):
+                        fp = os.path.join(screenshots_folder, fname)
+                        if os.path.isfile(fp) and fname.lower().endswith((".jpg", ".jpeg", ".png", ".bmp", ".tga", ".gif")):
+                            remaining_images.append(fp)
+                    
+                    # If no image files remain, delete the Screenshots folder
+                    if not remaining_images:
+                        try:
+                            import shutil
+                            shutil.rmtree(screenshots_folder)
+                            self.log(f"Folder Cleaner ({version_label}): Deleted empty Screenshots folder.")
+                        except Exception as e:
+                            self.log(f"Folder Cleaner ({version_label}): Could not delete Screenshots folder: {e}")
+                except Exception:
+                    pass
+        
+        messagebox.showinfo(localization._("completed"), localization._("processed_screenshots_count").format(processed))
+        
+        # Reset the select/deselect all toggle
+        self._reset_screenshot_select_all(version_label)
+        
+        # Refresh the tab to reflect deletions
+        self._refresh_version_tab(version_label)
 
     # ------------- Orphan Cleaner -------------
     def build_orphan_cleaner_tab(self, parent):
@@ -2017,10 +2167,10 @@ class WoWCleanupTool:
                     for line in log_lines:
                         f.write(line + "\n")
             
-            messagebox.showinfo("Export Log", f"Log exported successfully to:\n{filepath}")
+            messagebox.showinfo(localization._("export_log_title"), localization._("log_exported").format(filepath))
             
         except Exception as e:
-            messagebox.showerror("Export Error", f"Failed to export log:\n{str(e)}")
+            messagebox.showerror(localization._("export_error"), localization._("export_failed").format(str(e)))
     
     def clear_log(self):
         try:
@@ -2066,7 +2216,7 @@ class WoWCleanupTool:
 
     # ------------- Defaults, Updates, Startup -------------
     def restore_defaults(self):
-        if not messagebox.askyesno("Confirm", "Restore all settings to defaults?"):
+        if not messagebox.askyesno(localization._("confirm"), localization._("restore_defaults_confirm")):
             return
         try:
             # 1) Reset per-user settings by deleting user settings file

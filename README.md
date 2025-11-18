@@ -33,7 +33,7 @@ A comprehensive maintenance and optimization suite for World of Warcraft, helpin
 Scans and removes backup files (`.bak` and `.old`) that accumulate from WoW updates and addon installations. Multi-threaded scanning with selective deletion and safe deletion options (Recycle Bin or permanent).
 
 ### 📁 Folder Cleaner
-Safely removes temporary folders (Logs, Errors, Screenshots) that consume disk space. Per-version tabs with folder size display and preview support.
+Safely removes temporary folders (Logs, Errors, Screenshots) that consume disk space. Per-version tabs with folder size display and screenshot preview support (click preview to enlarge). Individual screenshot files can be selectively deleted, and the Screenshots folder is automatically removed when all screenshot images are deleted.
 
 ### 🧹 Orphan Cleaner
 Detects and removes SavedVariables files for uninstalled addons. Scans all levels (Account, Realm, Character) with smart detection that preserves Blizzard core files. Includes AddOns.txt rebuilding.
