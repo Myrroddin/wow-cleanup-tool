@@ -1410,11 +1410,11 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
                 # Verbose logging of individual changes
                 if changes and app.settings.get("verbose_logging"):
                     if changes['updated']:
-                        app.log(f"Updated {len(changes['updated'])} settings:")
+                        app.log(localization._("verbose_updated_settings").format(len(changes['updated'])))
                         for setting in changes['updated']:
                             app.log(f"  • {setting}")
                     if changes['added']:
-                        app.log(f"Added {len(changes['added'])} new settings:")
+                        app.log(localization._("verbose_added_settings").format(len(changes['added'])))
                         for setting in changes['added']:
                             app.log(f"  • {setting}")
                 

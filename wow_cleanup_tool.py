@@ -498,18 +498,18 @@ class WoWCleanupTool:
                 self.wow_path_var.set(wow_path)
                 self.settings["wow_path"] = wow_path
                 save_settings(self.settings)
-                self.log(f"Auto-detected World of Warcraft installation: {wow_path}", always_log=True)
+                self.log(localization._("auto_detected_wow").format(wow_path), always_log=True)
             
             # Run hardware scan automatically if WoW path is set
             if self.wow_path_var.get() and hasattr(self, 'optimizer_tab'):
-                self.log("Running initial hardware scan...", always_log=True)
+                self.log(localization._("running_initial_hardware_scan"), always_log=True)
                 # Switch to Game Optimizer tab
                 try:
                     self.main_notebook.select(self.optimizer_tab)
                 except Exception:
                     pass
         except Exception as e:
-            self.log(f"Smart defaults error: {str(e)}")
+            self.log(localization._("smart_defaults_error").format(str(e)))
 
     def _auto_detect_wow_path(self):
         """Attempt to auto-detect World of Warcraft installation path.
@@ -1404,7 +1404,7 @@ class WoWCleanupTool:
                                 self.file_scan_status.configure(text=localization._("no_bak_old_found"))
                         except Exception:
                             pass
-                        self.log(f"File Cleaner scan: {total_count} match(es).")
+                        self.log(localization._("file_scan").format(total_count))
                         self._file_scan_in_progress = False
 
                 # Kick off chunked insertion (or finalize immediately)
@@ -1415,7 +1415,7 @@ class WoWCleanupTool:
                         self.file_scan_status.configure(text=localization._("no_bak_old_found"))
                     except Exception:
                         pass
-                    self.log("File Cleaner scan: 0 match(es).")
+                    self.log(localization._("file_scan").format(0))
                     self._file_scan_in_progress = False
 
             # Schedule UI updates on main thread
@@ -1478,7 +1478,7 @@ class WoWCleanupTool:
             logger=self if self.verbose_var.get() else None,
         )
 
-        self.log(f"File Cleaner: processed {processed} file(s).")
+        self.log(localization._("file_processed").format(processed))
         messagebox.showinfo(localization._("completed"), localization._("processed_files_count").format(processed))
 
         # Refresh the tree to reflect deletions
@@ -1555,7 +1555,7 @@ class WoWCleanupTool:
             logger=self if self.verbose_var.get() else None
         )
 
-        self.log(f"Folder Cleaner: processed {processed} folder(s).")
+        self.log(localization._("folder_processed").format(processed))
         messagebox.showinfo(localization._("completed"), localization._("processed_folders_count").format(processed))
 
         # Rebuild UI for this version tab
@@ -1639,7 +1639,7 @@ class WoWCleanupTool:
             logger=self if self.verbose_var.get() else None
         )
         
-        self.log(f"Folder Cleaner ({version_label}): Processed {processed} screenshot(s).")
+        self.log(localization._("folder_processed_screenshots").format(version_label, processed))
         
         # Check if Screenshots folder is now empty of image files and delete if so
         if processed > 0:
@@ -1662,9 +1662,9 @@ class WoWCleanupTool:
                         try:
                             import shutil
                             shutil.rmtree(screenshots_folder)
-                            self.log(f"Folder Cleaner ({version_label}): Deleted empty Screenshots folder.")
+                            self.log(localization._("folder_deleted_screenshots_folder").format(version_label))
                         except Exception as e:
-                            self.log(f"Folder Cleaner ({version_label}): Could not delete Screenshots folder: {e}")
+                            self.log(localization._("folder_delete_screenshots_failed").format(version_label, e))
                 except Exception:
                     pass
         
@@ -1746,7 +1746,7 @@ class WoWCleanupTool:
                 text=localization._("no_orphans_found")
             )
 
-        self.log(f"Orphan Cleaner scan: {total} orphan(s).")
+        self.log(localization._("orphan_scan").format(total))
 
     def process_selected_orphans(self):
         selected = [
@@ -1786,7 +1786,7 @@ class WoWCleanupTool:
             logger=self if self.verbose_var.get() else None,
         )
 
-        self.log(f"Orphan Cleaner: processed {processed} orphan(s).")
+        self.log(localization._("orphan_processed").format(processed))
         messagebox.showinfo(localization._("completed"), localization._("processed_orphans_count").format(processed))
 
         # Refresh
@@ -2045,7 +2045,7 @@ class WoWCleanupTool:
         try:
             webbrowser.open(url)
         except Exception as e:
-            self.log(f"Failed to open URL: {e}", always_log=True)
+            self.log(localization._("failed_to_open_url").format(e), always_log=True)
 
     # ------------- Path selection + detection -------------
     # Path management methods now delegated to Modules.path_manager
