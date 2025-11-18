@@ -36,9 +36,11 @@ jobs:
       - name: Verify and rename if needed
         shell: pwsh
         run: |
+          Get-ChildItem dist\*.exe
           if (Test-Path "dist\WoW.Cleanup.Tool.exe") {
-            Rename-Item "dist\WoW.Cleanup.Tool.exe" "WoW Cleanup Tool.exe"
+            Rename-Item "dist\WoW.Cleanup.Tool.exe" "dist\WoW Cleanup Tool.exe"
           }
+          Write-Output "Final executable:"
           Get-ChildItem dist\*.exe
 
       - name: Upload Windows artifact
