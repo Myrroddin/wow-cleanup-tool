@@ -52,15 +52,15 @@ Manual optimization tips including: Clean Game Data Folder, Reinstall WoW (Clean
 
 ## Screenshots
 
-![File Cleaner](https://github.com/user-attachments/assets/2b2680d7-d7c0-4007-b5ad-3e03247f6ff4)
-![Folder Cleaner](https://github.com/user-attachments/assets/5da620f1-e3e8-4ff9-abe9-4e85117a07ed)
-![Orphan Cleaner](https://github.com/user-attachments/assets/e33a7e8e-d217-4f13-9b8b-c3c66f8015f0)
-![Game Optimizer](https://github.com/user-attachments/assets/d9b031de-d4c6-4326-a26f-cf9ac7a61ac9)
-![Optimization Suggestions](https://github.com/user-attachments/assets/optimization-suggestions-screenshot)
+![File Cleaner](https://github.com/user-attachments/assets/64dc6616-edd9-4064-9748-0c76969acb0b)
+![Folder Cleaner](https://github.com/user-attachments/assets/e02a3e96-ee5d-4530-9e51-5e352985ffe2)
+![Orphan Cleaner](https://github.com/user-attachments/assets/3b55d0fc-5778-49e3-ba92-9abfdf99bce3)
+![Game Optimizer](https://github.com/user-attachments/assets/9c3e00e3-84ad-49e6-891b-5e77d72f87eb)
+![Optimization Suggestions](https://github.com/user-attachments/assets/4a65f30b-aced-46bd-bb8f-62913343b80e)
+![Help and About](https://github.com/user-attachments/assets/96051f9a-22c9-4b65-b3fd-874c7a318f09)
 
-*Note: Optimization Suggestions screenshot placeholder - actual screenshot to be added*
+## Safety Precautions!
 
-## Safety Precautions
 
 **⚠️ Important:**
 - **Backup your WoW folder** before major cleanups, especially your `WTF` folder before using Orphan Cleaner
