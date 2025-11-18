@@ -1566,26 +1566,27 @@ class WoWCleanupTool:
         """
         Rebuilds a single Folder Cleaner version tab after cleanup.
         """
-        # Find the correct tab frame
-        for tab_label, tab_path, widgets in self.version_tabs:
+        # Find the correct tab and frame for the version
+        target_frame = None
+        target_path = None
+        
+        for i, (tab_label, tab_path, widgets) in enumerate(self.version_tabs):
             if tab_label == version_label:
-                frame = self.version_notebook.nametowidget(
-                    self.version_notebook.select()
-                )
+                # Get the actual frame widget for this tab
+                tab_id = self.version_notebook.tabs()[i]
+                target_frame = self.version_notebook.nametowidget(tab_id)
+                target_path = tab_path
                 break
-        else:
+        
+        if not target_frame:
             return  # Version not found (safe fallback)
 
         # Clear widgets on the tab
-        for widget in frame.winfo_children():
+        for widget in target_frame.winfo_children():
             widget.destroy()
 
         # Rebuild the version tab UI
-        for vlabel, vpath, _widgets in self.version_tabs:
-            if vlabel == version_label:
-                # rebuild the exact tab
-                self._build_single_version_tab(frame, vpath, vlabel)
-                break
+        self._build_single_version_tab(target_frame, target_path, version_label)
 
     def _toggle_all_screenshot_files(self, shots_vars):
         any_unchecked = any(not v.get() for v in shots_vars.values())
@@ -1674,7 +1675,7 @@ class WoWCleanupTool:
         self._reset_screenshot_select_all(version_label)
         
         # Refresh the tab to reflect deletions
-        self._refresh_version_tab(version_label)
+        self.refresh_folder_cleaner_version(version_label)
 
     # ------------- Orphan Cleaner -------------
     def build_orphan_cleaner_tab(self, parent):
