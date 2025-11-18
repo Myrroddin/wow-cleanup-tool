@@ -1407,6 +1407,17 @@ def _build_optimizer_version_tab(app, tab, version_path, version_label, hardware
                 msg = localization._("applied_preset_log").format(chosen, version_label)
                 app.log(msg, always_log=True)
                 
+                # Verbose logging of individual changes
+                if changes and app.settings.get("verbose_logging"):
+                    if changes['updated']:
+                        app.log(f"Updated {len(changes['updated'])} settings:")
+                        for setting in changes['updated']:
+                            app.log(f"  • {setting}")
+                    if changes['added']:
+                        app.log(f"Added {len(changes['added'])} new settings:")
+                        for setting in changes['added']:
+                            app.log(f"  • {setting}")
+                
                 # Show detailed results
                 if changes:
                     result_msg = f"✓ {message}\n\n"
