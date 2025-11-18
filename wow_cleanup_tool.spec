@@ -14,13 +14,16 @@ from PyInstaller.utils.hooks import collect_data_files
 
 block_cipher = None
 
-# Determine platform-specific icon
+# Determine platform-specific icon and executable name
 if sys.platform == 'win32':
     icon_file = 'wow_cleanup_icon.ico'
+    exe_name = 'WoW Cleanup Tool'
 elif sys.platform == 'darwin':
     icon_file = 'wow_cleanup_icon.icns'
+    exe_name = 'WoW Cleanup Tool'
 else:  # Linux and others
     icon_file = 'wow_cleanup_icon/46df463a-9eb4-433a-b4b0-5e6df94328d3-0.png'
+    exe_name = 'WoW Cleanup Tool'
 
 a = Analysis(
     ['wow_cleanup_tool.py'],
@@ -40,6 +43,29 @@ a = Analysis(
         'PIL.ImageTk',
         'psutil',
         'send2trash',
+        # All Modules
+        'Modules',
+        'Modules.file_cleaner',
+        'Modules.folder_cleaner',
+        'Modules.font_selector',
+        'Modules.game_optimizer',
+        'Modules.game_validation',
+        'Modules.geometry',
+        'Modules.global_settings',
+        'Modules.localization',
+        'Modules.logger',
+        'Modules.orphan_cleaner',
+        'Modules.path_manager',
+        'Modules.performance',
+        'Modules.settings',
+        'Modules.startup_warning',
+        'Modules.themes',
+        'Modules.tree_helpers',
+        'Modules.ui_helpers',
+        'Modules.ui_refresh',
+        'Modules.update_checker',
+        'Modules.version_utils',
+        # Tabs subpackage
         'Modules.Tabs',
         'Modules.Tabs.file_cleaner_tab',
         'Modules.Tabs.folder_cleaner_tab',
@@ -65,7 +91,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='WoW Cleanup Tool',
+    name=exe_name,
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

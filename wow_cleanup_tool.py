@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-WoW Cleanup Tool v1.0.0
+WoW Cleanup Tool v1.0.2
 
 This is the main UI application file. It uses Tkinter to provide a graphical interface for:
 - Finding and removing .bak and .old files
@@ -41,7 +41,7 @@ from Modules import font_selector, geometry, path_manager, ui_refresh, game_opti
 from Modules.global_settings import get_global_setting, set_global_setting
 from Modules import localization
 
-VERSION = "v1.0.0"
+VERSION = "v1.0.2"
 
 def ensure_package(module_name: str, pip_name: str):
     """
