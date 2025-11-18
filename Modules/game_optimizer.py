@@ -467,7 +467,9 @@ def _classify_retail_hardware(hardware):
     ram = hardware.get("memory_gb") or 0
     cores = hardware.get("cpu_cores") or 0
     threads = hardware.get("cpu_threads") or 0
-    gpu_level = _classify_gpu_level(hardware.get("gpu"), hardware.get("system"))
+    # Use selected GPU if available (discrete over integrated), otherwise use full GPU list
+    gpu_to_classify = [hardware.get("gpu_selected")] if hardware.get("gpu_selected") else hardware.get("gpu")
+    gpu_level = _classify_gpu_level(gpu_to_classify, hardware.get("system"))
 
     levels = []
     levels.append("rec" if ram >= RETAIL_REQ["rec"]["ram_gb"] else ("min" if ram >= RETAIL_REQ["min"]["ram_gb"] else "below"))
@@ -482,7 +484,9 @@ def _classify_classic_hardware(hardware):
     ram = hardware.get("memory_gb") or 0
     cores = hardware.get("cpu_cores") or 0
     threads = hardware.get("cpu_threads") or 0
-    gpu_level = _classify_gpu_level_classic(hardware.get("gpu"), hardware.get("system"))
+    # Use selected GPU if available (discrete over integrated), otherwise use full GPU list
+    gpu_to_classify = [hardware.get("gpu_selected")] if hardware.get("gpu_selected") else hardware.get("gpu")
+    gpu_level = _classify_gpu_level_classic(gpu_to_classify, hardware.get("system"))
 
     levels = []
     levels.append("rec" if ram >= CLASSIC_REQ["rec"]["ram_gb"] else ("min" if ram >= CLASSIC_REQ["min"]["ram_gb"] else "below"))
