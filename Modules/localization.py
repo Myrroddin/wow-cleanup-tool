@@ -199,9 +199,6 @@ TRANSLATIONS = {
         "orphaned_savedvars": "orphaned SavedVariables",
         "completed": "Completed",
         "processed": "Processed {} {}.",
-        "send2trash_missing": "send2trash missing",
-        "send2trash_unavailable": "The 'send2trash' module is unavailable. Files were deleted permanently.",
-        "send2trash_install": "The 'send2trash' package is not installed.\nTo enable Recycle Bin support, install it manually:\n\n  pip install send2trash\n\nor:\n\n  python -m pip install --user send2trash",
         "restore_defaults_confirm": "Restore all settings to defaults?",
         "restart_required": "Settings restored. The application will now restart.",
         "error_title": "Error",
@@ -223,7 +220,6 @@ TRANSLATIONS = {
         "file_processed": "File Cleaner: processed {} file(s).",
         "folder_processed": "Folder Cleaner: processed {} folder(s).",
         "orphan_processed": "Orphan Cleaner: processed {} orphan(s).",
-        "send2trash_warning": "Warning: send2trash not installed; deletions were permanent.",
         "addons_txt_log": "[AddOns.txt] {}: wrote {} entries, removed {}",
         "preset_applied_log": "Applied {} preset for {}",
         "preset_failed_log": "Failed to apply {} preset: {}",
@@ -299,6 +295,8 @@ TRANSLATIONS = {
         "help_copyright": "Copyright © 2025 Paul Vandersypen. Released under the GNU General Public License v3.0 (GPL-3.0-or-later). See the included LICENSE file for full terms.",
         "support_patreon": "Support on Patreon",
         "donate_paypal": "Donate via PayPal",
+        "github_repository": "GitHub Repository",
+        "github_issues": "Report Issues",
         
         # Game Optimizer - hardware detection messages
         "hardware_detected": "✓ CPU: {} | RAM: {} | GPU: {}",
@@ -433,11 +431,6 @@ TRANSLATIONS = {
         "move_to_trash": "move to Recycle Bin/Trash",
         "delete_permanently_action": "delete permanently",
         
-        # send2trash Warnings
-        "send2trash_missing": "send2trash missing",
-        "send2trash_unavailable_files": "The 'send2trash' module is unavailable. Files were deleted permanently.",
-        "send2trash_unavailable_folders": "The 'send2trash' module is unavailable. Folders were deleted permanently.",
-        
         # AddOns.txt Rebuild
         "rebuilt_addons_summary": "Rebuilt AddOns.txt entries.\nTotal written: {}\nTotal removed: {}",
         
@@ -486,10 +479,27 @@ TRANSLATIONS = {
         "update_check_error": "Update Check Error",
         "update_check_exception": "An error occurred while checking for updates:\n\n{}",
         "update_available": "Update Available",
-        "update_available_message": "A new version is available!\n\nCurrent: {}\nLatest: {}\n\nVisit the GitHub page to download the latest version.",
+        "update_message": "A new version is available!\n\nCurrent: {}\nLatest: {}\n\nWould you like to download it now?",
         "up_to_date": "Up to Date",
         "up_to_date_message": "You are running the latest version ({}).",
         "browser_open_error": "Could not open browser:\n\n{}",
+        "download_update": "Download Update",
+        "view_release": "View Release",
+        "later": "Later",
+        "downloading_update": "Downloading Update",
+        "downloading_update_file": "Downloading update file...",
+        "download_failed": "Download Failed",
+        "download_failed_message": "Failed to download update:\n\n{}",
+        "update_ready": "Update Ready",
+        "update_downloaded_message": "Update downloaded successfully!\n\nFile: {}\n\nWould you like to install it now?",
+        "install_now": "Install Now",
+        "install_later": "Install Later",
+        "update_location": "Downloaded to: {}",
+        "failed_to_fetch_release": "Failed to fetch release information from GitHub.",
+        "no_download_available": "No downloadable files found for this release.",
+        "install_update": "Install Update",
+        "please_run_installer": "The download location has been opened.\n\nPlease run the installer to update the application.",
+        "update_saved_message": "Update saved to:\n\n{}\n\nYou can install it later.",
         
         # File Cleaner - Log messages
         "file_cleaner_found_file": "[FileCleaner] Found file: {}",
@@ -594,11 +604,7 @@ TRANSLATIONS = {
         "folder_s": "Ordner",
         "orphaned_savedvars": "verwaiste SavedVariables",
         "completed": "Abgeschlossen",
-        "processed": "{} {} verarbeitet.",
-        "send2trash_missing": "send2trash fehlt",
-        "send2trash_unavailable": "Das Modul 'send2trash' ist nicht verfügbar. Dateien wurden dauerhaft gelöscht.",
-        "send2trash_install": "Das Paket 'send2trash' ist nicht installiert.\nUm die Papierkorb-Unterstützung zu aktivieren, installieren Sie es manuell:\n\n  pip install send2trash\n\noder:\n\n  python -m pip install --user send2trash",
-        "restore_defaults_confirm": "Alle Einstellungen auf Standardwerte zurücksetzen?",
+        "processed": "{} {} verarbeitet.",        "restore_defaults_confirm": "Alle Einstellungen auf Standardwerte zurücksetzen?",
         "restart_required": "Einstellungen wiederhergestellt. Die Anwendung wird jetzt neu gestartet.",
         "error_title": "Fehler",
         "restore_error": "Fehler beim Wiederherstellen der Standardeinstellungen: {}",
@@ -617,7 +623,6 @@ TRANSLATIONS = {
         "file_processed": "Dateibereinigung: {} Datei(en) verarbeitet.",
         "folder_processed": "Ordnerbereinigung: {} Ordner verarbeitet.",
         "orphan_processed": "Verwaiste Dateien: {} verwaiste Datei(en) verarbeitet.",
-        "send2trash_warning": "Warnung: send2trash nicht installiert; Löschungen waren dauerhaft.",
         "addons_txt_log": "[AddOns.txt] {}: {} Einträge geschrieben, {} entfernt",
         "preset_applied_log": "{}-Voreinstellung für {} angewendet",
         "preset_failed_log": "Fehler beim Anwenden der {}-Voreinstellung: {}",
@@ -683,6 +688,8 @@ TRANSLATIONS = {
         "help_copyright": "Copyright © 2025 Paul Vandersypen. Veröffentlicht unter der GNU General Public License v3.0 (GPL-3.0-or-later). Siehe die beigefügte LICENSE-Datei für vollständige Bedingungen.",
         "support_patreon": "Auf Patreon unterstützen",
         "donate_paypal": "Via PayPal spenden",
+        "github_repository": "GitHub-Repository",
+        "github_issues": "Probleme melden",
         
         # Game Optimizer - hardware detection messages
         "hardware_detected": "✓ CPU: {} | RAM: {} | GPU: {}",
@@ -817,11 +824,6 @@ TRANSLATIONS = {
         "move_to_trash": "in den Papierkorb verschieben",
         "delete_permanently_action": "dauerhaft löschen",
         
-        # send2trash Warnings
-        "send2trash_missing": "send2trash fehlt",
-        "send2trash_unavailable_files": "Das 'send2trash'-Modul ist nicht verfügbar. Dateien wurden dauerhaft gelöscht.",
-        "send2trash_unavailable_folders": "Das 'send2trash'-Modul ist nicht verfügbar. Ordner wurden dauerhaft gelöscht.",
-        
         # AddOns.txt Rebuild
         "rebuilt_addons_summary": "AddOns.txt-Einträge neu erstellt.\nGesamt geschrieben: {}\nGesamt entfernt: {}",
         
@@ -870,10 +872,27 @@ TRANSLATIONS = {
         "update_check_error": "Update-Prüfungsfehler",
         "update_check_exception": "Bei der Update-Prüfung ist ein Fehler aufgetreten:\n\n{}",
         "update_available": "Update verfügbar",
-        "update_available_message": "Eine neue Version ist verfügbar!\n\nAktuell: {}\nNeueste: {}\n\nBesuchen Sie die GitHub-Seite, um die neueste Version herunterzuladen.",
+        "update_message": "Eine neue Version ist verfügbar!\n\nAktuell: {}\nNeueste: {}\n\nMöchten Sie es jetzt herunterladen?",
         "up_to_date": "Auf dem neuesten Stand",
         "up_to_date_message": "Sie verwenden die neueste Version ({}).",
         "browser_open_error": "Browser konnte nicht geöffnet werden:\n\n{}",
+        "download_update": "Update herunterladen",
+        "view_release": "Version anzeigen",
+        "later": "Später",
+        "downloading_update": "Update wird heruntergeladen",
+        "downloading_update_file": "Update-Datei wird heruntergeladen...",
+        "download_failed": "Download fehlgeschlagen",
+        "download_failed_message": "Update konnte nicht heruntergeladen werden:\n\n{}",
+        "update_ready": "Update bereit",
+        "update_downloaded_message": "Update erfolgreich heruntergeladen!\n\nDatei: {}\n\nMöchten Sie es jetzt installieren?",
+        "install_now": "Jetzt installieren",
+        "install_later": "Später installieren",
+        "update_location": "Heruntergeladen nach: {}",
+        "failed_to_fetch_release": "Release-Informationen konnten nicht von GitHub abgerufen werden.",
+        "no_download_available": "Keine herunterladbaren Dateien für diese Version gefunden.",
+        "install_update": "Update installieren",
+        "please_run_installer": "Der Download-Speicherort wurde geöffnet.\n\nBitte führen Sie das Installationsprogramm aus, um die Anwendung zu aktualisieren.",
+        "update_saved_message": "Update gespeichert unter:\n\n{}\n\nSie können es später installieren.",
         
         # File Cleaner - Log messages
         "file_cleaner_found_file": "[Dateibereinigung] Datei gefunden: {}",
@@ -981,11 +1000,7 @@ TRANSLATIONS = {
         "folder_s": "dossier(s)",
         "orphaned_savedvars": "SavedVariables orphelines",
         "completed": "Terminé",
-        "processed": "{} {} traité(s).",
-        "send2trash_missing": "send2trash manquant",
-        "send2trash_unavailable": "Le module 'send2trash' n'est pas disponible. Les fichiers ont été supprimés définitivement.",
-        "send2trash_install": "Le paquet 'send2trash' n'est pas installé.\nPour activer la prise en charge de la corbeille, installez-le manuellement :\n\n  pip install send2trash\n\nou :\n\n  python -m pip install --user send2trash",
-        "restore_defaults_confirm": "Restaurer tous les paramètres par défaut ?",
+        "processed": "{} {} traité(s).",        "restore_defaults_confirm": "Restaurer tous les paramètres par défaut ?",
         "restart_required": "Paramètres restaurés. L'application va maintenant redémarrer.",
         "error_title": "Erreur",
         "restore_error": "Échec de la restauration des valeurs par défaut : {}",
@@ -1003,9 +1018,7 @@ TRANSLATIONS = {
         "orphan_scan": "Analyse du nettoyeur d'orphelins : {} orphelin(s).",
         "file_processed": "Nettoyeur de fichiers : {} fichier(s) traité(s).",
         "folder_processed": "Nettoyeur de dossiers : {} dossier(s) traité(s).",
-        "orphan_processed": "Nettoyeur d'orphelins : {} orphelin(s) traité(s).",
-        "send2trash_warning": "Avertissement : send2trash non installé ; les suppressions étaient définitives.",
-        "addons_txt_log": "[AddOns.txt] {} : {} entrées écrites, {} supprimées",
+        "orphan_processed": "Nettoyeur d'orphelins : {} orphelin(s) traité(s).",        "addons_txt_log": "[AddOns.txt] {} : {} entrées écrites, {} supprimées",
         "preset_applied_log": "Préréglage {} appliqué pour {}",
         "preset_failed_log": "Échec de l'application du préréglage {} : {}",
         "change_language": "Changer la langue",
@@ -1049,62 +1062,59 @@ TRANSLATIONS = {
         "cancel": "Annuler",
         "export_log": "Exporter le journal",
         "clear_log": "Effacer le journal",
-        "confirm_font_change": "Confirmation de changement de police",
-        "font_change_restart_required": "Le changement de police nécessite un redémarrage de l'application.\nVoulez-vous redémarrer maintenant ?",
-        "restart": "Redémarrer",
-        "later": "Plus tard",
-        "confirm_language_change": "Confirmer le changement de langue",
-        "language_change_restart_required": "Le changement de langue nécessite un redémarrage de l'application pour prendre effet.\n\nVoulez-vous redémarrer maintenant ?",
-        "language_change_restart_message": "Veuillez redémarrer l'application pour que le changement de langue prenne effet.",
-        "invalid_folder_title": "Dossier invalide",
         
         # Common Messages
-        "invalid_folder_select_valid_wow": "Veuillez sélectionner un dossier World of Warcraft valide dans les options.",
-        "scanning_files": "Analyse des fichiers...",
-        "scanning_folders": "Analyse des dossiers...",
-        "scanning_orphans": "Analyse des AddOns orphelins...",
         "no_files_selected": "Aucun fichier sélectionné",
         "no_folders_selected": "Aucun dossier sélectionné",
         "no_orphans_selected": "Aucun orphelin sélectionné",
+
+        # Common Messages
+        "apply_font_question": "Appliquer la police '{}' à l'application ?",
+        "select_valid_wow_first": "Veuillez d'abord sélectionner un dossier WoW valide.",
+        "restored": "Restauré",
+
+        # File Cleaner
+        "found_files_count": "Trouvé {} fichier(s) sur toutes les versions.",
+        "confirm_action_files": "Êtes-vous sûr de vouloir {} {} fichier(s) ?",
+        "processed_files_count": "Traité {} fichier(s).",
+
+        # Folder Cleaner
+        "confirm_action_folders": "Êtes-vous sûr de vouloir {} {} dossier(s) ?",
+        "processed_folders_count": "Traité {} dossier(s).",
+
+        # Orphan Cleaner
+        "found_orphans_count": "Trouvé {} SavedVariable(s) orphelin(s).",
+        "confirm_action_orphans": "Êtes-vous sûr de vouloir {} {} SavedVariables orphelins ?",
+        "processed_orphans_count": "Traité {} orphelin(s).",
+
+        # Actions
+        "move_to_trash": "déplacer vers la corbeille",
+        "delete_permanently_action": "supprimer définitivement",
+
+        # AddOns.txt Rebuild
+        "rebuilt_addons_summary": "Entrées AddOns.txt reconstruites.\nTotal écrit : {}\nTotal supprimé : {}",
+
+        # Log Export
+        "log_empty_nothing_export": "Le journal est vide. Rien à exporter.",
+
+        # Settings Restore
+        "settings_restored_restart": "Paramètres restaurés par défaut. L'application va maintenant redémarrer.",
+        "settings_restored_manual": "Paramètres restaurés par défaut. Veuillez redémarrer l'application manuellement.",
+        "failed_restore_defaults": "Échec de la restauration des paramètres par défaut : {}",
         
         # File Cleaner
-        "select_files_to_delete": "Veuillez sélectionner au moins un fichier à supprimer.",
-        "confirm_delete_files_title": "Confirmer la suppression des fichiers",
-        "confirm_delete_files_message": "Êtes-vous sûr de vouloir supprimer {0} fichier(s) ?",
-        "files_moved_to_recycle_bin": "{0} fichier(s) déplacé(s) vers la Corbeille.",
-        "files_deletion_complete": "{0} fichier(s) supprimé(s) avec succès.",
         
         # Folder Cleaner
-        "select_folders_to_delete": "Veuillez sélectionner au moins un dossier à supprimer.",
-        "confirm_delete_folders_title": "Confirmer la suppression des dossiers",
-        "confirm_delete_folders_message": "Êtes-vous sûr de vouloir supprimer {0} dossier(s) ?",
         
         # Orphan Cleaner
-        "select_orphans_to_delete": "Veuillez sélectionner au moins un AddOn orphelin à supprimer.",
-        "confirm_delete_orphans_title": "Confirmer la suppression des orphelins",
-        "confirm_delete_orphans_message": "Êtes-vous sûr de vouloir supprimer {0} AddOn(s) orphelin(s) ?\n\nCela supprimera également tous les fichiers SavedVariables associés.",
-        "orphans_moved_to_recycle_bin": "{0} AddOn(s) orphelin(s) déplacé(s) vers la Corbeille.",
-        "orphans_deletion_complete": "{0} AddOn(s) orphelin(s) supprimé(s) avec succès.",
         
         # Actions
-        "folders_moved_to_recycle_bin": "{0} dossier(s) déplacé(s) vers la Corbeille.",
-        "folders_deletion_complete": "{0} dossier(s) supprimé(s) avec succès.",
-        
-        # send2trash Warnings
-        "send2trash_not_available_files": "send2trash n'est pas disponible. Les fichiers seront supprimés définitivement.",
-        "send2trash_not_available_folders": "send2trash n'est pas disponible. Les dossiers seront supprimés définitivement.",
-        "send2trash_not_available_orphans": "send2trash n'est pas disponible. Les AddOns orphelins seront supprimés définitivement.",
         
         # AddOns.txt Rebuild
-        "addons_txt_rebuild_summary": "AddOns.txt reconstruit avec succès !\n\nAddOns trouvés : {0}\nCharactères : {1}\nFichiers de configuration : {2}",
         
         # Log Export
-        "log_export_empty": "Le journal est vide. Rien à exporter.",
         
         # Settings Restore
-        "settings_restored_title": "Paramètres restaurés",
-        "settings_restored_to_defaults": "Paramètres restaurés aux valeurs par défaut.",
-        "settings_restored_restart_required": "Paramètres restaurés aux valeurs par défaut.\nVeuillez redémarrer l'application pour que tous les changements prennent effet.",
         
         # Optimization Suggestions tab - detailed content
         "opt_sug_header": "Suggestions d'optimisation manuelle",
@@ -1134,6 +1144,8 @@ TRANSLATIONS = {
         "help_copyright": "Copyright © 2025 Paul Vandersypen. Publié sous la licence publique générale GNU v3.0 (GPL-3.0-or-later). Consultez le fichier LICENSE inclus pour les conditions complètes.",
         "support_patreon": "Soutenir sur Patreon",
         "donate_paypal": "Faire un don via PayPal",
+        "github_repository": "Dépôt GitHub",
+        "github_issues": "Signaler des problèmes",
         
         # Game Optimizer - hardware detection messages
         "hardware_detected": "✓ CPU : {} | RAM : {} | GPU : {}",
@@ -1261,10 +1273,27 @@ TRANSLATIONS = {
         "update_check_error": "Erreur de vérification de mise à jour",
         "update_check_exception": "Une erreur s'est produite lors de la vérification des mises à jour :\n\n{}",
         "update_available": "Mise à jour disponible",
-        "update_available_message": "Une nouvelle version est disponible !\n\nActuelle : {}\nDernière : {}\n\nVisitez la page GitHub pour télécharger la dernière version.",
+        "update_message": "Une nouvelle version est disponible !\n\nActuelle : {}\nDernière : {}\n\nVoulez-vous la télécharger maintenant ?",
         "up_to_date": "À jour",
         "up_to_date_message": "Vous utilisez la dernière version ({}).",
         "browser_open_error": "Impossible d'ouvrir le navigateur :\n\n{}",
+        "download_update": "Télécharger la mise à jour",
+        "view_release": "Voir la version",
+        "later": "Plus tard",
+        "downloading_update": "Téléchargement de la mise à jour",
+        "downloading_update_file": "Téléchargement du fichier de mise à jour...",
+        "download_failed": "Échec du téléchargement",
+        "download_failed_message": "Échec du téléchargement de la mise à jour :\n\n{}",
+        "update_ready": "Mise à jour prête",
+        "update_downloaded_message": "Mise à jour téléchargée avec succès !\n\nFichier : {}\n\nVoulez-vous l'installer maintenant ?",
+        "install_now": "Installer maintenant",
+        "install_later": "Installer plus tard",
+        "update_location": "Téléchargé dans : {}",
+        "failed_to_fetch_release": "Impossible de récupérer les informations de version depuis GitHub.",
+        "no_download_available": "Aucun fichier téléchargeable trouvé pour cette version.",
+        "install_update": "Installer la mise à jour",
+        "please_run_installer": "L'emplacement de téléchargement a été ouvert.\n\nVeuillez exécuter le programme d'installation pour mettre à jour l'application.",
+        "update_saved_message": "Mise à jour enregistrée dans :\n\n{}\n\nVous pouvez l'installer plus tard.",
         
         # File Cleaner - Log messages
         "file_cleaner_found_file": "[Nettoyeur de fichiers] Fichier trouvé : {}",
@@ -1369,11 +1398,7 @@ TRANSLATIONS = {
         "folder_s": "carpeta(s)",
         "orphaned_savedvars": "SavedVariables huérfanas",
         "completed": "Completado",
-        "processed": "{} {} procesado(s).",
-        "send2trash_missing": "send2trash falta",
-        "send2trash_unavailable": "El módulo 'send2trash' no está disponible. Los archivos se eliminaron permanentemente.",
-        "send2trash_install": "El paquete 'send2trash' no está instalado.\nPara habilitar el soporte de papelera de reciclaje, instálalo manualmente:\n\n  pip install send2trash\n\no:\n\n  python -m pip install --user send2trash",
-        "restore_defaults_confirm": "¿Restaurar toda la configuración a los valores predeterminados?",
+        "processed": "{} {} procesado(s).",        "restore_defaults_confirm": "¿Restaurar toda la configuración a los valores predeterminados?",
         "restart_required": "Configuración restaurada. La aplicación se reiniciará ahora.",
         "error_title": "Error",
         "restore_error": "Error al restaurar los valores predeterminados: {}",
@@ -1391,9 +1416,7 @@ TRANSLATIONS = {
         "orphan_scan": "Escaneo del limpiador de huérfanos: {} huérfano(s).",
         "file_processed": "Limpiador de archivos: {} archivo(s) procesado(s).",
         "folder_processed": "Limpiador de carpetas: {} carpeta(s) procesada(s).",
-        "orphan_processed": "Limpiador de huérfanos: {} huérfano(s) procesado(s).",
-        "send2trash_warning": "Advertencia: send2trash no instalado; las eliminaciones fueron permanentes.",
-        "addons_txt_log": "[AddOns.txt] {}: {} entradas escritas, {} eliminadas",
+        "orphan_processed": "Limpiador de huérfanos: {} huérfano(s) procesado(s).",        "addons_txt_log": "[AddOns.txt] {}: {} entradas escritas, {} eliminadas",
         "preset_applied_log": "Ajuste predefinido {} aplicado para {}",
         "preset_failed_log": "Error al aplicar el ajuste predefinido {}: {}",
         "change_language": "Cambiar idioma",
@@ -1437,62 +1460,59 @@ TRANSLATIONS = {
         "cancel": "Cancelar",
         "export_log": "Exportar registro",
         "clear_log": "Limpiar registro",
-        "confirm_font_change": "Confirmación de cambio de fuente",
-        "font_change_restart_required": "El cambio de fuente requiere reiniciar la aplicación.\n¿Quieres reiniciar ahora?",
-        "restart": "Reiniciar",
-        "later": "Más tarde",
-        "confirm_language_change": "Confirmar cambio de idioma",
-        "language_change_restart_required": "El cambio de idioma requiere reiniciar la aplicación para que surta efecto.\n\n¿Quieres reiniciar ahora?",
-        "language_change_restart_message": "Por favor, reinicia la aplicación para que el cambio de idioma surta efecto.",
-        "invalid_folder_title": "Carpeta inválida",
         
         # Common Messages
-        "invalid_folder_select_valid_wow": "Por favor, selecciona una carpeta válida de World of Warcraft en Opciones.",
-        "scanning_files": "Escaneando archivos...",
-        "scanning_folders": "Escaneando carpetas...",
-        "scanning_orphans": "Escaneando AddOns huérfanos...",
         "no_files_selected": "No se seleccionaron archivos",
         "no_folders_selected": "No se seleccionaron carpetas",
         "no_orphans_selected": "No se seleccionaron huérfanos",
+
+        # Common Messages
+        "apply_font_question": "¿Aplicar fuente '{}' a la aplicación?",
+        "select_valid_wow_first": "Por favor, selecciona primero una carpeta WoW válida.",
+        "restored": "Restaurado",
+
+        # File Cleaner
+        "found_files_count": "Encontrado {} archivo(s) en todas las versiones.",
+        "confirm_action_files": "¿Estás seguro de que quieres {} {} archivo(s)?",
+        "processed_files_count": "Procesado {} archivo(s).",
+
+        # Folder Cleaner
+        "confirm_action_folders": "¿Estás seguro de que quieres {} {} carpeta(s)?",
+        "processed_folders_count": "Procesado {} carpeta(s).",
+
+        # Orphan Cleaner
+        "found_orphans_count": "Encontrado {} SavedVariable(s) huérfano(s).",
+        "confirm_action_orphans": "¿Estás seguro de que quieres {} {} SavedVariables huérfanos?",
+        "processed_orphans_count": "Procesado {} huérfano(s).",
+
+        # Actions
+        "move_to_trash": "mover a la papelera",
+        "delete_permanently_action": "eliminar permanentemente",
+
+        # AddOns.txt Rebuild
+        "rebuilt_addons_summary": "Entradas de AddOns.txt reconstruidas.\nTotal escrito: {}\nTotal eliminado: {}",
+
+        # Log Export
+        "log_empty_nothing_export": "El registro está vacío. Nada que exportar.",
+
+        # Settings Restore
+        "settings_restored_restart": "Configuración restaurada a valores predeterminados. La aplicación se reiniciará ahora.",
+        "settings_restored_manual": "Configuración restaurada a valores predeterminados. Por favor, reinicia la aplicación manualmente.",
+        "failed_restore_defaults": "Error al restaurar valores predeterminados: {}",
         
         # File Cleaner
-        "select_files_to_delete": "Por favor, selecciona al menos un archivo para eliminar.",
-        "confirm_delete_files_title": "Confirmar eliminación de archivos",
-        "confirm_delete_files_message": "¿Estás seguro de que quieres eliminar {0} archivo(s)?",
-        "files_moved_to_recycle_bin": "{0} archivo(s) movido(s) a la Papelera de reciclaje.",
-        "files_deletion_complete": "{0} archivo(s) eliminado(s) con éxito.",
         
         # Folder Cleaner
-        "select_folders_to_delete": "Por favor, selecciona al menos una carpeta para eliminar.",
-        "confirm_delete_folders_title": "Confirmar eliminación de carpetas",
-        "confirm_delete_folders_message": "¿Estás seguro de que quieres eliminar {0} carpeta(s)?",
         
         # Orphan Cleaner
-        "select_orphans_to_delete": "Por favor, selecciona al menos un AddOn huérfano para eliminar.",
-        "confirm_delete_orphans_title": "Confirmar eliminación de huérfanos",
-        "confirm_delete_orphans_message": "¿Estás seguro de que quieres eliminar {0} AddOn(s) huérfano(s)?\n\nEsto también eliminará todos los archivos SavedVariables asociados.",
-        "orphans_moved_to_recycle_bin": "{0} AddOn(s) huérfano(s) movido(s) a la Papelera de reciclaje.",
-        "orphans_deletion_complete": "{0} AddOn(s) huérfano(s) eliminado(s) con éxito.",
         
         # Actions
-        "folders_moved_to_recycle_bin": "{0} carpeta(s) movida(s) a la Papelera de reciclaje.",
-        "folders_deletion_complete": "{0} carpeta(s) eliminada(s) con éxito.",
-        
-        # send2trash Warnings
-        "send2trash_not_available_files": "send2trash no está disponible. Los archivos se eliminarán permanentemente.",
-        "send2trash_not_available_folders": "send2trash no está disponible. Las carpetas se eliminarán permanentemente.",
-        "send2trash_not_available_orphans": "send2trash no está disponible. Los AddOns huérfanos se eliminarán permanentemente.",
         
         # AddOns.txt Rebuild
-        "addons_txt_rebuild_summary": "¡AddOns.txt reconstruido con éxito!\n\nAddOns encontrados: {0}\nPersonajes: {1}\nArchivos de configuración: {2}",
         
         # Log Export
-        "log_export_empty": "El registro está vacío. No hay nada que exportar.",
         
         # Settings Restore
-        "settings_restored_title": "Configuración restaurada",
-        "settings_restored_to_defaults": "Configuración restaurada a los valores predeterminados.",
-        "settings_restored_restart_required": "Configuración restaurada a los valores predeterminados.\nPor favor, reinicia la aplicación para que todos los cambios surtan efecto.",
         
         # Optimization Suggestions tab - detailed content
         "opt_sug_header": "Sugerencias de optimización manual",
@@ -1522,6 +1542,9 @@ TRANSLATIONS = {
         "help_copyright": "Copyright © 2025 Paul Vandersypen. Publicado bajo la Licencia Pública General GNU v3.0 (GPL-3.0-or-later). Consulta el archivo LICENSE incluido para conocer los términos completos.",
         "support_patreon": "Apoyar en Patreon",
         "donate_paypal": "Donar vía PayPal",
+        "github_repository": "Repositorio de GitHub",
+        "github_issues": "Reportar problemas",
+
         
         # Game Optimizer - hardware detection messages
         "hardware_detected": "✓ CPU: {} | RAM: {} | GPU: {}",
@@ -1621,10 +1644,27 @@ TRANSLATIONS = {
         "update_check_error": "Error de verificación de actualización",
         "update_check_exception": "Ocurrió un error al verificar actualizaciones:\n\n{}",
         "update_available": "Actualización disponible",
-        "update_available_message": "¡Hay una nueva versión disponible!\n\nActual: {}\nÚltima: {}\n\nVisita la página de GitHub para descargar la última versión.",
+        "update_message": "¡Hay una nueva versión disponible!\n\nActual: {}\nÚltima: {}\n\n¿Quieres descargarla ahora?",
         "up_to_date": "Actualizado",
         "up_to_date_message": "Estás usando la última versión ({}).",
         "browser_open_error": "No se pudo abrir el navegador:\n\n{}",
+        "download_update": "Descargar actualización",
+        "view_release": "Ver versión",
+        "later": "Más tarde",
+        "downloading_update": "Descargando actualización",
+        "downloading_update_file": "Descargando archivo de actualización...",
+        "download_failed": "Descarga fallida",
+        "download_failed_message": "Error al descargar la actualización:\n\n{}",
+        "update_ready": "Actualización lista",
+        "update_downloaded_message": "¡Actualización descargada correctamente!\n\nArchivo: {}\n\n¿Quieres instalarla ahora?",
+        "install_now": "Instalar ahora",
+        "install_later": "Instalar más tarde",
+        "update_location": "Descargado en: {}",
+        "failed_to_fetch_release": "Error al obtener información de versión desde GitHub.",
+        "no_download_available": "No se encontraron archivos descargables para esta versión.",
+        "install_update": "Instalar actualización",
+        "please_run_installer": "Se ha abierto la ubicación de descarga.\n\nEjecuta el instalador para actualizar la aplicación.",
+        "update_saved_message": "Actualización guardada en:\n\n{}\n\nPuedes instalarla más tarde.",
         
         # File Cleaner - Log messages
         "file_cleaner_found_file": "[Limpiador de archivos] Archivo encontrado: {}",
@@ -1778,11 +1818,7 @@ TRANSLATIONS = {
         "folder_s": "carpeta(s)",
         "orphaned_savedvars": "SavedVariables huérfanos",
         "completed": "Completado",
-        "processed": "Procesados {} {}.",
-        "send2trash_missing": "send2trash faltante",
-        "send2trash_unavailable": "El módulo 'send2trash' no está disponible. Los archivos se eliminaron permanentemente.",
-        "send2trash_install": "El paquete 'send2trash' no está instalado.\nPara habilitar el soporte de Papelera de Reciclaje, instálalo manualmente:\n\n  pip install send2trash\n\no:\n\n  python -m pip install --user send2trash",
-        "restore_defaults_confirm": "¿Restaurar toda la configuración a los valores predeterminados?",
+        "processed": "Procesados {} {}.",        "restore_defaults_confirm": "¿Restaurar toda la configuración a los valores predeterminados?",
         "restart_required": "Configuración restaurada. La aplicación se reiniciará ahora.",
         "error_title": "Error",
         "restore_error": "Error al restaurar predeterminados: {}",
@@ -1802,9 +1838,7 @@ TRANSLATIONS = {
         "orphan_scan": "Escaneo del Limpiador de Huérfanos: {} huérfano(s).",
         "file_processed": "Limpiador de Archivos: procesados {} archivo(s).",
         "folder_processed": "Limpiador de Carpetas: procesadas {} carpeta(s).",
-        "orphan_processed": "Limpiador de Huérfanos: procesados {} huérfano(s).",
-        "send2trash_warning": "Advertencia: send2trash no instalado; las eliminaciones fueron permanentes.",
-        "addons_txt_log": "[AddOns.txt] {}: escribió {} entradas, eliminó {}",
+        "orphan_processed": "Limpiador de Huérfanos: procesados {} huérfano(s).",        "addons_txt_log": "[AddOns.txt] {}: escribió {} entradas, eliminó {}",
         "preset_applied_log": "Aplicado ajuste {} para {}",
         "preset_failed_log": "Error al aplicar ajuste {}: {}",
         "change_language": "Cambiar Idioma",
@@ -1854,62 +1888,59 @@ TRANSLATIONS = {
         "cancel": "Cancelar",
         "export_log": "Exportar Registro",
         "clear_log": "Limpiar Registro",
-        "confirm_font_change": "Confirmación de Cambio de Fuente",
-        "font_change_restart_required": "El cambio de fuente requiere reiniciar la aplicación.\n¿Quieres reiniciar ahora?",
-        "restart": "Reiniciar",
-        "later": "Más Tarde",
-        "confirm_language_change": "Confirmar Cambio de Idioma",
-        "language_change_restart_required": "El cambio de idioma requiere reiniciar la aplicación para que surta efecto.\n\n¿Quieres reiniciar ahora?",
-        "language_change_restart_message": "Por favor, reinicia la aplicación para que el cambio de idioma surta efecto.",
-        "invalid_folder_title": "Carpeta Inválida",
         
         # Common Messages
-        "invalid_folder_select_valid_wow": "Por favor, selecciona una carpeta válida de World of Warcraft en Opciones.",
-        "scanning_files": "Escaneando archivos...",
-        "scanning_folders": "Escaneando carpetas...",
-        "scanning_orphans": "Escaneando AddOns huérfanos...",
         "no_files_selected": "No se seleccionaron archivos",
         "no_folders_selected": "No se seleccionaron carpetas",
         "no_orphans_selected": "No se seleccionaron huérfanos",
+
+        # Common Messages
+        "apply_font_question": "¿Aplicar fuente '{}' a la aplicación?",
+        "select_valid_wow_first": "Por favor, selecciona primero una carpeta WoW válida.",
+        "restored": "Restaurado",
+
+        # File Cleaner
+        "found_files_count": "Encontrado {} archivo(s) en todas las versiones.",
+        "confirm_action_files": "¿Estás seguro de que quieres {} {} archivo(s)?",
+        "processed_files_count": "Procesado {} archivo(s).",
+
+        # Folder Cleaner
+        "confirm_action_folders": "¿Estás seguro de que quieres {} {} carpeta(s)?",
+        "processed_folders_count": "Procesado {} carpeta(s).",
+
+        # Orphan Cleaner
+        "found_orphans_count": "Encontrado {} SavedVariable(s) huérfano(s).",
+        "confirm_action_orphans": "¿Estás seguro de que quieres {} {} SavedVariables huérfanos?",
+        "processed_orphans_count": "Procesado {} huérfano(s).",
+
+        # Actions
+        "move_to_trash": "mover a la papelera",
+        "delete_permanently_action": "eliminar permanentemente",
+
+        # AddOns.txt Rebuild
+        "rebuilt_addons_summary": "Entradas de AddOns.txt reconstruidas.\nTotal escrito: {}\nTotal eliminado: {}",
+
+        # Log Export
+        "log_empty_nothing_export": "El registro está vacío. Nada que exportar.",
+
+        # Settings Restore
+        "settings_restored_restart": "Configuración restaurada a valores predeterminados. La aplicación se reiniciará ahora.",
+        "settings_restored_manual": "Configuración restaurada a valores predeterminados. Por favor, reinicia la aplicación manualmente.",
+        "failed_restore_defaults": "Error al restaurar valores predeterminados: {}",
         
         # File Cleaner
-        "select_files_to_delete": "Por favor, selecciona al menos un archivo para eliminar.",
-        "confirm_delete_files_title": "Confirmar Eliminación de Archivos",
-        "confirm_delete_files_message": "¿Estás seguro de que quieres eliminar {0} archivo(s)?",
-        "files_moved_to_recycle_bin": "{0} archivo(s) movido(s) a la Papelera de Reciclaje.",
-        "files_deletion_complete": "{0} archivo(s) eliminado(s) con éxito.",
         
         # Folder Cleaner
-        "select_folders_to_delete": "Por favor, selecciona al menos una carpeta para eliminar.",
-        "confirm_delete_folders_title": "Confirmar Eliminación de Carpetas",
-        "confirm_delete_folders_message": "¿Estás seguro de que quieres eliminar {0} carpeta(s)?",
         
         # Orphan Cleaner
-        "select_orphans_to_delete": "Por favor, selecciona al menos un AddOn huérfano para eliminar.",
-        "confirm_delete_orphans_title": "Confirmar Eliminación de Huérfanos",
-        "confirm_delete_orphans_message": "¿Estás seguro de que quieres eliminar {0} AddOn(s) huérfano(s)?\n\nEsto también eliminará todos los archivos SavedVariables asociados.",
-        "orphans_moved_to_recycle_bin": "{0} AddOn(s) huérfano(s) movido(s) a la Papelera de Reciclaje.",
-        "orphans_deletion_complete": "{0} AddOn(s) huérfano(s) eliminado(s) con éxito.",
         
         # Actions
-        "folders_moved_to_recycle_bin": "{0} carpeta(s) movida(s) a la Papelera de Reciclaje.",
-        "folders_deletion_complete": "{0} carpeta(s) eliminada(s) con éxito.",
-        
-        # send2trash Warnings
-        "send2trash_not_available_files": "send2trash no está disponible. Los archivos se eliminarán permanentemente.",
-        "send2trash_not_available_folders": "send2trash no está disponible. Las carpetas se eliminarán permanentemente.",
-        "send2trash_not_available_orphans": "send2trash no está disponible. Los AddOns huérfanos se eliminarán permanentemente.",
         
         # AddOns.txt Rebuild
-        "addons_txt_rebuild_summary": "¡AddOns.txt reconstruido con éxito!\n\nAddOns encontrados: {0}\nPersonajes: {1}\nArchivos de configuración: {2}",
         
         # Log Export
-        "log_export_empty": "El registro está vacío. No hay nada que exportar.",
         
         # Settings Restore
-        "settings_restored_title": "Configuración Restaurada",
-        "settings_restored_to_defaults": "Configuración restaurada a los valores predeterminados.",
-        "settings_restored_restart_required": "Configuración restaurada a los valores predeterminados.\nPor favor, reinicia la aplicación para que todos los cambios surtan efecto.",
         
         # Optimization Suggestions tab - detailed content
         "opt_sug_header": "Sugerencias de Optimización Manual",
@@ -1939,6 +1970,9 @@ TRANSLATIONS = {
         "help_copyright": "Copyright © 2025 Paul Vandersypen. Publicado bajo la Licencia Pública General GNU v3.0 (GPL-3.0-or-later). Consulta el archivo LICENSE incluido para los términos completos.",
         "support_patreon": "Apoyar en Patreon",
         "donate_paypal": "Donar vía PayPal",
+        "github_repository": "Repositorio de GitHub",
+        "github_issues": "Reportar problemas",
+
         
         # Game Optimizer - hardware detection messages
         "hardware_detected": "✓ CPU: {} | RAM: {} | GPU: {}",
@@ -2066,10 +2100,27 @@ TRANSLATIONS = {
         "update_check_error": "Error de Verificación de Actualización",
         "update_check_exception": "Ocurrió un error al verificar actualizaciones:\n\n{}",
         "update_available": "Actualización Disponible",
-        "update_available_message": "¡Hay una nueva versión disponible!\n\nActual: {}\nÚltima: {}\n\nVisita la página de GitHub para descargar la última versión.",
+        "update_message": "¡Hay una nueva versión disponible!\n\nActual: {}\nÚltima: {}\n\n¿Quieres descargarla ahora?",
         "up_to_date": "Actualizado",
         "up_to_date_message": "Estás usando la última versión ({}).",
         "browser_open_error": "No se pudo abrir el navegador:\n\n{}",
+        "download_update": "Descargar Actualización",
+        "view_release": "Ver Versión",
+        "later": "Más Tarde",
+        "downloading_update": "Descargando Actualización",
+        "downloading_update_file": "Descargando archivo de actualización...",
+        "download_failed": "Descarga Fallida",
+        "download_failed_message": "Error al descargar la actualización:\n\n{}",
+        "update_ready": "Actualización Lista",
+        "update_downloaded_message": "¡Actualización descargada correctamente!\n\nArchivo: {}\n\n¿Quieres instalarla ahora?",
+        "install_now": "Instalar Ahora",
+        "install_later": "Instalar Más Tarde",
+        "update_location": "Descargado en: {}",
+        "failed_to_fetch_release": "Error al obtener información de versión desde GitHub.",
+        "no_download_available": "No se encontraron archivos descargables para esta versión.",
+        "install_update": "Instalar Actualización",
+        "please_run_installer": "Se ha abierto la ubicación de descarga.\n\nEjecuta el instalador para actualizar la aplicación.",
+        "update_saved_message": "Actualización guardada en:\n\n{}\n\nPuedes instalarla más tarde.",
         
         # File Cleaner - Log messages
         "file_cleaner_found_file": "[Limpiador de Archivos] Archivo encontrado: {}",
@@ -2195,11 +2246,7 @@ TRANSLATIONS = {
         "folder_s": "pasta(s)",
         "orphaned_savedvars": "SavedVariables órfãos",
         "completed": "Concluído",
-        "processed": "Processados {} {}.",
-        "send2trash_missing": "send2trash ausente",
-        "send2trash_unavailable": "O módulo 'send2trash' não está disponível. Os arquivos foram excluídos permanentemente.",
-        "send2trash_install": "O pacote 'send2trash' não está instalado.\nPara ativar o suporte à Lixeira, instale-o manualmente:\n\n  pip install send2trash\n\nou:\n\n  python -m pip install --user send2trash",
-        "restore_defaults_confirm": "Restaurar todas as configurações para os padrões?",
+        "processed": "Processados {} {}.",        "restore_defaults_confirm": "Restaurar todas as configurações para os padrões?",
         "restart_required": "Configurações restauradas. O aplicativo será reiniciado agora.",
         "error_title": "Erro",
         "restore_error": "Falha ao restaurar padrões: {}",
@@ -2219,9 +2266,7 @@ TRANSLATIONS = {
         "orphan_scan": "Escaneamento do Limpador de Órfãos: {} órfão(s).",
         "file_processed": "Limpador de Arquivos: processados {} arquivo(s).",
         "folder_processed": "Limpador de Pastas: processadas {} pasta(s).",
-        "orphan_processed": "Limpador de Órfãos: processados {} órfão(s).",
-        "send2trash_warning": "Aviso: send2trash não instalado; exclusões foram permanentes.",
-        "addons_txt_log": "[AddOns.txt] {}: escreveu {} entradas, removeu {}",
+        "orphan_processed": "Limpador de Órfãos: processados {} órfão(s).",        "addons_txt_log": "[AddOns.txt] {}: escreveu {} entradas, removeu {}",
         "preset_applied_log": "Aplicada predefinição {} para {}",
         "preset_failed_log": "Falha ao aplicar predefinição {}: {}",
         "change_language": "Alterar Idioma",
@@ -2271,62 +2316,59 @@ TRANSLATIONS = {
         "cancel": "Cancelar",
         "export_log": "Exportar Registro",
         "clear_log": "Limpar Registro",
-        "confirm_font_change": "Confirmação de Alteração de Fonte",
-        "font_change_restart_required": "A alteração de fonte requer reiniciar o aplicativo.\nVocê deseja reiniciar agora?",
-        "restart": "Reiniciar",
-        "later": "Mais Tarde",
-        "confirm_language_change": "Confirmar Alteração de Idioma",
-        "language_change_restart_required": "A alteração de idioma requer reiniciar o aplicativo para ter efeito.\n\nVocê deseja reiniciar agora?",
-        "language_change_restart_message": "Por favor, reinicie o aplicativo para que a alteração de idioma tenha efeito.",
-        "invalid_folder_title": "Pasta Inválida",
         
         # Common Messages
-        "invalid_folder_select_valid_wow": "Por favor, selecione uma pasta válida do World of Warcraft nas Opções.",
-        "scanning_files": "Escaneando arquivos...",
-        "scanning_folders": "Escaneando pastas...",
-        "scanning_orphans": "Escaneando AddOns órfãos...",
         "no_files_selected": "Nenhum arquivo selecionado",
         "no_folders_selected": "Nenhuma pasta selecionada",
         "no_orphans_selected": "Nenhum órfão selecionado",
+
+        # Common Messages
+        "apply_font_question": "Aplicar fonte '{}' ao aplicativo?",
+        "select_valid_wow_first": "Por favor, selecione primeiro uma pasta WoW válida.",
+        "restored": "Restaurado",
+
+        # File Cleaner
+        "found_files_count": "Encontrado {} arquivo(s) em todas as versões.",
+        "confirm_action_files": "Tem certeza que deseja {} {} arquivo(s)?",
+        "processed_files_count": "Processado {} arquivo(s).",
+
+        # Folder Cleaner
+        "confirm_action_folders": "Tem certeza que deseja {} {} pasta(s)?",
+        "processed_folders_count": "Processado {} pasta(s).",
+
+        # Orphan Cleaner
+        "found_orphans_count": "Encontrado {} SavedVariable(s) órfão(s).",
+        "confirm_action_orphans": "Tem certeza que deseja {} {} SavedVariables órfãos?",
+        "processed_orphans_count": "Processado {} órfão(s).",
+
+        # Actions
+        "move_to_trash": "mover para lixeira",
+        "delete_permanently_action": "excluir permanentemente",
+
+        # AddOns.txt Rebuild
+        "rebuilt_addons_summary": "Entradas de AddOns.txt reconstruídas.\nTotal escrito: {}\nTotal removido: {}",
+
+        # Log Export
+        "log_empty_nothing_export": "O registro está vazio. Nada para exportar.",
+
+        # Settings Restore
+        "settings_restored_restart": "Configurações restauradas para padrões. O aplicativo será reiniciado agora.",
+        "settings_restored_manual": "Configurações restauradas para padrões. Por favor, reinicie o aplicativo manualmente.",
+        "failed_restore_defaults": "Falha ao restaurar padrões: {}",
         
         # File Cleaner
-        "select_files_to_delete": "Por favor, selecione pelo menos um arquivo para excluir.",
-        "confirm_delete_files_title": "Confirmar Exclusão de Arquivos",
-        "confirm_delete_files_message": "Você tem certeza que deseja excluir {0} arquivo(s)?",
-        "files_moved_to_recycle_bin": "{0} arquivo(s) movido(s) para a Lixeira.",
-        "files_deletion_complete": "{0} arquivo(s) excluído(s) com sucesso.",
         
         # Folder Cleaner
-        "select_folders_to_delete": "Por favor, selecione pelo menos uma pasta para excluir.",
-        "confirm_delete_folders_title": "Confirmar Exclusão de Pastas",
-        "confirm_delete_folders_message": "Você tem certeza que deseja excluir {0} pasta(s)?",
         
         # Orphan Cleaner
-        "select_orphans_to_delete": "Por favor, selecione pelo menos um AddOn órfão para excluir.",
-        "confirm_delete_orphans_title": "Confirmar Exclusão de Órfãos",
-        "confirm_delete_orphans_message": "Você tem certeza que deseja excluir {0} AddOn(s) órfão(s)?\n\nIsso também excluirá todos os arquivos SavedVariables associados.",
-        "orphans_moved_to_recycle_bin": "{0} AddOn(s) órfão(s) movido(s) para a Lixeira.",
-        "orphans_deletion_complete": "{0} AddOn(s) órfão(s) excluído(s) com sucesso.",
         
         # Actions
-        "folders_moved_to_recycle_bin": "{0} pasta(s) movida(s) para a Lixeira.",
-        "folders_deletion_complete": "{0} pasta(s) excluída(s) com sucesso.",
-        
-        # send2trash Warnings
-        "send2trash_not_available_files": "send2trash não está disponível. Os arquivos serão excluídos permanentemente.",
-        "send2trash_not_available_folders": "send2trash não está disponível. As pastas serão excluídas permanentemente.",
-        "send2trash_not_available_orphans": "send2trash não está disponível. Os AddOns órfãos serão excluídos permanentemente.",
         
         # AddOns.txt Rebuild
-        "addons_txt_rebuild_summary": "AddOns.txt reconstruído com sucesso!\n\nAddOns encontrados: {0}\nPersonagens: {1}\nArquivos de configuração: {2}",
         
         # Log Export
-        "log_export_empty": "O registro está vazio. Não há nada para exportar.",
         
         # Settings Restore
-        "settings_restored_title": "Configurações Restauradas",
-        "settings_restored_to_defaults": "Configurações restauradas para os padrões.",
-        "settings_restored_restart_required": "Configurações restauradas para os padrões.\nPor favor, reinicie o aplicativo para que todas as alterações tenham efeito.",
         
         # Optimization Suggestions tab - detailed content
         "opt_sug_header": "Sugestões de Otimização Manual",
@@ -2356,6 +2398,9 @@ TRANSLATIONS = {
         "help_copyright": "Copyright © 2025 Paul Vandersypen. Lançado sob a Licença Pública Geral GNU v3.0 (GPL-3.0-or-later). Consulte o arquivo LICENSE incluído para os termos completos.",
         "support_patreon": "Apoiar no Patreon",
         "donate_paypal": "Doar via PayPal",
+        "github_repository": "Repositório do GitHub",
+        "github_issues": "Relatar problemas",
+
         
         # Game Optimizer - hardware detection messages
         "hardware_detected": "✓ CPU: {} | RAM: {} | GPU: {}",
@@ -2483,10 +2528,27 @@ TRANSLATIONS = {
         "update_check_error": "Erro de Verificação de Atualização",
         "update_check_exception": "Ocorreu um erro ao verificar atualizações:\n\n{}",
         "update_available": "Atualização Disponível",
-        "update_available_message": "Uma nova versão está disponível!\n\nAtual: {}\nÚltima: {}\n\nVisite a página do GitHub para baixar a última versão.",
+        "update_message": "Uma nova versão está disponível!\n\nAtual: {}\nÚltima: {}\n\nDeseja baixá-la agora?",
         "up_to_date": "Atualizado",
         "up_to_date_message": "Você está usando a última versão ({}).",
         "browser_open_error": "Não foi possível abrir o navegador:\n\n{}",
+        "download_update": "Baixar Atualização",
+        "view_release": "Ver Versão",
+        "later": "Mais Tarde",
+        "downloading_update": "Baixando Atualização",
+        "downloading_update_file": "Baixando arquivo de atualização...",
+        "download_failed": "Falha no Download",
+        "download_failed_message": "Falha ao baixar a atualização:\n\n{}",
+        "update_ready": "Atualização Pronta",
+        "update_downloaded_message": "Atualização baixada com sucesso!\n\nArquivo: {}\n\nDeseja instalá-la agora?",
+        "install_now": "Instalar Agora",
+        "install_later": "Instalar Mais Tarde",
+        "update_location": "Baixado em: {}",
+        "failed_to_fetch_release": "Falha ao obter informações de versão do GitHub.",
+        "no_download_available": "Nenhum arquivo disponível para download nesta versão.",
+        "install_update": "Instalar Atualização",
+        "please_run_installer": "O local de download foi aberto.\n\nExecute o instalador para atualizar o aplicativo.",
+        "update_saved_message": "Atualização salva em:\n\n{}\n\nVocê pode instalá-la mais tarde.",
         
         # File Cleaner - Log messages
         "file_cleaner_found_file": "[Limpador de Arquivos] Arquivo encontrado: {}",
@@ -2612,11 +2674,7 @@ TRANSLATIONS = {
         "folder_s": " cartelle",
         "orphaned_savedvars": " SavedVariables orfani",
         "completed": "Completato",
-        "processed": "{} {} elaborati.",
-        "send2trash_missing": "send2trash mancante",
-        "send2trash_unavailable": "Il modulo 'send2trash' non è disponibile. I file sono stati eliminati definitivamente.",
-        "send2trash_install": "Il pacchetto 'send2trash' non è installato.\nPer abilitare il supporto del Cestino, installa manualmente:\n\n  pip install send2trash\n\no:\n\n  python -m pip install --user send2trash",
-        "restore_defaults_confirm": "Ripristinare tutte le impostazioni ai valori predefiniti?",
+        "processed": "{} {} elaborati.",        "restore_defaults_confirm": "Ripristinare tutte le impostazioni ai valori predefiniti?",
         "restart_required": "Impostazioni ripristinate. L'applicazione verrà ora riavviata.",
         "error_title": "Errore",
         "restore_error": "Ripristino predefiniti fallito: {}",
@@ -2636,9 +2694,7 @@ TRANSLATIONS = {
         "orphan_scan": "Scansione pulizia orfani: {} orfani.",
         "file_processed": "Pulizia file: {} file elaborati.",
         "folder_processed": "Pulizia cartelle: {} cartelle elaborate.",
-        "orphan_processed": "Pulizia orfani: {} orfani elaborati.",
-        "send2trash_warning": "Avviso: send2trash non installato; le eliminazioni sono permanenti.",
-        "addons_txt_log": "[AddOns.txt] {}: {} voci scritte, {} rimosse",
+        "orphan_processed": "Pulizia orfani: {} orfani elaborati.",        "addons_txt_log": "[AddOns.txt] {}: {} voci scritte, {} rimosse",
         "preset_applied_log": "Preset {} applicato per {}",
         "preset_failed_log": "Applicazione preset {} fallita: {}",
         "change_language": "Cambia lingua",
@@ -2711,6 +2767,9 @@ TRANSLATIONS = {
         "help_copyright": "Copyright © 2025 Paul Vandersypen. Rilasciato sotto i termini della GNU General Public License v3.0 (GPL-3.0-or-later). Consulta il file LICENSE allegato per i termini completi.",
         "support_patreon": "Supporta su Patreon",
         "donate_paypal": "Dona tramite PayPal",
+        "github_repository": "Repository GitHub",
+        "github_issues": "Segnala problemi",
+
         
         # Game Optimizer - hardware detection messages
         "hardware_detected": "✓ CPU: {} | RAM: {} | GPU: {}",
@@ -2806,62 +2865,59 @@ TRANSLATIONS = {
         "cancel": "Annulla",
         "export_log": "Esporta registro",
         "clear_log": "Cancella registro",
-        "confirm_font_change": "Conferma cambio carattere",
-        "font_change_restart_required": "Il cambio di carattere richiede il riavvio dell'applicazione.\nVuoi riavviare ora?",
-        "restart": "Riavvia",
-        "later": "Più tardi",
-        "confirm_language_change": "Conferma cambio lingua",
-        "language_change_restart_required": "Il cambio di lingua richiede il riavvio dell'applicazione per avere effetto.\n\nVuoi riavviare ora?",
-        "language_change_restart_message": "Riavvia l'applicazione per applicare il cambio di lingua.",
-        "invalid_folder_title": "Cartella non valida",
         
         # Common Messages
-        "invalid_folder_select_valid_wow": "Seleziona una cartella WoW valida nelle Opzioni.",
-        "scanning_files": "Scansione file in corso...",
-        "scanning_folders": "Scansione cartelle in corso...",
-        "scanning_orphans": "Scansione addon orfani in corso...",
         "no_files_selected": "Nessun file selezionato",
         "no_folders_selected": "Nessuna cartella selezionata",
         "no_orphans_selected": "Nessun orfano selezionato",
+
+        # Common Messages
+        "apply_font_question": "Applicare il carattere '{}' all'applicazione?",
+        "select_valid_wow_first": "Si prega di selezionare prima una cartella WoW valida.",
+        "restored": "Ripristinato",
+
+        # File Cleaner
+        "found_files_count": "Trovato {} file in tutte le versioni.",
+        "confirm_action_files": "Sei sicuro di voler {} {} file?",
+        "processed_files_count": "Elaborato {} file.",
+
+        # Folder Cleaner
+        "confirm_action_folders": "Sei sicuro di voler {} {} cartelle?",
+        "processed_folders_count": "Elaborato {} cartelle.",
+
+        # Orphan Cleaner
+        "found_orphans_count": "Trovato {} SavedVariable orfano/i.",
+        "confirm_action_orphans": "Sei sicuro di voler {} {} SavedVariables orfani?",
+        "processed_orphans_count": "Elaborato {} orfano/i.",
+
+        # Actions
+        "move_to_trash": "spostare nel cestino",
+        "delete_permanently_action": "eliminare permanentemente",
+
+        # AddOns.txt Rebuild
+        "rebuilt_addons_summary": "Voci AddOns.txt ricostruite.\nTotale scritto: {}\nTotale rimosso: {}",
+
+        # Log Export
+        "log_empty_nothing_export": "Il registro è vuoto. Niente da esportare.",
+
+        # Settings Restore
+        "settings_restored_restart": "Impostazioni ripristinate ai valori predefiniti. L'applicazione verrà riavviata ora.",
+        "settings_restored_manual": "Impostazioni ripristinate ai valori predefiniti. Si prega di riavviare l'applicazione manualmente.",
+        "failed_restore_defaults": "Impossibile ripristinare i valori predefiniti: {}",
         
         # File Cleaner
-        "select_files_to_delete": "Seleziona almeno un file da eliminare.",
-        "confirm_delete_files_title": "Conferma eliminazione file",
-        "confirm_delete_files_message": "Sei sicuro di voler eliminare {0} file?",
-        "files_moved_to_recycle_bin": "{0} file spostati nel Cestino.",
-        "files_deletion_complete": "{0} file eliminati con successo.",
         
         # Folder Cleaner
-        "select_folders_to_delete": "Seleziona almeno una cartella da eliminare.",
-        "confirm_delete_folders_title": "Conferma eliminazione cartelle",
-        "confirm_delete_folders_message": "Sei sicuro di voler eliminare {0} cartelle?",
         
         # Orphan Cleaner
-        "select_orphans_to_delete": "Seleziona almeno un addon orfano da eliminare.",
-        "confirm_delete_orphans_title": "Conferma eliminazione orfani",
-        "confirm_delete_orphans_message": "Sei sicuro di voler eliminare {0} addon orfani?\n\nQuesto eliminerà anche tutti i file SavedVariables correlati.",
-        "orphans_moved_to_recycle_bin": "{0} addon orfani spostati nel Cestino.",
-        "orphans_deletion_complete": "{0} addon orfani eliminati con successo.",
         
         # Actions
-        "folders_moved_to_recycle_bin": "{0} cartelle spostate nel Cestino.",
-        "folders_deletion_complete": "{0} cartelle eliminate con successo.",
-        
-        # send2trash Warnings
-        "send2trash_not_available_files": "send2trash non disponibile. I file verranno eliminati definitivamente.",
-        "send2trash_not_available_folders": "send2trash non disponibile. Le cartelle verranno eliminate definitivamente.",
-        "send2trash_not_available_orphans": "send2trash non disponibile. Gli addon orfani verranno eliminati definitivamente.",
         
         # AddOns.txt Rebuild
-        "addons_txt_rebuild_summary": "AddOns.txt ricostruito con successo!\n\nAddon trovati: {0}\nPersonaggi: {1}\nProfili: {2}",
         
         # Log Export
-        "log_export_empty": "Il registro è vuoto. Niente da esportare.",
         
         # Settings Restore
-        "settings_restored_title": "Impostazioni ripristinate",
-        "settings_restored_to_defaults": "Le impostazioni sono state ripristinate ai valori predefiniti.",
-        "settings_restored_restart_required": "Le impostazioni sono state ripristinate ai valori predefiniti.\nRiavvia l'applicazione per applicare tutte le modifiche.",
         
         # Orphan Cleaner Tab
         "orphan_description_part1": "Cerca SavedVariables di addon (.lua / .lua.bak) senza addon installato corrispondente (Interface/AddOns) in tutte le versioni WoW rilevate. Scansiona cartelle SavedVariables di account, server e personaggi. L'elaborazione ricostruisce anche AddOns.txt per corrispondere agli addon installati (preservando lo stato abilitato/disabilitato quando possibile).",
@@ -2900,10 +2956,27 @@ TRANSLATIONS = {
         "update_check_error": "Errore verifica aggiornamento",
         "update_check_exception": "Errore durante verifica aggiornamenti:\n\n{}",
         "update_available": "Aggiornamento disponibile",
-        "update_available_message": "È disponibile una nuova versione!\n\nVersione attuale: {}\nUltima versione: {}\n\nVisita la pagina GitHub per scaricare l'ultima versione.",
+        "update_message": "È disponibile una nuova versione!\n\nVersione attuale: {}\nUltima versione: {}\n\nVuoi scaricarla ora?",
         "up_to_date": "Aggiornato",
         "up_to_date_message": "Stai eseguendo l'ultima versione ({}).",
         "browser_open_error": "Impossibile aprire il browser:\n\n{}",
+        "download_update": "Scarica aggiornamento",
+        "view_release": "Visualizza versione",
+        "later": "Più tardi",
+        "downloading_update": "Download aggiornamento",
+        "downloading_update_file": "Download del file di aggiornamento...",
+        "download_failed": "Download fallito",
+        "download_failed_message": "Impossibile scaricare l'aggiornamento:\n\n{}",
+        "update_ready": "Aggiornamento pronto",
+        "update_downloaded_message": "Aggiornamento scaricato con successo!\n\nFile: {}\n\nVuoi installarlo ora?",
+        "install_now": "Installa ora",
+        "install_later": "Installa più tardi",
+        "update_location": "Scaricato in: {}",
+        "failed_to_fetch_release": "Impossibile recuperare le informazioni sulla versione da GitHub.",
+        "no_download_available": "Nessun file scaricabile trovato per questa versione.",
+        "install_update": "Installa aggiornamento",
+        "please_run_installer": "La posizione di download è stata aperta.\n\nEsegui il programma di installazione per aggiornare l'applicazione.",
+        "update_saved_message": "Aggiornamento salvato in:\n\n{}\n\nPuoi installarlo più tardi.",
         
         # File Cleaner - Log messages
         "file_cleaner_found_file": "[Pulizia File] Trovato file: {}",
@@ -3028,11 +3101,7 @@ TRANSLATIONS = {
         "folder_s": " папок(и)",
         "orphaned_savedvars": " осиротевших SavedVariables",
         "completed": "Завершено",
-        "processed": "Обработано {} {}.",
-        "send2trash_missing": "send2trash отсутствует",
-        "send2trash_unavailable": "Модуль 'send2trash' недоступен. Файлы были удалены безвозвратно.",
-        "send2trash_install": "Пакет 'send2trash' не установлен.\nЧтобы включить поддержку Корзины, установите вручную:\n\n  pip install send2trash\n\nили:\n\n  python -m pip install --user send2trash",
-        "restore_defaults_confirm": "Восстановить все настройки по умолчанию?",
+        "processed": "Обработано {} {}.",        "restore_defaults_confirm": "Восстановить все настройки по умолчанию?",
         "restart_required": "Настройки восстановлены. Приложение будет перезапущено.",
         "error_title": "Ошибка",
         "restore_error": "Не удалось восстановить настройки по умолчанию: {}",
@@ -3052,9 +3121,7 @@ TRANSLATIONS = {
         "orphan_scan": "Сканирование очистки сирот: {} сирот.",
         "file_processed": "Очистка файлов: обработано {} файлов.",
         "folder_processed": "Очистка папок: обработано {} папок.",
-        "orphan_processed": "Очистка сирот: обработано {} сирот.",
-        "send2trash_warning": "Предупреждение: send2trash не установлен; удаления безвозвратны.",
-        "addons_txt_log": "[AddOns.txt] {}: записано {}, удалено {}",
+        "orphan_processed": "Очистка сирот: обработано {} сирот.",        "addons_txt_log": "[AddOns.txt] {}: записано {}, удалено {}",
         "preset_applied_log": "Пресет {} применён для {}",
         "preset_failed_log": "Не удалось применить пресет {}: {}",
         "change_language": "Изменить язык",
@@ -3129,6 +3196,9 @@ TRANSLATIONS = {
         "help_copyright": "Авторские права © 2025 Paul Vandersypen. Выпущено на условиях GNU General Public License v3.0 (GPL-3.0-or-later). Полные условия см. в прилагаемом файле LICENSE.",
         "support_patreon": "Поддержать на Patreon",
         "donate_paypal": "Пожертвовать через PayPal",
+        "github_repository": "Репозиторий GitHub",
+        "github_issues": "Сообщить о проблеме",
+
         
         # Game Optimizer - hardware detection messages
         "hardware_detected": "✓ Процессор: {} | ОЗУ: {} | Видеокарта: {}",
@@ -3224,62 +3294,59 @@ TRANSLATIONS = {
         "cancel": "Отмена",
         "export_log": "Экспортировать журнал",
         "clear_log": "Очистить журнал",
-        "confirm_font_change": "Подтвердить изменение шрифта",
-        "font_change_restart_required": "Изменение шрифта требует перезапуска приложения.\nПерезапустить сейчас?",
-        "restart": "Перезапустить",
-        "later": "Позже",
-        "confirm_language_change": "Подтвердить изменение языка",
-        "language_change_restart_required": "Изменение языка требует перезапуска приложения, чтобы вступить в силу.\n\nПерезапустить сейчас?",
-        "language_change_restart_message": "Перезапустите приложение, чтобы применить изменение языка.",
-        "invalid_folder_title": "Недействительная папка",
         
         # Common Messages
-        "invalid_folder_select_valid_wow": "Выберите действительную папку WoW в Параметрах.",
-        "scanning_files": "Сканирование файлов...",
-        "scanning_folders": "Сканирование папок...",
-        "scanning_orphans": "Сканирование осиротевших аддонов...",
         "no_files_selected": "Файлы не выбраны",
         "no_folders_selected": "Папки не выбраны",
         "no_orphans_selected": "Осиротевшие файлы не выбраны",
+
+        # Common Messages
+        "apply_font_question": "Применить шрифт '{}' к приложению?",
+        "select_valid_wow_first": "Пожалуйста, сначала выберите действительную папку WoW.",
+        "restored": "Восстановлено",
+
+        # File Cleaner
+        "found_files_count": "Найдено {} файл(ов) во всех версиях.",
+        "confirm_action_files": "Вы уверены, что хотите {} {} файл(ов)?",
+        "processed_files_count": "Обработано {} файл(ов).",
+
+        # Folder Cleaner
+        "confirm_action_folders": "Вы уверены, что хотите {} {} папок?",
+        "processed_folders_count": "Обработано {} папок.",
+
+        # Orphan Cleaner
+        "found_orphans_count": "Найдено {} сирот SavedVariable.",
+        "confirm_action_orphans": "Вы уверены, что хотите {} {} сирот SavedVariables?",
+        "processed_orphans_count": "Обработано {} сирот.",
+
+        # Actions
+        "move_to_trash": "переместить в корзину",
+        "delete_permanently_action": "удалить навсегда",
+
+        # AddOns.txt Rebuild
+        "rebuilt_addons_summary": "Записи AddOns.txt восстановлены.\nВсего записано: {}\nВсего удалено: {}",
+
+        # Log Export
+        "log_empty_nothing_export": "Журнал пуст. Нечего экспортировать.",
+
+        # Settings Restore
+        "settings_restored_restart": "Настройки восстановлены по умолчанию. Приложение будет перезапущено.",
+        "settings_restored_manual": "Настройки восстановлены по умолчанию. Пожалуйста, перезапустите приложение вручную.",
+        "failed_restore_defaults": "Не удалось восстановить значения по умолчанию: {}",
         
         # File Cleaner
-        "select_files_to_delete": "Выберите хотя бы один файл для удаления.",
-        "confirm_delete_files_title": "Подтвердить удаление файлов",
-        "confirm_delete_files_message": "Вы уверены, что хотите удалить {0} файлов?",
-        "files_moved_to_recycle_bin": "{0} файлов перемещено в Корзину.",
-        "files_deletion_complete": "{0} файлов успешно удалено.",
         
         # Folder Cleaner
-        "select_folders_to_delete": "Выберите хотя бы одну папку для удаления.",
-        "confirm_delete_folders_title": "Подтвердить удаление папок",
-        "confirm_delete_folders_message": "Вы уверены, что хотите удалить {0} папок?",
         
         # Orphan Cleaner
-        "select_orphans_to_delete": "Выберите хотя бы один осиротевший аддон для удаления.",
-        "confirm_delete_orphans_title": "Подтвердить удаление осиротевших файлов",
-        "confirm_delete_orphans_message": "Вы уверены, что хотите удалить {0} осиротевших аддонов?\n\nЭто также удалит все связанные файлы SavedVariables.",
-        "orphans_moved_to_recycle_bin": "{0} осиротевших аддонов перемещено в Корзину.",
-        "orphans_deletion_complete": "{0} осиротевших аддонов успешно удалено.",
         
         # Actions
-        "folders_moved_to_recycle_bin": "{0} папок перемещено в Корзину.",
-        "folders_deletion_complete": "{0} папок успешно удалено.",
-        
-        # send2trash Warnings
-        "send2trash_not_available_files": "send2trash недоступен. Файлы будут удалены безвозвратно.",
-        "send2trash_not_available_folders": "send2trash недоступен. Папки будут удалены безвозвратно.",
-        "send2trash_not_available_orphans": "send2trash недоступен. Осиротевшие аддоны будут удалены безвозвратно.",
         
         # AddOns.txt Rebuild
-        "addons_txt_rebuild_summary": "AddOns.txt успешно перестроен!\n\nНайдено аддонов: {0}\nПерсонажей: {1}\nПрофилей: {2}",
         
         # Log Export
-        "log_export_empty": "Журнал пуст. Нечего экспортировать.",
         
         # Settings Restore
-        "settings_restored_title": "Настройки восстановлены",
-        "settings_restored_to_defaults": "Настройки восстановлены по умолчанию.",
-        "settings_restored_restart_required": "Настройки восстановлены по умолчанию.\nПерезапустите приложение, чтобы применить все изменения.",
         
         # Orphan Cleaner Tab
         "orphan_description_part1": "Поиск SavedVariables аддонов (.lua / .lua.bak) без соответствующего установленного аддона (Interface/AddOns) во всех обнаруженных версиях WoW. Сканирует папки SavedVariables учётных записей, серверов и персонажей. Обработка также перестраивает AddOns.txt в соответствии с установленными аддонами (по возможности сохраняя состояние включено/отключено).",
@@ -3318,10 +3385,27 @@ TRANSLATIONS = {
         "update_check_error": "Ошибка проверки обновлений",
         "update_check_exception": "Ошибка при проверке обновлений:\n\n{}",
         "update_available": "Доступно обновление",
-        "update_available_message": "Доступна новая версия!\n\nТекущая версия: {}\nПоследняя версия: {}\n\nПосетите страницу GitHub, чтобы загрузить последнюю версию.",
+        "update_message": "Доступна новая версия!\n\nТекущая версия: {}\nПоследняя версия: {}\n\nХотите загрузить ее сейчас?",
         "up_to_date": "Актуальная версия",
         "up_to_date_message": "Вы используете последнюю версию ({}).",
         "browser_open_error": "Не удалось открыть браузер:\n\n{}",
+        "download_update": "Загрузить обновление",
+        "view_release": "Посмотреть релиз",
+        "later": "Позже",
+        "downloading_update": "Загрузка обновления",
+        "downloading_update_file": "Загрузка файла обновления...",
+        "download_failed": "Ошибка загрузки",
+        "download_failed_message": "Не удалось загрузить обновление:\n\n{}",
+        "update_ready": "Обновление готово",
+        "update_downloaded_message": "Обновление успешно загружено!\n\nФайл: {}\n\nХотите установить его сейчас?",
+        "install_now": "Установить сейчас",
+        "install_later": "Установить позже",
+        "update_location": "Загружено в: {}",
+        "failed_to_fetch_release": "Не удалось получить информацию о релизе из GitHub.",
+        "no_download_available": "Файлы для загрузки не найдены для этого релиза.",
+        "install_update": "Установить обновление",
+        "please_run_installer": "Папка загрузки открыта.\n\nЗапустите установщик для обновления приложения.",
+        "update_saved_message": "Обновление сохранено в:\n\n{}\n\nВы можете установить его позже.",
         
         # File Cleaner - Log messages
         "file_cleaner_found_file": "[Очистка Файлов] Найден файл: {}",
@@ -3447,11 +3531,7 @@ TRANSLATIONS = {
         "folder_s": "폴더",
         "orphaned_savedvars": "고아 SavedVariables",
         "completed": "완료",
-        "processed": "{}개의 {}을(를) 처리했습니다.",
-        "send2trash_missing": "send2trash 누락",
-        "send2trash_unavailable": "'send2trash' 모듈을 사용할 수 없습니다. 파일이 영구적으로 삭제되었습니다.",
-        "send2trash_install": "'send2trash' 패키지가 설치되지 않았습니다.\n휴지통 지원을 활성화하려면 수동으로 설치하세요:\n\n  pip install send2trash\n\n또는:\n\n  python -m pip install --user send2trash",
-        "restore_defaults_confirm": "모든 설정을 기본값으로 복원하시겠습니까?",
+        "processed": "{}개의 {}을(를) 처리했습니다.",        "restore_defaults_confirm": "모든 설정을 기본값으로 복원하시겠습니까?",
         "restart_required": "설정이 복원되었습니다. 애플리케이션이 지금 다시 시작됩니다.",
         "error_title": "오류",
         "restore_error": "기본값 복원 실패: {}",
@@ -3471,9 +3551,7 @@ TRANSLATIONS = {
         "orphan_scan": "고아 파일 정리 스캔: {}개 고아 파일.",
         "file_processed": "파일 정리: {}개 파일 처리됨.",
         "folder_processed": "폴더 정리: {}개 폴더 처리됨.",
-        "orphan_processed": "고아 파일 정리: {}개 고아 파일 처리됨.",
-        "send2trash_warning": "경고: send2trash가 설치되지 않음; 삭제가 영구적으로 수행되었습니다.",
-        "addons_txt_log": "[AddOns.txt] {}: {}개 항목 작성, {}개 제거",
+        "orphan_processed": "고아 파일 정리: {}개 고아 파일 처리됨.",        "addons_txt_log": "[AddOns.txt] {}: {}개 항목 작성, {}개 제거",
         "preset_applied_log": "{} 사전 설정이 {}에 적용됨",
         "preset_failed_log": "{} 사전 설정 적용 실패: {}",
         "change_language": "언어 변경",
@@ -3523,62 +3601,59 @@ TRANSLATIONS = {
         "cancel": "취소",
         "export_log": "로그 내보내기",
         "clear_log": "로그 지우기",
-        "confirm_font_change": "글꼴 변경 확인",
-        "font_change_restart_required": "글꼴 변경은 애플리케이션을 다시 시작해야 합니다.\n지금 다시 시작하시겠습니까?",
-        "restart": "다시 시작",
-        "later": "나중에",
-        "confirm_language_change": "언어 변경 확인",
-        "language_change_restart_required": "언어 변경은 애플리케이션을 다시 시작해야 적용됩니다.\n\n지금 다시 시작하시겠습니까?",
-        "language_change_restart_message": "언어 변경을 적용하려면 애플리케이션을 다시 시작하세요.",
-        "invalid_folder_title": "잘못된 폴더",
         
         # Common Messages
-        "invalid_folder_select_valid_wow": "옵션에서 유효한 World of Warcraft 폴더를 선택하세요.",
-        "scanning_files": "파일 스캔 중...",
-        "scanning_folders": "폴더 스캔 중...",
-        "scanning_orphans": "고아 애드온 스캔 중...",
         "no_files_selected": "선택된 파일 없음",
         "no_folders_selected": "선택된 폴더 없음",
         "no_orphans_selected": "선택된 고아 파일 없음",
+
+        # Common Messages
+        "apply_font_question": "애플리케이션에 '{}' 글꼴을 적용하시겠습니까?",
+        "select_valid_wow_first": "먼저 유효한 WoW 폴더를 선택하세요.",
+        "restored": "복원됨",
+
+        # File Cleaner
+        "found_files_count": "모든 버전에서 {}개 파일을 찾았습니다.",
+        "confirm_action_files": "{}개 파일을 {}하시겠습니까?",
+        "processed_files_count": "{}개 파일을 처리했습니다.",
+
+        # Folder Cleaner
+        "confirm_action_folders": "{}개 폴더를 {}하시겠습니까?",
+        "processed_folders_count": "{}개 폴더를 처리했습니다.",
+
+        # Orphan Cleaner
+        "found_orphans_count": "{}개 고아 SavedVariable을 찾았습니다.",
+        "confirm_action_orphans": "{}개 고아 SavedVariables를 {}하시겠습니까?",
+        "processed_orphans_count": "{}개 고아를 처리했습니다.",
+
+        # Actions
+        "move_to_trash": "휴지통으로 이동",
+        "delete_permanently_action": "영구 삭제",
+
+        # AddOns.txt Rebuild
+        "rebuilt_addons_summary": "AddOns.txt 항목이 재구성되었습니다.\n총 작성: {}\n총 제거: {}",
+
+        # Log Export
+        "log_empty_nothing_export": "로그가 비어 있습니다. 내보낼 것이 없습니다.",
+
+        # Settings Restore
+        "settings_restored_restart": "설정이 기본값으로 복원되었습니다. 애플리케이션이 이제 다시 시작됩니다.",
+        "settings_restored_manual": "설정이 기본값으로 복원되었습니다. 애플리케이션을 수동으로 다시 시작하세요.",
+        "failed_restore_defaults": "기본값 복원 실패: {}",
         
         # File Cleaner
-        "select_files_to_delete": "삭제할 파일을 하나 이상 선택하세요.",
-        "confirm_delete_files_title": "파일 삭제 확인",
-        "confirm_delete_files_message": "정말로 {0}개의 파일을 삭제하시겠습니까?",
-        "files_moved_to_recycle_bin": "{0}개의 파일이 휴지통으로 이동되었습니다.",
-        "files_deletion_complete": "{0}개의 파일이 성공적으로 삭제되었습니다.",
         
         # Folder Cleaner
-        "select_folders_to_delete": "삭제할 폴더를 하나 이상 선택하세요.",
-        "confirm_delete_folders_title": "폴더 삭제 확인",
-        "confirm_delete_folders_message": "정말로 {0}개의 폴더를 삭제하시겠습니까?",
         
         # Orphan Cleaner
-        "select_orphans_to_delete": "삭제할 고아 애드온을 하나 이상 선택하세요.",
-        "confirm_delete_orphans_title": "고아 파일 삭제 확인",
-        "confirm_delete_orphans_message": "정말로 {0}개의 고아 애드온을 삭제하시겠습니까?\n\n관련된 모든 SavedVariables 파일도 함께 삭제됩니다.",
-        "orphans_moved_to_recycle_bin": "{0}개의 고아 애드온이 휴지통으로 이동되었습니다.",
-        "orphans_deletion_complete": "{0}개의 고아 애드온이 성공적으로 삭제되었습니다.",
         
         # Actions
-        "folders_moved_to_recycle_bin": "{0}개의 폴더가 휴지통으로 이동되었습니다.",
-        "folders_deletion_complete": "{0}개의 폴더가 성공적으로 삭제되었습니다.",
-        
-        # send2trash Warnings
-        "send2trash_not_available_files": "send2trash를 사용할 수 없습니다. 파일이 영구적으로 삭제됩니다.",
-        "send2trash_not_available_folders": "send2trash를 사용할 수 없습니다. 폴더가 영구적으로 삭제됩니다.",
-        "send2trash_not_available_orphans": "send2trash를 사용할 수 없습니다. 고아 애드온이 영구적으로 삭제됩니다.",
         
         # AddOns.txt Rebuild
-        "addons_txt_rebuild_summary": "AddOns.txt가 성공적으로 재구성되었습니다!\n\n찾은 애드온: {0}\n캐릭터: {1}\n구성 파일: {2}",
         
         # Log Export
-        "log_export_empty": "로그가 비어 있습니다. 내보낼 것이 없습니다.",
         
         # Settings Restore
-        "settings_restored_title": "설정 복원됨",
-        "settings_restored_to_defaults": "설정이 기본값으로 복원되었습니다.",
-        "settings_restored_restart_required": "설정이 기본값으로 복원되었습니다.\n모든 변경 사항을 적용하려면 애플리케이션을 다시 시작하세요.",
         
         # Optimization Suggestions tab - detailed content
         "opt_sug_header": "수동 최적화 제안",
@@ -3608,6 +3683,9 @@ TRANSLATIONS = {
         "help_copyright": "Copyright © 2025 Paul Vandersypen. GNU General Public License v3.0(GPL-3.0-or-later)에 따라 출시되었습니다. 전체 약관은 포함된 LICENSE 파일을 참조하세요.",
         "support_patreon": "Patreon에서 후원하기",
         "donate_paypal": "PayPal로 기부하기",
+        "github_repository": "GitHub 저장소",
+        "github_issues": "문제 보고",
+
         
         # Game Optimizer - hardware detection messages
         "hardware_detected": "✓ CPU: {} | RAM: {} | GPU: {}",
@@ -3735,10 +3813,27 @@ TRANSLATIONS = {
         "update_check_error": "업데이트 확인 오류",
         "update_check_exception": "업데이트 확인 중 오류가 발생했습니다:\n\n{}",
         "update_available": "업데이트 사용 가능",
-        "update_available_message": "새 버전을 사용할 수 있습니다!\n\n현재: {}\n최신: {}\n\nGitHub 페이지를 방문하여 최신 버전을 다운로드하세요.",
+        "update_message": "새 버전을 사용할 수 있습니다!\n\n현재: {}\n최신: {}\n\n지금 다운로드하시겠습니까?",
         "up_to_date": "최신 버전",
         "up_to_date_message": "최신 버전({})을 사용 중입니다.",
         "browser_open_error": "브라우저를 열 수 없습니다:\n\n{}",
+        "download_update": "업데이트 다운로드",
+        "view_release": "릴리스 보기",
+        "later": "나중에",
+        "downloading_update": "업데이트 다운로드 중",
+        "downloading_update_file": "업데이트 파일을 다운로드하는 중...",
+        "download_failed": "다운로드 실패",
+        "download_failed_message": "업데이트 다운로드에 실패했습니다:\n\n{}",
+        "update_ready": "업데이트 준비 완료",
+        "update_downloaded_message": "업데이트를 성공적으로 다운로드했습니다!\n\n파일: {}\n\n지금 설치하시겠습니까?",
+        "install_now": "지금 설치",
+        "install_later": "나중에 설치",
+        "update_location": "다운로드 위치: {}",
+        "failed_to_fetch_release": "GitHub에서 릴리스 정보를 가져오지 못했습니다.",
+        "no_download_available": "이 릴리스에서 다운로드할 수 있는 파일을 찾을 수 없습니다.",
+        "install_update": "업데이트 설치",
+        "please_run_installer": "다운로드 위치가 열렸습니다.\n\n설치 프로그램을 실행하여 애플리케이션을 업데이트하십시오.",
+        "update_saved_message": "업데이트가 다음 위치에 저장되었습니다:\n\n{}\n\n나중에 설치할 수 있습니다.",
         
         # File Cleaner - Log messages
         "file_cleaner_found_file": "[파일 정리] 파일을 찾았습니다: {}",
@@ -3864,11 +3959,7 @@ TRANSLATIONS = {
         "folder_s": "个文件夹",
         "orphaned_savedvars": "个孤立的SavedVariables",
         "completed": "已完成",
-        "processed": "已处理{}{}。",
-        "send2trash_missing": "缺少send2trash",
-        "send2trash_unavailable": "'send2trash'模块不可用。文件已被永久删除。",
-        "send2trash_install": "未安装'send2trash'包。\n要启用回收站支持，请手动安装：\n\n  pip install send2trash\n\n或：\n\n  python -m pip install --user send2trash",
-        "restore_defaults_confirm": "将所有设置恢复为默认值？",
+        "processed": "已处理{}{}。",        "restore_defaults_confirm": "将所有设置恢复为默认值？",
         "restart_required": "设置已恢复。应用程序现在将重新启动。",
         "error_title": "错误",
         "restore_error": "恢复默认设置失败：{}",
@@ -3888,9 +3979,7 @@ TRANSLATIONS = {
         "orphan_scan": "孤立文件清理扫描：{}个孤立文件。",
         "file_processed": "文件清理：已处理{}个文件。",
         "folder_processed": "文件夹清理：已处理{}个文件夹。",
-        "orphan_processed": "孤立文件清理：已处理{}个孤立文件。",
-        "send2trash_warning": "警告：未安装send2trash；删除是永久性的。",
-        "addons_txt_log": "[AddOns.txt] {}：写入{}个条目，删除{}个",
+        "orphan_processed": "孤立文件清理：已处理{}个孤立文件。",        "addons_txt_log": "[AddOns.txt] {}：写入{}个条目，删除{}个",
         "preset_applied_log": "已为{}应用{}预设",
         "preset_failed_log": "应用{}预设失败：{}",
         "change_language": "更改语言",
@@ -3963,6 +4052,9 @@ TRANSLATIONS = {
         "help_copyright": "版权所有 © 2025 Paul Vandersypen。根据GNU通用公共许可证v3.0（GPL-3.0-or-later）发布。有关完整条款，请参阅随附的LICENSE文件。",
         "support_patreon": "在 Patreon 上支持",
         "donate_paypal": "通过 PayPal 捐赠",
+        "github_repository": "GitHub仓库",
+        "github_issues": "报告问题",
+
         
         # Game Optimizer - hardware detection messages
         "hardware_detected": "✓ CPU：{} | 内存：{} | GPU：{}",
@@ -4058,62 +4150,59 @@ TRANSLATIONS = {
         "cancel": "取消",
         "export_log": "导出日志",
         "clear_log": "清除日志",
-        "confirm_font_change": "确认字体更改",
-        "font_change_restart_required": "字体更改需要重新启动应用程序。\n是否要立即重新启动？",
-        "restart": "重新启动",
-        "later": "稍后",
-        "confirm_language_change": "确认语言更改",
-        "language_change_restart_required": "语言更改需要重新启动应用程序才能生效。\n\n是否要立即重新启动？",
-        "language_change_restart_message": "请重新启动应用程序以使语言更改生效。",
-        "invalid_folder_title": "无效的文件夹",
         
         # Common Messages
-        "invalid_folder_select_valid_wow": "请在选项中选择有效的魔兽世界文件夹。",
-        "scanning_files": "正在扫描文件...",
-        "scanning_folders": "正在扫描文件夹...",
-        "scanning_orphans": "正在扫描孤立的插件...",
         "no_files_selected": "未选择文件",
         "no_folders_selected": "未选择文件夹",
         "no_orphans_selected": "未选择孤立文件",
+
+        # Common Messages
+        "apply_font_question": "将字体'{}'应用于应用程序？",
+        "select_valid_wow_first": "请先选择有效的WoW文件夹。",
+        "restored": "已恢复",
+
+        # File Cleaner
+        "found_files_count": "在所有版本中找到{}个文件。",
+        "confirm_action_files": "您确定要{}{}个文件吗？",
+        "processed_files_count": "已处理{}个文件。",
+
+        # Folder Cleaner
+        "confirm_action_folders": "您确定要{}{}个文件夹吗？",
+        "processed_folders_count": "已处理{}个文件夹。",
+
+        # Orphan Cleaner
+        "found_orphans_count": "找到{}个孤立SavedVariable。",
+        "confirm_action_orphans": "您确定要{}{}个孤立SavedVariables吗？",
+        "processed_orphans_count": "已处理{}个孤立项。",
+
+        # Actions
+        "move_to_trash": "移至回收站",
+        "delete_permanently_action": "永久删除",
+
+        # AddOns.txt Rebuild
+        "rebuilt_addons_summary": "已重建AddOns.txt条目。\n总共写入：{}\n总共删除：{}",
+
+        # Log Export
+        "log_empty_nothing_export": "日志为空。没有可导出的内容。",
+
+        # Settings Restore
+        "settings_restored_restart": "设置已恢复为默认值。应用程序现在将重新启动。",
+        "settings_restored_manual": "设置已恢复为默认值。请手动重新启动应用程序。",
+        "failed_restore_defaults": "恢复默认值失败：{}",
         
         # File Cleaner
-        "select_files_to_delete": "请至少选择一个要删除的文件。",
-        "confirm_delete_files_title": "确认删除文件",
-        "confirm_delete_files_message": "确定要删除{0}个文件吗？",
-        "files_moved_to_recycle_bin": "{0}个文件已移至回收站。",
-        "files_deletion_complete": "{0}个文件已成功删除。",
         
         # Folder Cleaner
-        "select_folders_to_delete": "请至少选择一个要删除的文件夹。",
-        "confirm_delete_folders_title": "确认删除文件夹",
-        "confirm_delete_folders_message": "确定要删除{0}个文件夹吗？",
         
         # Orphan Cleaner
-        "select_orphans_to_delete": "请至少选择一个要删除的孤立插件。",
-        "confirm_delete_orphans_title": "确认删除孤立文件",
-        "confirm_delete_orphans_message": "确定要删除{0}个孤立插件吗？\n\n这也将删除所有相关的SavedVariables文件。",
-        "orphans_moved_to_recycle_bin": "{0}个孤立插件已移至回收站。",
-        "orphans_deletion_complete": "{0}个孤立插件已成功删除。",
         
         # Actions
-        "folders_moved_to_recycle_bin": "{0}个文件夹已移至回收站。",
-        "folders_deletion_complete": "{0}个文件夹已成功删除。",
-        
-        # send2trash Warnings
-        "send2trash_not_available_files": "send2trash不可用。文件将被永久删除。",
-        "send2trash_not_available_folders": "send2trash不可用。文件夹将被永久删除。",
-        "send2trash_not_available_orphans": "send2trash不可用。孤立插件将被永久删除。",
         
         # AddOns.txt Rebuild
-        "addons_txt_rebuild_summary": "AddOns.txt已成功重建！\n\n找到的插件：{0}\n角色：{1}\n配置文件：{2}",
         
         # Log Export
-        "log_export_empty": "日志为空。没有可导出的内容。",
         
         # Settings Restore
-        "settings_restored_title": "设置已恢复",
-        "settings_restored_to_defaults": "设置已恢复为默认值。",
-        "settings_restored_restart_required": "设置已恢复为默认值。\n请重新启动应用程序以使所有更改生效。",
         
         # Orphan Cleaner Tab
         "orphan_description_part1": "在所有检测到的魔兽世界版本中搜索没有相应已安装插件（Interface/AddOns）的插件SavedVariables（.lua / .lua.bak）。扫描账户、服务器和角色SavedVariables文件夹。处理还会重建AddOns.txt以匹配已安装的插件（尽可能保留启用/禁用状态）。",
@@ -4152,10 +4241,27 @@ TRANSLATIONS = {
         "update_check_error": "更新检查错误",
         "update_check_exception": "检查更新时发生错误：\n\n{}",
         "update_available": "有可用更新",
-        "update_available_message": "有新版本可用！\n\n当前版本：{}\n最新版本：{}\n\n访问GitHub页面下载最新版本。",
+        "update_message": "有新版本可用！\n\n当前版本：{}\n最新版本：{}\n\n您要现在下载吗？",
         "up_to_date": "已是最新版本",
         "up_to_date_message": "您正在运行最新版本（{}）。",
         "browser_open_error": "无法打开浏览器：\n\n{}",
+        "download_update": "下载更新",
+        "view_release": "查看发布",
+        "later": "稍后",
+        "downloading_update": "正在下载更新",
+        "downloading_update_file": "正在下载更新文件...",
+        "download_failed": "下载失败",
+        "download_failed_message": "下载更新失败：\n\n{}",
+        "update_ready": "更新就绪",
+        "update_downloaded_message": "更新下载成功！\n\n文件：{}\n\n您要现在安装吗？",
+        "install_now": "现在安装",
+        "install_later": "稍后安装",
+        "update_location": "下载位置：{}",
+        "failed_to_fetch_release": "无法从GitHub获取发布信息。",
+        "no_download_available": "未找到此版本的可下载文件。",
+        "install_update": "安装更新",
+        "please_run_installer": "下载位置已打开。\n\n请运行安装程序以更新应用程序。",
+        "update_saved_message": "更新已保存到：\n\n{}\n\n您可以稍后安装。",
         
         # File Cleaner - Log messages
         "file_cleaner_found_file": "[文件清理] 找到文件：{}",
@@ -4280,11 +4386,7 @@ TRANSLATIONS = {
         "folder_s": "個資料夾",
         "orphaned_savedvars": "個孤立的SavedVariables",
         "completed": "已完成",
-        "processed": "已處理{}{}。",
-        "send2trash_missing": "缺少send2trash",
-        "send2trash_unavailable": "'send2trash'模組不可用。檔案已被永久刪除。",
-        "send2trash_install": "未安裝'send2trash'套件。\n要啟用資源回收筒支援，請手動安裝：\n\n  pip install send2trash\n\n或：\n\n  python -m pip install --user send2trash",
-        "restore_defaults_confirm": "將所有設定還原為預設值？",
+        "processed": "已處理{}{}。",        "restore_defaults_confirm": "將所有設定還原為預設值？",
         "restart_required": "設定已還原。應用程式現在將重新啟動。",
         "error_title": "錯誤",
         "restore_error": "還原預設值失敗：{}",
@@ -4304,9 +4406,7 @@ TRANSLATIONS = {
         "orphan_scan": "孤立檔案清理掃描：{}個孤立檔案。",
         "file_processed": "檔案清理：已處理{}個檔案。",
         "folder_processed": "資料夾清理：已處理{}個資料夾。",
-        "orphan_processed": "孤立檔案清理：已處理{}個孤立檔案。",
-        "send2trash_warning": "警告：未安裝send2trash；刪除是永久性的。",
-        "addons_txt_log": "[AddOns.txt] {}：寫入{}個項目，刪除{}個",
+        "orphan_processed": "孤立檔案清理：已處理{}個孤立檔案。",        "addons_txt_log": "[AddOns.txt] {}：寫入{}個項目，刪除{}個",
         "preset_applied_log": "已為{}套用{}預設",
         "preset_failed_log": "套用{}預設失敗：{}",
         "change_language": "變更語言",
@@ -4379,6 +4479,9 @@ TRANSLATIONS = {
         "help_copyright": "版權所有 © 2025 Paul Vandersypen。根據GNU通用公共授權條款v3.0（GPL-3.0-or-later）發布。有關完整條款，請參閱隨附的LICENSE檔案。",
         "support_patreon": "在 Patreon 上支持",
         "donate_paypal": "透過 PayPal 捐款",
+        "github_repository": "GitHub儲存庫",
+        "github_issues": "回報問題",
+
         
         # Game Optimizer - hardware detection messages
         "hardware_detected": "✓ CPU：{} | 記憶體：{} | GPU：{}",
@@ -4474,62 +4577,59 @@ TRANSLATIONS = {
         "cancel": "取消",
         "export_log": "匯出日誌",
         "clear_log": "清除日誌",
-        "confirm_font_change": "確認字型變更",
-        "font_change_restart_required": "字型變更需要重新啟動應用程式。\n是否要立即重新啟動？",
-        "restart": "重新啟動",
-        "later": "稍後",
-        "confirm_language_change": "確認語言變更",
-        "language_change_restart_required": "語言變更需要重新啟動應用程式才能生效。\n\n是否要立即重新啟動？",
-        "language_change_restart_message": "請重新啟動應用程式以使語言變更生效。",
-        "invalid_folder_title": "無效的資料夾",
         
         # Common Messages
-        "invalid_folder_select_valid_wow": "請在選項中選擇有效的魔獸世界資料夾。",
-        "scanning_files": "正在掃描檔案...",
-        "scanning_folders": "正在掃描資料夾...",
-        "scanning_orphans": "正在掃描孤立的插件...",
         "no_files_selected": "未選擇檔案",
         "no_folders_selected": "未選擇資料夾",
         "no_orphans_selected": "未選擇孤立檔案",
+
+        # Common Messages
+        "apply_font_question": "將字體「{}」應用於應用程式？",
+        "select_valid_wow_first": "請先選擇有效的WoW資料夾。",
+        "restored": "已還原",
+
+        # File Cleaner
+        "found_files_count": "在所有版本中找到{}個檔案。",
+        "confirm_action_files": "您確定要{}{}個檔案嗎？",
+        "processed_files_count": "已處理{}個檔案。",
+
+        # Folder Cleaner
+        "confirm_action_folders": "您確定要{}{}個資料夾嗎？",
+        "processed_folders_count": "已處理{}個資料夾。",
+
+        # Orphan Cleaner
+        "found_orphans_count": "找到{}個孤立SavedVariable。",
+        "confirm_action_orphans": "您確定要{}{}個孤立SavedVariables嗎？",
+        "processed_orphans_count": "已處理{}個孤立項。",
+
+        # Actions
+        "move_to_trash": "移至資源回收筒",
+        "delete_permanently_action": "永久刪除",
+
+        # AddOns.txt Rebuild
+        "rebuilt_addons_summary": "已重建AddOns.txt條目。\n總共寫入：{}\n總共刪除：{}",
+
+        # Log Export
+        "log_empty_nothing_export": "日誌為空。沒有可匯出的內容。",
+
+        # Settings Restore
+        "settings_restored_restart": "設定已還原為預設值。應用程式現在將重新啟動。",
+        "settings_restored_manual": "設定已還原為預設值。請手動重新啟動應用程式。",
+        "failed_restore_defaults": "還原預設值失敗：{}",
         
         # File Cleaner
-        "select_files_to_delete": "請至少選擇一個要刪除的檔案。",
-        "confirm_delete_files_title": "確認刪除檔案",
-        "confirm_delete_files_message": "確定要刪除{0}個檔案嗎？",
-        "files_moved_to_recycle_bin": "{0}個檔案已移至資源回收筒。",
-        "files_deletion_complete": "{0}個檔案已成功刪除。",
         
         # Folder Cleaner
-        "select_folders_to_delete": "請至少選擇一個要刪除的資料夾。",
-        "confirm_delete_folders_title": "確認刪除資料夾",
-        "confirm_delete_folders_message": "確定要刪除{0}個資料夾嗎？",
         
         # Orphan Cleaner
-        "select_orphans_to_delete": "請至少選擇一個要刪除的孤立插件。",
-        "confirm_delete_orphans_title": "確認刪除孤立檔案",
-        "confirm_delete_orphans_message": "確定要刪除{0}個孤立插件嗎？\n\n這也將刪除所有相關的SavedVariables檔案。",
-        "orphans_moved_to_recycle_bin": "{0}個孤立插件已移至資源回收筒。",
-        "orphans_deletion_complete": "{0}個孤立插件已成功刪除。",
         
         # Actions
-        "folders_moved_to_recycle_bin": "{0}個資料夾已移至資源回收筒。",
-        "folders_deletion_complete": "{0}個資料夾已成功刪除。",
-        
-        # send2trash Warnings
-        "send2trash_not_available_files": "send2trash不可用。檔案將被永久刪除。",
-        "send2trash_not_available_folders": "send2trash不可用。資料夾將被永久刪除。",
-        "send2trash_not_available_orphans": "send2trash不可用。孤立插件將被永久刪除。",
         
         # AddOns.txt Rebuild
-        "addons_txt_rebuild_summary": "AddOns.txt已成功重建！\n\n找到的插件：{0}\n角色：{1}\n設定檔：{2}",
         
         # Log Export
-        "log_export_empty": "日誌為空。沒有可匯出的內容。",
         
         # Settings Restore
-        "settings_restored_title": "設定已還原",
-        "settings_restored_to_defaults": "設定已還原為預設值。",
-        "settings_restored_restart_required": "設定已還原為預設值。\n請重新啟動應用程式以使所有變更生效。",
         
         # Orphan Cleaner Tab
         "orphan_description_part1": "在所有偵測到的魔獸世界版本中搜尋沒有相應已安裝插件（Interface/AddOns）的插件SavedVariables（.lua / .lua.bak）。掃描帳號、伺服器和角色SavedVariables資料夾。處理還會重建AddOns.txt以符合已安裝的插件（盡可能保留啟用/停用狀態）。",
@@ -4568,10 +4668,27 @@ TRANSLATIONS = {
         "update_check_error": "更新檢查錯誤",
         "update_check_exception": "檢查更新時發生錯誤：\n\n{}",
         "update_available": "有可用更新",
-        "update_available_message": "有新版本可用！\n\n目前版本：{}\n最新版本：{}\n\n瀏覽GitHub頁面下載最新版本。",
+        "update_message": "有新版本可用！\n\n目前版本：{}\n最新版本：{}\n\n您要現在下載嗎？",
         "up_to_date": "已是最新版本",
         "up_to_date_message": "您正在執行最新版本（{}）。",
         "browser_open_error": "無法開啟瀏覽器：\n\n{}",
+        "download_update": "下載更新",
+        "view_release": "檢視發布",
+        "later": "稍後",
+        "downloading_update": "正在下載更新",
+        "downloading_update_file": "正在下載更新檔案...",
+        "download_failed": "下載失敗",
+        "download_failed_message": "下載更新失敗：\n\n{}",
+        "update_ready": "更新就緒",
+        "update_downloaded_message": "更新下載成功！\n\n檔案：{}\n\n您要現在安裝嗎？",
+        "install_now": "現在安裝",
+        "install_later": "稍後安裝",
+        "update_location": "下載位置：{}",
+        "failed_to_fetch_release": "無法從GitHub取得發布資訊。",
+        "no_download_available": "未找到此版本的可下載檔案。",
+        "install_update": "安裝更新",
+        "please_run_installer": "下載位置已開啟。\n\n請執行安裝程式以更新應用程式。",
+        "update_saved_message": "更新已儲存到：\n\n{}\n\n您可以稍後安裝。",
         
         # File Cleaner - Log messages
         "file_cleaner_found_file": "[檔案清理] 找到檔案：{}",
@@ -4696,11 +4813,7 @@ TRANSLATIONS = {
         "folder_s": " папок(и)",
         "orphaned_savedvars": " осиротілих SavedVariables",
         "completed": "Завершено",
-        "processed": "Оброблено {} {}.",
-        "send2trash_missing": "send2trash відсутній",
-        "send2trash_unavailable": "Модуль 'send2trash' недоступний. Файли було видалено безповоротно.",
-        "send2trash_install": "Пакет 'send2trash' не встановлено.\nЩоб увімкнути підтримку Кошика, встановіть вручну:\n\n  pip install send2trash\n\nабо:\n\n  python -m pip install --user send2trash",
-        "restore_defaults_confirm": "Відновити всі налаштування за замовчуванням?",
+        "processed": "Оброблено {} {}.",        "restore_defaults_confirm": "Відновити всі налаштування за замовчуванням?",
         "restart_required": "Налаштування відновлено. Програму буде перезапущено.",
         "error_title": "Помилка",
         "restore_error": "Не вдалося відновити налаштування за замовчуванням: {}",
@@ -4720,9 +4833,7 @@ TRANSLATIONS = {
         "orphan_scan": "Сканування очищення сиріт: {} сиріт.",
         "file_processed": "Очищення файлів: оброблено {} файлів.",
         "folder_processed": "Очищення папок: оброблено {} папок.",
-        "orphan_processed": "Очищення сиріт: оброблено {} сиріт.",
-        "send2trash_warning": "Попередження: send2trash не встановлено; видалення безповоротні.",
-        "addons_txt_log": "[AddOns.txt] {}: записано {}, видалено {}",
+        "orphan_processed": "Очищення сиріт: оброблено {} сиріт.",        "addons_txt_log": "[AddOns.txt] {}: записано {}, видалено {}",
         "preset_applied_log": "Пресет {} застосовано для {}",
         "preset_failed_log": "Не вдалося застосувати пресет {}: {}",
         "change_language": "Змінити мову",
@@ -4797,6 +4908,9 @@ TRANSLATIONS = {
         "help_copyright": "Авторські права © 2025 Paul Vandersypen. Випущено на умовах GNU General Public License v3.0 (GPL-3.0-or-later). Повні умови див. у доданому файлі LICENSE.",
         "support_patreon": "Підтримати на Patreon",
         "donate_paypal": "Пожертвувати через PayPal",
+        "github_repository": "Репозиторій GitHub",
+        "github_issues": "Повідомити про проблему",
+
         
         # Game Optimizer - hardware detection messages
         "hardware_detected": "✓ Процесор: {} | ОЗП: {} | Відеокарта: {}",
@@ -4892,62 +5006,59 @@ TRANSLATIONS = {
         "cancel": "Скасувати",
         "export_log": "Експортувати журнал",
         "clear_log": "Очистити журнал",
-        "confirm_font_change": "Підтвердити зміну шрифту",
-        "font_change_restart_required": "Зміна шрифту вимагає перезапуску програми.\nПерезапустити зараз?",
-        "restart": "Перезапустити",
-        "later": "Пізніше",
-        "confirm_language_change": "Підтвердити зміну мови",
-        "language_change_restart_required": "Зміна мови вимагає перезапуску програми, щоб набути чинності.\n\nПерезапустити зараз?",
-        "language_change_restart_message": "Перезапустіть програму, щоб застосувати зміну мови.",
-        "invalid_folder_title": "Недійсна папка",
         
         # Common Messages
-        "invalid_folder_select_valid_wow": "Оберіть дійсну папку WoW у Параметрах.",
-        "scanning_files": "Сканування файлів...",
-        "scanning_folders": "Сканування папок...",
-        "scanning_orphans": "Сканування осиротілих аддонів...",
         "no_files_selected": "Файли не вибрано",
         "no_folders_selected": "Папки не вибрано",
         "no_orphans_selected": "Осиротілі файли не вибрано",
+
+        # Common Messages
+        "apply_font_question": "Застосувати шрифт '{}' до програми?",
+        "select_valid_wow_first": "Будь ласка, спочатку виберіть дійсну папку WoW.",
+        "restored": "Відновлено",
+
+        # File Cleaner
+        "found_files_count": "Знайдено {} файл(ів) у всіх версіях.",
+        "confirm_action_files": "Ви впевнені, що хочете {} {} файл(ів)?",
+        "processed_files_count": "Оброблено {} файл(ів).",
+
+        # Folder Cleaner
+        "confirm_action_folders": "Ви впевнені, що хочете {} {} папок?",
+        "processed_folders_count": "Оброблено {} папок.",
+
+        # Orphan Cleaner
+        "found_orphans_count": "Знайдено {} сиріт SavedVariable.",
+        "confirm_action_orphans": "Ви впевнені, що хочете {} {} сиріт SavedVariables?",
+        "processed_orphans_count": "Оброблено {} сиріт.",
+
+        # Actions
+        "move_to_trash": "перемістити у кошик",
+        "delete_permanently_action": "видалити назавжди",
+
+        # AddOns.txt Rebuild
+        "rebuilt_addons_summary": "Записи AddOns.txt відновлено.\nВсього записано: {}\nВсього видалено: {}",
+
+        # Log Export
+        "log_empty_nothing_export": "Журнал порожній. Нічого експортувати.",
+
+        # Settings Restore
+        "settings_restored_restart": "Налаштування відновлено до значень за замовчуванням. Програма буде перезапущена.",
+        "settings_restored_manual": "Налаштування відновлено до значень за замовчуванням. Будь ласка, перезапустіть програму вручну.",
+        "failed_restore_defaults": "Не вдалося відновити значення за замовчуванням: {}",
         
         # File Cleaner
-        "select_files_to_delete": "Оберіть принаймні один файл для видалення.",
-        "confirm_delete_files_title": "Підтвердити видалення файлів",
-        "confirm_delete_files_message": "Ви впевнені, що хочете видалити {0} файлів?",
-        "files_moved_to_recycle_bin": "{0} файлів переміщено до Кошика.",
-        "files_deletion_complete": "{0} файлів успішно видалено.",
         
         # Folder Cleaner
-        "select_folders_to_delete": "Оберіть принаймні одну папку для видалення.",
-        "confirm_delete_folders_title": "Підтвердити видалення папок",
-        "confirm_delete_folders_message": "Ви впевнені, що хочете видалити {0} папок?",
         
         # Orphan Cleaner
-        "select_orphans_to_delete": "Оберіть принаймні один осиротілий аддон для видалення.",
-        "confirm_delete_orphans_title": "Підтвердити видалення осиротілих файлів",
-        "confirm_delete_orphans_message": "Ви впевнені, що хочете видалити {0} осиротілих аддонів?\n\nЦе також видалить усі пов'язані файли SavedVariables.",
-        "orphans_moved_to_recycle_bin": "{0} осиротілих аддонів переміщено до Кошика.",
-        "orphans_deletion_complete": "{0} осиротілих аддонів успішно видалено.",
         
         # Actions
-        "folders_moved_to_recycle_bin": "{0} папок переміщено до Кошика.",
-        "folders_deletion_complete": "{0} папок успішно видалено.",
-        
-        # send2trash Warnings
-        "send2trash_not_available_files": "send2trash недоступний. Файли будуть видалені безповоротно.",
-        "send2trash_not_available_folders": "send2trash недоступний. Папки будуть видалені безповоротно.",
-        "send2trash_not_available_orphans": "send2trash недоступний. Осиротілі аддони будуть видалені безповоротно.",
         
         # AddOns.txt Rebuild
-        "addons_txt_rebuild_summary": "AddOns.txt успішно перебудовано!\n\nЗнайдено аддонів: {0}\nПерсонажів: {1}\nПрофілів: {2}",
         
         # Log Export
-        "log_export_empty": "Журнал порожній. Нема чого експортувати.",
         
         # Settings Restore
-        "settings_restored_title": "Налаштування відновлено",
-        "settings_restored_to_defaults": "Налаштування відновлено за замовчуванням.",
-        "settings_restored_restart_required": "Налаштування відновлено за замовчуванням.\nПерезапустіть програму, щоб застосувати всі зміни.",
         
         # Orphan Cleaner Tab
         "orphan_description_part1": "Пошук SavedVariables аддонів (.lua / .lua.bak) без відповідного встановленого аддона (Interface/AddOns) у всіх виявлених версіях WoW. Сканує папки SavedVariables облікових записів, серверів та персонажів. Обробка також перебудовує AddOns.txt відповідно до встановлених аддонів (по можливості зберігаючи стан увімкнено/вимкнено).",
@@ -4986,10 +5097,27 @@ TRANSLATIONS = {
         "update_check_error": "Помилка перевірки оновлень",
         "update_check_exception": "Помилка при перевірці оновлень:\n\n{}",
         "update_available": "Доступне оновлення",
-        "update_available_message": "Доступна нова версія!\n\nПоточна версія: {}\nОстання версія: {}\n\nВідвідайте сторінку GitHub, щоб завантажити останню версію.",
+        "update_message": "Доступна нова версія!\n\nПоточна версія: {}\nОстання версія: {}\n\nБажаєте завантажити її зараз?",
         "up_to_date": "Актуальна версія",
         "up_to_date_message": "Ви використовуєте останню версію ({}).",
         "browser_open_error": "Не вдалося відкрити браузер:\n\n{}",
+        "download_update": "Завантажити оновлення",
+        "view_release": "Переглянути реліз",
+        "later": "Пізніше",
+        "downloading_update": "Завантаження оновлення",
+        "downloading_update_file": "Завантаження файлу оновлення...",
+        "download_failed": "Помилка завантаження",
+        "download_failed_message": "Не вдалося завантажити оновлення:\n\n{}",
+        "update_ready": "Оновлення готове",
+        "update_downloaded_message": "Оновлення успішно завантажено!\n\nФайл: {}\n\nБажаєте встановити його зараз?",
+        "install_now": "Встановити зараз",
+        "install_later": "Встановити пізніше",
+        "update_location": "Завантажено до: {}",
+        "failed_to_fetch_release": "Не вдалося отримати інформацію про реліз з GitHub.",
+        "no_download_available": "Файли для завантаження не знайдено для цього релізу.",
+        "install_update": "Встановити оновлення",
+        "please_run_installer": "Папку завантаження відкрито.\n\nЗапустіть інсталятор для оновлення застосунку.",
+        "update_saved_message": "Оновлення збережено в:\n\n{}\n\nВи можете встановити його пізніше.",
         
         # File Cleaner - Log messages
         "file_cleaner_found_file": "[Очищення Файлів] Знайдено файл: {}",

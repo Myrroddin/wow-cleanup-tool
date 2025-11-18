@@ -24,14 +24,7 @@ Functions:
 """
 import os
 from Modules import localization
-
-# Try to import send2trash for safe deletion to recycle bin/trash
-# If unavailable, files will be permanently deleted instead
-try:
-    from send2trash import send2trash
-    HAS_TRASH = True
-except ImportError:
-    HAS_TRASH = False
+from send2trash import send2trash
 
 def savedvar_basename(filename):
     """
@@ -253,11 +246,10 @@ def delete_orphans(paths, use_trash=False, logger=None):
     """
     processed = 0
     used_trash = False
-    real_use_trash = use_trash and HAS_TRASH
 
     for fp in paths:
         try:
-            if real_use_trash:
+            if use_trash:
                 # Move to system trash/recycle bin
                 send2trash(fp)
                 used_trash = True
@@ -275,7 +267,7 @@ def delete_orphans(paths, use_trash=False, logger=None):
             if logger:
                 logger.error(localization._("orphan_error_deleting").format(fp, e))
 
-    permanently_deleted = not real_use_trash
+    permanently_deleted = not use_trash
     return processed, permanently_deleted, used_trash
 
 # ============================================================

@@ -132,22 +132,24 @@ The localization system has been significantly expanded with comprehensive trans
 
 All core languages are now 100% complete with comprehensive translations:
 
-- **English (enUS)** - 100% complete (~262 keys)
-- **German (deDE)** - 100% complete (~262 keys)
-- **French (frFR)** - 100% complete (~262 keys)
-- **Spanish - Spain (esES)** - 100% complete (~262 keys)
-- **Spanish - Mexico (esMX)** - 100% complete (~262 keys)
-- **Portuguese - Brazil (ptBR)** - 100% complete (~262 keys)
-- **Korean (koKR)** - 100% complete (~262 keys)
-- **Chinese - Simplified (zhCN)** - 100% complete (~262 keys)
-- **Chinese - Traditional (zhTW)** - 100% complete (~262 keys)
-- **Italian (itIT)** - 100% complete (~262 keys)
-- **Russian (ruRU)** - 100% complete (~262 keys)
-- **Ukrainian (ukUA)** - 100% complete (~262 keys) - Bonus language
+- **English (enUS)** - 100% complete (308 keys)
+- **German (deDE)** - 100% complete (308 keys)
+- **French (frFR)** - 100% complete (308 keys)
+- **Spanish - Spain (esES)** - 100% complete (308 keys)
+- **Spanish - Mexico (esMX)** - 100% complete (308 keys)
+- **Portuguese - Brazil (ptBR)** - 100% complete (308 keys)
+- **Korean (koKR)** - 100% complete (308 keys)
+- **Chinese - Simplified (zhCN)** - 100% complete (308 keys)
+- **Chinese - Traditional (zhTW)** - 100% complete (308 keys)
+- **Italian (itIT)** - 100% complete (308 keys)
+- **Russian (ruRU)** - 100% complete (308 keys)
+- **Ukrainian (ukUA)** - 100% complete (308 keys) - Bonus language
 
 **All 12 languages are now fully translated!** 🎉
 
 **Recent additions:**
+- Auto-update functionality with download & install prompts (17 new keys)
+- GitHub repository and issues page links
 - `opt_sug_reinstall_title` - "Reinstall WoW (Clean Install)" title
 - `opt_sug_reinstall_text` - Brief explanation of the clean reinstall process
 - `opt_sug_reinstall_tooltip` - Detailed why/risk/benefit/how-to guide for clean reinstalls

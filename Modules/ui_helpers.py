@@ -1,18 +1,12 @@
 """UI helper widgets extracted from the main app.
 
 Contains Tooltip, ImgAssets, ImgCheckbox and ImgRadio. These rely on Tk and
-Pillow (if available) to render images; they gracefully degrade when Pillow
-is not installed.
+Pillow to render images.
 """
 import platform
 import tkinter as tk
 from tkinter import ttk
-
-# Try to import PIL (optional)
-try:
-    from PIL import Image, ImageTk, ImageDraw
-except Exception:
-    Image = ImageTk = ImageDraw = None
+from PIL import Image, ImageTk, ImageDraw
 
 class Tooltip:
     """Simple tooltip for widgets.
@@ -93,12 +87,11 @@ class Tooltip:
             self.tip = None
 
 class ImgAssets:
-    """Generator for small checkbox/radio images using PIL when available."""
+    """Generator for small checkbox/radio images using PIL."""
 
     def __init__(self, osname: str = None, dark: bool = False):
         self.osname = osname or platform.system()
         self.dark = dark
-        self.has_pil = bool(Image and ImageDraw and ImageTk)
         self.cache = {}
 
     def _colors(self):
@@ -121,9 +114,6 @@ class ImgAssets:
         key = ("cb", checked, self.osname, self.dark)
         if key in self.cache:
             return self.cache[key]
-        if not self.has_pil:
-            self.cache[key] = None
-            return None
         size = 16
         pad = 1
         use_circle = self.osname == "Darwin"
@@ -143,9 +133,6 @@ class ImgAssets:
         key = ("rb", selected, self.osname, self.dark)
         if key in self.cache:
             return self.cache[key]
-        if not self.has_pil:
-            self.cache[key] = None
-            return None
         size = 16
         pad = 1
         img = Image.new("RGBA", (size, size), (0, 0, 0, 0))

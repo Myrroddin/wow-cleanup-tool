@@ -27,8 +27,8 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, font as tkfont
 from Modules.file_cleaner import find_bak_old_files, delete_files, scan_bak_old_in_version
 from Modules.themes import apply_theme
-from Modules.orphan_cleaner import scan_orphans, delete_orphans, rebuild_addons_txt, collect_addon_names, HAS_TRASH
-from Modules.folder_cleaner import scan_all_versions, clean_folders, HAS_TRASH as FOLDER_HAS_TRASH
+from Modules.orphan_cleaner import scan_orphans, delete_orphans, rebuild_addons_txt, collect_addon_names
+from Modules.folder_cleaner import scan_all_versions, clean_folders
 from Modules.settings import load_settings, save_settings, SETTINGS_FILE
 from Modules.ui_helpers import Tooltip, ImgAssets, ImgCheckbox, ImgRadio
 from Modules.logger import Logger
@@ -45,56 +45,57 @@ VERSION = "v1.0.0"
 
 def ensure_package(module_name: str, pip_name: str):
     """
-    Ensure a package is installed or install it silently.
+    Ensure a package is installed or install it automatically.
 
-    This function attempts to import a module. If the import fails, it tries
-    to install the package via pip in the user directory, then reimports it.
-    If installation fails, None is returned and the app gracefully degrades.
+    This function attempts to import a module. If the import fails, it
+    installs the package via pip in the user directory, then imports it.
+    All dependencies are required for full functionality.
 
     Args:
         module_name: The Python module name (e.g., 'PIL')
         pip_name: The pip package name (e.g., 'Pillow')
 
     Returns:
-        The imported module object, or None if import/install failed
+        The imported module object
+        
+    Raises:
+        SystemExit: If package installation fails
     """
     try:
         return importlib.import_module(module_name)
     except ImportError:
+        print(f"Installing required package: {pip_name}...")
         try:
-            # Silently install package to user's Python directory
-            with open(os.devnull, "w") as devnull:
-                subprocess.call(
-                    [
-                        sys.executable,
-                        "-m",
-                        "pip",
-                        "install",
-                        "--user",
-                        "--quiet",
-                        "--no-warn-script-location",
-                        pip_name,
-                    ],
-                    stdout=devnull,
-                    stderr=devnull,
-                )
+            # Install package to user's Python directory
+            subprocess.check_call(
+                [
+                    sys.executable,
+                    "-m",
+                    "pip",
+                    "install",
+                    "--user",
+                    "--quiet",
+                    "--no-warn-script-location",
+                    pip_name,
+                ],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
             importlib.reload(site)
             return importlib.import_module(module_name)
-        except (OSError, subprocess.CalledProcessError):
-            return None
+        except (OSError, subprocess.CalledProcessError) as e:
+            print(f"ERROR: Failed to install required package '{pip_name}'.")
+            print(f"Please install manually: pip install {pip_name}")
+            sys.exit(1)
 
-# Try to load optional dependencies
-_send2trash_mod = ensure_package("send2trash", "send2trash")
-if _send2trash_mod:
-    from send2trash import send2trash
-    HAS_TRASH = True
-else:
-    HAS_TRASH = False
-_pil = ensure_package("PIL", "Pillow")
-if _pil:
-    from PIL import Image, ImageTk, ImageDraw
-else:
-    Image = ImageTk = ImageDraw = None
+# Ensure all required dependencies are installed
+ensure_package("psutil", "psutil")
+ensure_package("send2trash", "send2trash")
+ensure_package("PIL", "Pillow")
+
+# Import required dependencies
+from send2trash import send2trash
+from PIL import Image, ImageTk, ImageDraw
 
 class WoWCleanupTool:
     # Minimum window size: 25% of 1080p (1920x1080) = 480x270
@@ -1099,14 +1100,6 @@ class WoWCleanupTool:
         self.rb_trash  = ImgRadio(self.radio_container, _("move_to_recycle"), self.delete_mode, "trash", self.assets)
         self.rb_delete.pack(side="left", padx=(0,14))
         self.rb_trash.pack(side="left", padx=(0,14))
-        
-        # Disable trash option if send2trash not available
-        if not HAS_TRASH:
-            self.rb_trash.configure(state="disabled")
-            # Force delete mode if trash was previously selected
-            if self.delete_mode.get() == "trash":
-                self.delete_mode.set("delete")
-            Tooltip(self.rb_trash, _("send2trash_install"), app=self)
 
         self.verbose_cb = ImgCheckbox(mode_frame, _("enable_verbose"), self.verbose_var, self.assets)
         self.verbose_cb.grid(row=0, column=2, sticky="w", padx=(10,0))
@@ -1402,7 +1395,7 @@ class WoWCleanupTool:
         use_trash_requested = (self.delete_mode.get() == "trash")
         action = (
             localization._("move_to_trash")
-            if use_trash_requested and HAS_TRASH
+            if use_trash_requested
             else localization._("delete_permanently_action")
         )
 
@@ -1415,17 +1408,9 @@ class WoWCleanupTool:
         # Back-end deletion
         processed, permanently_deleted, used_trash = delete_files(
             selected,
-            use_trash=use_trash_requested and HAS_TRASH,
+            use_trash=use_trash_requested,
             logger=self if self.verbose_var.get() else None,
         )
-
-        # Handle the case where trash was requested but isn't available
-        if use_trash_requested and not HAS_TRASH:
-            messagebox.showwarning(
-                localization._("send2trash_missing"),
-                localization._("send2trash_unavailable_files")
-            )
-            self.log("Warning: send2trash not installed; deletions were permanent.")
 
         self.log(f"File Cleaner: processed {processed} file(s).")
         messagebox.showinfo(localization._("completed"), localization._("processed_files_count").format(processed))
@@ -1488,7 +1473,7 @@ class WoWCleanupTool:
         use_trash_requested = self.delete_mode.get() == "trash"
         action = (
             localization._("move_to_trash")
-            if use_trash_requested and FOLDER_HAS_TRASH
+            if use_trash_requested
             else localization._("delete_permanently_action")
         )
 
@@ -1500,16 +1485,9 @@ class WoWCleanupTool:
 
         processed, permanently_deleted, used_trash = clean_folders(
             selected,
-            use_trash=use_trash_requested and FOLDER_HAS_TRASH,
+            use_trash=use_trash_requested,
             logger=self if self.verbose_var.get() else None
         )
-
-        if use_trash_requested and not FOLDER_HAS_TRASH:
-            messagebox.showwarning(
-                localization._("send2trash_missing"),
-                localization._("send2trash_unavailable_folders")
-            )
-            self.log("Warning: send2trash not installed; deletions were permanent.")
 
         self.log(f"Folder Cleaner: processed {processed} folder(s).")
         messagebox.showinfo(localization._("completed"), localization._("processed_folders_count").format(processed))
@@ -1642,7 +1620,7 @@ class WoWCleanupTool:
         use_trash_requested = (self.delete_mode.get() == "trash")
         action = (
             localization._("move_to_trash")
-            if use_trash_requested and HAS_TRASH
+            if use_trash_requested
             else localization._("delete_permanently_action")
         )
 
@@ -1654,16 +1632,9 @@ class WoWCleanupTool:
 
         processed, permanently_deleted, used_trash = delete_orphans(
             selected,
-            use_trash=use_trash_requested and HAS_TRASH,
+            use_trash=use_trash_requested,
             logger=self if self.verbose_var.get() else None,
         )
-
-        if use_trash_requested and not HAS_TRASH:
-            messagebox.showwarning(
-                localization._("send2trash_missing"),
-                localization._("send2trash_unavailable_files")
-            )
-            self.log("Warning: send2trash not installed; deletions were permanent.")
 
         self.log(f"Orphan Cleaner: processed {processed} orphan(s).")
         messagebox.showinfo(localization._("completed"), localization._("processed_orphans_count").format(processed))
@@ -1875,6 +1846,27 @@ class WoWCleanupTool:
             text=localization._("help_copyright"),
             font=(None, 10, "italic"),
         ).pack(anchor="center", pady=(0, 6))
+        
+        # GitHub links frame
+        github_frame = ttk.Frame(card)
+        github_frame.pack(anchor="center", pady=(8, 8))
+        
+        # GitHub Repository button
+        github_repo_btn = ttk.Button(
+            github_frame,
+            text=f"🔗 {localization._('github_repository')}",
+            command=lambda: self._open_url("https://github.com/Myrroddin/wow-cleanup-tool")
+        )
+        github_repo_btn.pack(side="left", padx=(0, 10))
+        
+        # GitHub Issues button
+        github_issues_btn = ttk.Button(
+            github_frame,
+            text=f"🐛 {localization._('github_issues')}",
+            command=lambda: self._open_url("https://github.com/Myrroddin/wow-cleanup-tool/issues")
+        )
+        github_issues_btn.pack(side="left", padx=(10, 0))
+        
         ttk.Button(card, text=localization._("check_for_updates"), command=self.check_for_updates).pack(anchor="center", pady=(8, 8))
         
         # Donation buttons frame

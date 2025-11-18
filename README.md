@@ -72,12 +72,27 @@ See [Technical Details](Technical-Details.md) for detailed safety information an
 
 ## Installation & Usage
 
-### Requirements
-- **Python 3.8+** (64-bit recommended)
-- **Auto-installed**: `psutil`
-- **Optional**: `send2trash` (Recycle Bin), `Pillow` (screenshot preview)
+### Download Pre-built Executables (Recommended)
 
-### Running
+Download the latest release for your platform from [GitHub Releases](https://github.com/Myrroddin/wow-cleanup-tool/releases):
+
+- **Windows**: `WoW Cleanup Tool.exe` - Double-click to run
+- **macOS**: `WoW-Cleanup-Tool-macOS.dmg` - Mount and drag to Applications
+- **Linux**: `WoW-Cleanup-Tool-Linux.tar.gz` - Extract and run `./"WoW Cleanup Tool"`
+
+No Python installation required for pre-built executables!
+
+### Running from Source
+
+Alternatively, run from Python source:
+
+#### Requirements
+- **Python 3.8+** (3.12 recommended for building executables)
+- **Auto-installed dependencies**: `psutil`, `send2trash`, `Pillow`
+
+All required packages are automatically installed on first run if missing.
+
+#### Running
 ```bash
 python wow_cleanup_tool.py
 ```
@@ -103,6 +118,7 @@ See [Technical Details](Technical-Details.md) for advanced troubleshooting.
 ## Documentation
 
 - **[README.md](README.md)** - This file: Overview and quick start
+- **[BUILD.md](BUILD.md)** - Building executables and creating releases
 - **[Technical Details](Technical-Details.md)** - Architecture, optimizations, and advanced usage
 - **[LOCALIZATION.md](LOCALIZATION.md)** - Translation guide and language support
 - **[LICENSE](LICENSE)** - GPL-3.0 license

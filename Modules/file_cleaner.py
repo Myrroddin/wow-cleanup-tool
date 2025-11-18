@@ -12,14 +12,7 @@ import os
 import os.path
 import re
 from Modules import localization
-
-# Try to import send2trash for safe deletion to recycle bin/trash
-# If unavailable, files will be permanently deleted instead
-try:
-    from send2trash import send2trash
-    HAS_TRASH = True
-except ImportError:
-    HAS_TRASH = False
+from send2trash import send2trash
 
 # Compiled pattern for .bak/.old (performance)
 _BAK_OLD_PATTERN = re.compile(r"\.(bak|old)$", re.IGNORECASE)
@@ -106,10 +99,9 @@ def delete_files(paths, use_trash=False, logger=None):
     _ = localization.get_text
     processed = 0
     used_trash = False
-    real_use_trash = use_trash and HAS_TRASH
     for fp in paths:
         try:
-            if real_use_trash:
+            if use_trash:
                 send2trash(fp)
                 used_trash = True
                 if logger:
@@ -122,6 +114,6 @@ def delete_files(paths, use_trash=False, logger=None):
         except (OSError, IOError) as e:
             if logger:
                 logger.error(_("file_cleaner_error_deleting").format(fp, e))
-    permanently_deleted = not real_use_trash
+    permanently_deleted = not use_trash
     return processed, permanently_deleted, used_trash
 

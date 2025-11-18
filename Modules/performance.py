@@ -9,13 +9,7 @@ import os
 import time
 from typing import Any, Callable
 from Modules import localization
-
-# Try to import send2trash for safe deletion
-try:
-    from send2trash import send2trash
-    HAS_TRASH = True
-except ImportError:
-    HAS_TRASH = False
+from send2trash import send2trash
 
 def memoized_property(func: Callable) -> property:
     """Decorator to cache property results for the lifetime of the object.
@@ -102,11 +96,10 @@ def delete_files_batch(paths, use_trash=False, logger=None, module_name="FileOps
     """
     processed = 0
     used_trash = False
-    real_use_trash = use_trash and HAS_TRASH
     
     for fp in paths:
         try:
-            if real_use_trash:
+            if use_trash:
                 # Move to system trash/recycle bin
                 send2trash(fp)
                 used_trash = True
@@ -127,5 +120,5 @@ def delete_files_batch(paths, use_trash=False, logger=None, module_name="FileOps
             if logger:
                 logger.error(localization._("perf_error_deleting").format(module_name, fp, e))
     
-    permanently_deleted = not real_use_trash
+    permanently_deleted = not use_trash
     return processed, permanently_deleted, used_trash

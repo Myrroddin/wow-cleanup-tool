@@ -1,6 +1,6 @@
-# WoW Cleanup Tool - External Dependencies
-# These packages are automatically installed by the application if missing,
-# but can also be manually installed with: pip install -r requirements.txt
+# WoW Cleanup Tool - Required Dependencies
+# These packages are automatically installed by the application on first run.
+# You can also manually install them with: pip install -r requirements.txt
 
 # Hardware detection (CPU, GPU, RAM) for Game Optimizer
 psutil>=5.0.0
@@ -8,5 +8,9 @@ psutil>=5.0.0
 # Safe file deletion to Recycle Bin/Trash
 send2trash>=1.5.0
 
-# Image processing for UI elements (checkboxes, icons)
+# Image processing for UI elements (checkboxes, icons, screenshot preview)
 Pillow>=8.0.0
+
+# Optional: For building standalone executables (not needed to run the app)
+# Uncomment the line below if you want to build executables locally
+# pyinstaller>=6.0.0

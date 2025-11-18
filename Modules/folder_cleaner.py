@@ -17,7 +17,7 @@ Functions:
 import os
 import shutil
 from Modules import localization
-from Modules.performance import delete_files_batch, HAS_TRASH
+from Modules.performance import delete_files_batch
 
 DEFAULT_CLEANABLE_FOLDERS = [
     "Logs",                 # Debug and error logs

@@ -35,7 +35,8 @@ Modules/
 ├── global_settings.py       # System-wide configuration
 ├── localization.py          # Multi-language support (12 languages)
 ├── performance.py           # Hardware scanning utilities
-├── update_checker.py        # GitHub release monitoring
+├── update_checker.py        # GitHub release monitoring and auto-update
+├── version_utils.py         # WoW version enumeration and caching
 ├── logger.py                # Verbose logging system
 ├── ui_helpers.py            # UI utility functions
 ├── ui_refresh.py            # UI state management
@@ -43,6 +44,7 @@ Modules/
 ├── font_selector.py         # Font picker with incremental loading
 ├── geometry.py              # Window position persistence
 ├── startup_warning.py       # Safety warning dialog
+├── tree_helpers.py          # Treeview UI helpers
 └── Tabs/                    # Tab-specific UI logic
     ├── file_cleaner_tab.py
     ├── folder_cleaner_tab.py
@@ -636,58 +638,28 @@ localization._("files_found").format(count)
 
 ---
 
-## Graceful Degradation
+## Automatic Dependency Installation
 
-### Optional Dependency Handling
+### Required Packages
 
-#### send2trash Missing
-
-```python
-try:
-    from send2trash import send2trash
-    SEND2TRASH_AVAILABLE = True
-except ImportError:
-    SEND2TRASH_AVAILABLE = False
-
-# In UI:
-recycle_radio = tk.Radiobutton(text="Move to Recycle Bin")
-if not SEND2TRASH_AVAILABLE:
-    recycle_radio.config(state='disabled')
-    recycle_radio.bind('<Enter>', show_install_tooltip)
-```
-
-**Tooltip**:
-```
-send2trash not installed.
-To enable Recycle Bin support:
-  pip install send2trash
-```
-
-#### Pillow Missing
+All dependencies are automatically installed on first run:
 
 ```python
-try:
-    from PIL import Image, ImageTk
-    PILLOW_AVAILABLE = True
-except ImportError:
-    PILLOW_AVAILABLE = False
-
-# In Folder Cleaner:
-preview_canvas = tk.Canvas()
-if not PILLOW_AVAILABLE:
-    preview_canvas.config(state='disabled', bg='gray')
-    preview_label.config(text="Install Pillow for preview support")
+ensure_package("psutil", "psutil")      # Hardware detection
+ensure_package("send2trash", "send2trash")  # Safe deletion
+ensure_package("PIL", "Pillow")         # UI image generation
 ```
 
-**Functionality Preserved**:
-- Screenshot checkboxes remain enabled
-- Deletion works normally
-- Only preview-on-click disabled
+**Installation Process**:
+1. Application attempts to import required module
+2. If missing, automatically installs via pip to user directory
+3. Reloads site packages and imports successfully
+4. If installation fails, application exits with error message
 
-### Error Handling Hierarchy
-
-1. **Silent fallback**: Use alternative method (e.g., different GPU detection method)
-2. **Graceful degradation**: Disable feature with tooltip explanation
+**User Experience**:
+- First run may take 10-30 seconds for package installation
+- Subsequent runs start immediately
+- No manual dependency management required
 3. **User notification**: Show error dialog for critical failures
 4. **Verbose logging**: Always log to help troubleshooting
 
