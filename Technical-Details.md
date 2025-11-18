@@ -650,7 +650,7 @@ Before writing Config.wtf:
 **Bonus Languages (1)**:
 - Ukrainian (ukUA) - Community-requested addition
 
-**Translation Coverage**: All 12 languages have 100% coverage (~253 keys each)
+**Translation Coverage**: All 12 languages have 100% coverage (316 keys each)
 
 ### Dictionary-Based System
 
