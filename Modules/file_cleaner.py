@@ -11,7 +11,7 @@ Functions:
 import os
 import os.path
 import re
-from Modules import localization
+from Modules import localization  # Removed localization.get_text references
 from send2trash import send2trash
 
 # Compiled pattern for .bak/.old (performance)
@@ -27,7 +27,6 @@ def scan_bak_old_in_version(version_path, logger=None):
     Returns:
         list[str]: Absolute file paths found under this version
     """
-    _ = localization.get_text
     matches = []
     for rootd, _dirs, files in os.walk(version_path):
         for fname in files:
@@ -36,12 +35,11 @@ def scan_bak_old_in_version(version_path, logger=None):
                 fpath = os.path.join(rootd, fname)
                 matches.append(fpath)
                 if logger:
-                    logger.debug(_("file_cleaner_found_file").format(fpath))
+                    logger.debug("file_cleaner_found_file: {}".format(fpath))  # Removed localization
     return matches
 
 def find_bak_old_files(versions, logger=None):
     """Scan versions for .bak/.old files using os.scandir for speed."""
-    _ = localization.get_text
     results = {}
     total = 0
 
@@ -54,7 +52,7 @@ def find_bak_old_files(versions, logger=None):
                             if _BAK_OLD_PATTERN.search(entry.name):
                                 out_list.append(entry.path)
                                 if logger:
-                                    logger.debug(_("file_cleaner_found").format(entry.path))
+                                    logger.debug("file_cleaner_found: {}".format(entry.path))  # Removed localization
                         elif entry.is_dir(follow_symlinks=False):
                             _scan_dir(entry.path, out_list)
                     except (OSError, PermissionError):
@@ -72,7 +70,7 @@ def find_bak_old_files(versions, logger=None):
             total += len(vlabel_files)
 
     if logger:
-        logger.info(_("file_cleaner_total_found").format(total))
+        logger.info("file_cleaner_total_found: {}".format(total))  # Removed localization
     return results
 
 def delete_files(paths, use_trash=False, logger=None):
@@ -96,7 +94,6 @@ def delete_files(paths, use_trash=False, logger=None):
         - permanently_deleted_flag: True if files were permanently deleted (not in trash)
         - used_trash_flag: True if files were moved to trash (even if only some)
     """
-    _ = localization.get_text
     processed = 0
     used_trash = False
     for fp in paths:
@@ -105,15 +102,15 @@ def delete_files(paths, use_trash=False, logger=None):
                 send2trash(fp)
                 used_trash = True
                 if logger:
-                    logger.info(_("file_cleaner_moved_trash").format(fp))
+                    logger.info("file_cleaner_moved_trash: {}".format(fp))  # Removed localization
             else:
                 os.remove(fp)
                 if logger:
-                    logger.info(_("file_cleaner_deleted").format(fp))
+                    logger.info("file_cleaner_deleted: {}".format(fp))  # Removed localization
             processed += 1
         except (OSError, IOError) as e:
             if logger:
-                logger.error(_("file_cleaner_error_deleting").format(fp, e))
+                logger.error("file_cleaner_error_deleting: {} - {}".format(fp, e))  # Removed localization
     permanently_deleted = not use_trash
     return processed, permanently_deleted, used_trash
 

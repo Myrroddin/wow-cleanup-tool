@@ -652,47 +652,28 @@ Before writing Config.wtf:
 
 **Translation Coverage**: All 12 languages have 100% coverage (316 keys each)
 
-### Dictionary-Based System
+### Modular Loader-Based System
 
 ```python
 # Modules/localization.py
-TRANSLATIONS = {
-    "enUS": {
-        "window_title": "WoW Cleanup Tool",
-        "file_cleaner": "File Cleaner",
-        # ...
-    },
-    "deDE": {
-        "window_title": "WoW Aufräum-Tool",
-        "file_cleaner": "Datei-Aufräumer",
-        # ...
-    }
-}
+from Modules import localization
 
-def _(key):
-    """Get translation for current language."""
-    language = get_current_language()
-    return TRANSLATIONS.get(language, TRANSLATIONS["enUS"]).get(key, key)
+# Create a localization instance for the desired language
+loc = localization.Localization("deDE")  # or any supported language code
+print(loc._("window_title"))
+print(loc._("files_found", 5))  # Supports .format() style arguments
 ```
 
 ### Dynamic Language Switching
 
-```python
-def change_language(new_language):
-    """Change language and prompt for restart."""
-    save_setting('language', new_language)
-    messagebox.showinfo(
-        _("language_changed"),
-        _("language_changed_restart")
-    )
-```
+To change the language, create a new `Localization` instance with the desired language code. The loader will automatically fall back to English if a translation is missing or the locale fails to load.
 
 **Note**: Requires application restart to apply globally
 
 ### Format String Support
 
 ```python
-localization._("files_found").format(count)
+loc._("files_found", count)
 # English: "{} file(s) found."
 # German: "{} Datei(en) gefunden."
 ```
@@ -824,6 +805,8 @@ tree.config(height=20)  # Show max 20 items, scroll for more
 ```
 
 ### Logging System
+
+All log messages, including verbose output and error messages, are now fully localized to your selected language. This includes detailed logs for Config.wtf changes in the Game Optimizer tab.
 
 **Dual-mode logging**:
 - **Normal**: High-level operations (scan complete, X files deleted)

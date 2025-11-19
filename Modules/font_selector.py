@@ -62,7 +62,6 @@ def open_font_selector(app):
     prev_family = app.font_family_var.get()
     app._prev_font_family = prev_family
 
-    _ = localization.get_text
     sel = tk.Toplevel(app.root)
     sel.title(_("select_font"))
     sel.transient(app.root)
@@ -252,7 +251,6 @@ def finalize_font_change(app):
     Args:
         app: The WoWCleanupTool instance
     """
-    _ = localization.get_text
     try:
         new = getattr(app, "_previewed_family", app.font_family_var.get())
         old = getattr(app, "_prev_font_family", None)

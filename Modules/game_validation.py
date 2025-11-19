@@ -21,7 +21,6 @@ def show_game_validation_warning(root):
     Parameters:
         root: Tk root window for the warning popup.
     """
-    _ = localization.get_text
     messagebox.showwarning(
         _("invalid_game_installation"),
         _("game_installation_incomplete")

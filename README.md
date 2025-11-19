@@ -24,6 +24,7 @@ A comprehensive maintenance and optimization suite for World of Warcraft, helpin
 - [Bug Reports & Feature Requests](#bug-reports--feature-requests)
 - [Support](#support)
 - [Documentation](#documentation)
+  - [Changelog](#changelog)
 - [Known Limitations](#known-limitations)
 - [License](#license)
 
@@ -113,15 +114,17 @@ For detailed usage instructions, see [Technical Details](Technical-Details.md).
 - **Hardware not detected**: Some systems require elevated permissions for GPU detection
 - **Changes not applied**: Close WoW before applying optimizer presets
 
+- If the Folder Cleaner tab does not update after deleting screenshots or folders, update to the latest version (v1.0.0 or later).
+- All log messages and dialogs are now localized. If you see untranslated text, please report it on GitHub.
+
 See [Technical Details](Technical-Details.md) for advanced troubleshooting.
 
 ## Documentation
 
-- **[README.md](README.md)** - This file: Overview and quick start
-- **[BUILD.md](BUILD.md)** - Building executables and creating releases
-- **[Technical Details](Technical-Details.md)** - Architecture, optimizations, and advanced usage
-- **[LOCALIZATION.md](LOCALIZATION.md)** - Translation guide and language support
-- **[LICENSE](LICENSE)** - GPL-3.0 license
+- **[Technical Details](Technical-Details.md)**
+- **[Localization Guide](LOCALIZATION.md)**
+- **[Build Instructions](BUILD.md)**
+- **[Changelog](CHANGELOG.md)**
 
 ## Contributing
 

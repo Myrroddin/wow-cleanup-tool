@@ -225,11 +225,11 @@ class WoWCleanupTool:
         # Initialize localization
         saved_language = self.settings.get("language", None)
         if saved_language and saved_language in localization.AVAILABLE_LANGUAGES:
-            localization.set_language(saved_language)
+            self.loc = localization.Localization(saved_language)
         else:
             # Auto-detect system language
-            detected_lang = localization.detect_system_language()
-            localization.set_language(detected_lang)
+            detected_lang = localization.DEFAULT_LANGUAGE
+            self.loc = localization.Localization(detected_lang)
             self.settings["language"] = detected_lang
 
         # State
@@ -237,14 +237,14 @@ class WoWCleanupTool:
         self.delete_mode = tk.StringVar(value=self.settings.get("delete_mode", "delete"))
         # Theme: translate stored English value to current language for display
         stored_theme = self.settings.get("theme", "light")
-        self.theme_var = tk.StringVar(value=localization._(stored_theme))
-        self.language_var = tk.StringVar(value=localization.get_language())
+        self.theme_var = tk.StringVar(value=self.loc._(stored_theme))
+        self.language_var = tk.StringVar(value=saved_language or localization.DEFAULT_LANGUAGE)
         self.verbose_var = tk.BooleanVar(value=bool(self.settings.get("verbose_logging", False)))
         self.check_for_updates_var = tk.BooleanVar(value=bool(self.settings.get("check_for_updates", True)))
         # External log mode: "fresh" creates new file, "append" appends to existing (max 20 sessions)
         self.external_log_mode_var = tk.StringVar(value=self.settings.get("external_log_mode", "fresh"))
 
-        self.root.title(localization._("window_title") + f" {VERSION}")
+        self.root.title(self.loc._("window_title") + f" {VERSION}")
         geometry.setup_geometry(self)
         ui_refresh.rebuild_assets(self)
         self.build_ui()
@@ -1011,7 +1011,7 @@ class WoWCleanupTool:
                 self.settings["theme"] = theme
                 
                 # Save the new language preference
-                localization.set_language(new_lang)
+                self.loc = localization.Localization(new_lang)
                 self.settings["language"] = new_lang
                 
                 self.settings["verbose_logging"] = bool(self.verbose_var.get())
@@ -1030,8 +1030,8 @@ class WoWCleanupTool:
                 
                 # Show brief confirmation
                 messagebox.showinfo(
-                    localization._("language_changed"),
-                    localization._("language_changed_restart").format(new_lang_name)
+                    self.loc._("language_changed"),
+                    self.loc._("language_changed_restart").format(new_lang_name)
                 )
                 
                 # Restart the application using subprocess to handle paths with spaces

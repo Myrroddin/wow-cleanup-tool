@@ -18,18 +18,17 @@ The WoW Cleanup Tool supports localization in all 11 languages available in Worl
   - [Translation Guidelines](#translation-guidelines)
 - [Testing Translations](#testing-translations)
 - [Language-Specific Notes](#language-specific-notes)
-  - [German (deDE)](#german-dede)
-  - [French (frFR)](#french-frfr)
-  - [Spanish (esES)](#spanish-eses)
-  - [Spanish - Mexico (esMX)](#spanish---mexico-esmx)
-  - [Portuguese (ptBR)](#portuguese-ptbr)
-  - [Korean (koKR)](#korean-kokr)
-  - [Italian (itIT)](#italian-itit)
-  - [Russian (ruRU)](#russian-ruru)
-  - [Ukrainian (ukUA)](#ukrainian-ukua---bonus-language)
   - [Chinese - Simplified (zhCN)](#chinese---simplified-zhcn)
   - [Chinese - Traditional (zhTW)](#chinese---traditional-zhtw)
-  - [Spanish](#spanish)
+  - [French (frFR)](#french-frfr)
+  - [German (deDE)](#german-dede)
+  - [Italian (itIT)](#italian-itit)
+  - [Korean (koKR)](#korean-kokr)
+  - [Portuguese (ptBR)](#portuguese-ptbr)
+  - [Russian (ruRU)](#russian-ruru)
+  - [Spanish - Mexico (esMX)](#spanish---mexico-esmx)
+  - [Spanish (esES)](#spanish-eses)
+  - [Ukrainian (ukUA)](#ukrainian-ukua---bonus-language)
 - [Known Limitations](#known-limitations)
 - [Future Improvements](#future-improvements)
 
@@ -39,13 +38,13 @@ The WoW Cleanup Tool supports localization in all 11 languages available in Worl
 
 - **enUS** - English (Default)
 - **deDE** - German (Deutsch)
-- **frFR** - French (Français)
 - **esES** - Spanish - Spain (Español EU)
 - **esMX** - Spanish - Mexico (Español MX)
-- **ptBR** - Portuguese (Português)
+- **frFR** - French (Français)
 - **itIT** - Italian (Italiano)
-- **ruRU** - Russian (Русский)
 - **koKR** - Korean (한국어)
+- **ptBR** - Portuguese (Português)
+- **ruRU** - Russian (Русский)
 - **zhCN** - Chinese - Simplified (简体中文)
 - **zhTW** - Chinese - Traditional (繁體中文)
 
@@ -54,93 +53,88 @@ The WoW Cleanup Tool supports localization in all 11 languages available in Worl
 - **ukUA** - Ukrainian (Українська) - Community requested addition
 
 ## Language Detection
+### Chinese - Simplified (zhCN)
 
-The application automatically detects your system language on first launch and sets the interface language accordingly. You can manually change the language using the Language dropdown in the Options section.
+- Used in mainland China
+- Uses Simplified Chinese characters (简体中文)
+- All translation keys completed
+- Uses "魔兽世界" for World of Warcraft
+- Follows mainland China terminology and conventions
 
-## Adding or Updating Translations
+### Chinese - Traditional (zhTW)
 
-### File Location
+- Used in Taiwan, Hong Kong, and Macau
+- Uses Traditional Chinese characters (繁體中文)
+- All translation keys completed
+- Uses "魔獸世界" for World of Warcraft
+- Follows Taiwan/Hong Kong terminology and conventions
 
-All translations are stored in: `Modules/localization.py`
+### French (frFR)
 
-### Translation Structure
-
-Translations are organized in the `TRANSLATIONS` dictionary with the following structure:
-
-```python
-TRANSLATIONS = {
-    "enUS": {
-        "key": "English text",
-        # ...
-    },
-    "deDE": {
-        "key": "German text",
-        # ...
-    },
-    # ... other languages
-}
-```
-
-### Using Translations in Code
-
-To use a localized string in the application code:
-
-```python
-from Modules import localization
-
-# Get translated text
-text = localization._("key")
-
-# Get translated text with formatting
-text = localization._("key", arg1, arg2)
-```
-
-### Adding New Translation Keys
-
-1. Add the key to all language dictionaries in `TRANSLATIONS`
-2. Start with the English (`enUS`) translation
-3. Add translations for other languages
-4. If a translation is not available, it will fallback to English
-
-### Translation Key Guidelines
-
-- Use lowercase with underscores: `window_title`, `file_cleaner`
-- Keep keys descriptive and consistent
-- Group related keys together
-- Use placeholders (`{}`) for dynamic content
-
-## Contributing Translations
-
-We welcome contributions for missing translations! To contribute:
-
-1. Fork the repository
-2. Edit `Modules/localization.py`
-3. Add or update translations for your language
-4. Test the translations in the application
-5. Submit a pull request
-
-### Translation Guidelines
-
-- Keep the same meaning as the English original
-- Use terminology consistent with World of Warcraft in your language
-- Consider UI space constraints (keep translations reasonably short)
-- Use native language names for language selection (already implemented)
-- Preserve formatting placeholders (`{}`) and special characters (`\n`)
-
-## Testing Translations
-
-1. Open the application
-2. Go to Options → Language
-3. Select your language from the dropdown
-4. Restart the application to see all changes
-5. Verify all UI elements display correctly
-
-## Language-Specific Notes
+- Uses formal "vous" form for addressing the user
+- Follows French spacing rules for punctuation
+- All translation keys completed
+- Proper use of accents and diacritics throughout
 
 ### German (deDE)
 
 - Uses formal "Sie" form for addressing the user
 - Follows German capitalization rules for nouns
+- All translation keys completed
+- Technical terms properly localized (e.g., "Papierkorb" for Recycle Bin)
+
+### Italian (itIT)
+
+- Uses formal "Lei" addressing
+- Follows Italian capitalization and punctuation rules
+- All translation keys completed
+- Technical terms properly localized (e.g., "Cestino" for Recycle Bin)
+- UI terminology consistent with Windows/macOS Italian localizations
+
+### Korean (koKR)
+
+- Uses polite/formal speech level (존댓말)
+- Follows Korean grammar and word order
+- All translation keys completed
+
+### Portuguese (ptBR)
+
+- Brazilian Portuguese variant
+- Uses Brazilian spelling and terminology
+- All translation keys completed
+- Formal "você" addressing throughout
+
+### Russian (ruRU)
+
+- Uses formal "вы" (vy) addressing
+- Follows Russian grammar and case system
+- All translation keys completed
+- Cyrillic script throughout
+- Technical terms properly localized (e.g., "Корзина" for Recycle Bin)
+- UI terminology consistent with Russian Windows/macOS localizations
+
+### Spanish - Mexico (esMX)
+
+- Uses Latin American Spanish terminology
+- Adapted for Mexican and Latin American audiences
+- All translation keys completed
+- Capitalizes UI elements appropriately (e.g., "Vista Previa", "Aplicar")
+
+### Spanish (esES)
+
+- Uses formal "usted" form (implied) for addressing the user
+- European Spanish terminology and spelling
+- All translation keys completed
+
+### Ukrainian (ukUA) - Bonus Language
+
+- Uses formal "ви" (vy) addressing
+- Follows Ukrainian grammar and case system
+- All translation keys completed
+- Cyrillic script throughout (Ukrainian alphabet)
+- Technical terms properly localized (e.g., "Кошик" for Recycle Bin)
+- UI terminology consistent with Ukrainian Windows/macOS localizations
+- Added as community-requested bonus language beyond WoW's official 11 languages
 - All translation keys completed
 - Technical terms properly localized (e.g., "Papierkorb" for Recycle Bin)
 
@@ -240,3 +234,7 @@ We welcome contributions for missing translations! To contribute:
 - [ ] Consider community translation contributions via Crowdin or similar platform
 - [ ] Add context-aware tooltips for translators
 - [ ] Implement automated translation completeness checks
+
+## New in v1.0.0
+
+- All log messages, including verbose output, are now fully localized. See new keys for verbose logging in `Locales/enUS.py` and other locale files (e.g., `verbose_updated_settings`, `verbose_added_settings`).
