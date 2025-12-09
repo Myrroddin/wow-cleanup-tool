@@ -58,7 +58,7 @@ Example:
 ### Basic Logging
 
 ```python
-from modules.core.logger import Logger
+from src.core.logger import Logger
 
 # Initialize logger
 logger = Logger(verbose=True, append_mode=True)

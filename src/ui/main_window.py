@@ -145,7 +145,7 @@ class MainWindowBuilder:
         return path_frame
     
     def add_browse_button(self, path_frame, command):
-        """Add browse button to toolbar.
+        """Add browse button to toolbar with themed, word-wrapped tooltip.
         
         Args:
             path_frame: Toolbar frame
@@ -153,6 +153,38 @@ class MainWindowBuilder:
         """
         browse_button = ttk.Button(path_frame, text=self.loc._("btn_browse"), command=command)
         browse_button.grid(row=0, column=2, padx=(0, 5))
+
+        # Themed, word-wrapped tooltip
+        def show_tooltip(event):
+            tooltip_text = self.loc._("tooltip_browse_wow_folder")
+            from core.themes import THEMES
+            current_theme = self.settings.get('theme', 'dark')
+            theme_colors = THEMES.get(current_theme, THEMES['dark'])
+            self._browse_tooltip = tk.Toplevel(browse_button)
+            self._browse_tooltip.wm_overrideredirect(True)
+            self._browse_tooltip.wm_geometry(f"+{event.x_root + 10}+{event.y_root + 10}")
+            label = tk.Label(
+                self._browse_tooltip,
+                text=tooltip_text,
+                background=theme_colors.get('tooltip_bg', '#ffffe0'),
+                foreground=theme_colors.get('tooltip_fg', '#000000'),
+                relief="solid",
+                borderwidth=1,
+                font=("TkDefaultFont", 9),
+                padx=8,
+                pady=5,
+                wraplength=300,
+                justify='left'
+            )
+            label.pack()
+
+        def hide_tooltip(event):
+            if hasattr(self, '_browse_tooltip') and self._browse_tooltip:
+                self._browse_tooltip.destroy()
+                self._browse_tooltip = None
+
+        browse_button.bind('<Enter>', show_tooltip)
+        browse_button.bind('<Leave>', hide_tooltip)
     
     def add_theme_toggle(self, path_frame, command):
         """Add theme toggle button to toolbar.
@@ -275,6 +307,22 @@ class MainWindowBuilder:
         file_cleaner_idx = self.notebook.index('end')
         self.notebook.add(file_cleaner_frame, text=self.loc._("tab_file_cleaner"))
         self.feature_tab_indices.append(file_cleaner_idx)
+        # Add description label to File Cleaner tab
+        file_cleaner_desc_label = ttk.Label(
+            file_cleaner_frame,
+            text=self.loc._("desc_file_cleaner"),
+            justify='left'
+        )
+        file_cleaner_desc_label.pack(side='top', fill='x', pady=(0, 10))
+
+        def update_wraplength(event=None):
+            # Set wraplength to the current width of the tab minus some padding
+            width = file_cleaner_frame.winfo_width() - 32
+            if width > 100:
+                file_cleaner_desc_label.config(wraplength=width)
+
+        file_cleaner_frame.bind('<Configure>', update_wraplength)
+        update_wraplength()
         
         # Folder Cleaner Tab
         folder_cleaner_frame = ttk.Frame(self.notebook, padding=5)

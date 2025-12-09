@@ -7,7 +7,7 @@ This document summarizes the implementation of type hints, unit tests, and moder
 
 ### Modules Updated with Type Hints
 
-#### 1. `modules/localization/__init__.py`
+#### 1. `src/localization/__init__.py`
 **Changes:**
 - Added `from typing import Dict, Optional, Any`
 - Annotated all module-level constants:
@@ -25,7 +25,7 @@ This document summarizes the implementation of type hints, unit tests, and moder
 
 **Impact:** Improved IDE autocomplete and type checking for all UI code using translations
 
-#### 2. `modules/wow/path_manager.py`
+#### 2. `src/wow/path_manager.py`
 **Changes:**
 - Added `from typing import Optional, List, Tuple, Dict`
 - Annotated class constants:
@@ -52,7 +52,7 @@ This document summarizes the implementation of type hints, unit tests, and moder
 
 **Impact:** Complete type safety for WoW installation detection and path management
 
-#### 3. `modules/core/settings.py`
+#### 3. `src/core/settings.py`
 **Changes:**
 - Added `from typing import Optional, Dict, Any`
 - Annotated all utility functions:
@@ -69,7 +69,7 @@ This document summarizes the implementation of type hints, unit tests, and moder
 
 **Impact:** Type-safe settings management throughout application
 
-#### 4. `modules/operations/base_scanner.py`
+#### 4. `src/operations/base_scanner.py`
 **Status:** Already had comprehensive type hints
 - Uses `List, Tuple, Dict, Optional, Callable, Any` from typing
 - All methods fully annotated including parallel processing code

@@ -72,7 +72,7 @@ wow-cleanup-tool/
 
 ## Module Responsibilities
 
-### Core (`modules/core/`)
+### Core (`src/core/`)
 System-level infrastructure and configuration:
 - **dependencies.py**: Checks and installs required Python packages
 - **geometry.py**: Window sizing, positioning, and screen calculations
@@ -89,7 +89,7 @@ System-level infrastructure and configuration:
 - **single_instance.py**: Prevents multiple app instances
 - **themes.py**: Light/dark theme management with tab spacing
 
-### Localization (`modules/localization/`)
+### Localization (`src/localization/`)
 Multi-language support system with organized key naming:
 - **__init__.py**: `Localization` class with translation lookup
 - **en_us.py**: English (US) translations dictionary (92 keys, organized by prefix):
@@ -104,7 +104,7 @@ Multi-language support system with organized key naming:
   - Plus: `dep_*`, `error_*`, `file_*`, `log_*`, `wow_*` prefixes
   - All keys alphabetically sorted for easy maintenance
 
-### Operations (`modules/operations/`)
+### Operations (`src/operations/`)
 Backend file system operations (optimized with `os.scandir()` and parallel processing):
 - **base_scanner.py**: Base class for all scanners with ThreadPoolExecutor
 - **disk_utils.py**: HDD/SSD detection, optimal worker thread calculation
@@ -113,7 +113,7 @@ Backend file system operations (optimized with `os.scandir()` and parallel proce
 **Future modules** (see `IMPLEMENTATION_ROADMAP.md`):
 - file_scanner.py, folder_scanner.py, orphan_scanner.py, file_operations.py
 
-### UI (`modules/ui/`)
+### UI (`src/ui/`)
 User interface components (theme-aware, localized):
 - **app_controller.py**: Event handlers and UI state management
   - Handles: theme toggle, font changes, delete mode, verbose logging, append log
@@ -128,14 +128,14 @@ User interface components (theme-aware, localized):
   - Session separators with timestamp in append mode
 - **ui_constants.py**: Standard dimensions and styling values
 
-**Dialogs** (`modules/ui/dialogs/`):
+**Dialogs** (`src/ui/dialogs/`):
 - All dialogs are theme-aware and localized
 - Use `BaseDialog` class for consistency
 - **license_dialog.py**: GPL-3.0 license acceptance (first-run)
 - **multiple_installations.py**: Warns about multiple WoW installations
 - **wow_close_warning.py**: Warns if WoW is running (can be disabled)
 
-### WoW (`modules/wow/`)
+### WoW (`src/wow/`)
 World of Warcraft specific functionality:
 - **game_optimizer.py**: Game configuration optimization features (future)
 - **game_validation.py**: Installation structure validation utilities

@@ -32,7 +32,7 @@
 ```python
 import re
 from typing import List
-from modules.operations.base_scanner import BaseScanner
+from src.operations.base_scanner import BaseScanner
 
 class FileScanner(BaseScanner):
     """Scan for .bak and .old files."""
@@ -54,10 +54,10 @@ class FileScanner(BaseScanner):
 4. Add scan button that calls `FileScanner.scan_versions()`
 5. Display results in SaplingCanvas widget (`src/ui/widgets/sapling_canvas.py`)
 6. Use logger methods:
-   - `logger.log()`: Essential messages ("Scan complete")
-   - `logger.verbose()`: Detailed operations ("Deleted file: addon.bak")
-   - `logger.debug()`: Technical details → Developer tab
-   - `logger.error()`: Errors → Developer tab with 🔴 badge
+    - `logger.log()`: Essential messages ("Scan complete")
+    - `logger.verbose()`: Detailed operations ("Deleted file: addon.bak")
+    - `logger.debug()`: Technical details → Developer tab
+    - `logger.error()`: Errors → Developer tab with 🔴 badge
 
 ### Phase 2: Folder Scanner (Logs, Errors, etc.)
 **File**: `src/operations/folder_scanner.py`
