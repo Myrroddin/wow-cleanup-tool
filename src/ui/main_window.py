@@ -303,6 +303,7 @@ class MainWindowBuilder:
         self.notebook.grid(row=2, column=0, sticky='nsew', pady=5)
         
         # File Cleaner Tab
+        from ui.widgets.sapling_canvas import SaplingCanvas, TreeNode
         file_cleaner_frame = ttk.Frame(self.notebook, padding=5)
         file_cleaner_idx = self.notebook.index('end')
         self.notebook.add(file_cleaner_frame, text=self.loc._("tab_file_cleaner"))
@@ -316,13 +317,36 @@ class MainWindowBuilder:
         file_cleaner_desc_label.pack(side='top', fill='x', pady=(0, 10))
 
         def update_wraplength(event=None):
-            # Set wraplength to the current width of the tab minus some padding
             width = file_cleaner_frame.winfo_width() - 32
             if width > 100:
                 file_cleaner_desc_label.config(wraplength=width)
-
         file_cleaner_frame.bind('<Configure>', update_wraplength)
         update_wraplength()
+
+        # Example tree data for demonstration; replace with actual scan results
+        tree_data = TreeNode('Game Versions', [
+            TreeNode('Retail', [TreeNode('file1.bak'), TreeNode('file2.old')]),
+            TreeNode('Classic', [TreeNode('file3.bak')]),
+        ], expanded=True)
+
+        def on_select(node):
+            print(f"Selected: {node.label}")
+
+        def on_expand(node):
+            print(f"Expanded: {node.label}")
+
+        sapling = SaplingCanvas(
+            file_cleaner_frame,
+            'triangle',
+            tree_data,
+            expand_all_on_root_click=False,
+            on_select=on_select,
+            on_expand=on_expand,
+            width=380,
+            height=180,
+            bg='white'
+        )
+        sapling.pack(fill='both', expand=True, pady=(0, 10))
         
         # Folder Cleaner Tab
         folder_cleaner_frame = ttk.Frame(self.notebook, padding=5)
