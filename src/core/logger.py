@@ -230,7 +230,7 @@ class WoWLogger:
         if not self._append_mode:
             return False
         
-        from modules.core.settings import load_user_log
+        from core.settings import load_user_log
         previous_content = load_user_log()
         
         if previous_content:
@@ -409,7 +409,7 @@ class WoWLogger:
             try:
                 log_content = self.user_text_handler.text_widget.get("1.0", "end-1c")
                 
-                from modules.core.settings import save_user_log
+                from core.settings import save_user_log
                 return save_user_log(log_content)
             except Exception:
                 return False

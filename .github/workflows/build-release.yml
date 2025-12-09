@@ -21,7 +21,7 @@ jobs:
         shell: pwsh
         run: |
           $tag = $env:GITHUB_REF -replace 'refs/tags/', ''
-          (Get-Content wow_cleanup_tool.py) -replace 'VERSION = "v[\d\.]+"', "VERSION = `"$tag`"" -replace 'WoW Cleanup Tool v[\d\.]+', "WoW Cleanup Tool $tag" | Set-Content wow_cleanup_tool.py
+          (Get-Content src\wow_cleanup_tool.py) -replace 'VERSION = "v[\d\.]+"', "VERSION = `"$tag`"" -replace 'WoW Cleanup Tool v[\d\.]+', "WoW Cleanup Tool $tag" | Set-Content src\wow_cleanup_tool.py
 
       - name: Install dependencies
         run: |
@@ -31,8 +31,8 @@ jobs:
 
       - name: Build Windows executable
         run: |
-          pyinstaller wow_cleanup_tool.spec
-          
+          pyinstaller src\wow_cleanup_tool.spec
+
       - name: Verify and rename if needed
         shell: pwsh
         run: |
@@ -63,8 +63,8 @@ jobs:
       - name: Update version in code
         run: |
           TAG=${GITHUB_REF#refs/tags/}
-          sed -i.bak "s/VERSION = \"v[0-9.]\+\"/VERSION = \"$TAG\"/" wow_cleanup_tool.py
-          sed -i.bak "s/WoW Cleanup Tool v[0-9.]\+/WoW Cleanup Tool $TAG/" wow_cleanup_tool.py
+          sed -i.bak "s/VERSION = \"v[0-9.]\+\"/VERSION = \"$TAG\"/" src/wow_cleanup_tool.py
+          sed -i.bak "s/WoW Cleanup Tool v[0-9.]\+/WoW Cleanup Tool $TAG/" src/wow_cleanup_tool.py
 
       - name: Install dependencies
         run: |
@@ -74,7 +74,7 @@ jobs:
 
       - name: Build macOS executable
         run: |
-          pyinstaller wow_cleanup_tool.spec
+          pyinstaller src/wow_cleanup_tool.spec
 
       - name: Verify and rename if needed
         run: |
@@ -82,9 +82,6 @@ jobs:
             mv "dist/WoW.Cleanup.Tool.app" "dist/WoW Cleanup Tool.app"
           fi
           ls -la dist/*.app
-
-      - name: Create macOS DMG
-        run: |
           mkdir -p dist/dmg
           cp -r "dist/WoW Cleanup Tool.app" dist/dmg/
           hdiutil create -volname "WoW Cleanup Tool" -srcfolder dist/dmg -ov -format UDZO dist/WoW-Cleanup-Tool-macOS.dmg
@@ -109,8 +106,8 @@ jobs:
       - name: Update version in code
         run: |
           TAG=${GITHUB_REF#refs/tags/}
-          sed -i "s/VERSION = \"v[0-9.]\+\"/VERSION = \"$TAG\"/" wow_cleanup_tool.py
-          sed -i "s/WoW Cleanup Tool v[0-9.]\+/WoW Cleanup Tool $TAG/" wow_cleanup_tool.py
+          sed -i "s/VERSION = \"v[0-9.]\+\"/VERSION = \"$TAG\"/" src/wow_cleanup_tool.py
+          sed -i "s/WoW Cleanup Tool v[0-9.]\+/WoW Cleanup Tool $TAG/" src/wow_cleanup_tool.py
 
       - name: Install dependencies
         run: |
@@ -120,7 +117,7 @@ jobs:
 
       - name: Build Linux executable
         run: |
-          pyinstaller wow_cleanup_tool.spec
+          pyinstaller src/wow_cleanup_tool.spec
 
       - name: Verify and rename if needed
         run: |

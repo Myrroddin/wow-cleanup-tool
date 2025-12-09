@@ -36,7 +36,7 @@ class LicenseDialog(BaseDialog):
         )
         
         # Get theme data
-        from modules.core.themes import THEMES
+        from core.themes import THEMES
         theme = THEMES.get(self.theme_name, THEMES['light'])
         
         # Main content frame
@@ -151,7 +151,7 @@ class LicenseDialog(BaseDialog):
             self.settings['disable_license_dialog'] = True
         
         # Save settings immediately to persist the preferences
-        from modules.core.settings import save_settings
+        from core.settings import save_settings
         save_settings(self.settings)
         
         dialog.destroy()

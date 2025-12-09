@@ -10,56 +10,64 @@ wow-cleanup-tool/
 │   ├── ISSUE_TEMPLATE/        # Issue templates
 │   └── FUNDING.yml            # Sponsorship info
 │
-├── modules/                    # Main application modules
-│   ├── core/                  # Core application infrastructure
-│   │   ├── dependencies.py    # External dependency management
-│   │   ├── geometry.py        # Window sizing and positioning utilities
-│   │   ├── global_settings.py # Global constants and configuration
-│   │   ├── logger.py          # Dual-channel logging (user + developer)
-│   │   ├── settings.py        # Settings persistence (per-user + cache)
-│   │   ├── single_instance.py # Prevent multiple app instances
-│   │   └── themes.py          # Theme system (light/dark mode)
-│   │
-│   ├── localization/          # Multi-language support
-│   │   ├── __init__.py        # Localization class
-│   │   └── en_us.py           # English translations (92 keys, organized by prefix)
-│   │
-│   ├── operations/            # File system operations (future cleanup features)
-│   │   ├── base_scanner.py    # Base class for all scanners
-│   │   ├── disk_utils.py      # HDD/SSD detection and optimization
-│   │   └── README.md          # Operations module documentation
-│   │
-│   ├── ui/                    # User interface components
-│   │   ├── dialogs/           # Dialog windows
-│   │   │   ├── __init__.py    # Dialog exports
+├── src/                      # Main application source code
+│   ├── core/                 # Core application infrastructure
+│   │   ├── dependencies.py   # External dependency management
+│   │   ├── geometry.py       # Window sizing and positioning utilities
+│   │   ├── global_settings.py# Global constants and configuration
+│   │   ├── logger.py         # Dual-channel logging (user + developer)
+│   │   ├── settings.py       # Settings persistence (per-user + cache)
+│   │   ├── single_instance.py# Prevent multiple app instances
+│   │   └── themes.py         # Theme system (light/dark mode)
+│   ├── localization/         # Multi-language support
+│   │   ├── __init__.py       # Localization class
+│   │   └── en_us.py          # English translations (92 keys, organized by prefix)
+│   ├── operations/           # File system operations (future cleanup features)
+│   │   ├── base_scanner.py   # Base class for all scanners
+│   │   ├── disk_utils.py     # HDD/SSD detection and optimization
+│   │   └── README.md         # Operations module documentation
+│   ├── ui/                   # User interface components
+│   │   ├── dialogs/          # Dialog windows
+│   │   │   ├── __init__.py   # Dialog exports
 │   │   │   ├── license_dialog.py       # GPL-3.0 license dialog
 │   │   │   ├── multiple_installations.py # Multiple WoW installs warning
 │   │   │   └── wow_close_warning.py    # WoW running warning
-│   │   ├── __init__.py        # UI module exports
-│   │   ├── app_controller.py  # Event handlers and UI state management
-│   │   ├── dialog_base.py     # Base class for theme-aware dialogs
-│   │   ├── font_utils.py      # System font detection
-│   │   ├── geometry.py        # Window geometry calculations
-│   │   ├── main_window.py     # Main window builder (6 tabs)
-│   │   └── ui_constants.py    # UI dimensions and styling constants
-│   │
-│   └── wow/                   # WoW-specific functionality
-│       ├── __init__.py        # WoW module exports
-│       ├── game_optimizer.py  # Game configuration optimization (future)
-│       ├── game_validation.py # Installation validation utilities
-│       ├── path_handler.py    # WoW path detection and user browsing
-│       └── path_manager.py    # Installation management and validation
+│   │   ├── widgets/          # Custom widgets (e.g., SaplingCanvas)
+│   │   │   ├── __init__.py   # Widgets package
+│   │   │   └── sapling_canvas.py # Custom tree widget
+│   │   ├── __init__.py       # UI module exports
+│   │   ├── app_controller.py # Event handlers and UI state management
+│   │   ├── dialog_base.py    # Base class for theme-aware dialogs
+│   │   ├── font_utils.py     # System font detection
+│   │   ├── geometry.py       # Window geometry calculations
+│   │   ├── main_window.py    # Main window builder (6 tabs)
+│   │   └── ui_constants.py   # UI dimensions and styling constants
+│   └── wow/                  # WoW-specific functionality
+│       ├── __init__.py       # WoW module exports
+│       ├── game_optimizer.py # Game configuration optimization (future)
+│       ├── game_validation.py# Installation validation utilities
+│       ├── path_handler.py   # WoW path detection and user browsing
+│       └── path_manager.py   # Installation management and validation
+│   └── wow_cleanup_tool.py   # Main application entry point
+│   └── wow_cleanup_tool.spec # PyInstaller build configuration
 │
-├── wow_cleanup_icon/          # Application icons
-│   ├── wow_cleanup_icon.ico   # Windows icon
-│   ├── wow_cleanup_icon.icns  # macOS icon
-│   └── *.png                  # PNG icons
+├── assets/
+│   └── icons/                # Application icons
+│       ├── wow_cleanup_icon.ico   # Windows icon
+│       ├── wow_cleanup_icon.icns  # macOS icon
+│       └── *.png                  # PNG icons
 │
-├── IMPLEMENTATION_ROADMAP.md  # Guide for adding cleanup features
-├── LICENSE                    # GPL-3.0 license
-├── requirements.txt           # Python dependencies
-├── wow_cleanup_tool.py        # Main application entry point
-└── wow_cleanup_tool.spec      # PyInstaller build configuration
+├── docs/                    # Documentation files
+│   ├── README.md
+│   ├── LOGGING_GUIDE.md
+│   ├── PROJECT_STRUCTURE.md
+│   ├── TYPE_HINTS_AND_TESTS_SUMMARY.md
+│   ├── IMPLEMENTATION_ROADMAP.md
+│   └── tests_README.md
+│
+├── LICENSE                  # GPL-3.0 license
+├── requirements.txt         # Python dependencies
+└── tests/                   # Unit tests
 ```
 
 ## Module Responsibilities

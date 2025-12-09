@@ -1,7 +1,7 @@
 """Event handlers and UI controllers for the main application."""
 import tkinter as tk
 from tkinter import ttk
-from modules.core import themes
+from core import themes
 
 
 class ApplicationController:
@@ -65,7 +65,7 @@ class ApplicationController:
         Args:
             event: Tkinter event (optional)
         """
-        from modules.ui import font_utils
+        from ui import font_utils
         
         font_family_var = self.ui_widgets.get('font_family_var')
         if not font_family_var:
@@ -238,7 +238,7 @@ class ApplicationController:
     def reset_settings(self):
         """Reset all settings to defaults (preserves cached data like wow_path)."""
         from tkinter import messagebox
-        from modules.localization.en_us import TRANSLATIONS
+        from localization.en_us import TRANSLATIONS
         
         # Get localization (fallback to English if localization not available)
         try:
@@ -257,7 +257,7 @@ class ApplicationController:
         dialog.grab_set()
         
         # Get current theme colors
-        from modules.core.themes import THEMES
+        from core.themes import THEMES
         current_theme = self.settings.get('theme', 'dark')
         theme_colors = THEMES.get(current_theme, THEMES['dark'])
         
@@ -350,7 +350,7 @@ class ApplicationController:
             self.settings['geometry'] = geometry
         
         # Save settings immediately
-        from modules.core.settings import save_settings
+        from core.settings import save_settings
         save_settings(self.settings)
         
         # Update UI widgets to reflect reset values

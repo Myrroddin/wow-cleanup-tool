@@ -187,9 +187,9 @@ def check_and_install_dependencies():
     
     # Load localization and settings before showing UI
     try:
-        from modules.localization import Localization
-        from modules.core.settings import load_settings
-        from modules.core.themes import THEMES
+        from localization import Localization
+        from core.settings import load_settings
+        from core.themes import THEMES
         
         settings = load_settings()
         loc = Localization(settings.get('language', 'en_us'))

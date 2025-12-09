@@ -5,10 +5,11 @@ import os
 import tempfile
 import shutil
 
-# Add parent directory to path to import modules
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from modules.wow.path_manager import PathManager
+# Add src directory to path to import modules
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+
+from wow.path_manager import PathManager
 
 
 class TestPathManagerInitialization(unittest.TestCase):

@@ -2,7 +2,7 @@
 import os
 import sys
 from tkinter import filedialog
-from modules.ui.dialogs import wow_close_warning, show_multiple_installations_dialog
+from ui.dialogs import wow_close_warning, show_multiple_installations_dialog
 
 
 class WoWPathHandler:

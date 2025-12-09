@@ -76,7 +76,7 @@ if BAK_OLD_PATTERN.search(filename):
 ## Usage Pattern (Future)
 
 ```python
-from modules.operations import FileScanner, get_optimal_workers
+from operations import FileScanner, get_optimal_workers
 
 # Create scanner with disk-optimized threading and logger
 wow_path = "C:\\World of Warcraft"

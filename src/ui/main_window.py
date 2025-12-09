@@ -394,7 +394,7 @@ class MainWindowBuilder:
     def _configure_dev_log_colors(self):
         """Configure color tags for developer log based on theme."""
         # Get current theme colors
-        from modules.core.themes import get_theme_colors
+        from core.themes import get_theme_colors
         theme_name = self.settings.get('theme', 'light')
         colors = get_theme_colors(theme_name)
         
@@ -458,7 +458,7 @@ class MainWindowBuilder:
     
     def _delete_user_log(self):
         """Delete the persistent user log file."""
-        from modules.core.settings import get_user_log_file
+        from core.settings import get_user_log_file
         import tkinter.messagebox as messagebox
         from pathlib import Path
         
@@ -586,7 +586,7 @@ class MainWindowBuilder:
                             self._tooltip_window.destroy()
                         
                         # Get current theme colors
-                        from modules.core.themes import THEMES
+                        from core.themes import THEMES
                         current_theme = self.settings.get('theme', 'dark')
                         theme_colors = THEMES.get(current_theme, THEMES['dark'])
                         

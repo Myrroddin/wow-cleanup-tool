@@ -3,27 +3,26 @@ import tkinter as tk
 import sys
 import os
 
-# Add the current directory to the path for module imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-# Single instance check - silently exit if another instance is running
-from modules.core.single_instance import SingleInstance
+ # Single instance check - silently exit if another instance is running
+from core.single_instance import SingleInstance
 
 instance_lock = SingleInstance()
 if not instance_lock.acquire():
     sys.exit(0)
 
-# Check and install dependencies silently before importing modules that need them
-from modules.core.dependencies import check_and_install_dependencies
+ # Check and install dependencies silently before importing modules that need them
+from core.dependencies import check_and_install_dependencies
 
 if not check_and_install_dependencies():
     sys.exit(1)
 
-from modules.core.settings import load_settings, save_settings
-from modules.core.logger import Logger
-from modules.core.themes import apply_theme
-from modules.localization import Localization
-from modules.ui import (
+from core.settings import load_settings, save_settings
+from core.logger import Logger
+from core.themes import apply_theme
+from localization import Localization
+from ui import (
     show_wow_close_warning, 
     show_license_dialog, 
     font_utils,
@@ -32,7 +31,7 @@ from modules.ui import (
     setup_geometry,
     on_configure,
 )
-from modules.wow import PathManager, WoWPathHandler
+from wow import PathManager, WoWPathHandler
 
 class WoWCleanupTool:
     def __init__(self, root):
@@ -122,6 +121,18 @@ class WoWCleanupTool:
         # Set up reset button handler
         self.ui_widgets['reset_button'].config(command=self.controller.reset_settings)
         
+        # Set up scan files button handler
+        if 'scan_files_btn' in self.ui_widgets:
+            self.ui_widgets['scan_files_btn'].config(command=self.controller.scan_bak_old_files)
+        
+        # Set up select all/unselect all toggle handler
+        if 'select_all_btn' in self.ui_widgets:
+            self.ui_widgets['select_all_btn'].config(command=self.controller.toggle_select_all_bak_old)
+        
+        # Set up delete selected button handler
+        if 'delete_selected_btn' in self.ui_widgets:
+            self.ui_widgets['delete_selected_btn'].config(command=self.controller.delete_selected_files)
+        
         # Calculate minimum dimensions based on content
         self.MIN_W, self.MIN_H = self.controller.update_minimum_size()
         
@@ -184,8 +195,8 @@ def main():
         root.mainloop()
     except Exception as e:
         # Use basic localization for error display
-        from modules.localization import Localization
-        from modules.core.settings import load_settings
+        from localization import Localization
+        from core.settings import load_settings
         settings = load_settings()
         loc = Localization(settings.get('language', 'en_us'))
         

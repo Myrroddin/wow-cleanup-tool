@@ -80,6 +80,7 @@ a = Analysis(
         'modules.operations',
         'modules.operations.base_scanner',
         'modules.operations.disk_utils',
+        'modules.operations.file_cleaner',
     ],
     hookspath=[],
     hooksconfig={},

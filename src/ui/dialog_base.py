@@ -1,7 +1,7 @@
 """Base dialog functionality for consistent dialog creation."""
 import tkinter as tk
 from tkinter import ttk
-from ..core.themes import apply_theme
+from core.themes import apply_theme
 from .ui_constants import DialogDimensions, DialogFontSizes
 
 
@@ -257,7 +257,7 @@ class BaseDialog:
             return
             
         style = ttk.Style(self.dialog)
-        from ..core.themes import THEMES
+        from core.themes import THEMES
         theme = THEMES.get(self.theme_name, THEMES['light'])
         
         title_size = DialogFontSizes.get_title_size(self.font_size)
@@ -278,7 +278,7 @@ class BaseDialog:
             return
             
         style = ttk.Style(self.dialog)
-        from ..core.themes import THEMES
+        from core.themes import THEMES
         theme = THEMES.get(self.theme_name, THEMES['light'])
         
         subtitle_size = DialogFontSizes.get_subtitle_size(self.font_size)
@@ -299,7 +299,7 @@ class BaseDialog:
             return
             
         style = ttk.Style(self.dialog)
-        from ..core.themes import THEMES
+        from core.themes import THEMES
         theme = THEMES.get(self.theme_name, THEMES['light'])
         
         icon_size = DialogFontSizes.get_icon_size(self.font_size)

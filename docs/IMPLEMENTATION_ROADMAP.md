@@ -1,31 +1,14 @@
 # Implementation Roadmap for Cleanup Features
 
 ## Current Status ✅
-- **Python logging integration**: Complete refactor using built-in logging module with RotatingFileHandler
   - User log: 1MB rotation, 1 backup (wow_cleanup_user.log)
   - Developer log: 5MB rotation, 2 backups (wow_cleanup_dev.log)
   - Custom TextWidgetHandler for Tkinter integration
   - SessionSeparatorHandler for append mode
   - Thread-safe logging with automatic rotation
-- **Type hints**: Comprehensive type annotations in 3 core modules (localization, path_manager, settings) using typing module
-- **Unit tests**: 45 tests (100% passing) covering localization (15 tests) and path_manager (30 tests)
   - Test framework: Python unittest
   - Tests for initialization, validation, detection, and helper functions
   - Mock objects for testing without filesystem dependencies
-- **Localized WoW flavor names**: All 5 WoW flavors now use localization keys (flavor_retail, flavor_ptr, flavor_beta, flavor_classic, flavor_classic_era)
-- **Optimized imports**: Removed 11 unused imports across 11 files for cleaner codebase
-- **Optimized path detection**: Using `os.scandir()` instead of `os.listdir()` (3 locations)
-- **Modular structure**: `modules/operations/` ready for cleanup features
-- **Base classes**: `BaseScanner` with parallel processing support (ThreadPoolExecutor)
-- **Disk optimization**: Utilities for HDD/SSD/NVMe detection and worker tuning
-- **6-tab interface**: File Cleaner, Folder Cleaner, Game Optimizer, Optimization Suggestions, Log, Developer
-- **Dual-channel logging**: User operations (Log tab) + Developer diagnostics (Developer tab)
-- **Log persistence**: Optional append mode with newest-first ordering and session separators
-- **Log management**: Copy/Save/Delete buttons (delete visible only in append mode)
-- **Delete mode**: User choice of 'trash' (default) or 'permanent' deletion
-- **Verbose logging**: Optional detailed operation messages in user log
-- **Settings persistence**: Theme, font, delete_mode, verbose_logging, append_log, geometry
-- **97 localized strings**: All UI elements in en_us.py with organized prefixes:
   - `btn_` prefix: Button labels (6 keys)
   - `label_` prefix: UI labels (8 keys)
   - `status_` prefix: Status messages (8 keys)
@@ -37,20 +20,14 @@
   - `flavor_` prefix: WoW flavor display names (5 keys) ⭐ NEW
   - Additional prefixes: `dep_`, `error_`, `file_`, `log_`, `wow_`
   - All keys alphabetically sorted for easy maintenance
-- **Dynamic UI**: Resize on font changes, tab spacing, conditional button visibility
-- **Theme system**: Light/dark modes with proper tab spacing and widget styling
-- **Performance optimizations**: 
   - Logger class refactored (60 lines reduced, helper methods extracted, constant caching)
   - Font utilities caching (eliminates repeated system calls)
   - Removed unused imports (11 files cleaned up) ⭐ NEW
-- **Feature tab management**: Tabs disabled when WoW path invalid with theme-aware tooltips
-- **Tab tooltips**: Word-wrapped, theme-aware tooltips for disabled feature tabs
-- **README.md**: Comprehensive table of contents with 10 major sections
 
 ## Next Steps (When Ready)
 
 ### Phase 1: File Scanner (.bak/.old files)
-**File**: `modules/operations/file_scanner.py`
+**File**: `src/operations/file_scanner.py`
 
 ```python
 import re
@@ -71,11 +48,11 @@ class FileScanner(BaseScanner):
 ```
 
 **Integration**:
-1. Add to `modules/operations/__init__.py`: `from .file_scanner import FileScanner`
-2. Create UI tab in `modules/ui/tabs/file_cleaner_tab.py`
+1. Add to `src/operations/__init__.py`: `from .file_scanner import FileScanner`
+2. Create UI tab in `src/ui/tabs/file_cleaner_tab.py`
 3. Pass logger to scanner: `scanner = FileScanner(max_workers=workers, logger=self.logger, loc=loc)`
 4. Add scan button that calls `FileScanner.scan_versions()`
-5. Display results in Treeview widget
+5. Display results in SaplingCanvas widget (`src/ui/widgets/sapling_canvas.py`)
 6. Use logger methods:
    - `logger.log()`: Essential messages ("Scan complete")
    - `logger.verbose()`: Detailed operations ("Deleted file: addon.bak")
@@ -83,11 +60,11 @@ class FileScanner(BaseScanner):
    - `logger.error()`: Errors → Developer tab with 🔴 badge
 
 ### Phase 2: Folder Scanner (Logs, Errors, etc.)
-**File**: `modules/operations/folder_scanner.py`
+**File**: `src/operations/folder_scanner.py`
 
 ```python
 from typing import List, Set
-from modules.operations.base_scanner import BaseScanner
+from src.operations.base_scanner import BaseScanner
 
 class FolderScanner(BaseScanner):
     """Scan for cleanable folders."""
@@ -112,7 +89,7 @@ class FolderScanner(BaseScanner):
 ```
 
 ### Phase 3: Orphan Scanner (SavedVariables)
-**File**: `modules/operations/orphan_scanner.py`
+**File**: `src/operations/orphan_scanner.py`
 
 More complex - needs to:
 1. Scan `Interface/AddOns` for installed addons
@@ -121,7 +98,7 @@ More complex - needs to:
 4. Ignore Blizzard_* core files
 
 ### Phase 4: File Operations
-**File**: `modules/operations/file_operations.py`
+**File**: `src/operations/file_operations.py`
 
 ```python
 from typing import List, Tuple
@@ -176,10 +153,10 @@ def delete_files_batch(
 
 ### Disk Type Optimization
 ```python
-from modules.operations.disk_utils import get_optimal_workers
+from src.operations.disk_utils import get_optimal_workers
 
 # In scanner initialization
-wow_path = "C:\\World of Warcraft"
+wow_path = "C:\World of Warcraft"
 workers = get_optimal_workers(wow_path)
 scanner = FileScanner(max_workers=workers, logger=self.logger)
 # Auto: 8 for SSD, 2 for HDD
@@ -241,26 +218,8 @@ When implementing cleanup features, add these keys to `en_us.py` following the e
 ```
 
 **Note**: All new keys should follow the prefix naming convention:
-- `btn_*` for buttons
-- `label_*` for UI labels
-- `status_*` for status messages
-- `msg_*` for dialog messages
-- `title_*` for window/dialog titles
-- `option_*` for checkbox/radio options
 
 ## Testing Checklist
 
 When adding each feature:
-- [ ] Test with empty WoW installation
-- [ ] Test with multiple versions (_retail_, _classic_, etc.)
-- [ ] Test with read-only files (permission errors)
-- [ ] Test parallel scanning (multiple versions)
-- [ ] Test progress callback updates
-- [ ] Test trash vs permanent delete
-- [ ] Test error handling (invalid paths, missing dirs)
-- [ ] Verify no UI freezing during scans
-- [ ] Check memory usage with large file counts
-- [ ] Test on both HDD and SSD if possible
-- [ ] Update `wow_cleanup_tool.spec` with new module imports
-- [ ] Update `PROJECT_STRUCTURE.md` if adding new modules
-- [ ] Verify application builds: `pyinstaller wow_cleanup_tool.spec`
+- [ ] Verify application builds: `pyinstaller src/wow_cleanup_tool.spec`

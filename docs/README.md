@@ -76,12 +76,17 @@ Output: `dist/WoW Cleanup Tool.exe`
 
 **Structure**:
 ```
-modules/
+src/
 ├── core/          # Settings, logging, themes
 ├── localization/  # Translations (97 keys)
 ├── ui/            # Interface components
+│   └── widgets/   # Custom widgets (e.g., SaplingCanvas)
 ├── wow/           # Path detection, validation
 └── operations/    # Cleanup features (future)
+assets/
+└── icons/         # Application icons
+docs/              # Documentation
+tests/             # Unit tests
 ```
 
 **Testing**:
@@ -91,19 +96,19 @@ python -m unittest discover tests/ -v
 
 # Run specific suite
 python -m unittest tests.test_path_manager
+```bash
+git clone https://github.com/Myrroddin/wow-cleanup-tool.git
+cd wow-cleanup-tool
+python src/wow_cleanup_tool.py
 ```
+Dependencies install automatically on first run.
 
-**Documentation**:
-- [IMPLEMENTATION_ROADMAP.md](IMPLEMENTATION_ROADMAP.md) - Feature development guide
-- [LOGGING_GUIDE.md](LOGGING_GUIDE.md) - Logging system details
-- [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) - Module documentation
-
-**Key Features**:
-- Type hints for IDE support
-- `os.scandir()` for performance
-- Base classes for extensibility
-- Parallel processing support
-
+### Build Executable
+```bash
+pip install pyinstaller
+pyinstaller src/wow_cleanup_tool.spec
+```
+Output: `dist/WoW Cleanup Tool.exe`
 ## License
 
 GNU General Public License v3.0 - see [LICENSE](LICENSE)

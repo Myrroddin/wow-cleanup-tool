@@ -16,7 +16,7 @@ Supports 12 languages matching World of Warcraft locales plus Ukrainian:
 - Ukrainian (uk_ua) - ukUA
 
 Usage:
-    from modules.localization import Localization
+    from localization import Localization
     
     loc = Localization("de_de")
     translated_text = loc._("title_main_window")  # Window titles use title_ prefix
@@ -70,11 +70,11 @@ def load_translations(lang_code: str) -> Dict[str, str]:
         dict: Translation dictionary
     """
     try:
-        module = importlib.import_module(f"modules.localization.{lang_code}")
+        module = importlib.import_module(f"localization.{lang_code}")
         return getattr(module, "TRANSLATIONS", {})
     except Exception:
         # Fallback to English if import fails
-        module = importlib.import_module("modules.localization.en_us")
+        module = importlib.import_module("localization.en_us")
         return getattr(module, "TRANSLATIONS", {})
 
 
