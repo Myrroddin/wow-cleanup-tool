@@ -16,10 +16,10 @@ block_cipher = None
 
 # Determine platform-specific icon and executable name
 if sys.platform == 'win32':
-    icon_file = 'wow_cleanup_icon.ico'
+    icon_file = 'wow_cleanup_icon/wow_cleanup_icon.ico'
     exe_name = 'WoW Cleanup Tool'
 elif sys.platform == 'darwin':
-    icon_file = 'wow_cleanup_icon.icns'
+    icon_file = 'wow_cleanup_icon/wow_cleanup_icon.icns'
     exe_name = 'WoW Cleanup Tool'
 else:  # Linux and others
     icon_file = 'wow_cleanup_icon/46df463a-9eb4-433a-b4b0-5e6df94328d3-0.png'
@@ -30,7 +30,8 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[
-        ('Modules', 'Modules'),
+        ('LICENSE', '.'),  # License file displayed to users
+        ('modules', 'modules'),  # All Python modules (PyInstaller will compile to .pyc)
     ],
     hiddenimports=[
         'tkinter',
@@ -41,41 +42,53 @@ a = Analysis(
         'PIL',
         'PIL.Image',
         'PIL.ImageTk',
+        'PIL.ImageDraw',
         'psutil',
         'send2trash',
-        # All Modules
-        'Modules',
-        'Modules.file_cleaner',
-        'Modules.folder_cleaner',
-        'Modules.font_selector',
-        'Modules.game_optimizer',
-        'Modules.game_validation',
-        'Modules.geometry',
-        'Modules.global_settings',
-        'Modules.localization',
-        'Modules.logger',
-        'Modules.orphan_cleaner',
-        'Modules.path_manager',
-        'Modules.performance',
-        'Modules.settings',
-        'Modules.startup_warning',
-        'Modules.themes',
-        'Modules.tree_helpers',
-        'Modules.ui_helpers',
-        'Modules.ui_refresh',
-        'Modules.update_checker',
-        'Modules.version_utils',
-        # Tabs subpackage
-        'Modules.Tabs',
-        'Modules.Tabs.file_cleaner_tab',
-        'Modules.Tabs.folder_cleaner_tab',
-        'Modules.Tabs.folder_helpers',
-        'Modules.Tabs.orphan_cleaner_tab',
+        # Core Modules
+        'modules',
+        'modules.core',
+        'modules.core.dependencies',
+        'modules.core.geometry',
+        'modules.core.global_settings',
+        'modules.core.logger',
+        'modules.core.settings',
+        'modules.core.single_instance',
+        'modules.core.themes',
+        # Localization Modules
+        'modules.localization',
+        'modules.localization.en_us',
+        # UI Modules
+        'modules.ui',
+        'modules.ui.app_controller',
+        'modules.ui.dialog_base',
+        'modules.ui.font_utils',
+        'modules.ui.geometry',
+        'modules.ui.main_window',
+        'modules.ui.ui_constants',
+        'modules.ui.dialogs',
+        'modules.ui.dialogs.license_dialog',
+        'modules.ui.dialogs.multiple_installations',
+        'modules.ui.dialogs.wow_close_warning',
+        # WoW Modules
+        'modules.wow',
+        'modules.wow.game_optimizer',
+        'modules.wow.game_validation',
+        'modules.wow.path_handler',
+        'modules.wow.path_manager',
+        # Operations Modules
+        'modules.operations',
+        'modules.operations.base_scanner',
+        'modules.operations.disk_utils',
     ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=[
+        'tests',  # Exclude unit tests from executable
+        'pytest',
+        'unittest',
+    ],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     cipher=block_cipher,
