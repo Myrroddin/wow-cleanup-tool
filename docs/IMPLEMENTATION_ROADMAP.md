@@ -1,7 +1,7 @@
 # Implementation Roadmap for Cleanup Features
 
 ## Current Status ✅
-  - User log: 1MB rotation, 1 backup (wow_cleanup_user.log)
+    - User log: 1MB rotation, 1 backup (wow_cleanup_user.log)
   - Developer log: 5MB rotation, 2 backups (wow_cleanup_dev.log)
   - Custom TextWidgetHandler for Tkinter integration
   - SessionSeparatorHandler for append mode
@@ -22,7 +22,13 @@
   - All keys alphabetically sorted for easy maintenance
   - Logger class refactored (60 lines reduced, helper methods extracted, constant caching)
   - Font utilities caching (eliminates repeated system calls)
-  - Removed unused imports (11 files cleaned up) ⭐ NEW
+
+    - All dialogs and tooltips now live-update their theme and font when user settings change (full theme/font refresh for all UI elements) ⭐ NEW
+    - Fixed all indentation errors in UI and dialog code for reliable imports and execution ⭐ NEW
+    - Centralized refresh logic: theme, font, and font size are always updated together for all UI elements ⭐ NEW
+    - Ensured robust settings persistence and immediate UI feedback for all user preference changes ⭐ NEW
+    - App launches and updates all user-facing text and popups as expected ⭐ NEW
+    - Removed unused imports (11 files cleaned up) ⭐ NEW
 
 ## Next Steps (When Ready)
 

@@ -9,6 +9,9 @@ from tkinter import ttk
 
 # --- Tooltip Factory ---
 class Tooltip:
+    # Track all visible tooltips globally
+    _visible_tooltips = set()
+
     def __init__(self, widget, text, theme, font_family, font_size, wraplength=320):
         self.widget = widget
         self.text = text
@@ -42,15 +45,73 @@ class Tooltip:
             justify='left'
         )
         label.pack(ipadx=6, ipady=2)
+        # Register this tooltip as visible
+        Tooltip._visible_tooltips.add(self)
+        self._label = label
 
     def hide(self):
         if self.tipwindow:
             self.tipwindow.destroy()
             self.tipwindow = None
+        # Remove from visible tooltips
+        Tooltip._visible_tooltips.discard(self)
+        self._label = None
+
+    def refresh_theme_and_fonts(self, theme, font_family, font_size):
+        """Update the theme and font of the tooltip if visible."""
+        self.theme = theme
+        self.font_family = font_family
+        self.font_size = font_size
+        if self.tipwindow and self._label:
+            bg = self.theme.get('tooltip_bg', '#ffffe0')
+            fg = self.theme.get('tooltip_fg', '#000000')
+            self.tipwindow.configure(bg=bg)
+            self._label.configure(
+                background=bg,
+                foreground=fg,
+                font=(self.font_family, self.font_size)
+            )
+
+    @classmethod
+    def refresh_all_visible_tooltips(cls, theme, font_family, font_size):
+        for tip in list(cls._visible_tooltips):
+            tip.refresh_theme_and_fonts(theme, font_family, font_size)
 
 
 
 class MainWindowBuilder:
+    def refresh_all_widget_fonts(self):
+        """Force refresh of all widget fonts and styles after a font or font size change, including tooltips."""
+        from core.themes import THEMES
+        font_family = self.settings.get('font_family', 'TkDefaultFont')
+        font_size = int(self.settings.get('font_size', 9))
+        theme_name = self.settings.get('theme', 'light')
+        theme_colors = THEMES.get(theme_name, THEMES['light'])
+        # Re-apply theme to root (updates ttk styles)
+        from core.themes import apply_theme
+        apply_theme(self.root, theme_name, font_family, font_size)
+        # Recursively update all classic widgets in the main frame
+        main_frame = self.ui_widgets.get('main_frame') if hasattr(self, 'ui_widgets') else getattr(self, 'main_frame', None)
+        if main_frame:
+            from core.themes import _apply_widget_theme
+            _apply_widget_theme(main_frame, theme_colors, font_family, font_size)
+        # For ttk widgets, force style re-application
+        def refresh_ttk_styles(widget):
+            try:
+                style = widget.cget('style')
+                if style:
+                    widget.configure(style=style)
+            except Exception:
+                pass
+            for child in widget.winfo_children():
+                refresh_ttk_styles(child)
+        if main_frame:
+            refresh_ttk_styles(main_frame)
+        # Also refresh all visible tooltips
+        try:
+            Tooltip.refresh_all_visible_tooltips(theme_colors, font_family, font_size)
+        except Exception:
+            pass
     def _show_tooltip(self, widget, text):
         # Use current theme for tooltips
         from core.themes import THEMES
@@ -74,7 +135,12 @@ class MainWindowBuilder:
         # Font Family Combobox
         system_default_label = self.loc._("system_default_font")
         font_list = self.font_utils.get_available_fonts(system_default_label)
-        self.font_family_var = tk.StringVar(value=system_default_label if self.settings.get('font_family', 'TkDefaultFont') == 'TkDefaultFont' else self.settings.get('font_family', 'TkDefaultFont'))
+        # Use the actual font family from settings, not always default
+        saved_font = self.settings.get('font_family', 'TkDefaultFont')
+        if saved_font == 'TkDefaultFont':
+            self.font_family_var = tk.StringVar(value=system_default_label)
+        else:
+            self.font_family_var = tk.StringVar(value=saved_font)
         font_combo = ttk.Combobox(parent, textvariable=self.font_family_var, values=font_list, state="readonly", width=18)
         font_combo.grid(row=0, column=5, padx=(8, 0))
         font_combo.bind("<<ComboboxSelected>>", on_font_family_changed)
@@ -218,8 +284,10 @@ class MainWindowBuilder:
         # Initialize font StringVars early
         system_default_label = self.loc._("system_default_font")
         current_font = self.settings.get('font_family', 'TkDefaultFont')
-        display_value = system_default_label if current_font == 'TkDefaultFont' else current_font
-        self.font_family_var = tk.StringVar(value=display_value)
+        if current_font == 'TkDefaultFont':
+            self.font_family_var = tk.StringVar(value=system_default_label)
+        else:
+            self.font_family_var = tk.StringVar(value=current_font)
         self.font_size_var = tk.StringVar(value=str(self.settings.get('font_size', 9)))
 
         # Main frame
@@ -376,6 +444,9 @@ class MainWindowBuilder:
             'wow_path_var': self.wow_path_var,
             'path_entry': self.path_entry,
             'font_family_var': self.font_family_var,
+            'font_size_var': self.font_size_var,
+            'font_combo': getattr(self, 'font_combo', None),
+            'font_size_combo': getattr(self, 'font_size_combo', None),
             'append_log_var': self.append_log_var,
             'language_var': self.language_var,
             'delete_mode_var': self.delete_mode_var,

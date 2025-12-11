@@ -28,11 +28,21 @@ class ApplicationController:
         current_theme = self.settings.get('theme', 'light')
         new_theme = 'dark' if current_theme == 'light' else 'light'
         self.settings['theme'] = new_theme
-        
         # Apply theme with current font settings
         font_family = self.settings.get('font_family', 'TkDefaultFont')
         font_size = self.settings.get('font_size', 9)
         themes.apply_theme(self.root, new_theme, font_family, font_size)
+        # Force refresh all widget fonts/styles
+        if self.builder and hasattr(self.builder, 'refresh_all_widget_fonts'):
+            self.builder.refresh_all_widget_fonts()
+            # Also refresh all open dialogs
+            try:
+                from ui.dialog_base import BaseDialog
+                BaseDialog.refresh_all_open_dialogs(new_theme, font_family, font_size)
+            except Exception:
+                pass
+        from core.settings import save_settings
+        save_settings(self.settings)
     
     def on_font_size_changed(self, event=None):
         """Handle font size changes.
@@ -56,6 +66,14 @@ class ApplicationController:
             self._refresh_all_fonts(font_family, new_size)
             self.root.update_idletasks()
             self.resize_to_fit_content()
+            # Also refresh all open dialogs
+            try:
+                from ui.dialog_base import BaseDialog
+                BaseDialog.refresh_all_open_dialogs(current_theme, font_family, new_size)
+            except Exception:
+                pass
+            from core.settings import save_settings
+            save_settings(self.settings)
         except ValueError:
             print("[DEBUG] Invalid font size value", file=sys.stderr)
             pass  # Invalid font size, ignore
@@ -91,6 +109,14 @@ class ApplicationController:
         self._refresh_all_fonts(actual_font, font_size)
         self.root.update_idletasks()
         self.resize_to_fit_content()
+        # Also refresh all open dialogs
+        try:
+            from ui.dialog_base import BaseDialog
+            BaseDialog.refresh_all_open_dialogs(current_theme, actual_font, font_size)
+        except Exception:
+            pass
+        from core.settings import save_settings
+        save_settings(self.settings)
     
     def on_delete_mode_changed(self, *args):
         """Handle delete mode changes.
@@ -104,6 +130,8 @@ class ApplicationController:
         
         new_mode = delete_mode_var.get()
         self.settings['delete_mode'] = new_mode
+        from core.settings import save_settings
+        save_settings(self.settings)
     
     def on_verbose_changed(self, *args):
         """Handle verbose logging changes.
@@ -120,6 +148,8 @@ class ApplicationController:
         
         # Update logger verbose mode
         self.logger.set_verbose(new_value)
+        from core.settings import save_settings
+        save_settings(self.settings)
     
     def on_append_log_changed(self, *args):
         """Handle append log changes.
@@ -143,6 +173,8 @@ class ApplicationController:
                 self.builder.delete_log_btn.pack(side='left', padx=(0, 10))
             else:
                 self.builder.delete_log_btn.pack_forget()
+        from core.settings import save_settings
+        save_settings(self.settings)
     
     def update_wow_path(self, new_path):
         """Update the WoW path in UI and settings.
@@ -166,6 +198,8 @@ class ApplicationController:
         # Enable/disable feature tabs based on whether we have a valid WoW path
         if self.builder and hasattr(self.builder, 'set_feature_tabs_enabled'):
             self.builder.set_feature_tabs_enabled(bool(new_path))
+        from core.settings import save_settings
+        save_settings(self.settings)
     
     def update_minimum_size(self):
         """Calculate and update the minimum window size based on content."""
@@ -390,9 +424,17 @@ class ApplicationController:
         self.resize_to_fit_content()
     
     def _refresh_all_fonts(self, font_family, font_size):
-        """Force refresh of all main window widgets to apply new font settings."""
+        """Force refresh of all main window widgets to apply new font settings everywhere."""
         import sys
+        from core import themes
         print(f"[DEBUG] Forcing font refresh: {font_family}, {font_size}", file=sys.stderr)
+        # Re-apply theme to root (updates ttk styles)
+        current_theme = self.settings.get('theme', 'light')
+        themes.apply_theme(self.root, current_theme, font_family, font_size)
+        # Recursively update all classic widgets in the main frame
+        main_frame = self.ui_widgets.get('main_frame')
+        if main_frame:
+            themes._apply_widget_theme(main_frame, themes.THEMES.get(current_theme, themes.THEMES['light']), font_family, font_size)
         # Refresh classic Tk widgets (Text, etc.)
         for key in ['log_text', 'dev_text']:
             widget = self.ui_widgets.get(key)
@@ -402,23 +444,3 @@ class ApplicationController:
                     print(f"[DEBUG] Refreshed {key} font", file=sys.stderr)
                 except Exception as e:
                     print(f"[DEBUG] Failed to refresh {key}: {e}", file=sys.stderr)
-        # Refresh ttk widgets by re-applying style
-        # This is mostly handled by apply_theme, but we can force style update for key widgets
-        for key in ['font_combo', 'font_size_combo', 'path_entry']:
-            widget = self.ui_widgets.get(key)
-            if widget:
-                try:
-                    widget.configure(font=(font_family, font_size))
-                    print(f"[DEBUG] Refreshed {key} font", file=sys.stderr)
-                except Exception as e:
-                    print(f"[DEBUG] Failed to refresh {key}: {e}", file=sys.stderr)
-        # Refresh all labels/buttons in main window
-        main_frame = self.ui_widgets.get('main_frame')
-        if main_frame:
-            for child in main_frame.winfo_children():
-                try:
-                    if hasattr(child, 'configure'):
-                        child.configure(font=(font_family, font_size))
-                        print(f"[DEBUG] Refreshed child {child} font", file=sys.stderr)
-                except Exception as e:
-                    print(f"[DEBUG] Failed to refresh child {child}: {e}", file=sys.stderr)

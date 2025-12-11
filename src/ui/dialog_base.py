@@ -6,11 +6,13 @@ from .ui_constants import DialogDimensions, DialogFontSizes
 
 
 class BaseDialog:
+    # Track all open dialog instances
+    _open_dialogs = set()
     """Base class for application dialogs with theme and localization support."""
-    
+
     def __init__(self, parent, loc, theme_name, settings, title_key):
         """Initialize base dialog.
-        
+
         Args:
             parent: Parent window
             loc: Localization instance
@@ -26,42 +28,77 @@ class BaseDialog:
         self.font_family = settings.get('font_family', 'TkDefaultFont')
         self.font_size = settings.get('font_size', 9)
         self.dialog = None
-        
+
+        # Register this dialog instance
+        BaseDialog._open_dialogs.add(self)
+
     def create_dialog(self, resizable=False, modal=True, min_width=None, min_height=None):
         """Create a themed dialog window.
-        
+
         Args:
             resizable: Whether dialog should be resizable
             modal: Whether dialog should be modal (grab focus)
             min_width: Minimum width (optional)
             min_height: Minimum height (optional)
-            
+
         Returns:
             tk.Toplevel: Created dialog window
         """
         dialog = tk.Toplevel(self.parent)
         dialog.title(self.loc._(self.title_key))
-        
+
         # Handle transient behavior
         try:
             if self.parent.state() != 'withdrawn':
                 dialog.transient(self.parent)
         except (tk.TclError, AttributeError):
             pass
-        
+
         if modal:
             dialog.grab_set()
-        
+
         dialog.resizable(resizable, resizable)
-        
+
         if min_width and min_height:
             dialog.minsize(min_width, min_height)
-        
+
         # Apply theme to dialog
         apply_theme(dialog, self.theme_name, self.font_family, self.font_size)
-        
+
         self.dialog = dialog
+        # Remove from open dialogs when closed
+        def _on_destroy(event=None):
+            BaseDialog._open_dialogs.discard(self)
+        dialog.bind("<Destroy>", _on_destroy)
         return dialog
+
+    def refresh_theme_and_fonts(self, theme_name=None, font_family=None, font_size=None):
+        """Re-apply theme and font to this dialog."""
+        if not self.dialog:
+            return
+        if theme_name is not None:
+            self.theme_name = theme_name
+        if font_family is not None:
+            self.font_family = font_family
+        if font_size is not None:
+            self.font_size = font_size
+        apply_theme(self.dialog, self.theme_name, self.font_family, self.font_size)
+        # Optionally, force style re-application for all children
+        def refresh_ttk_styles(widget):
+            try:
+                style = widget.cget('style')
+                if style:
+                    widget.configure(style=style)
+            except Exception:
+                pass
+            for child in widget.winfo_children():
+                refresh_ttk_styles(child)
+        refresh_ttk_styles(self.dialog)
+
+    @classmethod
+    def refresh_all_open_dialogs(cls, theme_name, font_family, font_size):
+        for dlg in list(cls._open_dialogs):
+            dlg.refresh_theme_and_fonts(theme_name, font_family, font_size)
     
     def create_content_frame(self, dialog, padding=None):
         """Create main content frame for dialog.
