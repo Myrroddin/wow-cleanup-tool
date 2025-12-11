@@ -89,7 +89,7 @@ class WoWCloseWarning(BaseDialog):
         if dont_show_var and dont_show_var.get():
             self.settings['disable_wow_close_warning'] = True
             # Save settings immediately to persist the preference
-            from ...core.settings import save_settings
+            from core.settings import save_settings
             save_settings(self.settings)
         dialog.destroy()
 

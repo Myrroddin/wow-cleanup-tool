@@ -4,20 +4,128 @@ import tkinter as tk
 from tkinter import ttk
 
 
+
+
+# --- Tooltip Factory ---
+class Tooltip:
+    def __init__(self, widget, text, theme, font_family, font_size, wraplength=320):
+        self.widget = widget
+        self.text = text
+        self.theme = theme
+        self.font_family = font_family
+        self.font_size = font_size
+        self.wraplength = wraplength
+        self.tipwindow = None
+
+    def show(self):
+        if self.tipwindow:
+            self.hide()
+        x = self.widget.winfo_rootx() + 20
+        y = self.widget.winfo_rooty() + self.widget.winfo_height() + 5
+        self.tipwindow = tk.Toplevel(self.widget)
+        self.tipwindow.wm_overrideredirect(True)
+        self.tipwindow.wm_geometry(f"+{x}+{y}")
+        # Theme-aware colors
+        bg = self.theme.get('tooltip_bg', '#ffffe0')
+        fg = self.theme.get('tooltip_fg', '#000000')
+        label = tk.Label(
+            self.tipwindow,
+            text=self.text,
+            background=bg,
+            foreground=fg,
+            relief="solid",
+            borderwidth=1,
+            font=(self.font_family, self.font_size),
+            wraplength=self.wraplength,
+            justify='left'
+        )
+        label.pack(ipadx=6, ipady=2)
+
+    def hide(self):
+        if self.tipwindow:
+            self.tipwindow.destroy()
+            self.tipwindow = None
+
 class MainWindowBuilder:
-    """Builder class for constructing the main application window UI."""
+    def __init__(self, *args, **kwargs):
+        # ...existing code...
+        self._active_tooltip = None
+        # Example theme dict; replace with actual theme logic
+        self._theme = {
+            'tooltip_bg': '#ffffe0',
+            'tooltip_fg': '#000000'
+        }
+
+    def _show_tooltip(self, widget, text):
+        # Use Tooltip factory
+        if not hasattr(self, '_active_tooltip'):
+            self._active_tooltip = None
+        if not hasattr(self, '_theme'):
+            self._theme = {
+                'tooltip_bg': '#ffffe0',
+                'tooltip_fg': '#000000'
+            }
+        if self._active_tooltip:
+            self._active_tooltip.hide()
+        font_family = self.settings.get('font_family', 'TkDefaultFont')
+        font_size = max(9, int(self.settings.get('font_size', 9)))
+        self._active_tooltip = Tooltip(
+            widget,
+            text,
+            self._theme,
+            font_family,
+            font_size,
+            wraplength=320
+        )
+        self._active_tooltip.show()
+
+    def _hide_tooltip(self):
+        if not hasattr(self, '_active_tooltip'):
+            self._active_tooltip = None
+        if self._active_tooltip:
+            self._active_tooltip.hide()
+            self._active_tooltip = None
 
     def add_theme_toggle(self, parent, command):
-        """Stub for add_theme_toggle. To be implemented."""
-        pass
+        """Add a toggle theme button to the given parent widget."""
+        btn = ttk.Button(
+            parent,
+            text=self.loc._("btn_toggle_theme"),
+            command=command
+        )
+        btn.grid(row=0, column=3, padx=(8, 0))
+        # No tooltip for theme toggle button
+        return btn
 
-    def add_font_controls(self, *args, **kwargs):
-        """Stub for add_font_controls. To be implemented."""
-        pass
+    def add_font_controls(self, parent, on_font_family_changed, on_font_size_changed):
+        """Add font family and size controls to the given parent widget."""
+        import tkinter as tk
+        from tkinter import ttk
+        # Font Family Combobox
+        system_default_label = self.loc._("system_default_font")
+        font_list = self.font_utils.get_available_fonts(system_default_label)
+        self.font_family_var = tk.StringVar(value=system_default_label if self.settings.get('font_family', 'TkDefaultFont') == 'TkDefaultFont' else self.settings.get('font_family', 'TkDefaultFont'))
+        font_combo = ttk.Combobox(parent, textvariable=self.font_family_var, values=font_list, state="readonly", width=18)
+        font_combo.grid(row=0, column=4, padx=(8, 0))
+        font_combo.bind("<<ComboboxSelected>>", on_font_family_changed)
+        self.font_combo = font_combo
+        # Font Label
+        font_label = ttk.Label(parent, text=self.loc._("label_font"))
+        font_label.grid(row=0, column=5, padx=(8, 0))
+        # Font Size Combobox
+        font_sizes = self.font_utils.get_font_sizes()
+        self.font_size_var = tk.StringVar(value=str(self.settings.get('font_size', 9)))
+        font_size_combo = ttk.Combobox(parent, textvariable=self.font_size_var, values=font_sizes, state="readonly", width=4)
+        font_size_combo.grid(row=0, column=6, padx=(4, 0))
+        font_size_combo.bind("<<ComboboxSelected>>", on_font_size_changed)
+        # Font Size Label
+        font_size_label = ttk.Label(parent, text=self.loc._("label_font_size"))
+        font_size_label.grid(row=0, column=7, padx=(4, 0))
+        # Store references for controller
+        self.font_size_combo = font_size_combo
+        return font_combo, font_size_combo
 
-    def add_browse_button(self, parent, command):
-        """Stub for add_browse_button. To be implemented."""
-        pass
+    # add_browse_button is now implemented in build(); stub removed.
 
     def _on_scan_files(self):
         # TODO: Implement scan files logic
@@ -67,7 +175,6 @@ class MainWindowBuilder:
     
     def build(self):
         """Build and return the main window UI components.
-        
         Returns:
             dict: Dictionary containing references to key UI components
         """
@@ -77,34 +184,154 @@ class MainWindowBuilder:
         display_value = system_default_label if current_font == 'TkDefaultFont' else current_font
         self.font_family_var = tk.StringVar(value=display_value)
         self.font_size_var = tk.StringVar(value=str(self.settings.get('font_size', 9)))
-        
+
         # Initialize delete mode StringVar
         self.delete_mode_var = tk.StringVar(value=self.settings.get('delete_mode', 'trash'))
-        
+
         # Initialize verbose logging BooleanVar
         self.verbose_var = tk.BooleanVar(value=self.settings.get('verbose_logging', True))
-        
+
         # Initialize append log BooleanVar
         self.append_log_var = tk.BooleanVar(value=self.settings.get('append_log', False))
-        
+
         # Initialize language StringVar with display name
         self.language_var = tk.StringVar(value=self.loc._("option_language_english"))
-        
+
         # Main frame
         main_frame = ttk.Frame(self.root, padding=10)
         main_frame.grid(row=0, column=0, sticky='nsew')
-        
+
         # Configure grid weights
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
         main_frame.rowconfigure(2, weight=1)  # Log area expands vertically
-        
+
+        # --- Main Title ---
+        title_label = ttk.Label(
+            main_frame,
+            text=self.loc._("title_main_window"),
+            anchor='center',
+            style='Title.TLabel',
+            font=(self.settings.get('font_family', 'TkDefaultFont'), max(12, int(self.settings.get('font_size', 9)) + 4))
+        )
+        title_label.grid(row=0, column=0, sticky='ew', pady=(0, 10))
+        main_frame.grid_rowconfigure(0, weight=0)
+        main_frame.grid_columnconfigure(0, weight=1)
+        # --- End Main Title ---
+
+        # WoW path field will be row=1
+
+        # --- WoW Path Field and Browse Button ---
+        from wow.path_manager import PathManager
+        wow_path_frame = ttk.Frame(main_frame)
+        wow_path_frame.grid(row=1, column=0, sticky='ew', pady=(0, 10))
+        wow_path_frame.columnconfigure(1, weight=1)
+
+        wow_path_label = ttk.Label(wow_path_frame, text=self.loc._("label_wow_installation_path"))
+        wow_path_label.grid(row=0, column=0, sticky='w', padx=(0, 8))
+        import sys
+        print("[DEBUG] WoW Path Label created:", wow_path_label, file=sys.stderr)
+        print("[DEBUG] WoW Path Label text:", wow_path_label.cget('text'), file=sys.stderr)
+        print("[DEBUG] WoW Path Label grid info:", wow_path_label.grid_info(), file=sys.stderr)
+        print("[DEBUG] WoW Path Label geometry:", wow_path_label.winfo_geometry(), file=sys.stderr)
+
+        # Auto-detect WoW path
+        path_manager = PathManager(self.loc)
+        detected_path = path_manager.detect_wow_path()
+        valid = path_manager.validate_wow_path(detected_path) if detected_path else False
+        wow_path_value = detected_path if valid else ""
+        print("[DEBUG] Detected WoW path:", detected_path, file=sys.stderr)
+        print("[DEBUG] WoW path valid:", valid, file=sys.stderr)
+
+        self.wow_path_var = tk.StringVar(value=wow_path_value)
+        self.path_entry = ttk.Entry(wow_path_frame, textvariable=self.wow_path_var, width=48)
+        self.path_entry.grid(row=0, column=1, sticky='ew')
+        print("[DEBUG] WoW Path Entry created:", self.path_entry, file=sys.stderr)
+        print("[DEBUG] WoW Path Entry width option:", self.path_entry.cget('width'), file=sys.stderr)
+        print("[DEBUG] WoW Path Entry textvariable:", self.path_entry.cget('textvariable'), file=sys.stderr)
+        print("[DEBUG] WoW Path Entry grid info:", self.path_entry.grid_info(), file=sys.stderr)
+        print("[DEBUG] WoW Path Entry geometry:", self.path_entry.winfo_geometry(), file=sys.stderr)
+        self.root.update_idletasks()
+        print("[DEBUG] WoW Path Entry actual width:", self.path_entry.winfo_width(), file=sys.stderr)
+        print("[DEBUG] WoW Path Entry actual height:", self.path_entry.winfo_height(), file=sys.stderr)
+
+        # Browse button should open file dialog
+        def on_browse():
+            import tkinter.filedialog as filedialog
+            folder = filedialog.askdirectory(title=self.loc._("select_wow_folder"))
+            print("[DEBUG] Browse button clicked. Selected folder:", folder, file=sys.stderr)
+            if folder:
+                self.wow_path_var.set(folder)
+
+        browse_btn = ttk.Button(wow_path_frame, text=self.loc._("btn_browse"), command=on_browse)
+        browse_btn.grid(row=0, column=2, padx=(8, 0))
+        print("[DEBUG] Browse Button created:", browse_btn, file=sys.stderr)
+        print("[DEBUG] Browse Button text:", browse_btn.cget('text'), file=sys.stderr)
+        print("[DEBUG] Browse Button grid info:", browse_btn.grid_info(), file=sys.stderr)
+        print("[DEBUG] Browse Button geometry:", browse_btn.winfo_geometry(), file=sys.stderr)
+        browse_btn_ttp = self.loc._("tooltip_browse_wow_folder")
+        browse_btn.bind("<Enter>", lambda e: self._show_tooltip(browse_btn, browse_btn_ttp))
+        browse_btn.bind("<Leave>", lambda e: self._hide_tooltip())
+
+        # --- End WoW Path Field ---
+
+        # --- UI Layout ---
+        # Add row for delete mode selection (Move to Trash / Delete Permanently)
+        delete_mode_frame = ttk.Frame(main_frame)
+        delete_mode_frame.grid(row=2, column=0, sticky='w', pady=(8, 0), padx=(0, 0))
+        print("[DEBUG] Delete Mode Frame created:", delete_mode_frame, file=sys.stderr)
+        print("[DEBUG] Delete Mode Frame grid info:", delete_mode_frame.grid_info(), file=sys.stderr)
+        print("[DEBUG] Delete Mode Frame geometry:", delete_mode_frame.winfo_geometry(), file=sys.stderr)
+        delete_mode_label = ttk.Label(
+            delete_mode_frame,
+            text=self.loc._("label_delete_mode")
+        )
+        delete_mode_label.pack(side='left', padx=(0, 8))
+        print("[DEBUG] Delete Mode Label created:", delete_mode_label, file=sys.stderr)
+        print("[DEBUG] Delete Mode Label text:", delete_mode_label.cget('text'), file=sys.stderr)
+        print("[DEBUG] Delete Mode Label pack info:", delete_mode_label.pack_info(), file=sys.stderr)
+        print("[DEBUG] Delete Mode Label geometry:", delete_mode_label.winfo_geometry(), file=sys.stderr)
+
+        # Radio buttons for delete mode
+        trash_rb = ttk.Radiobutton(
+            delete_mode_frame,
+            text=self.loc._("option_delete_mode_trash"),
+            value="trash",
+            variable=self.delete_mode_var
+        )
+        trash_rb.pack(side='left', padx=(0, 8))
+        print("[DEBUG] Trash Radio Button created:", trash_rb, file=sys.stderr)
+        print("[DEBUG] Trash Radio Button text:", trash_rb.cget('text'), file=sys.stderr)
+        print("[DEBUG] Trash Radio Button value:", trash_rb.cget('value'), file=sys.stderr)
+        print("[DEBUG] Trash Radio Button variable:", trash_rb.cget('variable'), file=sys.stderr)
+        print("[DEBUG] Trash Radio Button pack info:", trash_rb.pack_info(), file=sys.stderr)
+        print("[DEBUG] Trash Radio Button geometry:", trash_rb.winfo_geometry(), file=sys.stderr)
+        self.root.update_idletasks()
+        print("[DEBUG] Trash Radio Button actual width:", trash_rb.winfo_width(), file=sys.stderr)
+        print("[DEBUG] Trash Radio Button actual height:", trash_rb.winfo_height(), file=sys.stderr)
+
+        permanent_rb = ttk.Radiobutton(
+            delete_mode_frame,
+            text=self.loc._("option_delete_mode_permanent"),
+            value="permanent",
+            variable=self.delete_mode_var
+        )
+        permanent_rb.pack(side='left')
+        print("[DEBUG] Permanent Radio Button created:", permanent_rb, file=sys.stderr)
+        print("[DEBUG] Permanent Radio Button text:", permanent_rb.cget('text'), file=sys.stderr)
+        print("[DEBUG] Permanent Radio Button value:", permanent_rb.cget('value'), file=sys.stderr)
+        print("[DEBUG] Permanent Radio Button variable:", permanent_rb.cget('variable'), file=sys.stderr)
+        print("[DEBUG] Permanent Radio Button pack info:", permanent_rb.pack_info(), file=sys.stderr)
+        print("[DEBUG] Permanent Radio Button geometry:", permanent_rb.winfo_geometry(), file=sys.stderr)
+        self.root.update_idletasks()
+        print("[DEBUG] Permanent Radio Button actual width:", permanent_rb.winfo_width(), file=sys.stderr)
+        print("[DEBUG] Permanent Radio Button actual height:", permanent_rb.winfo_height(), file=sys.stderr)
+        print("[DEBUG] Delete Mode Frame children:", delete_mode_frame.winfo_children(), file=sys.stderr)
+
         # Build UI sections
-        self._create_title(main_frame)
-        # Toolbar removed in custom tab system refactor
         self._create_tabbed_log_area(main_frame)
-        path_frame = None
-        
+        path_frame = wow_path_frame
+
         # Log initial message
         self.logger.log(self.loc._("status_app_started"))
         # Return references to important widgets
@@ -118,16 +345,9 @@ class MainWindowBuilder:
             'delete_mode_var': self.delete_mode_var,
             'verbose_var': self.verbose_var,
             'reset_button': None,  # Stub for legacy reset_button
-            # Legacy widgets removed from return dict
         }
     
-    def _create_title(self, parent):
-        """Create the title label.
-        
-        Args:
-            parent: Parent widget
-        """
-        title = ttk.Label(parent, text=self.loc._("title_main_window"), style='Title.TLabel')
+    # _create_title is now implemented in build(); stub removed.
         def _create_tabbed_log_area(self, parent):
             import sys
             # Debug print removed
@@ -423,8 +643,17 @@ class MainWindowBuilder:
 
         # Create text widget with scrollbar for main log
         text_scroll = ttk.Scrollbar(log_frame)
-        text_scroll.pack(side='right', fill='y')
+        # WoW path Entry: min width 20, max width 60, restrict input to 60 chars
+        min_width = 20
+        max_width = 60
+        entry_width = max(min_width, min(max_width, max(len(self.settings.get('wow_path', '')), min_width)))
+        self.path_entry = ttk.Entry(wow_path_frame, textvariable=self.wow_path_var, width=entry_width)
 
+        # Input validation: restrict to 60 chars
+        def validate_path_length(P):
+            return len(P) <= max_width
+        vcmd = self.root.register(validate_path_length)
+        self.path_entry.config(validate="key", validatecommand=(vcmd, '%P'))
         font_family = self.settings.get('font_family', 'TkDefaultFont')
         font_size = self.settings.get('font_size', 9)
         self.log_text = tk.Text(log_frame, height=15, width=60, 

@@ -40,23 +40,24 @@ class ApplicationController:
         Args:
             event: Tkinter event (optional)
         """
+        import sys
         try:
             font_size_var = self.ui_widgets.get('font_size_var')
             if not font_size_var:
+                print("[DEBUG] font_size_var missing", file=sys.stderr)
                 return
-            
             new_size = int(font_size_var.get())
+            print(f"[DEBUG] Font size changed to: {new_size}", file=sys.stderr)
             self.settings['font_size'] = new_size
-            
-            # Apply font globally through theme system
             font_family = self.settings.get('font_family', 'TkDefaultFont')
             current_theme = self.settings.get('theme', 'light')
+            print(f"[DEBUG] Applying theme: {current_theme}, font: {font_family}, size: {new_size}", file=sys.stderr)
             themes.apply_theme(self.root, current_theme, font_family, new_size)
-            
-            # Force window to resize to fit new font
+            self._refresh_all_fonts(font_family, new_size)
             self.root.update_idletasks()
             self.resize_to_fit_content()
         except ValueError:
+            print("[DEBUG] Invalid font size value", file=sys.stderr)
             pass  # Invalid font size, ignore
     
     def on_font_family_changed(self, event=None):
@@ -65,35 +66,29 @@ class ApplicationController:
         Args:
             event: Tkinter event (optional)
         """
+        import sys
         from ui import font_utils
-        
         font_family_var = self.ui_widgets.get('font_family_var')
         if not font_family_var:
+            print("[DEBUG] font_family_var missing", file=sys.stderr)
             return
-        
         selected = font_family_var.get()
         font_combo = self.ui_widgets.get('font_combo')
-        
-        # Get the actual font value from the combobox state
-        # System default is stored as 'TkDefaultFont' internally
         if font_combo and hasattr(font_combo, 'current'):
             idx = font_combo.current()
-            if idx == 0:  # First item is always system default
+            if idx == 0:
                 actual_font = 'TkDefaultFont'
             else:
                 actual_font = selected
         else:
-            # Fallback: if selected matches display of system default, use TkDefaultFont
             actual_font = 'TkDefaultFont' if '(' in selected and ')' in selected else selected
-        
+        print(f"[DEBUG] Font family changed to: {actual_font}", file=sys.stderr)
         self.settings['font_family'] = actual_font
-        
-        # Apply font globally through theme system
         current_theme = self.settings.get('theme', 'light')
         font_size = self.settings.get('font_size', 9)
+        print(f"[DEBUG] Applying theme: {current_theme}, font: {actual_font}, size: {font_size}", file=sys.stderr)
         themes.apply_theme(self.root, current_theme, actual_font, font_size)
-        
-        # Force window to resize to fit new font
+        self._refresh_all_fonts(actual_font, font_size)
         self.root.update_idletasks()
         self.resize_to_fit_content()
     
@@ -393,3 +388,37 @@ class ApplicationController:
         # Resize window
         self.root.update_idletasks()
         self.resize_to_fit_content()
+    
+    def _refresh_all_fonts(self, font_family, font_size):
+        """Force refresh of all main window widgets to apply new font settings."""
+        import sys
+        print(f"[DEBUG] Forcing font refresh: {font_family}, {font_size}", file=sys.stderr)
+        # Refresh classic Tk widgets (Text, etc.)
+        for key in ['log_text', 'dev_text']:
+            widget = self.ui_widgets.get(key)
+            if widget:
+                try:
+                    widget.configure(font=(font_family, font_size))
+                    print(f"[DEBUG] Refreshed {key} font", file=sys.stderr)
+                except Exception as e:
+                    print(f"[DEBUG] Failed to refresh {key}: {e}", file=sys.stderr)
+        # Refresh ttk widgets by re-applying style
+        # This is mostly handled by apply_theme, but we can force style update for key widgets
+        for key in ['font_combo', 'font_size_combo', 'path_entry']:
+            widget = self.ui_widgets.get(key)
+            if widget:
+                try:
+                    widget.configure(font=(font_family, font_size))
+                    print(f"[DEBUG] Refreshed {key} font", file=sys.stderr)
+                except Exception as e:
+                    print(f"[DEBUG] Failed to refresh {key}: {e}", file=sys.stderr)
+        # Refresh all labels/buttons in main window
+        main_frame = self.ui_widgets.get('main_frame')
+        if main_frame:
+            for child in main_frame.winfo_children():
+                try:
+                    if hasattr(child, 'configure'):
+                        child.configure(font=(font_family, font_size))
+                        print(f"[DEBUG] Refreshed child {child} font", file=sys.stderr)
+                except Exception as e:
+                    print(f"[DEBUG] Failed to refresh child {child}: {e}", file=sys.stderr)

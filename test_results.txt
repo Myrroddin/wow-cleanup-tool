@@ -1,0 +1,1 @@
+C:/Program Files/Python314/Scripts/pytest.exe

@@ -84,7 +84,8 @@ class WoWCleanupTool:
         # Apply theme with font
         apply_theme(self.root, self.settings.get('theme', 'light'), font_family, font_size)
         
-        # Create UI using MainWindowBuilder
+        # Pass browse_wow_path as a callback for the builder's browse button
+        self.settings['browse_callback'] = self.browse_wow_path
         builder = MainWindowBuilder(self.root, self.loc, self.settings, self.logger, font_utils)
         self.ui_widgets = builder.build()
         
@@ -98,7 +99,6 @@ class WoWCleanupTool:
         
         # Add toolbar controls with callbacks
         path_frame = self.ui_widgets['path_frame']
-        builder.add_browse_button(path_frame, self.browse_wow_path)
         builder.add_theme_toggle(path_frame, self.on_theme_toggle)
         builder.add_font_controls(
             path_frame,

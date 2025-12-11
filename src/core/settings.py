@@ -154,6 +154,8 @@ def load_settings() -> Dict[str, Any]:
         "delete_mode": "trash",  # 'trash' or 'permanent'
         "verbose_logging": True,  # Show detailed operation messages (file deletions, config edits, etc.)
         "append_log": False,  # Append to user log across sessions instead of clearing
+        "disable_license_dialog": False,  # Respect license dialog toggle
+        "disable_wow_close_warning": False,  # Respect warning dialog toggle
     }
     
     # Load user settings
