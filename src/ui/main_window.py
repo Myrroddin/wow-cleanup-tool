@@ -1,3 +1,4 @@
+
 """Main window UI creation for WoW Cleanup Tool."""
 import tkinter as tk
 from tkinter import ttk
@@ -5,6 +6,14 @@ from tkinter import ttk
 
 class MainWindowBuilder:
     """Builder class for constructing the main application window UI."""
+
+    def _on_scan_files(self):
+        # TODO: Implement scan files logic
+        print("Scan Files button clicked.")
+
+    def _on_remove_files(self):
+        # TODO: Implement remove files logic
+        print("Remove Files button clicked.")
     
     def __init__(self, root, loc, settings, logger, font_utils):
         """Initialize the main window builder.
@@ -316,6 +325,24 @@ class MainWindowBuilder:
         )
         file_cleaner_desc_label.pack(side='top', fill='x', pady=(0, 10))
 
+        # Add Scan Files and Remove Files buttons
+        button_frame = ttk.Frame(file_cleaner_frame)
+        button_frame.pack(side='top', fill='x', pady=(0, 10))
+
+        scan_btn = ttk.Button(
+            button_frame,
+            text=self.loc._("btn_scan_files"),
+            command=self._on_scan_files
+        )
+        scan_btn.pack(side='left', padx=(0, 10))
+
+        remove_btn = ttk.Button(
+            button_frame,
+            text=self.loc._("btn_remove_files"),
+            command=self._on_remove_files
+        )
+        remove_btn.pack(side='left')
+
         def update_wraplength(event=None):
             width = file_cleaner_frame.winfo_width() - 32
             if width > 100:
@@ -323,30 +350,7 @@ class MainWindowBuilder:
         file_cleaner_frame.bind('<Configure>', update_wraplength)
         update_wraplength()
 
-        # Example tree data for demonstration; replace with actual scan results
-        tree_data = TreeNode('Game Versions', [
-            TreeNode('Retail', [TreeNode('file1.bak'), TreeNode('file2.old')]),
-            TreeNode('Classic', [TreeNode('file3.bak')]),
-        ], expanded=True)
-
-        def on_select(node):
-            print(f"Selected: {node.label}")
-
-        def on_expand(node):
-            print(f"Expanded: {node.label}")
-
-        sapling = SaplingCanvas(
-            file_cleaner_frame,
-            'triangle',
-            tree_data,
-            expand_all_on_root_click=False,
-            on_select=on_select,
-            on_expand=on_expand,
-            width=380,
-            height=180,
-            bg='white'
-        )
-        sapling.pack(fill='both', expand=True, pady=(0, 10))
+        # Placeholder for file/folder tree removed. Area will be populated later.
         
         # Folder Cleaner Tab
         folder_cleaner_frame = ttk.Frame(self.notebook, padding=5)

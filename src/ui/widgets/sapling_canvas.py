@@ -12,23 +12,17 @@ class TreeNode:
         self.is_group = bool(children)
 
 class SaplingCanvas(tk.Canvas):
-    def __init__(self, master, style, tree_data, expand_all_on_root_click=False,
+    def __init__(self, master, tree_data, expand_all_on_root_click=False,
                  on_select=None, on_expand=None, **kwargs):
-        import sys
         super().__init__(master, **kwargs)
-        self.style = style.lower() if isinstance(style, str) else 'triangle'
         self.tree_data = tree_data  # Root TreeNode
         self.expand_all_on_root_click = bool(expand_all_on_root_click)
         self.on_select = on_select
         self.on_expand = on_expand
         self.node_positions = {}    # Map node to (x, y, width, height)
         self.selected_nodes = set()
+        self.debug_font = ('Consolas', 10)
         self.bind('<Button-1>', self._on_click)
-        # Debug print for font and canvas width
-        font = ('Consolas', 10)  # Switch to monospaced font for clarity
-        self.debug_font = font
-        print(f"[DEBUG] Canvas width: {self['width']}", file=sys.stderr)
-        print(f"[DEBUG] Using font: {font}", file=sys.stderr)
         self._redraw()
     def expand_node(self, node):
         node.expanded = True
@@ -58,29 +52,12 @@ class SaplingCanvas(tk.Canvas):
         self._draw_node(self.tree_data, 10, 10, 0)
 
     def _draw_node(self, node, x, y, depth):
-        import sys
-        # Debug print for tracing indentation and label composition
-        # Expander style
+        # Only triangle style
         expander_str = ''
         checkbox = '☑' if node.selected else '☐'
-        connector = ''
-        if self.style == 'box':
-            connector = '    ' * depth
-            print(f"[DEBUG] Connector for '{node.label}': '{connector}'", file=sys.stderr)
-            if node.children:
-                expander_str = '[-]' if node.expanded else '[+]'
-                print(f"[BOX DEBUG] Connector for '{node.label}': '{connector}'", file=sys.stderr)
-            # Ensure files (leaf nodes) are also indented
-        elif self.style == 'triangle':
-            connector = '    ' * depth
-            if node.children:
-                expander_str = '▼' if node.expanded else '▶'
-        elif self.style == 'simple' and depth > 0:
-            connector = '|   ' * (depth-1) + '|-- '
-            if node.children:
-                expander_str = '-' if node.expanded else '+'
-        # Always set label for every node
+        connector = '    ' * depth
         if node.children:
+            expander_str = '▼' if node.expanded else '▶'
             label = f'{connector}{expander_str} {checkbox} {node.label}'
         else:
             label = f'{connector}{checkbox} {node.label}'
@@ -134,13 +111,6 @@ class SaplingCanvas(tk.Canvas):
                         for c in n.children:
                             _set_selected_recursive(c, state)
                     _set_selected_recursive(node, new_state)
-                    # Debug print: confirm selected state for all descendants
-                    def _print_selected(n, depth=0):
-                        import sys
-                        print(f"[DEBUG] {'  '*depth}{n.label}: selected={n.selected}", file=sys.stderr)
-                        for c in n.children:
-                            _print_selected(c, depth+1)
-                    _print_selected(node)
                 else:
                     node.selected = not node.selected
                 self._redraw()
@@ -175,49 +145,13 @@ class SaplingCanvas(tk.Canvas):
         self._redraw()
 
     def build_tree(self, scan_results):
-        import logging
-        logger = logging.getLogger("SaplingCanvas")
-        logger.debug(f"[DEBUG] build_tree called with scan_results: {scan_results}")
         if not scan_results:
-            logger.debug("[DEBUG] No .bak/.old files found in scan_results.")
             return TreeNode('No .bak/.old files found', [])
         root = TreeNode('Game Versions', expanded=True)
         for flavor, files in scan_results.items():
-            logger.debug(f"[DEBUG] Adding flavor '{flavor}' with files: {files}")
             flavor_node = TreeNode(flavor, expanded=True)
             for f in files:
                 flavor_node.children.append(TreeNode(f))
             root.children.append(flavor_node)
         return root
-# Example usage (for testing):
-if __name__ == '__main__':
-    root = tk.Tk()
-    root.title('SaplingCanvas Demo')
-    # Build deeply nested sample tree
-    tree = TreeNode('Game Versions', [
-        TreeNode('Retail', [
-            TreeNode('file1.bak'),
-            TreeNode('file2.old'),
-            TreeNode('Nested', [
-                TreeNode('Deeper', [
-                    TreeNode('file3.bak'),
-                    TreeNode('file4.old'),
-                ], expanded=True),
-                TreeNode('file5.bak'),
-            ], expanded=True),
-        ], expanded=True),
-        TreeNode('Classic', [
-            TreeNode('file6.bak'),
-            TreeNode('file7.old'),
-        ], expanded=True),
-    ], expanded=True)
 
-    # Show all styles in separate windows
-    for style in ['triangle', 'box', 'simple']:
-        win = tk.Toplevel() if style != 'triangle' else root
-        win.title(f'SaplingCanvas Demo - {style.capitalize()} Style')
-        # Demo: triangle style with expand_all_on_root_click True, others False
-        expand_all = True if style == 'triangle' else False
-        canvas = SaplingCanvas(win, style, tree, expand_all_on_root_click=expand_all, width=400, height=300, bg='white')
-        canvas.pack(fill='both', expand=True)
-    root.mainloop()
