@@ -29,6 +29,7 @@ class Tooltip:
         # Theme-aware colors
         bg = self.theme.get('tooltip_bg', '#ffffe0')
         fg = self.theme.get('tooltip_fg', '#000000')
+        self.tipwindow.configure(bg=bg)
         label = tk.Label(
             self.tipwindow,
             text=self.text,
@@ -48,11 +49,27 @@ class Tooltip:
             self.tipwindow = None
 
 
+
 class MainWindowBuilder:
+    def _show_tooltip(self, widget, text):
+        # Use current theme for tooltips
+        from core.themes import THEMES
+        theme_name = self.settings.get('theme', 'light')
+        theme_colors = THEMES.get(theme_name, THEMES['light'])
+        font_family = self.settings.get('font_family', 'TkDefaultFont')
+        font_size = int(self.settings.get('font_size', 9))
+        self._browse_tooltip = Tooltip(widget, text, theme_colors, font_family, font_size)
+        self._browse_tooltip.show()
+
+    def _hide_tooltip(self):
+        if hasattr(self, '_browse_tooltip') and self._browse_tooltip:
+            self._browse_tooltip.hide()
+            self._browse_tooltip = None
+
     def add_font_controls(self, parent, on_font_family_changed, on_font_size_changed):
         """Add font family and size controls to the given parent widget."""
         # Font Label
-        font_label = ttk.Label(parent, text=self.loc._("label_font"))
+        font_label = ttk.Label(parent, text=self.loc._("label_font"), style='TLabel')
         font_label.grid(row=0, column=4, padx=(8, 0))
         # Font Family Combobox
         system_default_label = self.loc._("system_default_font")
@@ -63,7 +80,7 @@ class MainWindowBuilder:
         font_combo.bind("<<ComboboxSelected>>", on_font_family_changed)
         self.font_combo = font_combo
         # Font Size Label
-        font_size_label = ttk.Label(parent, text=self.loc._("label_font_size"))
+        font_size_label = ttk.Label(parent, text=self.loc._("label_font_size"), style='TLabel')
         font_size_label.grid(row=0, column=6, padx=(4, 0))
         # Font Size Combobox
         font_sizes = self.font_utils.get_font_sizes()
@@ -79,7 +96,8 @@ class MainWindowBuilder:
         btn = ttk.Button(
             parent,
             text=self.loc._("btn_toggle_theme"),
-            command=command
+            command=command,
+            style='TButton'
         )
         btn.grid(row=0, column=3, padx=(8, 0))
         # No tooltip for theme toggle button
@@ -207,8 +225,11 @@ class MainWindowBuilder:
         # Main frame
         main_frame = ttk.Frame(self.root, padding=10)
         main_frame.grid(row=0, column=0, sticky='nsew')
+        main_frame.rowconfigure(0, weight=0)  # Title
+        main_frame.rowconfigure(1, weight=0)  # WoW path
         main_frame.rowconfigure(2, weight=0)  # Delete mode row does not expand
-        main_frame.rowconfigure(3, weight=1)  # Tabbed area expands vertically
+        main_frame.rowconfigure(3, weight=0)  # Tab bar does not expand
+        main_frame.rowconfigure(4, weight=1)  # Tab content expands vertically
 
         # Initialize delete mode StringVar
         self.delete_mode_var = tk.StringVar(value=self.settings.get('delete_mode', 'trash'))
@@ -224,26 +245,16 @@ class MainWindowBuilder:
         self.language_var = tk.StringVar(value=self.loc._("option_language_english"))
 
         # (Debug prints for detected_path and valid must only appear after assignment)
-        # Main frame
-        main_frame = ttk.Frame(self.root, padding=10)
-        main_frame.grid(row=0, column=0, sticky='nsew')
-
-        # (Debug prints for self.path_entry moved to after assignment, and only after wow_path_value is defined)
+        # Main frame already created above
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
-        main_frame.rowconfigure(2, weight=1)  # Log area expands vertically
 
         # --- Main Title ---
         title_label = ttk.Label(
             main_frame,
             text=self.loc._("title_main_window"),
             anchor='center',
-            style='Title.TLabel',
-        # print("[DEBUG] Browse Button created:", browse_btn, file=sys.stderr)
-        # print("[DEBUG] Browse Button text:", browse_btn.cget('text'), file=sys.stderr)
-        # print("[DEBUG] Browse Button grid info:", browse_btn.grid_info(), file=sys.stderr)
-        # print("[DEBUG] Browse Button geometry:", browse_btn.winfo_geometry(), file=sys.stderr)
-            font=(self.settings.get('font_family', 'TkDefaultFont'), max(12, int(self.settings.get('font_size', 9)) + 4))
+            style='Title.TLabel'
         )
         title_label.grid(row=0, column=0, sticky='ew', pady=(0, 10))
         main_frame.grid_rowconfigure(0, weight=0)
@@ -311,7 +322,7 @@ class MainWindowBuilder:
         # --- UI Layout ---
         # Add row for delete mode selection (Move to Trash / Delete Permanently)
         delete_mode_frame = ttk.Frame(main_frame)
-        delete_mode_frame.grid(row=2, column=0, sticky='w', pady=(8, 0), padx=(0, 0))
+        delete_mode_frame.grid(row=2, column=0, sticky='w', pady=0, padx=(0, 0))
         print("[DEBUG] Delete Mode Frame created:", delete_mode_frame, file=sys.stderr)
         print("[DEBUG] Delete Mode Frame grid info:", delete_mode_frame.grid_info(), file=sys.stderr)
         print("[DEBUG] Delete Mode Frame geometry:", delete_mode_frame.winfo_geometry(), file=sys.stderr)
@@ -384,7 +395,10 @@ class MainWindowBuilder:
             ("log", self.loc._("tab_log"))
         ]
         self.tab_frames = {}
-        self.tabbar = CustomTabBar(parent, tabs, self._on_tab_selected)
+        from core.themes import THEMES
+        current_theme = self.settings.get('theme', 'dark')
+        theme_colors = THEMES.get(current_theme, THEMES['dark'])
+        self.tabbar = CustomTabBar(parent, tabs, self._on_tab_selected, theme_colors=theme_colors)
         self.tabbar.grid(row=row, column=0, sticky='ew', pady=(5, 0))
         # Content frames for each tab
         for idx, (tab_id, _) in enumerate(tabs):
@@ -394,34 +408,36 @@ class MainWindowBuilder:
             if idx > 0:
                 frame.grid_remove()  # Only show the first tab by default
 
-        # Populate File Cleaner tab
+        # Populate File Cleaner tab (create description and buttons only once)
         file_cleaner_frame = self.tab_frames['file_cleaner']
-        file_cleaner_desc_label = ttk.Label(
-            file_cleaner_frame,
-            text=self.loc._("desc_file_cleaner"),
-            justify='left'
-        )
-        file_cleaner_desc_label.pack(side='top', fill='x', pady=(0, 10))
-        button_frame = ttk.Frame(file_cleaner_frame)
-        button_frame.pack(side='top', fill='x', pady=(0, 10))
-        scan_btn = ttk.Button(
-            button_frame,
-            text=self.loc._("btn_scan_files"),
-            command=self._on_scan_files
-        )
-        scan_btn.pack(side='left', padx=(0, 10))
-        select_all_btn = ttk.Button(
-            button_frame,
-            text=self.loc._("btn_select_all_toggle"),
-            command=lambda: self._on_select_all_toggle(self.get_selectable_items('file_cleaner'))
-        )
-        select_all_btn.pack(side='left', padx=(0, 10))
-        remove_btn = ttk.Button(
-            button_frame,
-            text=self.loc._("btn_remove_selected"),
-            command=lambda: self._on_remove_selected(self.get_selected_items('file_cleaner'))
-        )
-        remove_btn.pack(side='left')
+        if not hasattr(self, '_file_cleaner_content_created'):
+                file_cleaner_desc_label = ttk.Label(
+                    file_cleaner_frame,
+                    text=self.loc._("desc_file_cleaner"),
+                    justify='left'
+                )
+                file_cleaner_desc_label.pack(side='top', fill='x', pady=(0, 0))
+                button_frame = ttk.Frame(file_cleaner_frame)
+                button_frame.pack(side='top', fill='x', pady=(0, 10))
+                scan_btn = ttk.Button(
+                    button_frame,
+                    text=self.loc._("btn_scan_files"),
+                    command=self._on_scan_files
+                )
+                scan_btn.pack(side='left', padx=(0, 10))
+                select_all_btn = ttk.Button(
+                    button_frame,
+                    text=self.loc._("btn_select_all_toggle"),
+                    command=lambda: self._on_select_all_toggle(self.get_selectable_items('file_cleaner'))
+                )
+                select_all_btn.pack(side='left', padx=(0, 10))
+                remove_btn = ttk.Button(
+                    button_frame,
+                    text=self.loc._("btn_remove_selected"),
+                    command=lambda: self._on_remove_selected(self.get_selected_items('file_cleaner'))
+                )
+                remove_btn.pack(side='left')
+                self._file_cleaner_content_created = True
 
         # Populate Folder Cleaner tab
         folder_cleaner_frame = self.tab_frames['folder_cleaner']
@@ -691,6 +707,7 @@ class MainWindowBuilder:
                         self._tooltip_window.wm_geometry(f"+{event.x_root + 10}+{event.y_root + 10}")
                         
                         # Create label with word wrapping (max width ~300px)
+                        self._tooltip_window.configure(bg=theme_colors.get('tooltip_bg', '#ffffe0'))
                         label = tk.Label(
                             self._tooltip_window,
                             text=tooltip_text,

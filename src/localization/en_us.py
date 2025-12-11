@@ -10,7 +10,7 @@ TRANSLATIONS = {
     "btn_select_all_toggle": "Select All / Unselect All",
     "btn_toggle_theme": "Toggle Theme",
     "btn_yes": "Yes",
-    "desc_file_cleaner": "Scan and remove unnecessary backup, temporary, and old files from your World of Warcraft installation. This helps keep your game folder organized and free of clutter.",
+    "desc_file_cleaner": "Scan and remove unnecessary backup, temporary, and old files from your World of Warcraft installation.",
     "dep_install_complete": "Installation Complete",
     "dep_install_complete_msg": "Dependencies were successfully installed, but some packages\ntook longer than expected.\n\nThe application is now ready to use.",
     "dep_install_failed": "Installation Failed",
