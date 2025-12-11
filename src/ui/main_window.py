@@ -7,17 +7,34 @@ from tkinter import ttk
 class MainWindowBuilder:
     """Builder class for constructing the main application window UI."""
 
+    def add_theme_toggle(self, parent, command):
+        """Stub for add_theme_toggle. To be implemented."""
+        pass
+
+    def add_font_controls(self, *args, **kwargs):
+        """Stub for add_font_controls. To be implemented."""
+        pass
+
+    def add_browse_button(self, parent, command):
+        """Stub for add_browse_button. To be implemented."""
+        pass
+
     def _on_scan_files(self):
         # TODO: Implement scan files logic
-        print("Scan Files button clicked.")
+        pass
 
-    def _on_remove_files(self):
-        # TODO: Implement remove files logic
-        print("Remove Files button clicked.")
+
+    def _on_remove_selected(self, selected_items):
+        # TODO: Implement remove selected logic for files/folders
+        pass
+
+    def get_selected_items(self, context):
+        # Placeholder: Return selected items for the given context (e.g., 'file_cleaner', 'folder_cleaner')
+        # Replace with actual selection logic
+        return []
     
     def __init__(self, root, loc, settings, logger, font_utils):
         """Initialize the main window builder.
-        
         Args:
             root: Tkinter root window
             loc: Localization instance
@@ -30,10 +47,10 @@ class MainWindowBuilder:
         self.settings = settings
         self.logger = logger
         self.font_utils = font_utils
-        
-        # Widget references to be populated
-        self.wow_path_var = None
-        self.path_entry = None
+            # self.log_text = None
+            # self.dev_text = None
+            # self.notebook = None
+            # self.feature_tab_indices = []
         self.font_family_var = None
         self.font_combo = None
         self.font_size_var = None
@@ -42,6 +59,8 @@ class MainWindowBuilder:
         self.notebook = None
         self.dev_tab_index = None
         self.dev_badge_label = None
+        self.wow_path_var = None
+        self.path_entry = None
         
         # Track feature tab indices for enable/disable
         self.feature_tab_indices = []
@@ -82,29 +101,24 @@ class MainWindowBuilder:
         
         # Build UI sections
         self._create_title(main_frame)
-        path_frame = self._create_toolbar(main_frame)
+        # Toolbar removed in custom tab system refactor
         self._create_tabbed_log_area(main_frame)
+        path_frame = None
         
         # Log initial message
         self.logger.log(self.loc._("status_app_started"))
-        
         # Return references to important widgets
         return {
             'path_frame': path_frame,
             'wow_path_var': self.wow_path_var,
             'path_entry': self.path_entry,
             'font_family_var': self.font_family_var,
-            'font_combo': self.font_combo,
-            'font_size_var': self.font_size_var,
-            'delete_mode_var': self.delete_mode_var,
-            'verbose_var': self.verbose_var,
             'append_log_var': self.append_log_var,
             'language_var': self.language_var,
-            'language_combo': self.language_combo,
-            'reset_button': self.reset_button,
-            'log_text': self.log_text,
-            'dev_text': self.dev_text,
-            'notebook': self.notebook,
+            'delete_mode_var': self.delete_mode_var,
+            'verbose_var': self.verbose_var,
+            'reset_button': None,  # Stub for legacy reset_button
+            # Legacy widgets removed from return dict
         }
     
     def _create_title(self, parent):
@@ -114,194 +128,93 @@ class MainWindowBuilder:
             parent: Parent widget
         """
         title = ttk.Label(parent, text=self.loc._("title_main_window"), style='Title.TLabel')
-        title.grid(row=0, column=0, pady=(0, 10))
-    
-    def _create_toolbar(self, parent):
-        """Create the toolbar with WoW path, theme toggle, and font controls.
-        
-        Args:
-            parent: Parent widget
-            
-        Returns:
-            ttk.Frame: The toolbar frame
-        """
-        toolbar_container = ttk.Frame(parent)
-        toolbar_container.grid(row=1, column=0, pady=(0, 10))
-        
-        # First row - WoW path, browse, theme, and font controls (left-aligned)
-        path_frame = ttk.Frame(toolbar_container)
-        path_frame.grid(row=0, column=0, sticky='w')
-        
-        # WoW path label
-        path_label = ttk.Label(path_frame, text=self.loc._("label_wow_installation_path"))
-        path_label.grid(row=0, column=0, sticky='w', padx=(0, 10))
-        
-        # WoW path entry (read-only) - dynamically sized based on path length
-        self.wow_path_var = tk.StringVar(value=self.settings.get('wow_path', ''))
-        wow_path = self.settings.get('wow_path', '')
-        # Set width based on path length, minimum is the shortest possible WoW path
-        min_wow_path = len(r'C:\World of Warcraft')  # 20 characters
-        entry_width = min(max(len(wow_path) if wow_path else min_wow_path, min_wow_path), 60)
-        self.path_entry = ttk.Entry(path_frame, textvariable=self.wow_path_var, 
-                                     state='readonly', width=entry_width)
-        self.path_entry.grid(row=0, column=1, padx=(0, 5))
-        
-        # Second row - Delete mode and logging options (left-aligned)
-        options_frame = ttk.Frame(toolbar_container)
-        options_frame.grid(row=1, column=0, sticky='w', pady=(5, 0))
-        self._create_delete_mode_toggle(options_frame)
-        
-        return path_frame
-    
-    def add_browse_button(self, path_frame, command):
-        """Add browse button to toolbar with themed, word-wrapped tooltip.
-        
-        Args:
-            path_frame: Toolbar frame
-            command: Command callback for browse button
-        """
-        browse_button = ttk.Button(path_frame, text=self.loc._("btn_browse"), command=command)
-        browse_button.grid(row=0, column=2, padx=(0, 5))
-
-        # Themed, word-wrapped tooltip
-        def show_tooltip(event):
-            tooltip_text = self.loc._("tooltip_browse_wow_folder")
-            from core.themes import THEMES
-            current_theme = self.settings.get('theme', 'dark')
-            theme_colors = THEMES.get(current_theme, THEMES['dark'])
-            self._browse_tooltip = tk.Toplevel(browse_button)
-            self._browse_tooltip.wm_overrideredirect(True)
-            self._browse_tooltip.wm_geometry(f"+{event.x_root + 10}+{event.y_root + 10}")
-            label = tk.Label(
-                self._browse_tooltip,
-                text=tooltip_text,
-                background=theme_colors.get('tooltip_bg', '#ffffe0'),
-                foreground=theme_colors.get('tooltip_fg', '#000000'),
-                relief="solid",
-                borderwidth=1,
-                font=("TkDefaultFont", 9),
-                padx=8,
-                pady=5,
-                wraplength=300,
+        def _create_tabbed_log_area(self, parent):
+            import sys
+            # Debug print removed
+            from ui.custom_tabbar import CustomTabBar
+            # Define tab ids and labels
+            tabs = [
+                ("file_cleaner", self.loc._("tab_file_cleaner")),
+                ("folder_cleaner", self.loc._("tab_folder_cleaner")),
+                ("game_optimizer", self.loc._("tab_game_optimizer")),
+                ("optimization_suggestions", self.loc._("tab_optimization_suggestions")),
+                ("log", self.loc._("tab_log")),
+            ]
+            # Tab bar
+            self.tabbar = CustomTabBar(parent, tabs, self._on_tab_selected)
+            self.tabbar.grid(row=2, column=0, sticky='ew', pady=(5, 0))
+            # Debug print removed
+            # Content frames for each tab
+            self.tab_frames = {}
+            for tab_id, _ in tabs:
+                frame = ttk.Frame(parent, padding=5)
+                frame.grid(row=3, column=0, sticky='nsew')
+                self.tab_frames[tab_id] = frame
+                # Debug print removed
+            parent.rowconfigure(3, weight=1)
+            # Build content for File Cleaner tab (template)
+            self._build_file_cleaner_tab(self.tab_frames["file_cleaner"])
+            # Build content for Folder Cleaner tab (template)
+            self._build_folder_cleaner_tab(self.tab_frames["folder_cleaner"])
+            # TODO: Build other tabs as needed
+            # Show the first tab by default
+            self._show_tab("file_cleaner")
+        def _on_tab_selected(self, tab_id):
+            import sys
+            # Debug print removed
+            self._show_tab(tab_id)
+        def _show_tab(self, tab_id):
+            for tid, frame in self.tab_frames.items():
+                if tid == tab_id:
+                    frame.tkraise()
+                    frame.lift()
+                    frame.grid()
+                    # Debug print removed
+                else:
+                    frame.lower()
+                    frame.grid_remove()
+                    # Debug print removed
+        def _build_file_cleaner_tab(self, parent):
+            import sys
+            # Debug print removed
+            file_cleaner_desc_label = ttk.Label(
+                parent,
+                text=self.loc._("desc_file_cleaner"),
                 justify='left'
             )
-            label.pack()
-
-        def hide_tooltip(event):
-            if hasattr(self, '_browse_tooltip') and self._browse_tooltip:
-                self._browse_tooltip.destroy()
-                self._browse_tooltip = None
-
-        browse_button.bind('<Enter>', show_tooltip)
-        browse_button.bind('<Leave>', hide_tooltip)
-    
-    def add_theme_toggle(self, path_frame, command):
-        """Add theme toggle button to toolbar.
-        
-        Args:
-            path_frame: Toolbar frame
-            command: Command callback for theme toggle
-        """
-        theme_button = ttk.Button(path_frame, text=self.loc._("btn_toggle_theme"), command=command)
-        theme_button.grid(row=0, column=3, padx=(0, 5))
-    
-    def add_font_controls(self, path_frame, font_family_callback, font_size_callback):
-        """Add font selection controls to toolbar.
-        
-        Args:
-            path_frame: Toolbar frame
-            font_family_callback: Callback for font family changes
-            font_size_callback: Callback for font size changes
-        """
-        # Font label
-        font_label = ttk.Label(path_frame, text=self.loc._("label_font"))
-        font_label.grid(row=0, column=4, sticky='w', padx=(0, 5))
-        
-        # Font family combobox (StringVar already created in build())
-        system_default_label = self.loc._("system_default_font")
-        font_families = self.font_utils.get_available_fonts(default_label=system_default_label)
-        
-        self.font_combo = ttk.Combobox(path_frame, textvariable=self.font_family_var,
-                                       values=font_families, width=20, state='readonly')
-        self.font_combo.grid(row=0, column=5, padx=(0, 5))
-        self.font_combo.bind('<<ComboboxSelected>>', font_family_callback)
-        
-        # Font size label
-        font_size_label = ttk.Label(path_frame, text=self.loc._("label_font_size"))
-        font_size_label.grid(row=0, column=6, sticky='w', padx=(0, 5))
-        
-        # Font size combobox (StringVar already created in build())
-        font_size_combo = ttk.Combobox(path_frame, textvariable=self.font_size_var, 
-                                       values=self.font_utils.get_font_sizes(), width=5, state='readonly')
-        font_size_combo.grid(row=0, column=7)
-        font_size_combo.bind('<<ComboboxSelected>>', font_size_callback)
-    
-    def _create_delete_mode_toggle(self, parent):
-        """Create delete mode radio buttons.
-        
-        Args:
-            parent: Parent widget
-        """
-        # Delete mode label
-        mode_label = ttk.Label(parent, text=self.loc._("label_delete_mode"))
-        mode_label.grid(row=0, column=0, sticky='w', padx=(0, 10))
-        
-        # Trash radio button (default)
-        trash_radio = ttk.Radiobutton(
-            parent,
-            text=self.loc._("option_delete_mode_trash"),
-            variable=self.delete_mode_var,
-            value='trash'
-        )
-        trash_radio.grid(row=0, column=1, sticky='w', padx=(0, 10))
-        
-        # Permanent delete radio button
-        permanent_radio = ttk.Radiobutton(
-            parent,
-            text=self.loc._("option_delete_mode_permanent"),
-            variable=self.delete_mode_var,
-            value='permanent'
-        )
-        permanent_radio.grid(row=0, column=2, sticky='w', padx=(0, 10))
-        
-        # Verbose logging checkbox (for detailed operation messages)
-        verbose_check = ttk.Checkbutton(
-            parent,
-            text=self.loc._("label_verbose_logging"),
-            variable=self.verbose_var
-        )
-        verbose_check.grid(row=0, column=3, sticky='w', padx=(20, 10))
-        
-        # Append log checkbox (preserve log across sessions)
-        append_check = ttk.Checkbutton(
-            parent,
-            text=self.loc._("label_append_log"),
-            variable=self.append_log_var
-        )
-        append_check.grid(row=0, column=4, sticky='w', padx=(10, 10))
-        
-        # Language selector
-        language_label = ttk.Label(parent, text=self.loc._("label_language"))
-        language_label.grid(row=0, column=5, sticky='w', padx=(20, 5))
-        
-        self.language_combo = ttk.Combobox(
-            parent,
-            textvariable=self.language_var,
-            values=[self.loc._("option_language_english")],
-            width=12,
-            state='readonly'
-        )
-        self.language_combo.grid(row=0, column=6, sticky='w', padx=(0, 10))
-        # Language change will be implemented when more languages are added
-        
-        # Reset settings button
-        self.reset_button = ttk.Button(
-            parent,
-            text=self.loc._("btn_reset_settings")
-        )
-        self.reset_button.grid(row=0, column=7, sticky='w', padx=(20, 0))
+            file_cleaner_desc_label.pack(side='top', fill='x', pady=(0, 10))
+            button_frame = ttk.Frame(parent)
+            button_frame.pack(side='top', fill='x', pady=(0, 10))
+            scan_btn = ttk.Button(
+                button_frame,
+                text=self.loc._("btn_scan_files"),
+                command=self._on_scan_files
+            )
+            scan_btn.pack(side='left', padx=(0, 10))
+            select_all_btn = ttk.Button(
+                button_frame,
+                text=self.loc._("btn_select_all_toggle"),
+                command=lambda: self._on_select_all_toggle(self.get_selectable_items('file_cleaner'))
+            )
+            select_all_btn.pack(side='left', padx=(0, 10))
+            remove_btn = ttk.Button(
+                button_frame,
+                text=self.loc._("btn_remove_selected"),
+                command=lambda: self._on_remove_selected(self.get_selected_items('file_cleaner'))
+            )
+            remove_btn.pack(side='left')
+            # Sub-tabs (template, not functional yet)
+            sub_label = ttk.Label(parent, text='Sub-tabs would go here')
+            sub_label.pack(side='top', fill='x', pady=(10, 0))
+        def _build_folder_cleaner_tab(self, parent):
+            import sys
+            # Debug print removed
+            label = ttk.Label(parent, text='Folder Cleaner Content')
+            label.pack(side='top', fill='x', pady=(0, 10))
     
     def _create_tabbed_log_area(self, parent):
+        import sys
+        # Debug print removed
         """Create the tabbed area with feature tabs and log tabs.
         
         Args:
@@ -310,38 +223,85 @@ class MainWindowBuilder:
         # Create notebook (tabbed container)
         self.notebook = ttk.Notebook(parent)
         self.notebook.grid(row=2, column=0, sticky='nsew', pady=5)
-        
+        # Debug print removed
+        def on_tab_changed(event):
+            try:
+                tab_id = event.widget.select()
+                if not tab_id:
+                    # Debug print removed
+                    return
+                idx = event.widget.index(tab_id)
+                # Debug print removed
+            except Exception as e:
+                pass
+        self.notebook.bind('<<NotebookTabChanged>>', on_tab_changed)
+
         # File Cleaner Tab
         from ui.widgets.sapling_canvas import SaplingCanvas, TreeNode
         file_cleaner_frame = ttk.Frame(self.notebook, padding=5)
+        # Debug print removed
         file_cleaner_idx = self.notebook.index('end')
+        # Debug print removed
         self.notebook.add(file_cleaner_frame, text=self.loc._("tab_file_cleaner"))
+        # Debug print removed
         self.feature_tab_indices.append(file_cleaner_idx)
+        # Debug print removed
         # Add description label to File Cleaner tab
         file_cleaner_desc_label = ttk.Label(
             file_cleaner_frame,
             text=self.loc._("desc_file_cleaner"),
             justify='left'
         )
+        # Debug print removed
         file_cleaner_desc_label.pack(side='top', fill='x', pady=(0, 10))
+        # Debug print removed
 
         # Add Scan Files and Remove Files buttons
         button_frame = ttk.Frame(file_cleaner_frame)
+        # Debug print removed
         button_frame.pack(side='top', fill='x', pady=(0, 10))
+        # Debug print removed
 
         scan_btn = ttk.Button(
             button_frame,
             text=self.loc._("btn_scan_files"),
             command=self._on_scan_files
         )
+        # Debug print removed
         scan_btn.pack(side='left', padx=(0, 10))
+        # Debug print removed
+
+
+        select_all_btn = ttk.Button(
+            button_frame,
+            text=self.loc._("btn_select_all_toggle"),
+            command=lambda: self._on_select_all_toggle(self.get_selectable_items('file_cleaner'))
+        )
+        # Debug print removed
+        select_all_btn.pack(side='left', padx=(0, 10))
+        # Debug print removed
 
         remove_btn = ttk.Button(
             button_frame,
-            text=self.loc._("btn_remove_files"),
-            command=self._on_remove_files
+            text=self.loc._("btn_remove_selected"),
+            command=lambda: self._on_remove_selected(self.get_selected_items('file_cleaner'))
         )
+        # Debug print removed
         remove_btn.pack(side='left')
+        # Debug print removed
+
+        # Add sub-tabs for file cleaning features
+        sub_notebook = ttk.Notebook(file_cleaner_frame)
+        # Debug print removed
+        sub_notebook.pack(side='top', fill='both', expand=True, pady=(0, 10))
+        # Debug print removed
+
+        backup_old_tab = ttk.Frame(sub_notebook)
+        orphan_tab = ttk.Frame(sub_notebook)
+        # Debug print removed
+        sub_notebook.add(backup_old_tab, text=self.loc._("tab_backup_old_cleaner"))
+        sub_notebook.add(orphan_tab, text=self.loc._("tab_orphan_cleaner"))
+        # Debug print removed
 
         def update_wraplength(event=None):
             width = file_cleaner_frame.winfo_width() - 32
@@ -349,35 +309,92 @@ class MainWindowBuilder:
                 file_cleaner_desc_label.config(wraplength=width)
         file_cleaner_frame.bind('<Configure>', update_wraplength)
         update_wraplength()
+        # Debug print removed
+    def _on_select_all_toggle(self, items):
+        # TODO: Implement select all/unselect all logic for files/folders
+        print(f"Select All/Unselect All button clicked. Items: {items}")
+
+    def get_selectable_items(self, context):
+        # Placeholder: Return all selectable items for the given context (e.g., 'file_cleaner', 'folder_cleaner')
+        # Replace with actual logic
+        return []
 
         # Placeholder for file/folder tree removed. Area will be populated later.
-        
+
         # Folder Cleaner Tab
         folder_cleaner_frame = ttk.Frame(self.notebook, padding=5)
+        # Debug print removed
         folder_cleaner_idx = self.notebook.index('end')
+        # Debug print removed
         self.notebook.add(folder_cleaner_frame, text=self.loc._("tab_folder_cleaner"))
+        # Debug print removed
+        # Add a label to make sure content is visible
+        folder_label = ttk.Label(folder_cleaner_frame, text='[DEBUG] Folder Cleaner Content')
+        folder_label.pack(side='top', fill='x', pady=(0, 10))
+        # Debug print removed
         self.feature_tab_indices.append(folder_cleaner_idx)
-        
+        # Debug print removed
+
         # Game Optimizer Tab
         game_optimizer_frame = ttk.Frame(self.notebook, padding=5)
+        # Debug print removed
         game_optimizer_idx = self.notebook.index('end')
+        # Debug print removed
         self.notebook.add(game_optimizer_frame, text=self.loc._("tab_game_optimizer"))
+        # Debug print removed
+        # Add a label to make sure content is visible
+        optimizer_label = ttk.Label(game_optimizer_frame, text='[DEBUG] Game Optimizer Content')
+        optimizer_label.pack(side='top', fill='x', pady=(0, 10))
+        # Debug print removed
         self.feature_tab_indices.append(game_optimizer_idx)
-        
+        # Debug print removed
+
         # Optimization Suggestions Tab
         optimization_suggestions_frame = ttk.Frame(self.notebook, padding=5)
+        # Debug print removed
         optimization_suggestions_idx = self.notebook.index('end')
+        # Debug print removed
         self.notebook.add(optimization_suggestions_frame, text=self.loc._("tab_optimization_suggestions"))
+        # Debug print removed
+        # Add a label to make sure content is visible
+        suggestions_label = ttk.Label(optimization_suggestions_frame, text='[DEBUG] Optimization Suggestions Content')
+        suggestions_label.pack(side='top', fill='x', pady=(0, 10))
+        # Debug print removed
         self.feature_tab_indices.append(optimization_suggestions_idx)
-        
+        # Debug print removed
+
         # Main Log Tab
         log_frame = ttk.Frame(self.notebook, padding=5)
+        # Debug print removed
+        # Debug print removed
         self.notebook.add(log_frame, text=self.loc._("tab_log"))
-        
+        # Debug print removed
+        # Add a label to make sure content is visible
+        log_label = ttk.Label(log_frame, text='[DEBUG] Log Content')
+        log_label.pack(side='top', fill='x', pady=(0, 10))
+        # Debug print removed
+        print('[DEBUG] Log tab added', file=sys.stderr)
+
+        # Improved: Force each tab to be selected and update, then return to the first tab
+        try:
+            tab_count = self.notebook.index('end')
+            print(f'[DEBUG] Forcing realization of {tab_count} tabs', file=sys.stderr)
+            for i in range(tab_count):
+                self.notebook.select(i)
+                self.root.update()
+                print(f'[DEBUG] Selected tab {i} ({self.notebook.tab(i, "text")}) for realization', file=sys.stderr)
+                frame = self.notebook.nametowidget(self.notebook.tabs()[i])
+                print(f'[DEBUG] Tab {i} children after select: {frame.winfo_children()}', file=sys.stderr)
+            self.notebook.select(0)
+            self.root.update()
+            print('[DEBUG] Returned to first tab after realization', file=sys.stderr)
+        except Exception as e:
+            print(f'[DEBUG] Exception during tab realization: {e}', file=sys.stderr)
+
         # User log controls frame
         log_controls = ttk.Frame(log_frame)
         log_controls.pack(side='top', fill='x', pady=(0, 5))
-        
+
         # Copy button
         copy_log_btn = ttk.Button(
             log_controls,
@@ -385,7 +402,7 @@ class MainWindowBuilder:
             command=self._copy_user_log
         )
         copy_log_btn.pack(side='left', padx=(0, 5))
-        
+
         # Save button
         save_log_btn = ttk.Button(
             log_controls,
@@ -393,7 +410,7 @@ class MainWindowBuilder:
             command=self._save_user_log
         )
         save_log_btn.pack(side='left', padx=(0, 5))
-        
+
         # Delete button (only visible when append mode is enabled)
         self.delete_log_btn = ttk.Button(
             log_controls,
@@ -403,11 +420,11 @@ class MainWindowBuilder:
         # Show/hide based on append_log setting
         if self.settings.get('append_log', False):
             self.delete_log_btn.pack(side='left', padx=(0, 10))
-        
+
         # Create text widget with scrollbar for main log
         text_scroll = ttk.Scrollbar(log_frame)
         text_scroll.pack(side='right', fill='y')
-        
+
         font_family = self.settings.get('font_family', 'TkDefaultFont')
         font_size = self.settings.get('font_size', 9)
         self.log_text = tk.Text(log_frame, height=15, width=60, 
@@ -415,19 +432,19 @@ class MainWindowBuilder:
                                 wrap='word', font=(font_family, font_size))
         self.log_text.pack(side='left', fill='both', expand=True)
         text_scroll.config(command=self.log_text.yview)
-        
+
         # Attach main logger to text widget
         self.logger.attach_text_widget(self.log_text)
-        
+
         # Developer Tab
         dev_frame = ttk.Frame(self.notebook, padding=5)
         self.dev_tab_index = self.notebook.index('end')
         self.notebook.add(dev_frame, text=self.loc._("tab_developer"))
-        
+
         # Developer tab controls frame
         dev_controls = ttk.Frame(dev_frame)
         dev_controls.pack(side='top', fill='x', pady=(0, 5))
-        
+
         # Copy button
         copy_btn = ttk.Button(
             dev_controls,
@@ -435,14 +452,14 @@ class MainWindowBuilder:
             command=self._copy_dev_log
         )
         copy_btn.pack(side='left', padx=(0, 5))
-        
+
         # Save button
         save_btn = ttk.Button(
             dev_controls,
             text=self.loc._("log_save"),
             command=self._save_dev_log
         )
-        save_btn.pack(side='left', padx=(0, 10))
+        save_btn.pack(side='left', padx=(0, 5))
         
         # Error badge label
         self.dev_badge_label = ttk.Label(dev_controls, text="")

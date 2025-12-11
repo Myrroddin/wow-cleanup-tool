@@ -119,7 +119,8 @@ class WoWCleanupTool:
         self.ui_widgets['append_log_var'].trace_add('write', self.controller.on_append_log_changed)
         
         # Set up reset button handler
-        self.ui_widgets['reset_button'].config(command=self.controller.reset_settings)
+        if self.ui_widgets.get('reset_button') is not None:
+            self.ui_widgets['reset_button'].config(command=self.controller.reset_settings)
         
         # Set up scan files button handler
         if 'scan_files_btn' in self.ui_widgets:
