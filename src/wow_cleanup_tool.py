@@ -34,6 +34,18 @@ from ui import (
 from wow import PathManager, WoWPathHandler
 
 class WoWCleanupTool:
+    def reset_window_geometry(self):
+        """Reset window geometry to default (content-based) size on next launch."""
+        # Remove geometry-related settings
+        for key in ["window_width", "window_height", "window_x", "window_y", "is_maximized"]:
+            if key in self.settings:
+                del self.settings[key]
+        save_settings(self.settings)
+        # Optionally, resize immediately (for current session)
+        from ui.geometry import center_first_launch
+        sw = self.root.winfo_screenwidth()
+        sh = self.root.winfo_screenheight()
+        center_first_launch(self, sw, sh)
     def __init__(self, root):
         self.root = root
         self.settings = load_settings()

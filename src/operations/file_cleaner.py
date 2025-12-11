@@ -15,25 +15,19 @@ class FileCleaner:
 
     def _scan_version(self, version_path: str):
         """Scan a version directory for .bak/.old files recursively."""
-        print(f'[DEBUG] _scan_version called with: {version_path}')
         results = self.scan_directory(version_path)
-        print(f'[DEBUG] _scan_version found {len(results)} files: {results}')
         return results
 
     def scan_all_flavors(self, root_path: str, path_manager=None):
         """Scan all detected flavor directories for .bak/.old files."""
-        print(f'[DEBUG] scan_all_flavors called with: {root_path}')
         results = {}
         if path_manager is not None:
             flavors = path_manager.detect_flavors(root_path)
-            print(f'[DEBUG] Flavors detected: {flavors}')
             for flavor_dir in flavors:
                 flavor_path = os.path.join(root_path, flavor_dir)
                 files = self._scan_version(flavor_path)
                 results[flavor_dir] = files
-                print(f'[DEBUG] scan_all_flavors for {flavor_dir}: {files}')
         else:
-            print('[DEBUG] No path_manager provided to scan_all_flavors')
         return results
 
     def scan_directory(self, root_path: str) -> List[str]:

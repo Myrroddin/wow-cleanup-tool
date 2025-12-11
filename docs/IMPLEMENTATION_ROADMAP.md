@@ -223,3 +223,9 @@ When implementing cleanup features, add these keys to `en_us.py` following the e
 
 When adding each feature:
 - [ ] Verify application builds: `pyinstaller src/wow_cleanup_tool.spec`
+- [x] FileScanner: .bak/.old file scan
+- [x] FolderScanner: cleanable folder scan
+- [x] OrphanScanner: orphaned SavedVariables scan (stub)
+- [x] Batch file/folder delete operations
+- [x] Alphabetically sorted localization keys
+- [x] Updated .spec and GitHub workflow for new modules

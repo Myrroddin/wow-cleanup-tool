@@ -117,3 +117,8 @@ Comprehensive error handling at multiple levels:
 2. **Directory level**: Skip permission-denied folders
 3. **Version level**: Continue with other versions if one fails
 4. **Executor level**: Fall back to single-threaded if parallel fails
+
+from .file_scanner import FileScanner
+from .folder_scanner import FolderScanner
+from .orphan_scanner import OrphanScanner
+from .file_operations import delete_files_batch
