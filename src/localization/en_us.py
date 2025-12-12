@@ -49,7 +49,7 @@ TRANSLATIONS = {
     "msg_license_instructions": "Please read and accept the license agreement to use this application.",
     "msg_multiple_installations": "Multiple World of Warcraft installations have been detected on your system. The game should only be installed in one location to function properly.",
     "msg_multiple_installations_instructions": "Please consolidate your World of Warcraft installation into a single directory. Move all game files from the additional installations to your main installation, then remove the duplicate folders.",
-    "msg_reset_settings_confirm": "Reset all settings to defaults?\n\nThis will:\n• Reset theme to Light\n• Reset font to System Default\n• Reset font size to 9\n• Reset delete mode to Trash\n• Enable verbose logging\n• DISABLE append log mode (logs will clear on restart)\n• Reset language to English\n• Re-enable all \"don't show again\" dialogs\n\nCached data (WoW path, existing logs) will be preserved.\n\nContinue?",
+    "msg_reset_settings_confirm": 'Reset all settings to defaults?\n\nThis will:\n• Reset theme to Light\n• Reset font to System Default\n• Reset font size to 9\n• Reset delete mode to Trash\n• Enable verbose logging\n• DISABLE append log mode (logs will clear on restart)\n• Reset language to English\n• Re-enable all "don\'t show again" dialogs\n\nCached data (WoW path, existing logs) will be preserved.\n\nContinue?',
     "msg_wow_close_warning": "Please ensure World of Warcraft is closed before using this tool.\n\nThis prevents file conflicts and ensures all cleanup operations complete successfully.",
     "multiple_wow_detected": "Multiple WoW installations detected: {}",
     "option_delete_mode_permanent": "Delete Permanently",
@@ -91,5 +91,5 @@ TRANSLATIONS = {
     "warning_icon": "⚠",
     "wow_detected": "WoW installation detected at: {}",
     "wow_not_detected": "Could not automatically detect WoW installation",
-    "wow_validated": "WoW installation validated. Found {} game version(s)"
+    "wow_validated": "WoW installation validated. Found {} game version(s)",
 }

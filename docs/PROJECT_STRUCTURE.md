@@ -94,7 +94,7 @@ Multi-language support system with organized key naming:
 - **__init__.py**: `Localization` class with translation lookup
 - **en_us.py**: English (US) translations dictionary (92 keys, organized by prefix):
   - `btn_*`: Button labels (6 keys)
-  - `label_*`: UI field labels (8 keys) 
+  - `label_*`: UI field labels (8 keys)
   - `status_*`: Status messages (8 keys)
   - `msg_*`: Dialog messages (6 keys)
   - `title_*`: Window/dialog titles (7 keys)

@@ -1,15 +1,16 @@
 """
 FolderScanner: Scans for cleanable folders (Logs, Errors, Cache, Screenshots) in WoW installation folders.
 """
+
 from typing import List, Set
 from src.operations.base_scanner import BaseScanner
 import os
 
+
 class FolderScanner(BaseScanner):
     """Scan for cleanable folders."""
-    CLEANABLE_FOLDERS: Set[str] = {
-        "Logs", "Errors", "Cache", "Screenshots"
-    }
+
+    CLEANABLE_FOLDERS: Set[str] = {"Logs", "Errors", "Cache", "Screenshots"}
 
     def _scan_version(self, version_path: str) -> List[str]:
         """Scan for cleanable folders in version."""

@@ -17,12 +17,12 @@ Supports 12 languages matching World of Warcraft locales plus Ukrainian:
 
 Usage:
     from localization import Localization
-    
+
     loc = Localization("de_de")
     translated_text = loc._("title_main_window")  # Window titles use title_ prefix
     button_text = loc._("btn_browse")              # Buttons use btn_ prefix
     label_text = loc._("label_font_size")          # UI labels use label_ prefix
-    
+
 Key Naming Conventions:
     - btn_*: Button labels
     - label_*: UI field labels
@@ -56,16 +56,16 @@ AVAILABLE_LANGUAGES: Dict[str, str] = {
     "ko_kr": "한국어",
     "zh_cn": "简体中文",
     "zh_tw": "繁體中文",
-    "uk_ua": "Українська"
+    "uk_ua": "Українська",
 }
 
 
 def load_translations(lang_code: str) -> Dict[str, str]:
     """Load translation dictionary for a given language code.
-    
+
     Args:
         lang_code: Language code (e.g., 'en_us', 'de_de')
-        
+
     Returns:
         dict: Translation dictionary
     """
@@ -80,10 +80,10 @@ def load_translations(lang_code: str) -> Dict[str, str]:
 
 class Localization:
     """Localization handler for multi-language support."""
-    
+
     def __init__(self, lang_code: str = DEFAULT_LANGUAGE) -> None:
         """Initialize localization with a specific language.
-        
+
         Args:
             lang_code: Language code (default: en_us)
         """
@@ -92,11 +92,11 @@ class Localization:
 
     def _(self, key: str, *args: any) -> str:
         """Get translated text for a key.
-        
+
         Args:
             key: Translation key
             *args: Optional format arguments
-            
+
         Returns:
             str: Translated text
         """
@@ -106,10 +106,10 @@ class Localization:
 
 def get_translation_completeness(lang_code: str) -> int:
     """Get the percentage of translations completed for a language.
-    
+
     Args:
         lang_code: Language code (e.g., 'en_us', 'de_de')
-        
+
     Returns:
         int: Percentage complete (0-100)
     """
@@ -126,10 +126,10 @@ def get_translation_completeness(lang_code: str) -> int:
 
 def get_language_display_name(lang_code: str) -> str:
     """Get display name for a language with completeness indicator.
-    
+
     Args:
         lang_code: Language code (e.g., 'en_us', 'de_de')
-        
+
     Returns:
         str: Display name with optional completeness indicator
     """
@@ -149,14 +149,14 @@ _default_loc: Localization = Localization(DEFAULT_LANGUAGE)
 
 def _(key: str, *args: any) -> str:
     """Global translation function using default localization instance.
-    
+
     This is a convenience function for modules that don't have access to
     the app's localization instance.
-    
+
     Args:
         key: Translation key
         *args: Optional format arguments
-        
+
     Returns:
         str: Translated text
     """

@@ -1,15 +1,14 @@
 """
 File operations for deleting or trashing files/folders in WoW Cleanup Tool.
 """
+
 from typing import List, Tuple
 import os
 from send2trash import send2trash
 
+
 def delete_files_batch(
-    paths: List[str], 
-    delete_mode: str = 'trash',
-    logger = None,
-    loc = None
+    paths: List[str], delete_mode: str = "trash", logger=None, loc=None
 ) -> Tuple[int, bool, bool]:
     """Delete or trash files/folders.
     Args:
@@ -24,7 +23,7 @@ def delete_files_batch(
     used_trash = False
     for path in paths:
         try:
-            if delete_mode == 'trash':
+            if delete_mode == "trash":
                 send2trash(path)
                 used_trash = True
                 if logger:
@@ -34,6 +33,7 @@ def delete_files_batch(
                     os.remove(path)
                 elif os.path.isdir(path):
                     import shutil
+
                     shutil.rmtree(path)
                 if logger:
                     logger.verbose(f"Deleted permanently: {path}")

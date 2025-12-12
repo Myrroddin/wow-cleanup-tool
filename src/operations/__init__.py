@@ -24,12 +24,12 @@ from .orphan_scanner import OrphanScanner
 from .file_operations import delete_files_batch
 
 __all__ = [
-    'BaseScanner',
-    'detect_disk_type',
-    'get_optimal_workers',
-    'is_nvme_drive',
-    'FileScanner',
-    'FolderScanner',
-    'OrphanScanner',
-    'delete_files_batch',
+    "BaseScanner",
+    "detect_disk_type",
+    "get_optimal_workers",
+    "is_nvme_drive",
+    "FileScanner",
+    "FolderScanner",
+    "OrphanScanner",
+    "delete_files_batch",
 ]

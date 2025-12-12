@@ -2,12 +2,14 @@
 FileCleaner: Scans for .bak and .old files in WoW directories.
 Template implementation for testing and integration.
 """
+
 import os
 import re
 from typing import List
 
+
 class FileCleaner:
-    BAK_OLD_PATTERN = re.compile(r'\.(bak|old)$', re.IGNORECASE)
+    BAK_OLD_PATTERN = re.compile(r"\.(bak|old)$", re.IGNORECASE)
 
     def __init__(self, max_workers: int = 2, logger=None):
         self.max_workers = max_workers
@@ -28,6 +30,7 @@ class FileCleaner:
                 files = self._scan_version(flavor_path)
                 results[flavor_dir] = files
         else:
+            return results
         return results
 
     def scan_directory(self, root_path: str) -> List[str]:

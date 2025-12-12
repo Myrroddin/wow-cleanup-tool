@@ -186,7 +186,7 @@ def scan_worker():
     
     # Schedule UI update on main thread
     root.after(0, lambda: update_tree_with_results(results))
-
+    
 # Start background thread
 threading.Thread(target=scan_worker, daemon=True).start()
 ```

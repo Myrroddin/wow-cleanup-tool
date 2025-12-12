@@ -19,7 +19,7 @@ A lightweight utility for managing and optimizing World of Warcraft installation
 - **Multi-Flavor Support**: Retail, Classic, Classic Era, PTR, Beta
 - **Themes**: Light/dark mode with custom fonts (9-16pt)
 - **Delete Modes**: Move to trash (safe) or permanent deletion
-- **Logging**: 
+- **Logging**:
   - Dual-channel logs (user operations + developer diagnostics)
   - Automatic rotation (1MB user, 5MB dev)
   - Session preservation with append mode
