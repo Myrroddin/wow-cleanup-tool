@@ -118,7 +118,7 @@ class WoWCleanupTool:
         builder = MainWindowBuilder(
             self.root, self.loc, self.settings, self.logger, font_utils
         )
-        self.ui_widgets = builder.build()
+        self.ui_widgets = builder.build(theme_toggle_callback=self.on_theme_toggle)
 
         # ...existing code...
 
@@ -130,16 +130,7 @@ class WoWCleanupTool:
         # Store builder reference for theme updates
         self.builder = builder
 
-        # Add toolbar controls with callbacks
-        path_frame = self.ui_widgets["path_frame"]
-        builder.add_theme_toggle(path_frame, self.on_theme_toggle)
-        builder.add_font_controls(
-            path_frame,
-            self.controller.on_font_family_changed,
-            self.controller.on_font_size_changed,
-        )
-        # Update ui_widgets with font_combo reference (set in add_font_controls)
-        self.ui_widgets["font_combo"] = builder.font_combo
+        # All wow path row widgets are now created only in build()
         # Save settings on close
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
@@ -206,7 +197,7 @@ def main():
         settings = load_settings()
         loc = Localization(settings.get("language", "en_us"))
 
-        print(f"{loc._('error_prefix')} {e}")
+        # Optionally log error here if needed
         import traceback
 
         traceback.print_exc()

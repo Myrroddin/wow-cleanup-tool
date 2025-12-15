@@ -10,6 +10,7 @@ This module contains all file system operations for WoW cleanup functionality.
 - **Adaptive**: Disk type detection adjusts parallelism for HDD vs SSD
 - **Safe**: Comprehensive error handling, permission checks, and trash support
 
+
 ## Structure
 
 ### Base Classes
@@ -17,6 +18,10 @@ This module contains all file system operations for WoW cleanup functionality.
 
 ### Utilities
 - `disk_utils.py`: Disk type detection and performance optimization
+
+### Current Infrastructure
+- Logging and settings infrastructure supports chat timestamps (user and developer logs)
+- Localization system with 98+ keys, tooltips, and robust English support
 
 ### Future Scanners (to be implemented)
 - `file_scanner.py`: Scan for .bak and .old files

@@ -312,7 +312,7 @@ class MainWindowBuilder:
         # Track feature tab indices for enable/disable
         self.feature_tab_indices = []
 
-    def build(self):
+    def build(self, theme_toggle_callback=None):
         # from ui.custom_tabbar import CustomTabBar  # Already imported at top
 
         """Build and return the main window UI components.
@@ -385,10 +385,8 @@ class MainWindowBuilder:
         wow_path_frame.grid(row=1, column=0, sticky="ew", pady=(0, 6))
         # Ensure wow_path_frame expands horizontally
         main_frame.columnconfigure(0, weight=1)
-        wow_path_frame.columnconfigure(0, weight=0)
-        wow_path_frame.columnconfigure(1, weight=0)
-        wow_path_frame.columnconfigure(2, weight=0)
-        wow_path_frame.columnconfigure(3, weight=0)
+        for i in range(8):
+            wow_path_frame.columnconfigure(i, weight=0)
 
         wow_path_label = ttk.Label(
             wow_path_frame, text=self.loc._("label_wow_installation_path")
@@ -448,121 +446,108 @@ class MainWindowBuilder:
             state="readonly",
             width=14,
         )
-        language_combo.grid(row=0, column=3, sticky="w", padx=(0, 0))
-        language_combo_ttp = (
-            self.loc._("tooltip_language_menu")
-            if hasattr(self.loc, "_") and "tooltip_language_menu" in self.loc.__dict__
-            else "Select application language"
+        language_combo.grid(row=0, column=3, sticky="w", padx=(0, 12))
+
+        # Theme toggle button (column 4)
+        theme_btn = ttk.Button(
+            wow_path_frame,
+            text=self.loc._("btn_toggle_theme"),
+            command=theme_toggle_callback,
+            style="TButton",
         )
+        theme_btn.grid(row=0, column=4, padx=(0, 12))
+
+        # Font label (column 5)
+        font_label = ttk.Label(
+            wow_path_frame, text=self.loc._("label_font"), style="TLabel"
+        )
+        font_label.grid(row=0, column=5, padx=(0, 12))
+
+        # Font family combobox (column 6)
+        system_default_label = self.loc._("system_default_font")
+        font_list = self.font_utils.get_available_fonts(system_default_label)
+        saved_font = self.settings.get("font_family", "TkDefaultFont")
+        initial_font_label = (
+            system_default_label if saved_font == "TkDefaultFont" else saved_font
+        )
+        self.font_family_var = tk.StringVar(value=initial_font_label)
+        font_combo = ttk.Combobox(
+            wow_path_frame,
+            textvariable=self.font_family_var,
+            values=font_list,
+            state="readonly",
+            width=18,
+        )
+        font_combo.grid(row=0, column=6, padx=(0, 12))
+        self.font_combo = font_combo
+
+        # Font size label (column 7)
+        font_size_label = ttk.Label(
+            wow_path_frame, text=self.loc._("label_font_size"), style="TLabel"
+        )
+        font_size_label.grid(row=0, column=7, padx=(0, 12))
+
+        # Font size combobox (column 8)
+        font_sizes = self.font_utils.get_font_sizes()
+        saved_size = str(self.settings.get("font_size", 9))
+        self.font_size_var = tk.StringVar(value=saved_size)
+        font_size_combo = ttk.Combobox(
+            wow_path_frame,
+            textvariable=self.font_size_var,
+            values=font_sizes,
+            state="readonly",
+            width=4,
+        )
+        font_size_combo.grid(
+            row=0, column=8, padx=(0, 0)
+        )  # Last widget: no right padding
+        self.font_size_combo = font_size_combo
+        language_combo_ttp = self.loc._("tooltip_language_menu")
         language_combo.bind(
             "<Enter>", lambda e: self._show_tooltip(language_combo, language_combo_ttp)
         )
         language_combo.bind("<Leave>", lambda e: self._hide_tooltip())
 
         # Debug prints for wow path row widgets (after all widgets are created)
-        print("[DEBUG] WoW Path Row Widget Info:")
-        try:
-            widgets = [wow_path_label, self.path_entry, browse_btn, language_combo]
-            widget_names = [
-                "wow_path_label",
-                "path_entry",
-                "browse_btn",
-                "language_combo",
-            ]
-            for name, widget in zip(widget_names, widgets):
-                widget.update_idletasks()
-                print(
-                    f"  {name}: x={widget.winfo_x()}, y={widget.winfo_y()}, width={widget.winfo_width()}, req_width={widget.winfo_reqwidth()}, grid_info={widget.grid_info()}"
-                )
-        except Exception as e:
-            print(f"[DEBUG] Error printing widget info: {e}")
+        # ...debug prints removed...
 
         # Dynamically set minimum window width to fit all widgets in the WoW path row (including paddings)
-        try:
-            total_width = 0
-            paddings = [(0, 12), (0, 12), (0, 12), (0, 0)]
-            for widget, pad in zip(
-                [wow_path_label, self.path_entry, browse_btn, language_combo], paddings
-            ):
-                widget.update_idletasks()
-                total_width += widget.winfo_reqwidth() + sum(pad)
-            # Add a little extra for spacing
-            min_width = total_width + 20
-            self.root.minsize(min_width, self.root.winfo_height())
-        except Exception as e:
-            print(f"[DEBUG] Error setting minsize: {e}")
-
-        # Browse button
-        def on_browse():
-            import tkinter.filedialog as filedialog
-
-            folder = filedialog.askdirectory(title=self.loc._("select_wow_folder"))
-            if folder:
-                self.wow_path_var.set(folder)
-
-        browse_btn = ttk.Button(
-            wow_path_frame, text=self.loc._("btn_browse"), command=on_browse
-        )
-        browse_btn.grid(row=0, column=2, padx=(8, 0))
-        browse_btn_ttp = self.loc._("tooltip_browse_wow_folder")
-        browse_btn.bind(
-            "<Enter>", lambda e: self._show_tooltip(browse_btn, browse_btn_ttp)
-        )
-        browse_btn.bind("<Leave>", lambda e: self._hide_tooltip())
-
-        # Language dropdown (English always first, others sorted alphabetically)
-        language_options = [
-            (self.loc._("option_language_english"), "en_us"),
-            # Add more languages here as (display_name, code)
-            # Example: (self.loc._("option_language_french"), "fr_fr"),
-        ]
-        # If more languages are added, sort them alphabetically by display name, except English first
-        if len(language_options) > 1:
-            english = language_options[0]
-            other_langs = sorted(language_options[1:], key=lambda x: x[0].lower())
-            language_options = [english] + other_langs
-        language_names = [name for name, code in language_options]
-        self.language_var = tk.StringVar(value=language_names[0])
-        language_combo = ttk.Combobox(
-            wow_path_frame,
-            textvariable=self.language_var,
-            values=language_names,
-            state="readonly",
-            width=14,
-        )
-        language_combo.grid(row=0, column=3, padx=(16, 0))
-        language_combo_ttp = (
-            self.loc._("tooltip_language_menu")
-            if hasattr(self.loc, "_") and "tooltip_language_menu" in self.loc.__dict__
-            else "Select application language"
-        )
-        language_combo.bind(
-            "<Enter>", lambda e: self._show_tooltip(language_combo, language_combo_ttp)
-        )
-        language_combo.bind("<Leave>", lambda e: self._hide_tooltip())
+        total_width = 0
+        paddings = [(0, 12), (0, 12), (0, 12), (0, 0)]
+        for widget, pad in zip(
+            [wow_path_label, self.path_entry, browse_btn, language_combo], paddings
+        ):
+            widget.update_idletasks()
+            total_width += widget.winfo_reqwidth() + sum(pad)
+        # Add a little extra for spacing
+        min_width = total_width + 20
+        self.root.minsize(min_width, self.root.winfo_height())
+        # ...debug prints removed...
 
         # --- UI Layout ---
         # Add row for delete mode selection (Move to Trash / Delete Permanently)
         delete_mode_frame = ttk.Frame(main_frame)
         delete_mode_frame.grid(row=2, column=0, sticky="w", pady=(0, 6), padx=(0, 0))
+        for i in range(5):
+            delete_mode_frame.columnconfigure(i, weight=0)
         delete_mode_label = ttk.Label(
             delete_mode_frame, text=self.loc._("label_delete_mode")
         )
-        delete_mode_label.grid(row=0, column=0, padx=(0, 8), sticky="w")
+        delete_mode_label.grid(row=0, column=0, padx=(0, 12), sticky="w")
         trash_rb = ttk.Radiobutton(
             delete_mode_frame,
             text=self.loc._("option_delete_mode_trash"),
             value="trash",
             variable=self.delete_mode_var,
         )
-        trash_rb.grid(row=0, column=1, padx=(0, 8), sticky="w")
+        trash_rb.grid(row=0, column=1, padx=(0, 12), sticky="w")
         permanent_rb = ttk.Radiobutton(
             delete_mode_frame,
             text=self.loc._("option_delete_mode_permanent"),
             value="permanent",
             variable=self.delete_mode_var,
         )
-        permanent_rb.grid(row=0, column=2, sticky="w")
+        permanent_rb.grid(row=0, column=2, padx=(0, 12), sticky="w")
 
         # Add verbose logging checkbox to delete mode row (default on)
         verbose_cb = ttk.Checkbutton(
@@ -570,7 +555,37 @@ class MainWindowBuilder:
             text=self.loc._("label_verbose_logging"),
             variable=self.verbose_var,
         )
-        verbose_cb.grid(row=0, column=3, padx=(16, 0), sticky="w")
+        verbose_cb.grid(row=0, column=3, padx=(0, 12), sticky="w")
+        # Add tooltip to verbose logging checkbox
+        verbose_cb_ttp = self.loc._("tooltip_user_log_only")
+        verbose_cb.bind(
+            "<Enter>", lambda e: self._show_tooltip(verbose_cb, verbose_cb_ttp)
+        )
+        verbose_cb.bind("<Leave>", lambda e: self._hide_tooltip())
+
+        # Add chat timestamps checkbox to delete mode row (default on)
+        self.chat_timestamps_var = tk.BooleanVar(
+            value=self.settings.get("chat_timestamps", True)
+        )
+
+        def on_chat_timestamps_toggle():
+            # Update log formatter dynamically
+            if hasattr(self.logger, "set_timestamps_enabled"):
+                self.logger.set_timestamps_enabled(self.chat_timestamps_var.get())
+
+        chat_timestamps_cb = ttk.Checkbutton(
+            delete_mode_frame,
+            text=self.loc._("label_chat_timestamps"),
+            variable=self.chat_timestamps_var,
+            command=on_chat_timestamps_toggle,
+        )
+        chat_timestamps_cb.grid(row=0, column=5, padx=(0, 12), sticky="w")
+        chat_timestamps_cb_ttp = self.loc._("tooltip_chat_timestamps")
+        chat_timestamps_cb.bind(
+            "<Enter>",
+            lambda e: self._show_tooltip(chat_timestamps_cb, chat_timestamps_cb_ttp),
+        )
+        chat_timestamps_cb.bind("<Leave>", lambda e: self._hide_tooltip())
 
         # Add append log checkbox to delete mode row (default off)
         self.append_log_var = tk.BooleanVar(
@@ -581,7 +596,69 @@ class MainWindowBuilder:
             text=self.loc._("label_append_log"),
             variable=self.append_log_var,
         )
-        append_log_cb.grid(row=0, column=4, padx=(16, 0), sticky="w")
+        append_log_cb.grid(row=0, column=4, padx=(0, 12), sticky="w")
+        # Add tooltip to append log checkbox
+        append_log_cb_ttp = self.loc._("tooltip_user_log_only")
+        append_log_cb.bind(
+            "<Enter>", lambda e: self._show_tooltip(append_log_cb, append_log_cb_ttp)
+        )
+        append_log_cb.bind("<Leave>", lambda e: self._hide_tooltip())
+
+        # Add reset settings button (now column 6, no right padding)
+        def on_reset_settings():
+            from core.settings import load_settings, save_settings
+
+            # Reload defaults
+            defaults = load_settings.__globals__["load_settings"]()
+            # Remove wow_path from reset (preserve current path if set)
+            wow_path = self.wow_path_var.get() if self.wow_path_var else None
+            if wow_path:
+                defaults["wow_path"] = wow_path
+            save_settings(defaults)
+            # Update all UI elements to reflect defaults
+            self.settings.clear()
+            self.settings.update(defaults)
+            # Language
+            self.language_var.set(self.loc._("option_language_english"))
+            # Theme
+            from core.themes import apply_theme
+
+            theme_name = self.settings.get("theme", "light")
+            font_family = self.settings.get("font_family", "TkDefaultFont")
+            font_size = int(self.settings.get("font_size", 9))
+            apply_theme(self.root, theme_name, font_family, font_size)
+            # Font family and size
+            system_default_label = self.loc._("system_default_font")
+            if font_family == "TkDefaultFont":
+                self.font_family_var.set(system_default_label)
+            else:
+                self.font_family_var.set(font_family)
+            self.font_size_var.set(str(font_size))
+            # Delete mode
+            self.delete_mode_var.set(self.settings.get("delete_mode", "trash"))
+            # Verbose logging
+            self.verbose_var.set(self.settings.get("verbose_logging", True))
+            # Append log
+            self.append_log_var.set(self.settings.get("append_log", False))
+            # Chat timestamps
+            self.chat_timestamps_var.set(self.settings.get("chat_timestamps", True))
+            # Refresh all widget fonts and theme
+            self.refresh_all_widget_fonts()
+            # Optionally, show a message to the user
+            import tkinter.messagebox as messagebox
+
+            messagebox.showinfo(
+                self.loc._("btn_reset_settings"),
+                self.loc._("btn_reset_settings") + " applied.",
+            )
+
+        reset_btn = ttk.Button(
+            delete_mode_frame,
+            text=self.loc._("btn_reset_settings"),
+            command=on_reset_settings,
+            style="TButton",
+        )
+        reset_btn.grid(row=0, column=6, padx=(0, 0), sticky="w")
         self.root.update_idletasks()
 
         # Build UI sections
@@ -637,7 +714,9 @@ class MainWindowBuilder:
         self.dev_tab_index = None
         for idx, (tab_id, tab_label) in enumerate(tabs):
             frame = ttk.Frame(self.notebook, padding=5)
-            self.notebook.add(frame, text=tab_label)
+            # Apply (0, 12) padding to all tabs except the last
+            tab_pad = (0, 12) if idx < len(tabs) - 1 else (0, 0)
+            self.notebook.add(frame, text=tab_label, padding=tab_pad)
             self.tab_frames[tab_id] = frame
             if tab_id == "developer":
                 self.dev_tab_index = idx
@@ -651,9 +730,11 @@ class MainWindowBuilder:
         ]
         self.child_notebook = ttk.Notebook(file_cleaner_frame)
         self.child_tab_frames = {}
-        for tab_id, tab_label in child_tabs:
+        for idx, (tab_id, tab_label) in enumerate(child_tabs):
             frame = ttk.Frame(self.child_notebook, padding=5)
-            self.child_notebook.add(frame, text=tab_label)
+            # Apply (0, 12) padding to all child tabs except the last
+            tab_pad = (0, 12) if idx < len(child_tabs) - 1 else (0, 0)
+            self.child_notebook.add(frame, text=tab_label, padding=tab_pad)
             self.child_tab_frames[tab_id] = frame
         self.child_notebook.pack(side="top", fill="x", pady=(0, 10))
 

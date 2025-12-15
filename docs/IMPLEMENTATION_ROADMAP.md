@@ -3,6 +3,7 @@
 
 
 
+
 ## Current Status ✅
 - All main window rows now use unique grid rows for clear, non-overlapping layout ⭐ NEW
 - Language dropdown in WoW path row is now correctly placed, fully visible, and does not overlap other widgets ⭐ NEW
@@ -17,10 +18,12 @@
 - Logger class refactored (60 lines reduced, helper methods extracted, constant caching)
 - Font utilities caching (eliminates repeated system calls)
 - All dialogs and tooltips now live-update their theme and font when user settings change
+- Chat Timestamps checkbox added (affects both User Log and Developer Log)
+- All translation keys alphabetically sorted for easy maintenance
+- Localization tooltips and new keys added for all new features
 - Fixed all indentation errors in UI and dialog code for reliable imports and execution
 - Test framework: Python unittest, with tests for initialization, validation, detection, and helper functions
 - Mock objects for testing without filesystem dependencies
-- All translation keys alphabetically sorted for easy maintenance
 - Removed unused imports (11 files cleaned up)
 - All sapling-related code and files (CustomTabBar, SaplingCanvas, TreeNode, sapling_box_style_checklist.md) have been removed for a clean slate. A new custom tree widget will be implemented in a future phase.
 

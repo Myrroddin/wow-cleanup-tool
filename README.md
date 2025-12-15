@@ -2,6 +2,7 @@
 
 A lightweight utility for managing and optimizing World of Warcraft installations.
 
+
 ## Table of Contents
 
 - [Features](#features)
@@ -24,10 +25,11 @@ A lightweight utility for managing and optimizing World of Warcraft installation
   - Automatic rotation (1MB user, 5MB dev)
   - Session preservation with append mode
   - Thread-safe for parallel operations
-- **Localization**: 97 translation keys, 13 language support structure
+- **Localization**: 98+ translation keys, robust English support, easy expansion
 - **Settings**: Auto-save theme, font, delete mode, verbose logging, geometry
+- **Chat Timestamps**: Toggle timestamps in both User Log and Developer Log
 
-### Coming Soon 🚧
+### Coming Soon 🛠️
 - File cleanup (.bak, .old, temps)
 - Folder cleanup (cache, logs, errors)
 - Game optimizer

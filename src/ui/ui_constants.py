@@ -5,7 +5,7 @@ class DialogDimensions:
     """Standard dialog dimensions and spacing."""
 
     # Dialog minimum sizes
-    MIN_LICENSE_WIDTH = 700
+    MIN_LICENSE_WIDTH = 250
     MIN_LICENSE_HEIGHT = 500
 
     MIN_WARNING_WIDTH = 500
