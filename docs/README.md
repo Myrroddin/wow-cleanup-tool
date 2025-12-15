@@ -24,10 +24,10 @@ A lightweight utility for managing and optimizing World of Warcraft installation
   - Automatic rotation (1MB user, 5MB dev)
   - Session preservation with append mode
   - Thread-safe for parallel operations
-- **Localization**: 97 translation keys, 13 language support structure
+- **Localization**: 90+ translation keys, multi-language support structure
 - **Settings**: Auto-save theme, font, delete mode, verbose logging, geometry
 
-### Coming Soon 🚧
+### Coming Soon 🛧
 - File cleanup (.bak, .old, temps)
 - Folder cleanup (cache, logs, errors)
 - Game optimizer

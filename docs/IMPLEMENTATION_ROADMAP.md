@@ -1,34 +1,29 @@
+
 # Implementation Roadmap for Cleanup Features
 
-## Current Status ✅
-    - User log: 1MB rotation, 1 backup (wow_cleanup_user.log)
-  - Developer log: 5MB rotation, 2 backups (wow_cleanup_dev.log)
-  - Custom TextWidgetHandler for Tkinter integration
-  - SessionSeparatorHandler for append mode
-  - Thread-safe logging with automatic rotation
-  - Test framework: Python unittest
-  - Tests for initialization, validation, detection, and helper functions
-  - Mock objects for testing without filesystem dependencies
-  - `btn_` prefix: Button labels (6 keys)
-  - `label_` prefix: UI labels (8 keys)
-  - `status_` prefix: Status messages (8 keys)
-  - `msg_` prefix: Dialog messages (6 keys)
-  - `version_` prefix: Version types (3 keys)
-  - `option_` prefix: Checkbox/radio options (5 keys)
-  - `title_` prefix: Window/dialog titles (7 keys)
-  - `tab_` prefix: Tab names (6 keys)
-  - `flavor_` prefix: WoW flavor display names (5 keys) ⭐ NEW
-  - Additional prefixes: `dep_`, `error_`, `file_`, `log_`, `wow_`
-  - All keys alphabetically sorted for easy maintenance
-  - Logger class refactored (60 lines reduced, helper methods extracted, constant caching)
-  - Font utilities caching (eliminates repeated system calls)
 
-    - All dialogs and tooltips now live-update their theme and font when user settings change (full theme/font refresh for all UI elements) ⭐ NEW
-    - Fixed all indentation errors in UI and dialog code for reliable imports and execution ⭐ NEW
-    - Centralized refresh logic: theme, font, and font size are always updated together for all UI elements ⭐ NEW
-    - Ensured robust settings persistence and immediate UI feedback for all user preference changes ⭐ NEW
-    - App launches and updates all user-facing text and popups as expected ⭐ NEW
-    - Removed unused imports (11 files cleaned up) ⭐ NEW
+
+## Current Status ✅
+- All main window rows now use unique grid rows for clear, non-overlapping layout ⭐ NEW
+- Language dropdown in WoW path row is now correctly placed, fully visible, and does not overlap other widgets ⭐ NEW
+- Main window dynamically resizes to fit all widgets in the WoW path row, ensuring no controls are hidden ⭐ NEW
+- Browse button tooltip is concise and user-friendly ⭐ NEW
+- Debug prints for widget geometry include the language dropdown and aid in diagnosing layout issues ⭐ NEW
+- Further UI polish and layout bugfixes for robust, user-friendly experience ⭐ NEW
+- Debug prints removed, codebase formatted with Black, and trailing spaces/blank lines normalized ⭐ NEW
+- Centralized theme/font refresh logic for all UI elements ⭐ NEW
+- Settings changes now provide immediate UI feedback ⭐ NEW
+- Robust settings persistence and reliable UI updates for all user preference changes
+- Logger class refactored (60 lines reduced, helper methods extracted, constant caching)
+- Font utilities caching (eliminates repeated system calls)
+- All dialogs and tooltips now live-update their theme and font when user settings change
+- Fixed all indentation errors in UI and dialog code for reliable imports and execution
+- Test framework: Python unittest, with tests for initialization, validation, detection, and helper functions
+- Mock objects for testing without filesystem dependencies
+- All translation keys alphabetically sorted for easy maintenance
+- Removed unused imports (11 files cleaned up)
+- All sapling-related code and files (CustomTabBar, SaplingCanvas, TreeNode, sapling_box_style_checklist.md) have been removed for a clean slate. A new custom tree widget will be implemented in a future phase.
+
 
 ## Next Steps (When Ready)
 
@@ -58,7 +53,7 @@ class FileScanner(BaseScanner):
 2. Create UI tab in `src/ui/tabs/file_cleaner_tab.py`
 3. Pass logger to scanner: `scanner = FileScanner(max_workers=workers, logger=self.logger, loc=loc)`
 4. Add scan button that calls `FileScanner.scan_versions()`
-5. Display results in SaplingCanvas widget (`src/ui/widgets/sapling_canvas.py`)
+5. Display results in a new custom tree widget (to be implemented)
 6. Use logger methods:
     - `logger.log()`: Essential messages ("Scan complete")
     - `logger.verbose()`: Detailed operations ("Deleted file: addon.bak")

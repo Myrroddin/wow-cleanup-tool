@@ -22,6 +22,8 @@ if not check_and_install_dependencies():
 from core.settings import load_settings, save_settings
 from core.logger import Logger
 from core.themes import apply_theme
+from wow.path_manager import PathManager
+from wow.path_handler import WoWPathHandler
 from localization import Localization
 from ui import (
     show_wow_close_warning,
@@ -35,6 +37,9 @@ from ui import (
 
 
 class WoWCleanupTool:
+    MIN_W = 480
+    MIN_H = 320
+
     def reset_window_geometry(self):
         """Reset window geometry to default (content-based) size on next launch."""
         # Remove geometry-related settings
@@ -115,6 +120,8 @@ class WoWCleanupTool:
         )
         self.ui_widgets = builder.build()
 
+        # ...existing code...
+
         # Initialize application controller
         self.controller = ApplicationController(
             self.root, self.settings, self.ui_widgets, self.logger, builder
@@ -135,6 +142,11 @@ class WoWCleanupTool:
         self.ui_widgets["font_combo"] = builder.font_combo
         # Save settings on close
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
+
+        # Center the main window on screen at launch (after all widgets are realized)
+        from ui.geometry import setup_geometry
+
+        setup_geometry(self)
 
         # Detect WoW path on first run (after UI is ready)
         self.root.after(100, self._detect_wow_on_first_run)
@@ -199,3 +211,7 @@ def main():
 
         traceback.print_exc()
         input(loc._("press_enter_to_exit"))
+
+
+if __name__ == "__main__":
+    main()

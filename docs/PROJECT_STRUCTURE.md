@@ -32,9 +32,8 @@ wow-cleanup-tool/
 │   │   │   ├── license_dialog.py       # GPL-3.0 license dialog
 │   │   │   ├── multiple_installations.py # Multiple WoW installs warning
 │   │   │   └── wow_close_warning.py    # WoW running warning
-│   │   ├── widgets/          # Custom widgets (e.g., SaplingCanvas)
-│   │   │   ├── __init__.py   # Widgets package
-│   │   │   └── sapling_canvas.py # Custom tree widget
+│   │   ├── widgets/          # Custom widgets (future use)
+│   │   │   └── __init__.py   # Widgets package
 │   │   ├── __init__.py       # UI module exports
 │   │   ├── app_controller.py # Event handlers and UI state management
 │   │   ├── dialog_base.py    # Base class for theme-aware dialogs

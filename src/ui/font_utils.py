@@ -19,38 +19,18 @@ def get_available_fonts(default_label="System Default"):
     Returns:
         list: Sorted list of font family names, common fonts first.
     """
-    global _cached_fonts, _cached_common_fonts
+    global _cached_fonts
 
     if _cached_fonts is None:
-        # Common/useful fonts to prioritize
-        common_fonts = [
-            "Arial",
-            "Calibri",
-            "Consolas",
-            "Courier New",
-            "Georgia",
-            "Segoe UI",
-            "Tahoma",
-            "Times New Roman",
-            "Trebuchet MS",
-            "Verdana",
-        ]
+        # Get all available fonts, remove those starting with '@', sort alphabetically (case-insensitive)
+        available_fonts = [f for f in set(tkfont.families()) if not f.startswith("@")]
+        available_fonts = sorted(available_fonts, key=lambda s: s.lower())
+        _cached_fonts = available_fonts
 
-        available_fonts = sorted(set(tkfont.families()))
-
-        # Build cached lists
-        _cached_common_fonts = [f for f in common_fonts if f in available_fonts]
-        _cached_fonts = [
-            f
-            for f in available_fonts
-            if f not in common_fonts and not f.startswith("@")
-        ]
-
-    # Build final list with localized default label
-    font_list = [default_label]
-    font_list += _cached_common_fonts
-    font_list += _cached_fonts
-
+    # Remove the default label if present in the font list (case-insensitive match)
+    font_list = [f for f in _cached_fonts if f.lower() != default_label.lower()]
+    # Insert the localized default label at the top
+    font_list.insert(0, default_label)
     return font_list
 
 

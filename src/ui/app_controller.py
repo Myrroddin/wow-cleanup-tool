@@ -54,25 +54,12 @@ class ApplicationController:
         try:
             font_size_var = self.ui_widgets.get("font_size_var")
             if not font_size_var:
-                print("[DEBUG] font_size_var missing", file=sys.stderr)
                 return
             new_size = int(font_size_var.get())
-            print(
-                f"[DEBUG] [on_font_size_changed] New font size from UI: {new_size}",
-                file=sys.stderr,
-            )
             self.settings["font_size"] = new_size
             font_size_var.set(str(new_size))
-            print(
-                f"[DEBUG] [on_font_size_changed] Saved font size to settings and StringVar.",
-                file=sys.stderr,
-            )
             font_family = self.settings.get("font_family", "TkDefaultFont")
             current_theme = self.settings.get("theme", "light")
-            print(
-                f"[DEBUG] [on_font_size_changed] Applying theme: {current_theme}, font: {font_family}, size: {new_size}",
-                file=sys.stderr,
-            )
             themes.apply_theme(self.root, current_theme, font_family, new_size)
             self._refresh_all_fonts(font_family, new_size)
             self.root.update_idletasks()
@@ -90,7 +77,6 @@ class ApplicationController:
 
             save_settings(self.settings)
         except ValueError:
-            print("[DEBUG] Invalid font size value", file=sys.stderr)
             pass  # Invalid font size, ignore
 
     def on_font_family_changed(self, event=None):
@@ -99,7 +85,6 @@ class ApplicationController:
 
         font_family_var = self.ui_widgets.get("font_family_var")
         if not font_family_var:
-            print("[DEBUG] font_family_var missing", file=sys.stderr)
             return
         selected = font_family_var.get()
         # Map UI label to settings value
@@ -112,22 +97,10 @@ class ApplicationController:
             actual_font = "TkDefaultFont"
         else:
             actual_font = selected
-        print(
-            f"[DEBUG] [on_font_family_changed] Font family selected from UI: {selected}, resolved: {actual_font}",
-            file=sys.stderr,
-        )
         self.settings["font_family"] = actual_font
         font_family_var.set(selected)
-        print(
-            f"[DEBUG] [on_font_family_changed] Saved font family to settings and StringVar.",
-            file=sys.stderr,
-        )
         current_theme = self.settings.get("theme", "light")
         font_size = self.settings.get("font_size", 9)
-        print(
-            f"[DEBUG] [on_font_family_changed] Applying theme: {current_theme}, font: {actual_font}, size: {font_size}",
-            file=sys.stderr,
-        )
         themes.apply_theme(self.root, current_theme, actual_font, font_size)
         self._refresh_all_fonts(actual_font, font_size)
         self.root.update_idletasks()
@@ -474,9 +447,7 @@ class ApplicationController:
         import sys
         from core import themes
 
-        print(
-            f"[DEBUG] Forcing font refresh: {font_family}, {font_size}", file=sys.stderr
-        )
+        # Debug print removed
         # Re-apply theme to root (updates ttk styles)
         current_theme = self.settings.get("theme", "light")
         themes.apply_theme(self.root, current_theme, font_family, font_size)
@@ -495,6 +466,5 @@ class ApplicationController:
             if widget:
                 try:
                     widget.configure(font=(font_family, font_size))
-                    print(f"[DEBUG] Refreshed {key} font", file=sys.stderr)
-                except Exception as e:
-                    print(f"[DEBUG] Failed to refresh {key}: {e}", file=sys.stderr)
+                except Exception:
+                    pass
