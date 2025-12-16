@@ -126,15 +126,15 @@ World of Warcraft specific functionality:
 - No circular dependencies
 
 ### 3. Performance
-- `os.scandir()` instead of `os.listdir()` (2-3x faster)
+- `os.scandir()` for fast file/folder listing
 - Parallel processing with ThreadPoolExecutor
 - Disk-aware threading (8 workers for SSD, 2 for HDD)
 - Compiled regex patterns at module level
 
 ### 4. User Experience
-- All user-facing text localized
+- All user-facing text localized (sorted keys, robust fallback)
 - Theme-aware UI components
-- Settings persistence across sessions
+- Settings persistence across sessions (per-user JSON)
 - Error handling with graceful degradation
 
 ### 5. Extensibility
@@ -179,9 +179,9 @@ Automated builds for Windows, macOS, and Linux:
   - Each session timestamped
 
 ### Logs
-- **6-tab interface** in main window:
-  - **Feature tabs** (File Cleaner, Folder Cleaner, Game Optimizer, Optimization Suggestions)
-  - **Log tab**: User operations with Copy/Save/Delete buttons
+- **Tabbed interface** in main window:
+  - **Feature tabs**: File Cleaner, Folder Cleaner, Game Optimizer, Optimization Suggestions (future)
+  - **Log tab**: User operations with Copy/Save/Delete (log_controls.py)
     - `.log()`: Essential messages
     - `.verbose()`: Detailed operations (if verbose enabled)
     - Delete button visible only when append mode enabled
@@ -197,10 +197,11 @@ Automated builds for Windows, macOS, and Linux:
 
 ### Main Application
 ```python
-from modules.core import Logger, load_settings, apply_theme
-from modules.localization import Localization
-from modules.ui import MainWindowBuilder, ApplicationController, setup_geometry
-from modules.wow import PathManager, WoWPathHandler
+from core.logger import Logger
+from core.settings import load_settings, save_settings
+from localization import Localization
+from ui.main_window import MainWindow
+from wow.path_manager import PathManager
 ```
 
 ### UI Components
@@ -211,9 +212,10 @@ from .ui_constants import DialogDimensions
 from .dialog_base import BaseDialog
 ```
 
-### Future Operations
+### Operations
 ```python
-from modules.operations import BaseScanner, get_optimal_workers
+from operations.base_scanner import BaseScanner
+from operations.disk_utils import get_optimal_workers
 ```
 
 ## Testing Checklist
@@ -226,3 +228,5 @@ When modifying structure:
 - [ ] Update `IMPLEMENTATION_ROADMAP.md` if relevant
 - [ ] Test PyInstaller build: `pyinstaller wow_cleanup_tool.spec`
 - [ ] Verify no __pycache__ committed to git
+- [ ] Ensure all user-facing strings are localized and sorted
+- [ ] Ensure all new/changed code is covered by isolated unit tests

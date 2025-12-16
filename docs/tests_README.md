@@ -1,40 +1,35 @@
 
+
 # Unit Tests
 
-This directory contains automated unit tests for the WoW Cleanup Tool.
+This directory contains automated, isolated unit tests for the WoW Cleanup Tool.
 
-**Note:** The UI is now modular, with each main tab implemented as a separate class in `src/ui/tabs/`, and all log actions handled by the log controls utility (`src/ui/log_controls.py`). Future UI and log-related tests should target these modules for maintainability.
+**Note:** The UI is modular, with each main tab implemented as a separate class in `src/ui/tabs/`, and all log actions handled by the log controls utility (`src/ui/log_controls.py`). All file-based code is tested in isolation using mocks or temporary files.
 
 ## Running Tests
 
 Run all tests:
 ```bash
-python -m unittest discover tests/
+python -m unittest discover tests/ -v
 ```
 
-Run specific test file:
+Run a specific test file:
 ```bash
 python -m unittest tests.test_localization
 python -m unittest tests.test_path_manager
-```
-
-Run with verbose output:
-```bash
-python -m unittest discover tests/ -v
+python -m unittest tests.test_logger
 ```
 
 ## Test Coverage
 
-### `test_localization.py` (15 tests)
-Tests for the localization system:
+### `test_localization.py`
 - Translation loading and fallback
 - Localization class initialization and translation lookup
 - Translation completeness calculation
 - Language display names
 - Module constants
 
-### `test_path_manager.py` (28 tests)
-Tests for WoW path management:
+### `test_path_manager.py`
 - PathManager initialization
 - Class constants (COMMON_PATHS, WOW_FLAVORS)
 - Path validation (valid/invalid/empty paths)
@@ -43,13 +38,25 @@ Tests for WoW path management:
 - Installation validation
 - Directory population checking
 
+### `test_logger.py`
+- Logger initialization, log/verbose/debug/error/warning
+- Log rotation and append mode
+- UI widget handler (mocked)
+- Error badge callback
+
+### `test_settings.py`
+- Settings load/save (mocked file I/O)
+- User log file save/load
+
+### `test_file_cleaner.py`, `test_localization_en_us.py`, `test_error_handler.py`, `test_wow_cleanup_tool.py`
+- Additional coverage for file operations, localization keys, error handling, and main app startup
+
 ## Test Structure
 
-Tests use Python's built-in `unittest` framework:
+- Uses Python's built-in `unittest` framework
 - Each test file contains multiple `TestCase` classes
-- Each `TestCase` groups related tests
-- `setUp()` and `tearDown()` methods handle test fixtures
-- Tests create temporary directories when needed
+- `setUp()` and `tearDown()` methods handle test fixtures and mocks
+- Tests create temporary directories or use mocking for file I/O
 
 ## Type Safety
 
@@ -59,5 +66,4 @@ All test files include type hints where applicable and are checked by Pylance/Py
 
 Potential areas for additional testing:
 - `base_scanner.py` - Parallel scanning operations
-- `settings.py` - Settings load/save operations (needs mocking)
-- UI components (lower priority - integration tests more suitable)
+- UI integration tests (lower priority)

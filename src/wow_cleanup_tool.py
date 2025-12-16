@@ -42,94 +42,88 @@ class WoWCleanupTool:
         reset_window_geometry(self)
 
     def __init__(self, root):
+        import platform
+        import time
+
         self.root = root
+        t0 = time.perf_counter()
+
+        # Minimal startup: load settings, localization, logger
         self.settings = load_settings()
-
-        # Initialize localization
-        self.loc = Localization(self.settings.get("language", "en_us"))
-
-        # Set window title (before checking license)
+        lang = self.settings.get("language", "en_us")
+        self.loc = Localization(lang)
+        self.logger = Logger(
+            verbose=self.settings.get("verbose_logging", True),
+            append_mode=self.settings.get("append_log", False),
+        )
         self.root.title(self.loc._("title_main_window"))
 
         # Hide main window until license is accepted
         self.root.withdraw()
+        import time
 
-        # Get theme for license dialog
-        theme_name = self.settings.get("theme", "light")
-
+        t1 = time.perf_counter()
         # Show license dialog
+        theme_name = self.settings.get("theme", "light")
         license_accepted = show_license_dialog(
             self.root, self.loc, theme_name, self.settings
         )
-
         if not license_accepted:
-            # User declined - exit application
             self.root.destroy()
             sys.exit(0)
 
         # User accepted - show main window and continue with normal initialization
         self.root.deiconify()
-
-        # Initialize logger with verbose and append_log settings
-        self.logger = Logger(
-            verbose=self.settings.get("verbose_logging", True),
-            append_mode=self.settings.get("append_log", False),
-        )
-
         # Load previous logs if append mode is enabled
         if self.settings.get("append_log", False):
             self.logger.load_previous_log()
-
-        # Initialize PathManager with localization and PathHandler
+        # Initialize PathManager and PathHandler
         self.path_manager = PathManager(self.loc)
         self.path_handler = WoWPathHandler(
             self.root, self.settings, self.logger, self.loc, self.path_manager
         )
-
         # Get font and theme settings (use defaults if missing)
         font_family = self.settings.get("font_family", "TkDefaultFont")
         font_size = self.settings.get("font_size", 9)
         theme_name = self.settings.get("theme", "light")
-
         # Apply theme and font to root before any widget creation
         apply_theme(self.root, theme_name, font_family, font_size)
-
         # Pass browse_wow_path as a callback for the builder's browse button
         self.settings["browse_callback"] = self.browse_wow_path
         builder = MainWindowBuilder(
             self.root, self.loc, self.settings, self.logger, font_utils
         )
         self.ui_widgets = builder.build(theme_toggle_callback=self.on_theme_toggle)
-
-        # ...existing code...
-
         # Initialize application controller
         self.controller = ApplicationController(
             self.root, self.settings, self.ui_widgets, self.logger, builder
         )
-
         # Store builder reference for theme updates
         self.builder = builder
-
-        # All wow path row widgets are now created only in build()
         # Save settings on close
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
-
-        # Center the main window on screen at launch (after all widgets are realized)
         from ui.geometry import setup_geometry
 
         setup_geometry(self)
+        # Log: startup success for user, or error if exception occurs
+        try:
+            self.logger.log(self.loc._("startup_success"))
+        except Exception as e:
+            self.logger.error(self.loc._("startup_error_see_devlog"))
 
         # Detect WoW path on first run (after UI is ready)
-        self.root.after(100, self._detect_wow_on_first_run)
+        def detect_and_log():
+            self._detect_wow_on_first_run()
+
+        self.root.after(100, detect_and_log)
 
         # Show WoW close warning after detection (if not disabled)
-        self.root.after(
-            200,
-            lambda: show_wow_close_warning(
+        def show_warning_and_log():
+            show_wow_close_warning(
                 self.root, self.loc, self.settings.get("theme", "light"), self.settings
-            ),
-        )
+            )
+
+        self.root.after(200, show_warning_and_log)
 
     def on_theme_toggle(self):
         """Handle theme toggle with dev log color refresh."""

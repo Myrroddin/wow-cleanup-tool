@@ -1,62 +1,45 @@
 
-# Python Logging System - User Guide
+
+# Logging System - User & Developer Guide
 
 ## Overview
-The WoW Cleanup Tool uses Python's built-in `logging` module for professional-grade logging with automatic rotation, timestamps, and thread safety. All log actions in the UI (copy, save, clear, delete) are handled by a centralized log controls utility (`src/ui/log_controls.py`), ensuring consistent behavior across both the User Log and Developer Log tabs. The modular UI structure delegates log actions to this utility for maintainability and testability.
+WoW Cleanup Tool uses a modern, dual-channel logging system built on Python's `logging` module. All log actions in the UI (copy, save, clear, delete) are handled by a centralized log controls utility (`src/ui/log_controls.py`), ensuring consistent behavior for both User Log and Developer Log tabs. The modular UI delegates log actions to this utility for maintainability and testability. Logs are automatically rotated, support append mode, and are thread-safe for parallel operations.
+
 
 ## Features
 
-### Automatic Log Rotation
+### Dual Log Channels
 - **User Log** (`~/.wow_cleanup_tool/user_log.txt`)
-  - Maximum size: 1MB per file
-  - Keeps 5 backup files (`user_log.txt.1`, `user_log.txt.2`, etc.)
-  - Automatically rotates when size limit reached
-  
+  - INFO and essential messages only
+  - Rotates at 1MB, keeps 5 backups
+  - Append mode: logs persist across sessions (newest at top)
 - **Developer Log** (`~/.wow_cleanup_tool/dev_log.txt`)
-  - Maximum size: 5MB per file
-  - Keeps 3 backup files
-  - Contains all DEBUG, INFO, WARNING, ERROR messages
+  - DEBUG, INFO, WARNING, ERROR
+  - Rotates at 5MB, keeps 3 backups
+  - Always verbose, includes stack traces for errors
+
+### Log Controls Utility
+- All log actions (copy, save, clear, delete) are handled by `src/ui/log_controls.py`
+- Log tab and Developer tab both use this utility for consistent UI/UX
+- Delete button is visible only when append mode is enabled
+- Log controls respect delete mode (trash vs permanent)
 
 ### Log Levels
-
-The system uses standard Python log levels:
-
-| Level | User Log | Dev Log | Description |
-|-------|----------|---------|-------------|
-| DEBUG | ❌ | ✅ | Detailed diagnostic information |
-| INFO | ✅ | ✅ | General informational messages |
-| WARNING | ❌ | ✅ | Warning messages (NEW) |
-| ERROR | ❌ | ✅ | Error messages with stack traces |
+| Level   | User Log | Dev Log | Description                      |
+|---------|----------|---------|----------------------------------|
+| DEBUG   | ❌       | ✅      | Detailed diagnostic information  |
+| INFO    | ✅       | ✅      | General informational messages   |
+| WARNING | ❌       | ✅      | Warning messages                 |
+| ERROR   | ❌       | ✅      | Error messages with stack traces |
 
 ### Log Format
-
-**User Log Format:**
-```
-[YYYY-MM-DD HH:MM:SS] Message text
-```
-
-Example:
-```
-[2025-12-08 14:32:15] Application started successfully!
-[2025-12-08 14:32:16] Detecting World of Warcraft installation...
-```
-
-**Developer Log Format:**
-```
-[YYYY-MM-DD HH:MM:SS] [LEVEL] Message text
-```
-
-Example:
-```
-[2025-12-08 14:32:15] [INFO] Initializing WoW Cleanup Tool
-[2025-12-08 14:32:16] [DEBUG] PathManager initialized
-[2025-12-08 14:32:18] [ERROR] Failed to access registry: Access denied
-[2025-12-08 14:32:19] [WARNING] WoW path not found in registry
-```
+**User Log:** `[YYYY-MM-DD HH:MM:SS] Message text`
+**Developer Log:** `[YYYY-MM-DD HH:MM:SS] [LEVEL] Message text`
 
 ## Usage for Developers
 
 ### Basic Logging
+
 
 ```python
 from src.core.logger import Logger
@@ -64,64 +47,59 @@ from src.core.logger import Logger
 # Initialize logger
 logger = Logger(verbose=True, append_mode=True)
 
-# User-facing messages (appears in Log tab)
+# User-facing messages (Log tab)
 logger.log("Operation completed successfully")
 
-# Verbose messages (only shown if verbose=True)
+# Verbose messages (Log tab, if verbose enabled)
 logger.verbose("Deleted file: addon_backup.bak")
 
-# Developer messages (appears in Developer tab)
+# Developer messages (Developer tab)
 logger.debug("Scanning directory: C:\\WoW\\_retail_")
 logger.warning("Using fallback path detection method")
 logger.error("Failed to delete file: Permission denied")
 ```
 
-### Attach to UI Widgets
 
+### Attach to UI Widgets
 ```python
 # Attach to Log tab text widget
 logger.attach_text_widget(user_log_text_widget)
 
-# Attach to Developer tab text widget  
+# Attach to Developer tab text widget
 logger.attach_dev_text_widget(dev_log_text_widget)
 ```
 
-### Configuration
 
+### Configuration
 ```python
 # Enable/disable verbose logging
-logger.set_verbose(True)  # Show all operations
+logger.set_verbose(True)   # Show all operations
 logger.set_verbose(False)  # Show only important messages
 
 # Enable/disable append mode
-logger.set_append_mode(True)  # Keep logs across sessions
+logger.set_append_mode(True)   # Keep logs across sessions
 logger.set_append_mode(False)  # Clear logs on restart
 
 # Set error callback for badge updates
 logger.set_error_callback(lambda count: update_error_badge(count))
 ```
 
+
 ### Advanced: Custom Handlers
-
-To add custom logging handlers (e.g., email alerts on errors):
-
+You can add custom handlers (e.g., email, syslog, JSON) to the developer logger:
 ```python
 import logging
 import logging.handlers
-
-# Get the developer logger
 dev_logger = logging.getLogger('wow_cleanup.dev')
-
-# Add email handler for critical errors
 email_handler = logging.handlers.SMTPHandler(
-    mailhost='smtp.example.com',
-    fromaddr='app@example.com',
-    toaddrs=['admin@example.com'],
-    subject='WoW Cleanup Tool - Critical Error'
-)
+  mailhost='smtp.example.com',
+  fromaddr='app@example.com',
+  toaddrs=['admin@example.com'],
+  subject='WoW Cleanup Tool - Critical Error')
 email_handler.setLevel(logging.ERROR)
 dev_logger.addHandler(email_handler)
 ```
+
 
 ## Log File Locations
 
@@ -130,7 +108,6 @@ dev_logger.addHandler(email_handler)
 C:\Users\<YourName>\.wow_cleanup_tool\
 ├── user_log.txt          (current user log)
 ├── user_log.txt.1        (backup 1)
-├── user_log.txt.2        (backup 2)
 ├── ...
 ├── dev_log.txt           (current developer log)
 ├── dev_log.txt.1         (backup 1)
@@ -147,37 +124,35 @@ C:\Users\<YourName>\.wow_cleanup_tool\
 └── dev_log.txt.1
 ```
 
+
 ## API Reference
-
-**The logging API is simple and consistent:**
-
 All logging methods work seamlessly:
-
 ```python
-# Standard logging methods
-logger.log("Message")
-logger.verbose("Verbose message")
-logger.debug("Debug message")
-logger.error("Error message")
-logger.warning("Warning message")
+logger.log("Message")           # User log
+logger.verbose("Verbose msg")  # User log (if verbose)
+logger.debug("Debug msg")      # Developer log
+logger.error("Error msg")      # Developer log
+logger.warning("Warning msg")  # Developer log
 logger.set_verbose(True)
 logger.attach_text_widget(widget)
 ```
 
+
 ## Benefits
 
 ### For Users
-- ✅ Log files never grow huge (automatic rotation)
-- ✅ Better performance (buffered file writes)
-- ✅ Can analyze old logs (numbered backups)
-- ✅ Timestamps on every message
+- Log files never grow huge (automatic rotation)
+- Logs persist across sessions (append mode)
+- Can analyze old logs (numbered backups)
+- Timestamps on every message
 
 ### For Developers
-- ✅ Thread-safe logging (parallel operations)
-- ✅ Standard Python logging (compatible with tools)
-- ✅ Easy to extend (add handlers)
-- ✅ Professional logging practices
-- ✅ Better debugging with log levels
+- Thread-safe logging (parallel operations)
+- Standard Python logging (compatible with tools)
+- Easy to extend (add handlers)
+- Professional logging practices
+- Better debugging with log levels
+
 
 ## Troubleshooting
 
@@ -189,13 +164,13 @@ logger.attach_dev_text_widget(dev_widget)
 ```
 
 ### Want to change rotation settings?
-Edit `modules/core/logger.py` in `_setup_file_handlers()`:
+Edit `src/core/logger.py` in `_setup_file_handlers()`:
 ```python
 user_file_handler = logging.handlers.RotatingFileHandler(
-    user_log_file,
-    maxBytes=2 * 1024 * 1024,  # 2MB instead of 1MB
-    backupCount=10,             # 10 backups instead of 5
-    encoding='utf-8'
+  user_log_file,
+  maxBytes=2 * 1024 * 1024,  # 2MB instead of 1MB
+  backupCount=10,            # 10 backups instead of 5
+  encoding='utf-8'
 )
 ```
 
@@ -208,9 +183,8 @@ console.setFormatter(logger.dev_formatter)
 logger.dev_logger.addHandler(console)
 ```
 
-## Future Enhancements
 
-Possible additions with Python's logging module:
+## Future Enhancements
 - Email notifications for critical errors
 - Syslog integration for server deployments
 - JSON-formatted logs for log analysis tools
@@ -221,4 +195,4 @@ Possible additions with Python's logging module:
 
 ---
 
-**For more information:** https://docs.python.org/3/library/logging.html
+For more information: https://docs.python.org/3/library/logging.html

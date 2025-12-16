@@ -134,7 +134,8 @@ def save_wow_path_cache(wow_path: str) -> bool:
         with open(cache_file, "w", encoding="utf-8") as f:
             json.dump({"wow_path": wow_path}, f, indent=2, ensure_ascii=False)
         return True
-    except Exception:
+    except Exception as e:
+        print(f"[settings.py] Error saving WoW path cache: {e}")
         return False
 
 
@@ -186,7 +187,20 @@ def save_settings(settings: Dict[str, Any]) -> bool:
     """
     # Split settings: WoW path goes to cache, everything else to user settings
     wow_path = settings.get("wow_path")
-    user_settings = {k: v for k, v in settings.items() if k != "wow_path"}
+
+    # Only keep JSON-serializable values (skip methods, functions, etc.)
+    import types
+
+    def is_json_serializable(val):
+        # Exclude methods, functions, modules, etc.
+        return not (
+            isinstance(val, (types.FunctionType, types.MethodType, types.ModuleType))
+            or callable(val)
+        )
+
+    user_settings = {
+        k: v for k, v in settings.items() if k != "wow_path" and is_json_serializable(v)
+    }
 
     # Save user settings
     settings_file = get_settings_file()
@@ -196,8 +210,8 @@ def save_settings(settings: Dict[str, Any]) -> bool:
         with open(settings_file, "w", encoding="utf-8") as f:
             json.dump(user_settings, f, indent=2, ensure_ascii=False)
         user_success = True
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[settings.py] Error saving settings: {e}")
 
     # Save WoW path to cache if present
     cache_success = True
