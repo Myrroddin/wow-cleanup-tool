@@ -8,6 +8,10 @@ from core import themes
 class ApplicationController:
     """Controller for handling main application events and UI updates."""
 
+    def handle_new_wow_path(self, new_path):
+        """Alias for update_wow_path for backward compatibility."""
+        return self.update_wow_path(new_path)
+
     def __init__(self, root, settings, ui_widgets, logger, builder=None):
         """Initialize the application controller.
 

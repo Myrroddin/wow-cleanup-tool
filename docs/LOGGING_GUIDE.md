@@ -1,7 +1,8 @@
+
 # Python Logging System - User Guide
 
 ## Overview
-The WoW Cleanup Tool now uses Python's built-in `logging` module for professional-grade logging with automatic rotation, timestamps, and thread safety.
+The WoW Cleanup Tool uses Python's built-in `logging` module for professional-grade logging with automatic rotation, timestamps, and thread safety. All log actions in the UI (copy, save, clear, delete) are handled by a centralized log controls utility (`src/ui/log_controls.py`), ensuring consistent behavior across both the User Log and Developer Log tabs. The modular UI structure delegates log actions to this utility for maintainability and testability.
 
 ## Features
 

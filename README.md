@@ -6,6 +6,14 @@ A lightweight utility for managing and optimizing World of Warcraft installation
 ## Table of Contents
 
 - [Features](#features)
+```
+Dependencies install automatically on first run.
+
+Output: `dist/WoW Cleanup Tool.exe`
+
+## Table of Contents
+
+- [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Development](#development)
@@ -28,10 +36,14 @@ A lightweight utility for managing and optimizing World of Warcraft installation
 - **Localization**: 98+ translation keys, robust English support, easy expansion
 - **Settings**: Auto-save theme, font, delete mode, verbose logging, geometry
 - **Chat Timestamps**: Toggle timestamps in both User Log and Developer Log
+- **Modular UI**: Each main tab (File Cleaner, Folder Cleaner, Game Optimizer, Log, Developer) is implemented as a separate class in `src/ui/tabs/`
+- **Log Controls Utility**: All log actions (copy, save, clear, delete) are handled by `src/ui/log_controls.py` for both user and developer logs
+- **Custom Widgets**: Tooltip and future widgets are in `src/ui/widgets/`
+- **Main Window Refactor**: `main_window.py` now delegates tab UI and log actions to dedicated modules, improving maintainability and testability
 
 ### Coming Soon 🛠️
 - File cleanup (.bak, .old, temps)
-- Folder cleanup (cache, logs, errors)
+- Folder cleanup (screenshots, logs, errors)
 - Game optimizer
 - Smart optimization suggestions
 
@@ -43,7 +55,7 @@ A lightweight utility for managing and optimizing World of Warcraft installation
 
 ### Run from Source
 ```bash
-git clone https://github.com/Myrroddin/wow-cleanup-tool.git
+├── ui/            # Interface components
 cd wow-cleanup-tool
 python wow_cleanup_tool.py
 ```
@@ -78,10 +90,6 @@ Output: `dist/WoW Cleanup Tool.exe`
 
 **Structure**:
 ```
-src/
-├── core/          # Settings, logging, themes
-├── localization/  # Translations (97 keys)
-├── ui/            # Interface components
 ├── wow/           # Path detection, validation
 └── operations/    # Cleanup features (future)
 ```
@@ -96,9 +104,9 @@ python -m unittest tests.test_path_manager
 ```
 
 **Documentation**:
-- [IMPLEMENTATION_ROADMAP.md](IMPLEMENTATION_ROADMAP.md) - Feature development guide
-- [LOGGING_GUIDE.md](LOGGING_GUIDE.md) - Logging system details
-- [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) - Module documentation
+- [Implementation Roadmap](https://github.com/Myrroddin/wow-cleanup-tool/blob/main/docs/IMPLEMENTATION_ROADMAP.md) - Feature development guide
+- [Logging Guide](https://github.com/Myrroddin/wow-cleanup-tool/blob/main/docs/LOGGING_GUIDE.md) - Logging system details
+- [Project Structure](https://github.com/Myrroddin/wow-cleanup-tool/blob/main/docs/PROJECT_STRUCTURE.md) - Module documentation
 
 **Key Features**:
 - Type hints for IDE support

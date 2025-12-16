@@ -1,23 +1,19 @@
 """WoW Cleanup Tool - Main Application"""
 
-import tkinter as tk
 import sys
 import os
+import tkinter as tk
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from core.instance_utils import acquire_single_instance, release_single_instance
 
-# Single instance check - silently exit if another instance is running
-from core.single_instance import SingleInstance
+instance_lock = acquire_single_instance()
 
-instance_lock = SingleInstance()
-if not instance_lock.acquire():
-    sys.exit(0)
 
 # Check and install dependencies silently before importing modules that need them
-from core.dependencies import check_and_install_dependencies
+from core.bootstrap import ensure_dependencies
 
-if not check_and_install_dependencies():
-    sys.exit(1)
+ensure_dependencies()
 
 from core.settings import load_settings, save_settings
 from core.logger import Logger
@@ -41,24 +37,9 @@ class WoWCleanupTool:
     MIN_H = 320
 
     def reset_window_geometry(self):
-        """Reset window geometry to default (content-based) size on next launch."""
-        # Remove geometry-related settings
-        for key in [
-            "window_width",
-            "window_height",
-            "window_x",
-            "window_y",
-            "is_maximized",
-        ]:
-            if key in self.settings:
-                del self.settings[key]
-        save_settings(self.settings)
-        # Optionally, resize immediately (for current session)
-        from ui.geometry import center_first_launch
+        from ui.geometry import reset_window_geometry
 
-        sw = self.root.winfo_screenwidth()
-        sh = self.root.winfo_screenheight()
-        center_first_launch(self, sw, sh)
+        reset_window_geometry(self)
 
     def __init__(self, root):
         self.root = root
@@ -158,21 +139,21 @@ class WoWCleanupTool:
             self.builder.refresh_dev_log_colors()
 
     def browse_wow_path(self):
-        """Handle WoW path browsing."""
+        """Delegate WoW path browsing to path handler/controller."""
         new_path = self.path_handler.browse_for_path()
         if new_path:
-            self.controller.update_wow_path(new_path)
-            self.controller.update_minimum_size()
+            self.controller.handle_new_wow_path(new_path)
 
     def _detect_wow_on_first_run(self):
-        """Detect WoW installation on first run."""
+        """Delegate WoW path detection to path handler/controller."""
         detected_path = self.path_handler.detect_wow_on_first_run()
         if detected_path:
-            self.controller.update_wow_path(detected_path)
-            self.controller.update_minimum_size()
+            self.controller.handle_new_wow_path(detected_path)
 
     def on_close(self):
-        """Handle window close event"""
+        """Handle window close event, abstracted for future profiles."""
+        from core.settings import save_settings
+
         save_settings(self.settings)
 
         # Save user log to disk if append mode is enabled
@@ -180,7 +161,7 @@ class WoWCleanupTool:
             self.logger.save_log_to_disk()
 
         self.logger.log(self.loc._("status_settings_saved"))
-        instance_lock.release()
+        release_single_instance(instance_lock)
         self.root.destroy()
 
 
@@ -190,18 +171,9 @@ def main():
         app = WoWCleanupTool(root)
         root.mainloop()
     except Exception as e:
-        # Use basic localization for error display
-        from localization import Localization
-        from core.settings import load_settings
+        from core.error_handler import handle_top_level_exception
 
-        settings = load_settings()
-        loc = Localization(settings.get("language", "en_us"))
-
-        # Optionally log error here if needed
-        import traceback
-
-        traceback.print_exc()
-        input(loc._("press_enter_to_exit"))
+        handle_top_level_exception(e)
 
 
 if __name__ == "__main__":

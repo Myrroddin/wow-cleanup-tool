@@ -122,7 +122,25 @@ class SessionSeparatorHandler(logging.Handler):
 
 
 class WoWLogger:
-    """Modern logging system using Python's logging module with dual log support."""
+    def set_timestamps_enabled(self, enabled: bool) -> None:
+        """Enable or disable timestamps in user and developer logs."""
+        if enabled:
+            user_fmt = "[%(asctime)s] %(message)s"
+            dev_fmt = "[%(asctime)s] [%(levelname)s] %(message)s"
+        else:
+            user_fmt = "%(message)s"
+            dev_fmt = "[%(levelname)s] %(message)s"
+
+        self.user_formatter = logging.Formatter(user_fmt, datefmt="%Y-%m-%d %H:%M:%S")
+        self.dev_formatter = logging.Formatter(dev_fmt, datefmt="%Y-%m-%d %H:%M:%S")
+
+        # Update all handlers with new formatters
+        for handler in self.user_logger.handlers:
+            if hasattr(handler, "setFormatter"):
+                handler.setFormatter(self.user_formatter)
+        for handler in self.dev_logger.handlers:
+            if hasattr(handler, "setFormatter"):
+                handler.setFormatter(self.dev_formatter)
 
     def __init__(self, verbose: bool = False, append_mode: bool = False):
         """Initialize the logging system.

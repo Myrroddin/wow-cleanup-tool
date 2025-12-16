@@ -58,76 +58,48 @@ wow-cleanup-tool/
 │
 ├── docs/                    # Documentation files
 │   ├── README.md
+
+# Project Structure
+
+## Directory Organization
+
+```
+wow-cleanup-tool/
+├── .github/                # GitHub configuration
+│   ├── workflows/          # CI/CD workflows
+│   │   └── build-release.yml
+│   ├── ISSUE_TEMPLATE/     # Issue templates
+│   └── FUNDING.yml         # Sponsorship info
+│
+├── src/                    # Main application source code
+│   ├── core/               # Core infrastructure (settings, logging, themes)
+│   ├── localization/       # Multi-language support (98+ keys)
+│   ├── operations/         # File/folder cleanup, optimizer (future)
+│   ├── ui/                 # User interface components
+│   │   ├── dialogs/        # Dialog windows (license, warnings)
+│   │   ├── tabs/           # Modular tab classes (FileCleanerTab, LogTab, etc.)
+│   │   ├── widgets/        # Custom widgets (Tooltip, etc.)
+│   │   ├── log_controls.py # Log controls utility (copy, save, clear, delete)
+│   │   └── main_window.py  # Main window builder (delegates to tabs/utilities)
+│   ├── wow/                # WoW-specific logic (path detection, validation)
+│   └── wow_cleanup_tool.py # Main application entry point
+│   └── wow_cleanup_tool.spec # PyInstaller build config
+│
+├── assets/
+│   └── icons/              # Application icons
+│
+├── docs/                   # Documentation files
+│   ├── README.md
 │   ├── LOGGING_GUIDE.md
 │   ├── PROJECT_STRUCTURE.md
 │   ├── TYPE_HINTS_AND_TESTS_SUMMARY.md
 │   ├── IMPLEMENTATION_ROADMAP.md
 │   └── tests_README.md
 │
-├── LICENSE                  # GPL-3.0 license
-├── requirements.txt         # Python dependencies
-└── tests/                   # Unit tests
+├── LICENSE                 # GPL-3.0 license
+├── requirements.txt        # Python dependencies
+└── tests/                  # Unit tests
 ```
-
-## Module Responsibilities
-
-### Core (`src/core/`)
-System-level infrastructure and configuration:
-- **dependencies.py**: Checks and installs required Python packages
-- **geometry.py**: Window sizing, positioning, and screen calculations
-- **global_settings.py**: Application-wide constants and default values
-- **logger.py**: Dual-channel logging system with session persistence
-  - `.log()`: Essential user messages → Log tab
-  - `.verbose()`: Detailed operations (if verbose enabled) → Log tab
-  - `.debug()`: Technical details → Developer tab (blue)
-  - `.error()`: Errors and exceptions → Developer tab (red, badge)
-  - Session separators in append mode (newest-first ordering)
-  - Persistent log storage: `~/.wow_cleanup_tool/user_log.txt`
-- **settings.py**: Per-user settings + WoW path caching + log persistence
-  - Includes: theme, font, delete_mode, verbose_logging, append_log, geometry
-- **single_instance.py**: Prevents multiple app instances
-- **themes.py**: Light/dark theme management with tab spacing
-
-### Localization (`src/localization/`)
-Multi-language support system with organized key naming:
-- **__init__.py**: `Localization` class with translation lookup
-- **en_us.py**: English (US) translations dictionary (92 keys, organized by prefix):
-  - `btn_*`: Button labels (6 keys)
-  - `label_*`: UI field labels (8 keys)
-  - `status_*`: Status messages (8 keys)
-  - `msg_*`: Dialog messages (6 keys)
-  - `title_*`: Window/dialog titles (7 keys)
-  - `tab_*`: Tab names (6 keys)
-  - `option_*`: Checkbox/radio options (5 keys)
-  - `version_*`: Version types (3 keys)
-  - Plus: `dep_*`, `error_*`, `file_*`, `log_*`, `wow_*` prefixes
-  - All keys alphabetically sorted for easy maintenance
-
-### Operations (`src/operations/`)
-Backend file system operations (optimized with `os.scandir()` and parallel processing):
-- **base_scanner.py**: Base class for all scanners with ThreadPoolExecutor
-- **disk_utils.py**: HDD/SSD detection, optimal worker thread calculation
-- **README.md**: Performance documentation and usage patterns
-
-**Future modules** (see `IMPLEMENTATION_ROADMAP.md`):
-- file_scanner.py, folder_scanner.py, orphan_scanner.py, file_operations.py
-
-### UI (`src/ui/`)
-User interface components (theme-aware, localized):
-- **app_controller.py**: Event handlers and UI state management
-  - Handles: theme toggle, font changes, delete mode, verbose logging, append log
-  - Dynamic button visibility control (delete log button)
-- **dialog_base.py**: Base class for consistent theme-aware dialog creation
-- **font_utils.py**: System font detection and utilities
-- **geometry.py**: Window geometry calculations and constraints
-- **main_window.py**: Main window construction with 6-tab interface
-  - Tabs: File Cleaner, Folder Cleaner, Game Optimizer, Optimization Suggestions, Log, Developer
-  - Log tab: Copy, Save, Delete buttons (delete visible only in append mode)
-  - Developer tab: Copy/Save buttons, error badge, color-coded messages
-  - Session separators with timestamp in append mode
-- **ui_constants.py**: Standard dimensions and styling values
-
-**Dialogs** (`src/ui/dialogs/`):
 - All dialogs are theme-aware and localized
 - Use `BaseDialog` class for consistency
 - **license_dialog.py**: GPL-3.0 license acceptance (first-run)

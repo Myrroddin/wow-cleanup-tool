@@ -17,19 +17,13 @@ multithreading for parallel operations across WoW versions.
 """
 
 from .base_scanner import BaseScanner
-from .disk_utils import detect_disk_type, get_optimal_workers, is_nvme_drive
-from .file_scanner import FileScanner
-from .folder_scanner import FolderScanner
-from .orphan_scanner import OrphanScanner
+from .disk_utils import detect_disk_type
+
+# FileScanner, FolderScanner, OrphanScanner imports removed (not yet implemented)
 from .file_operations import delete_files_batch
 
 __all__ = [
     "BaseScanner",
     "detect_disk_type",
-    "get_optimal_workers",
-    "is_nvme_drive",
-    "FileScanner",
-    "FolderScanner",
-    "OrphanScanner",
     "delete_files_batch",
 ]

@@ -1,6 +1,9 @@
+
 # Unit Tests
 
 This directory contains automated unit tests for the WoW Cleanup Tool.
+
+**Note:** The UI is now modular, with each main tab implemented as a separate class in `src/ui/tabs/`, and all log actions handled by the log controls utility (`src/ui/log_controls.py`). Future UI and log-related tests should target these modules for maintainability.
 
 ## Running Tests
 

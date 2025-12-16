@@ -1,19 +1,29 @@
 
+
 # Implementation Roadmap for Cleanup Features
 
+This roadmap tracks the development of the WoW Cleanup Tool, with a focus on modularity, maintainability, and user experience. The codebase now uses a modular UI architecture:
+- **Tabs**: Each main tab (File Cleaner, Folder Cleaner, Game Optimizer, Log, Developer) is a separate class in `src/ui/tabs/`.
+- **Log Controls Utility**: All log actions (copy, save, clear, delete) are handled by `src/ui/log_controls.py` for both user and developer logs.
+- **Custom Widgets**: Standalone widgets (e.g., Tooltip) are in `src/ui/widgets/`.
+- **Main Window**: `main_window.py` delegates tab UI and log actions to dedicated modules.
 
-
+---
 
 ## Current Status ✅
-- All main window rows now use unique grid rows for clear, non-overlapping layout ⭐ NEW
-- Language dropdown in WoW path row is now correctly placed, fully visible, and does not overlap other widgets ⭐ NEW
-- Main window dynamically resizes to fit all widgets in the WoW path row, ensuring no controls are hidden ⭐ NEW
-- Browse button tooltip is concise and user-friendly ⭐ NEW
-- Debug prints for widget geometry include the language dropdown and aid in diagnosing layout issues ⭐ NEW
-- Further UI polish and layout bugfixes for robust, user-friendly experience ⭐ NEW
-- Debug prints removed, codebase formatted with Black, and trailing spaces/blank lines normalized ⭐ NEW
-- Centralized theme/font refresh logic for all UI elements ⭐ NEW
-- Settings changes now provide immediate UI feedback ⭐ NEW
+- Modular UI refactor: All main tabs are now separate classes in `src/ui/tabs/` ⭐ NEW
+- Log controls utility: Centralized log actions in `src/ui/log_controls.py` ⭐ NEW
+- Custom widgets: Tooltip and future widgets in `src/ui/widgets/` ⭐ NEW
+- Main window delegates to modular tabs and log controls ⭐ NEW
+- All main window rows use unique grid rows for clear, non-overlapping layout ⭐
+- Language dropdown in WoW path row is now correctly placed, fully visible, and does not overlap other widgets ⭐
+- Main window dynamically resizes to fit all widgets in the WoW path row, ensuring no controls are hidden ⭐
+- Browse button tooltip is concise and user-friendly ⭐
+- Debug prints for widget geometry include the language dropdown and aid in diagnosing layout issues ⭐
+- Further UI polish and layout bugfixes for robust, user-friendly experience ⭐
+- Debug prints removed, codebase formatted with Black, and trailing spaces/blank lines normalized ⭐
+- Centralized theme/font refresh logic for all UI elements ⭐
+- Settings changes now provide immediate UI feedback ⭐
 - Robust settings persistence and reliable UI updates for all user preference changes
 - Logger class refactored (60 lines reduced, helper methods extracted, constant caching)
 - Font utilities caching (eliminates repeated system calls)
@@ -27,6 +37,7 @@
 - Removed unused imports (11 files cleaned up)
 - All sapling-related code and files (CustomTabBar, SaplingCanvas, TreeNode, sapling_box_style_checklist.md) have been removed for a clean slate. A new custom tree widget will be implemented in a future phase.
 
+---
 
 ## Next Steps (When Ready)
 

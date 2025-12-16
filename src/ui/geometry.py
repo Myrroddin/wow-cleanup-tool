@@ -1,3 +1,30 @@
+def reset_window_geometry(app):
+    """Reset window geometry to default (content-based) size on next launch."""
+    # Remove geometry-related settings
+    for key in [
+        "window_width",
+        "window_height",
+        "window_x",
+        "window_y",
+        "is_maximized",
+    ]:
+        if key in app.settings:
+            del app.settings[key]
+    from core.settings import save_settings
+
+    save_settings(app.settings)
+    # Optionally, resize immediately (for current session)
+    if hasattr(app, "root"):
+        sw = app.root.winfo_screenwidth()
+        sh = app.root.winfo_screenheight()
+        if hasattr(app, "center_first_launch"):
+            app.center_first_launch(app, sw, sh)
+        else:
+            from ui.geometry import center_first_launch
+
+            center_first_launch(app, sw, sh)
+
+
 """Geometry management for WoW Cleanup Tool.
 
 Handles window sizing, positioning, and persistence across sessions.
