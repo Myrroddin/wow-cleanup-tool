@@ -21,7 +21,7 @@ def copy_user_log(root, log_text, loc):
     if user_log:
         root.clipboard_clear()
         root.clipboard_append(user_log)
-        messagebox.showinfo(loc._("btn_copy_log"), loc._("log_copied"))
+        messagebox.showinfo(loc._("btn_copy_log"), loc._("btn_copy_log"))
 
 
 def save_user_log(log_text, loc):
@@ -58,11 +58,11 @@ def delete_user_log(settings, loc):
             send2trash(str(log_file))
         else:
             log_file.unlink()
-        messagebox.showinfo(loc._("log_delete"), loc._("status_log_deleted"))
-    except Exception as e:
-        messagebox.showerror(
-            loc._("error_prefix"), loc._("log_delete_error").format(str(e))
+        messagebox.showinfo(
+            loc._("btn_delete") if hasattr(loc, "_") else "Delete", "Log file deleted."
         )
+    except Exception as e:
+        messagebox.showerror(loc._("error_prefix"), str(e))
 
 
 # Developer log controls
@@ -80,7 +80,7 @@ def copy_dev_log(root, logger, loc):
     if dev_log:
         root.clipboard_clear()
         root.clipboard_append(dev_log)
-        messagebox.showinfo(loc._("btn_copy_log"), loc._("status_log_copied"))
+        messagebox.showinfo(loc._("btn_copy_log"), loc._("btn_copy_log"))
 
 
 def save_dev_log(logger, loc):

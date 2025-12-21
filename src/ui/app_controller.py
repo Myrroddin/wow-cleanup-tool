@@ -8,6 +8,40 @@ from core import themes
 class ApplicationController:
     """Controller for handling main application events and UI updates."""
 
+    def update_wow_path(self, new_path):
+        """Update the WoW installation path in settings and refresh UI as needed."""
+        if not new_path:
+            return
+        self.settings["wow_path"] = new_path
+        # Save settings immediately
+        from core.settings import save_settings
+
+        save_settings(self.settings)
+        # Update any UI widgets that display the path
+        if self.ui_widgets.get("wow_path_var"):
+            self.ui_widgets["wow_path_var"].set(new_path)
+        # Optionally, refresh any dependent UI or state here
+        if self.logger:
+            # Use localized message for WoW validation
+            from localization import en_us
+            if self.logger.verbose:
+                # Detect flavors using PathManager
+                try:
+                    from wow.path_manager import PathManager
+                    pm = PathManager()
+                    is_valid, flavors = pm.validate_installation(new_path)
+                    if is_valid and flavors:
+                        # List of localized flavor names
+                        flavor_names = ", ".join([name for _, name in flavors])
+                        msg = en_us.TRANSLATIONS["user_log_verbose_wow_validated"].replace("{}", flavor_names)
+                    else:
+                        msg = en_us.TRANSLATIONS["user_log_verbose_wow_validated"].replace("{}", "")
+                except Exception:
+                    msg = en_us.TRANSLATIONS["user_log_verbose_wow_validated"].replace("{}", "")
+            else:
+                msg = en_us.TRANSLATIONS["user_log_normal_wow_validated"]
+            self.logger.log(msg)
+
     def handle_new_wow_path(self, new_path):
         """Alias for update_wow_path for backward compatibility."""
         return self.update_wow_path(new_path)
@@ -126,137 +160,48 @@ class ApplicationController:
         Args:
             *args: Variable trace arguments
         """
-        delete_mode_var = self.ui_widgets.get("delete_mode_var")
-        if not delete_mode_var:
-            return
 
-        new_mode = delete_mode_var.get()
-        self.settings["delete_mode"] = new_mode
-        from core.settings import save_settings
+        def reset_settings(self):
+            """Immediately reset all settings to defaults (preserves cached data like wow_path)."""
+            # Store cached data before reset
+            wow_path = self.settings.get("wow_path", "")
+            geometry = self.settings.get("geometry", "")
 
-        save_settings(self.settings)
+            # Clear ALL settings
+            self.settings.clear()
 
-    def on_verbose_changed(self, *args):
-        """Handle verbose logging changes.
+            # Reset to defaults (only settings, not cached data)
+            self.settings["theme"] = "light"
+            self.settings["font_family"] = "TkDefaultFont"
+            self.settings["font_size"] = 9
+            self.settings["delete_mode"] = "trash"
+            self.settings["verbose_logging"] = True
+            self.settings["append_log"] = False
+            self.settings["language"] = "en"
 
-        Args:
-            *args: Variable trace arguments
-        """
-        verbose_var = self.ui_widgets.get("verbose_var")
-        if not verbose_var:
-            return
+            # Reset dialog preferences (re-enable all "don't show again" dialogs)
+            self.settings["license_accepted"] = False
+            self.settings["disable_license_dialog"] = False
+            self.settings["disable_wow_close_warning"] = False
 
-        new_value = verbose_var.get()
-        self.settings["verbose_logging"] = new_value
+            # Restore cached data
+            if wow_path:
+                self.settings["wow_path"] = wow_path
+            if geometry:
+                self.settings["geometry"] = geometry
 
-        # Update logger verbose mode
-        self.logger.set_verbose(new_value)
-        from core.settings import save_settings
+            # Save settings
+            from core.settings import save_settings
 
-        save_settings(self.settings)
+            save_settings(self.settings)
 
-    def on_append_log_changed(self, *args):
-        """Handle append log changes.
+            # Show reset message
+            from tkinter import messagebox
 
-        Args:
-            *args: Variable trace arguments
-        """
-        append_log_var = self.ui_widgets.get("append_log_var")
-        if not append_log_var:
-            return
-
-        new_value = append_log_var.get()
-        self.settings["append_log"] = new_value
-
-        # Update logger append mode
-        self.logger.set_append_mode(new_value)
-
-        # Show/hide delete log button based on append mode
-        if self.builder and hasattr(self.builder, "delete_log_btn"):
-            if new_value:
-                self.builder.delete_log_btn.pack(side="left", padx=(0, 10))
-            else:
-                self.builder.delete_log_btn.pack_forget()
-        from core.settings import save_settings
-
-        save_settings(self.settings)
-
-    def update_wow_path(self, new_path):
-        """Update the WoW path in UI and settings.
-
-        Args:
-            new_path: New WoW installation path
-        """
-        wow_path_var = self.ui_widgets.get("wow_path_var")
-        path_entry = self.ui_widgets.get("path_entry")
-
-        if wow_path_var:
-            wow_path_var.set(new_path)
-
-        # Update entry width to fit new path
-        if path_entry:
-            entry_width = max(len(new_path) if new_path else 20, 20)
-            path_entry.config(width=entry_width)
-
-        self.settings["wow_path"] = new_path
-
-        # Enable/disable feature tabs based on whether we have a valid WoW path
-        if self.builder and hasattr(self.builder, "set_feature_tabs_enabled"):
-            self.builder.set_feature_tabs_enabled(bool(new_path))
-        from core.settings import save_settings
-
-        save_settings(self.settings)
-
-    def update_minimum_size(self):
-        """Calculate and update the minimum window size based on content."""
-        self.root.update_idletasks()
-
-        path_entry = self.ui_widgets.get("path_entry")
-        font_combo = self.ui_widgets.get("font_combo")
-
-        if not path_entry or not font_combo:
-            # Use default minimums if widgets not ready
-            min_width = 480
-            min_height = 320
-        else:
-            path_entry_width = path_entry.winfo_reqwidth()
-            font_combo_width = font_combo.winfo_reqwidth()
-            required_width = max(path_entry_width, font_combo_width) + 200
-
-            min_width = max(required_width, 480)
-            min_height = 320
-
-        self.root.minsize(min_width, min_height)
-
-        # Return the values so they can be used by the app
-        return min_width, min_height
-
-    def resize_to_fit_content(self):
-        """Resize window to fit current content."""
-        # Get screen dimensions
-        sw = self.root.winfo_screenwidth()
-        sh = self.root.winfo_screenheight()
-
-        # Update all pending geometry calculations
-        self.root.update_idletasks()
-
-        # Get required size from widgets
-        requested_w = self.root.winfo_reqwidth()
-        requested_h = self.root.winfo_reqheight()
-
-        # Get current position
-        current_geo = self.root.geometry()
-        if "+" in current_geo:
-            parts = current_geo.split("+")
-            try:
-                x = int(parts[1])
-                y = int(parts[2])
-            except (IndexError, ValueError):
-                x = self.root.winfo_x()
-                y = self.root.winfo_y()
-        else:
-            x = self.root.winfo_x()
-            y = self.root.winfo_y()
+            messagebox.showinfo(
+                self.builder.loc._("btn_reset_settings"),
+                self.builder.loc._("status_settings_reset") + " applied.",
+            )
 
         # Calculate new size with constraints
         new_w = max(requested_w + 20, 480)  # Add padding for safety
@@ -272,98 +217,7 @@ class ApplicationController:
 
     def reset_settings(self):
         """Reset all settings to defaults (preserves cached data like wow_path)."""
-        from tkinter import messagebox
-        from localization.en_us import TRANSLATIONS
-
-        # Get localization (fallback to English if localization not available)
-        try:
-            confirm_msg = self.builder.loc._("msg_reset_settings_confirm")
-            confirm_title = self.builder.loc._("title_reset_settings")
-            reset_msg = self.builder.loc._("status_settings_reset")
-        except:
-            confirm_msg = TRANSLATIONS["msg_reset_settings_confirm"]
-            confirm_title = TRANSLATIONS["title_reset_settings"]
-            reset_msg = TRANSLATIONS["status_settings_reset"]
-
-        # Create custom themed dialog for better presentation
-        dialog = tk.Toplevel(self.root)
-        dialog.title(confirm_title)
-        dialog.transient(self.root)
-        dialog.grab_set()
-
-        # Get current theme colors
-        from core.themes import THEMES
-
-        current_theme = self.settings.get("theme", "dark")
-        theme_colors = THEMES.get(current_theme, THEMES["dark"])
-
-        # Configure dialog colors
-        dialog.configure(bg=theme_colors["bg"])
-
-        # Main frame with padding
-        main_frame = ttk.Frame(dialog, padding=20)
-        main_frame.pack(fill="both", expand=True)
-
-        # Message label with left alignment for bullet points
-        message_label = ttk.Label(
-            main_frame, text=confirm_msg, justify="left", wraplength=400
-        )
-        message_label.pack(pady=(0, 20))
-
-        # Button frame
-        button_frame = ttk.Frame(main_frame)
-        button_frame.pack()
-
-        # Track user choice
-        user_choice = {"confirmed": False}
-
-        def on_yes():
-            user_choice["confirmed"] = True
-            dialog.destroy()
-
-        def on_no():
-            dialog.destroy()
-
-        # Yes button
-        yes_btn = ttk.Button(
-            button_frame,
-            text=(
-                self.builder.loc._("btn_yes") if hasattr(self.builder, "loc") else "Yes"
-            ),
-            command=on_yes,
-            width=10,
-        )
-        yes_btn.pack(side="left", padx=(0, 10))
-
-        # No button
-        no_btn = ttk.Button(
-            button_frame,
-            text=self.builder.loc._("btn_no") if hasattr(self.builder, "loc") else "No",
-            command=on_no,
-            width=10,
-        )
-        no_btn.pack(side="left")
-
-        # Center dialog on parent
-        dialog.update_idletasks()
-        x = (
-            self.root.winfo_x()
-            + (self.root.winfo_width() // 2)
-            - (dialog.winfo_width() // 2)
-        )
-        y = (
-            self.root.winfo_y()
-            + (self.root.winfo_height() // 2)
-            - (dialog.winfo_height() // 2)
-        )
-        dialog.geometry(f"+{x}+{y}")
-
-        # Wait for dialog to close
-        dialog.wait_window()
-
-        # Check if user confirmed
-        if not user_choice["confirmed"]:
-            return
+        # No confirmation dialog; reset settings immediately
 
         # Store cached data before reset
         wow_path = self.settings.get("wow_path", "")
@@ -372,16 +226,16 @@ class ApplicationController:
         # Clear ALL settings
         self.settings.clear()
 
-        # Reset to defaults (only settings, not cached data)
+        # Reset to hardcoded app defaults (not user file contents)
+        from core.settings import get_system_language
+
+        self.settings["language"] = get_system_language()
         self.settings["theme"] = "light"
         self.settings["font_family"] = "TkDefaultFont"
         self.settings["font_size"] = 9
         self.settings["delete_mode"] = "trash"
         self.settings["verbose_logging"] = True
         self.settings["append_log"] = False
-        self.settings["language"] = "en"
-
-        # Reset dialog preferences (re-enable all "don't show again" dialogs)
         self.settings["license_accepted"] = False
         self.settings["disable_license_dialog"] = False
         self.settings["disable_wow_close_warning"] = False
@@ -418,15 +272,25 @@ class ApplicationController:
             self.ui_widgets["append_log_var"].set(False)
 
         if self.ui_widgets.get("language_var"):
-            self.ui_widgets["language_var"].set(
-                self.builder.loc._("option_language_english")
-                if hasattr(self.builder, "loc")
-                else "English"
-            )
+            self.ui_widgets["language_var"].set("English (US)")
 
-        # Apply default theme (light)
+        # Apply default theme (light) and refresh all widget fonts/styles
         themes.apply_theme(self.root, "light", "TkDefaultFont", 9)
+        # Force all UI widgets to update theme and font
+        if self.builder and hasattr(self.builder, "refresh_all_widget_fonts"):
+            self.builder.refresh_all_widget_fonts()
+        # Also force refresh of all fonts for classic widgets
+        self._refresh_all_fonts("TkDefaultFont", 9)
+        # Refresh all open dialogs to new theme
+        try:
+            from ui.dialog_base import BaseDialog
 
+            BaseDialog.refresh_all_open_dialogs("light", "TkDefaultFont", 9)
+        except Exception:
+            pass
+        # If there are any theme toggle callbacks, trigger them
+        if hasattr(self, "on_theme_changed") and callable(self.on_theme_changed):
+            self.on_theme_changed()
         # Refresh developer log colors to match new theme
         if self.builder and hasattr(self.builder, "refresh_dev_log_colors"):
             self.builder.refresh_dev_log_colors()
@@ -438,9 +302,6 @@ class ApplicationController:
         # Hide delete log button (append mode disabled)
         if self.builder and hasattr(self.builder, "delete_log_btn"):
             self.builder.delete_log_btn.pack_forget()
-
-        # Log the reset
-        self.logger.log(reset_msg)
 
         # Resize window
         self.root.update_idletasks()

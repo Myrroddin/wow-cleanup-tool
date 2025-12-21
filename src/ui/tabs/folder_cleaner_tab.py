@@ -10,5 +10,5 @@ class FolderCleanerTab:
         self._create_content(loc)
 
     def _create_content(self, loc):
-        label = ttk.Label(self.frame, text="[DEBUG] Folder Cleaner Content")
-        label.pack(side="top", fill="x", pady=(0, 10))
+        # Content to be implemented
+        pass

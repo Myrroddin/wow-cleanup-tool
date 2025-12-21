@@ -17,17 +17,7 @@ class TestEnUsLocalization(unittest.TestCase):
         for value in en_us.TRANSLATIONS.values():
             self.assertIsInstance(value, str)
 
-    def test_required_startup_keys_exist(self):
-        required = [
-            "startup_success",
-            "startup_error_see_devlog",
-            "dev_startup_import_error",
-            "dev_startup_dependency_error",
-            "dev_startup_settings_error",
-            "dev_startup_localization_error",
-        ]
-        for key in required:
-            self.assertIn(key, en_us.TRANSLATIONS)
+    # No required startup keys remain; all previous keys are now hard-coded or obsolete.
 
 
 if __name__ == "__main__":

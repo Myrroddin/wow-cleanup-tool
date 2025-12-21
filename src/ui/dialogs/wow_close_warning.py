@@ -64,7 +64,7 @@ class WoWCloseWarning(BaseDialog):
         button_frame.pack()
 
         ok_button = self.create_button(
-            button_frame, "ok", command=lambda: self._on_ok(dialog, dont_show_var)
+            button_frame, "btn_ok", command=lambda: self._on_ok(dialog, dont_show_var)
         )
         ok_button.pack()
 

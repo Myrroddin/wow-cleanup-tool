@@ -71,11 +71,20 @@ def load_translations(lang_code: str) -> Dict[str, str]:
     """
     try:
         module = importlib.import_module(f"localization.{lang_code}")
-        return getattr(module, "TRANSLATIONS", {})
+        translations = getattr(module, "TRANSLATIONS", None)
+        if translations is None:
+            return {}
+        return translations
     except Exception:
         # Fallback to English if import fails
-        module = importlib.import_module("localization.en_us")
-        return getattr(module, "TRANSLATIONS", {})
+        try:
+            module = importlib.import_module("localization.en_us")
+            translations = getattr(module, "TRANSLATIONS", None)
+            if translations is None:
+                return {}
+            return translations
+        except Exception:
+            return {}
 
 
 class Localization:

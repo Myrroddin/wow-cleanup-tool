@@ -15,11 +15,19 @@ class TestSettings(unittest.TestCase):
         # Use a temp directory for settings
         self.temp_dir = tempfile.TemporaryDirectory()
         self.orig_home = os.environ.get("HOME")
+        self.orig_userprofile = os.environ.get("USERPROFILE")
         os.environ["HOME"] = self.temp_dir.name
+        os.environ["USERPROFILE"] = self.temp_dir.name
 
     def tearDown(self):
         if self.orig_home is not None:
             os.environ["HOME"] = self.orig_home
+        else:
+            del os.environ["HOME"]
+        if self.orig_userprofile is not None:
+            os.environ["USERPROFILE"] = self.orig_userprofile
+        else:
+            del os.environ["USERPROFILE"]
         self.temp_dir.cleanup()
 
     def test_load_and_save_settings(self):

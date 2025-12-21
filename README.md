@@ -14,6 +14,7 @@ A lightweight, modular utility for managing and optimizing World of Warcraft ins
 
 ---
 
+
 ## Features
 
 ### Available Now
@@ -22,8 +23,9 @@ A lightweight, modular utility for managing and optimizing World of Warcraft ins
 - Light/dark themes, custom fonts (9–16pt)
 - Safe delete (trash) or permanent deletion
 - Dual logs: user actions & developer diagnostics (append mode, rotation)
-- Centralized log controls utility (copy, save, clear, delete)
-- Modular UI: each main tab is a separate class
+- Log and Developer tabs now feature a visible text area and log controls (Clear, Save, Copy), using a grid-based modular layout
+- Centralized log controls utility (copy, save, clear, delete) for both logs
+- Modular UI: each main tab and log tab is a separate class in `src/ui/tabs/`
 - 98+ translation keys, easy localization (sorted, robust fallback)
 - Auto-save for theme, font, delete mode, logging, geometry
 - Custom widgets (e.g., tooltip)
@@ -59,7 +61,7 @@ Output: `dist/WoW Cleanup Tool.exe`
 1. Accept license on first run
 2. Auto-detect or browse for WoW path
 3. Configure preferences (theme, font, delete mode, logging)
-4. Use Log and Developer tabs for activity and diagnostics
+4. Use Log and Developer tabs for activity and diagnostics. Both tabs now display logs in a text area with grid-based layout and log control buttons.
 
 ## Development
 

@@ -79,7 +79,7 @@ class MultipleInstallationsDialog(BaseDialog):
         button_frame.pack(side="bottom", pady=(DialogDimensions.SPACING_MEDIUM, 0))
 
         ok_button = self.create_button(
-            button_frame, "ok", command=lambda: dialog.destroy()
+            button_frame, "btn_ok", command=lambda: dialog.destroy()
         )
         ok_button.pack(side="right", padx=DialogDimensions.BUTTON_PADDING)
 

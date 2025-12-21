@@ -77,9 +77,9 @@ wow-cleanup-tool/
 │   ├── operations/         # File/folder cleanup, optimizer (future)
 │   ├── ui/                 # User interface components
 │   │   ├── dialogs/        # Dialog windows (license, warnings)
-│   │   ├── tabs/           # Modular tab classes (FileCleanerTab, LogTab, etc.)
+│   │   ├── tabs/           # Modular tab classes (FileCleanerTab, LogTab, DeveloperTab, etc.; all grid-based)
 │   │   ├── widgets/        # Custom widgets (Tooltip, etc.)
-│   │   ├── log_controls.py # Log controls utility (copy, save, clear, delete)
+│   │   ├── log_controls.py # Log controls utility (copy, save, clear, delete; used by both log tabs)
 │   │   └── main_window.py  # Main window builder (delegates to tabs/utilities)
 │   ├── wow/                # WoW-specific logic (path detection, validation)
 │   └── wow_cleanup_tool.py # Main application entry point

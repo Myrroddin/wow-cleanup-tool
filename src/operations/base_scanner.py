@@ -84,21 +84,15 @@ class BaseScanner:
                             results[vlabel] = items
                     except Exception as e:
                         # Log error but continue with other versions
-                        if self.logger and hasattr(self, "loc") and self.loc:
-                            self.logger.error(
-                                self.loc._("error_scanning_version").format(vlabel, e)
-                            )
-                        elif self.logger:
-                            self.logger.error(f"Error scanning {vlabel}: {e}")
+                        if self.logger:
+                            self.logger.error(f"Error scanning version {vlabel}: {e}")
                         continue
 
         except Exception as e:
             # Fallback to single-threaded on executor failure
-            if self.logger and hasattr(self, "loc") and self.loc:
-                self.logger.error(self.loc._("error_threadpool_fallback").format(e))
-            elif self.logger:
+            if self.logger:
                 self.logger.error(
-                    f"ThreadPoolExecutor failed, falling back to single-threaded: {e}"
+                    f"Thread pool error: {e}. Falling back to single-threaded scan."
                 )
             for vpath, vlabel in versions:
                 try:

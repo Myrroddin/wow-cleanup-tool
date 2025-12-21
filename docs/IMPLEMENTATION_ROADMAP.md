@@ -2,28 +2,31 @@
 
 # Implementation Roadmap for Cleanup Features
 
+
 This roadmap tracks the development of the WoW Cleanup Tool, with a focus on modularity, maintainability, and user experience. The codebase now uses a modular UI architecture:
-- **Tabs**: Each main tab (File Cleaner, Folder Cleaner, Game Optimizer, Log, Developer) is a separate class in `src/ui/tabs/`.
+- **Tabs**: Each main tab (File Cleaner, Folder Cleaner, Game Optimizer, Log, Developer) is a separate class in `src/ui/tabs/`. Log and Developer tabs now include a visible text area and log control buttons, using a grid-based layout.
 - **Log Controls Utility**: All log actions (copy, save, clear, delete) are handled by `src/ui/log_controls.py` for both user and developer logs.
 - **Custom Widgets**: Standalone widgets (e.g., Tooltip) are in `src/ui/widgets/`.
 - **Main Window**: `main_window.py` delegates tab UI and log actions to dedicated modules.
 
 ---
 
-## Current Status ✅
-- Modular UI refactor: All main tabs are now separate classes in `src/ui/tabs/` ⭐ NEW
-- Log controls utility: Centralized log actions in `src/ui/log_controls.py` ⭐ NEW
-- Custom widgets: Tooltip and future widgets in `src/ui/widgets/` ⭐ NEW
-- Main window delegates to modular tabs and log controls ⭐ NEW
-- All main window rows use unique grid rows for clear, non-overlapping layout ⭐
-- Language dropdown in WoW path row is now correctly placed, fully visible, and does not overlap other widgets ⭐
-- Main window dynamically resizes to fit all widgets in the WoW path row, ensuring no controls are hidden ⭐
-- Browse button tooltip is concise and user-friendly ⭐
-- Debug prints for widget geometry include the language dropdown and aid in diagnosing layout issues ⭐
-- Further UI polish and layout bugfixes for robust, user-friendly experience ⭐
-- Debug prints removed, codebase formatted with Black, and trailing spaces/blank lines normalized ⭐
-- Centralized theme/font refresh logic for all UI elements ⭐
-- Settings changes now provide immediate UI feedback ⭐
+
+## Current Status 197
+- Modular UI refactor: All main tabs are now separate classes in `src/ui/tabs/` b50 NEW
+- Log and Developer tabs now include a visible text area and log control buttons, using a grid-based layout b50 NEW
+- Log controls utility: Centralized log actions in `src/ui/log_controls.py` b50 NEW
+- Custom widgets: Tooltip and future widgets in `src/ui/widgets/` b50 NEW
+- Main window delegates to modular tabs and log controls b50 NEW
+- All main window rows use unique grid rows for clear, non-overlapping layout b50
+- Language dropdown in WoW path row is now correctly placed, fully visible, and does not overlap other widgets b50
+- Main window dynamically resizes to fit all widgets in the WoW path row, ensuring no controls are hidden b50
+- Browse button tooltip is concise and user-friendly b50
+- Debug prints for widget geometry include the language dropdown and aid in diagnosing layout issues b50
+- Further UI polish and layout bugfixes for robust, user-friendly experience b50
+- Debug prints removed, codebase formatted with Black, and trailing spaces/blank lines normalized b50
+- Centralized theme/font refresh logic for all UI elements b50
+- Settings changes now provide immediate UI feedback b50
 - Robust settings persistence and reliable UI updates for all user preference changes
 - Logger class refactored (60 lines reduced, helper methods extracted, constant caching)
 - Font utilities caching (eliminates repeated system calls)
@@ -39,7 +42,9 @@ This roadmap tracks the development of the WoW Cleanup Tool, with a focus on mod
 
 ---
 
+
 ## Next Steps (When Ready)
+* [ ] Further widget cleanup and feature expansion for Log and Developer tabs
 
 ### Phase 1: File Scanner (.bak/.old files)
 **File**: `src/operations/file_scanner.py`

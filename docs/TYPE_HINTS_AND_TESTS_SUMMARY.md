@@ -2,7 +2,7 @@
 # Type Hints, Unit Testing, and Logging Refactor - Implementation Summary
 
 ## Overview
-This document summarizes the implementation of type hints, unit tests, and modern Python logging for the WoW Cleanup Tool. The codebase now uses a modular UI structure, with each main tab as a separate class in `src/ui/tabs/` and all log actions handled by the log controls utility (`src/ui/log_controls.py`). Type hints and tests have been extended to cover these new modules for improved maintainability and IDE support.
+This document summarizes the implementation of type hints, unit tests, and modern Python logging for the WoW Cleanup Tool. The codebase now uses a modular UI structure, with each main tab (including LogTab and DeveloperTab) as a separate class in `src/ui/tabs/`, all using a grid-based layout. All log actions are handled by the log controls utility (`src/ui/log_controls.py`). Type hints and tests have been extended to cover these new modules for improved maintainability and IDE support.
 
 ## Type Hints Implementation
 

@@ -158,7 +158,6 @@ def load_settings() -> Dict[str, Any]:
         "disable_wow_close_warning": False,  # Respect warning dialog toggle
     }
 
-    # Load user settings
     user_settings: Dict[str, Any] = defaults.copy()
     if settings_file.exists():
         try:
@@ -168,7 +167,6 @@ def load_settings() -> Dict[str, Any]:
         except Exception:
             pass
 
-    # Load cached WoW path
     cached_wow_path = load_wow_path_cache()
     if cached_wow_path:
         user_settings["wow_path"] = cached_wow_path
@@ -202,16 +200,29 @@ def save_settings(settings: Dict[str, Any]) -> bool:
         k: v for k, v in settings.items() if k != "wow_path" and is_json_serializable(v)
     }
 
-    # Save user settings
+    # Save user settings only if changed
     settings_file = get_settings_file()
-    user_success = False
-    try:
-        settings_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(settings_file, "w", encoding="utf-8") as f:
-            json.dump(user_settings, f, indent=2, ensure_ascii=False)
-        user_success = True
-    except Exception as e:
-        print(f"[settings.py] Error saving settings: {e}")
+    user_success = True
+    write_needed = True
+    if settings_file.exists():
+        try:
+            with open(settings_file, "r", encoding="utf-8") as f:
+                current_settings = json.load(f)
+            # Only write if settings have changed
+            if current_settings == user_settings:
+                write_needed = False
+        except Exception:
+            # If error reading, assume we need to write
+            write_needed = True
+
+    if write_needed:
+        try:
+            settings_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(settings_file, "w", encoding="utf-8") as f:
+                json.dump(user_settings, f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            print(f"[settings.py] Error saving settings: {e}")
+            user_success = False
 
     # Save WoW path to cache if present
     cache_success = True

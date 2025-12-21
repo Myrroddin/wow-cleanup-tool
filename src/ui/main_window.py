@@ -303,7 +303,7 @@ class MainWindowBuilder:
         )
 
         # Initialize language StringVar with display name
-        self.language_var = tk.StringVar(value=self.loc._("option_language_english"))
+        self.language_var = tk.StringVar(value="English (US)")
 
         # (Debug prints for detected_path and valid must only appear after assignment)
         # Main frame already created above
@@ -372,17 +372,25 @@ class MainWindowBuilder:
         )
         browse_btn.bind("<Leave>", lambda e: self._hide_tooltip())
 
-        # Language dropdown (English always first, others sorted alphabetically)
+        # Language dropdown (English always first, others sorted alphabetically, native names)
         language_options = [
-            (self.loc._("option_language_english"), "en_us"),
-            # Add more languages here as (display_name, code)
-            # Example: (self.loc._("option_language_french"), "fr_fr"),
+            ("English (US)", "en_us"),
+            ("Deutsch", "de_de"),
+            ("Français", "fr_fr"),
+            ("Italiano", "it_it"),
+            ("Русский", "ru_ru"),
+            ("繁體中文", "zh_tw"),
+            ("简体中文", "zh_cn"),
+            ("Português (Brasil)", "pt_br"),
+            ("Español (EU)", "es_es"),
+            ("Español (Latinoamérica)", "es_mx"),
+            ("Українська", "uk_ua"),
+            ("한국어", "ko_kr"),
         ]
-        # If more languages are added, sort them alphabetically by display name, except English first
-        if len(language_options) > 1:
-            english = language_options[0]
-            other_langs = sorted(language_options[1:], key=lambda x: x[0].lower())
-            language_options = [english] + other_langs
+        # Sort all except English alphabetically by display name
+        english = language_options[0]
+        other_langs = sorted(language_options[1:], key=lambda x: x[0].lower())
+        language_options = [english] + other_langs
         language_names = [name for name, code in language_options]
         self.language_var = tk.StringVar(value=language_names[0])
         language_combo = ttk.Combobox(
@@ -390,7 +398,7 @@ class MainWindowBuilder:
             textvariable=self.language_var,
             values=language_names,
             state="readonly",
-            width=14,
+            width=20,
         )
         language_combo.grid(row=0, column=3, sticky="w", padx=(0, 12))
 
@@ -565,7 +573,7 @@ class MainWindowBuilder:
             self.settings.clear()
             self.settings.update(defaults)
             # Language
-            self.language_var.set(self.loc._("option_language_english"))
+            self.language_var.set("English (US)")
             # Theme
             from core.themes import apply_theme
 
@@ -613,8 +621,6 @@ class MainWindowBuilder:
         # --- Create the tabbed log area (feature tabs) ---
         self._create_tabbed_log_area(main_frame, row=3)
 
-        # Log initial message
-        self.logger.log(self.loc._("status_app_started"))
         # After building, force font/theme refresh to apply persisted settings
         self.refresh_all_widget_fonts()
         # Return references to important widgets
@@ -696,6 +702,20 @@ class MainWindowBuilder:
             },
         )
         log_tab.frame.pack(fill="both", expand=True)
+
+        # Load previous user log if append mode is enabled
+        if self.settings.get("append_log", False):
+            from core.settings import load_user_log
+
+            previous_log = load_user_log()
+            if previous_log:
+                # Find the log_text widget in the log tab
+                for child in self.tab_frames["log"].winfo_children():
+                    if isinstance(child, tk.Text):
+                        child.configure(state="normal")
+                        child.insert("1.0", previous_log + "\n")
+                        child.configure(state="disabled")
+                        break
 
         # Developer Tab
         developer_tab = DeveloperTab(

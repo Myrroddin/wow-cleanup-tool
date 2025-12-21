@@ -51,7 +51,14 @@ class WoWPathHandler:
         if selected_path:
             # Validate the selected path
             if self.path_manager.validate_wow_path(selected_path):
-                self.logger.log(self.loc._("wow_detected").format(selected_path))
+                if getattr(self.logger, "_verbose", False):
+                    self.logger.verbose(
+                        self.loc._("user_log_verbose_wow_detected").format(
+                            selected_path
+                        )
+                    )
+                else:
+                    self.logger.log(self.loc._("user_log_normal_wow_detected"))
                 return selected_path
             else:
                 self.logger.log(self.loc._("invalid_wow_path"))
@@ -75,10 +82,16 @@ class WoWPathHandler:
         all_installations = self.path_manager.detect_all_wow_installations()
 
         if len(all_installations) > 1:
-            # Multiple installations found - show error dialog and exit
-            self.logger.log(
-                self.loc._("multiple_wow_detected").format(len(all_installations))
+            # Multiple installations found - log dev error, inform user, show dialog, and exit
+            dev_error = (
+                f"[WoW Detection Error] Multiple World of Warcraft installations detected: {all_installations}\n"
+                "This is not a valid configuration. The application cannot continue.\n"
+                "To resolve: Remove extra installations or select the correct folder."
             )
+            if hasattr(self, "logger"):
+                self.logger.error(dev_error)
+            # Localized user log entry pointing to dev log
+            self.logger.log(self.loc._("msg_multiple_installations_see_dev_log"))
             theme = self.settings.get("theme", "light")
             show_multiple_installations_dialog(
                 self.root, self.loc, theme, self.settings, all_installations
@@ -88,9 +101,20 @@ class WoWPathHandler:
         elif len(all_installations) == 1:
             # Single installation found
             detected_path = all_installations[0]
-            self.logger.log(self.loc._("wow_detected").format(detected_path))
+            if getattr(self.logger, "_verbose", False):
+                self.logger.verbose(
+                    self.loc._("user_log_verbose_wow_detected").format(detected_path)
+                )
+            else:
+                self.logger.log(self.loc._("user_log_normal_wow_detected"))
             return detected_path
         else:
             # No installation found
-            self.logger.log(self.loc._("wow_not_detected"))
+            dev_warning = (
+                "[WoW Detection Failure] No World of Warcraft installation was detected automatically.\n"
+                "To resolve: Use the Browse button to manually select your WoW installation folder. "
+                "If you need help, see the documentation or contact support."
+            )
+            if hasattr(self, "logger"):
+                self.logger.error(dev_warning)
             return None

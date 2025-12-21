@@ -107,9 +107,20 @@ class WoWCleanupTool:
         setup_geometry(self)
         # Log: startup success for user, or error if exception occurs
         try:
-            self.logger.log(self.loc._("startup_success"))
+            self.logger.log(self.loc._("user_log_normal_app_started"))
         except Exception as e:
-            self.logger.error(self.loc._("startup_error_see_devlog"))
+            self.logger.log(self.loc._("user_log_normal_app_failure"))
+            import traceback
+
+            detailed_error = (
+                "[Startup Failure] WoW Cleanup Tool failed to start.\n"
+                f"Reason: {e}\n"
+                f"Traceback:\n{traceback.format_exc()}\n"
+                "Possible actions: Check your Python environment, dependencies, and configuration files. "
+                "See the documentation or report this issue on GitHub with the above details."
+            )
+            if hasattr(self, "logger"):
+                self.logger.error(detailed_error)
 
         # Detect WoW path on first run (after UI is ready)
         def detect_and_log():
@@ -153,8 +164,6 @@ class WoWCleanupTool:
         # Save user log to disk if append mode is enabled
         if self.settings.get("append_log", False):
             self.logger.save_log_to_disk()
-
-        self.logger.log(self.loc._("status_settings_saved"))
         release_single_instance(instance_lock)
         self.root.destroy()
 

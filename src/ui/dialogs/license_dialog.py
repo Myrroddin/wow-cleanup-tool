@@ -97,7 +97,7 @@ class LicenseDialog(BaseDialog):
 
         # Don't show again checkbox
         dont_show, dont_show_var = self.create_checkbox(
-            content, "option_license_dont_show"
+            content, "option_dont_show_again"
         )
         dont_show.pack(pady=(0, DialogDimensions.SPACING_LARGE))
 
@@ -137,15 +137,21 @@ class LicenseDialog(BaseDialog):
         """Load license text from LICENSE file.
 
         Returns:
-            str: License text content
+            str: License text content, or error message if not found
         """
         try:
             # Get path to LICENSE file (in root of project)
             license_path = Path(__file__).parent.parent.parent.parent / "LICENSE"
             with open(license_path, "r", encoding="utf-8") as f:
                 return f.read()
-        except Exception:
-            return self.loc._("license_file_not_found")
+        except Exception as e:
+            # Log error to dev log (unlocalized)
+            from core.logger import log_dev_error
+
+            log_dev_error(
+                f"[LicenseDialog] LICENSE file not found at {license_path}: {e}"
+            )
+            return "License file could not be loaded. Please contact support."
 
     def _on_accept(self, dialog, dont_show_var):
         """Handle Accept button.

@@ -3,7 +3,10 @@
 # Logging System - User & Developer Guide
 
 ## Overview
+
 WoW Cleanup Tool uses a modern, dual-channel logging system built on Python's `logging` module. All log actions in the UI (copy, save, clear, delete) are handled by a centralized log controls utility (`src/ui/log_controls.py`), ensuring consistent behavior for both User Log and Developer Log tabs. The modular UI delegates log actions to this utility for maintainability and testability. Logs are automatically rotated, support append mode, and are thread-safe for parallel operations.
+
+**Log and Developer tabs now feature a visible text area and log control buttons (Clear, Save, Copy), using a grid-based modular layout.**
 
 
 ## Features
@@ -60,12 +63,13 @@ logger.error("Failed to delete file: Permission denied")
 ```
 
 
+
 ### Attach to UI Widgets
 ```python
-# Attach to Log tab text widget
+# Attach to Log tab text widget (now a grid-based tk.Text)
 logger.attach_text_widget(user_log_text_widget)
 
-# Attach to Developer tab text widget
+# Attach to Developer tab text widget (now a grid-based tk.Text)
 logger.attach_dev_text_widget(dev_log_text_widget)
 ```
 
