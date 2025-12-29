@@ -76,8 +76,34 @@ class MainWindowBuilder:
             "TScrollbar",
         ]
 
+        # Refresh bug icon if it exists
+        self._refresh_bug_icon(font_size)
+
         # Only font/style update logic should be here. All widget creation and layout must be in build().
         pass
+
+    def _refresh_bug_icon(self, font_size):
+        """Refresh the bug icon to match current font size."""
+        try:
+            from PIL import Image, ImageTk
+            from pathlib import Path
+
+            # Determine icon size based on font size
+            icon_size = max(16, font_size + 6)
+
+            # Load and resize the bug icon
+            icon_path = (
+                Path(__file__).parent.parent.parent / "assets" / "icons" / "bug_16.png"
+            )
+            if icon_path.exists():
+                bug_icon = Image.open(icon_path)
+                bug_icon = bug_icon.resize(
+                    (icon_size, icon_size), Image.Resampling.LANCZOS
+                )
+                self.bug_icon_photo = ImageTk.PhotoImage(bug_icon)
+        except Exception:
+            # Silently fail if icon refresh is not possible
+            pass
 
     def add_font_controls(self, parent, on_font_family_changed, on_font_size_changed):
         """Add font family and size controls to the given parent widget."""
@@ -254,6 +280,7 @@ class MainWindowBuilder:
         self.dev_badge_label = None
         self.wow_path_var = None
         self.path_entry = None
+        self.bug_icon_photo = None  # Store reference to bug icon PhotoImage
 
         # Track feature tab indices for enable/disable
         self.feature_tab_indices = []
@@ -606,13 +633,31 @@ class MainWindowBuilder:
                 self.loc._("btn_reset_settings") + " applied.",
             )
 
+        # Add reset settings button (column 6, with consistent padding)
         reset_btn = ttk.Button(
             delete_mode_frame,
             text=self.loc._("btn_reset_settings"),
             command=on_reset_settings,
             style="TButton",
         )
-        reset_btn.grid(row=0, column=6, padx=(0, 0), sticky="w")
+        reset_btn.grid(row=0, column=6, padx=(0, 12), sticky="w")
+
+        # Add bug report button (column 7, with bug icon and consistent padding)
+        def on_bug_report():
+            import webbrowser
+
+            webbrowser.open_new("https://github.com/Myrroddin/wow-cleanup-tool/issues")
+
+        # Use ttk.Button with emoji icon (simple and reliable)
+        # The emoji will scale with the font size automatically
+        bug_btn = ttk.Button(
+            delete_mode_frame,
+            text="🐞 " + self.loc._("btn_bug_report"),
+            command=on_bug_report,
+            style="TButton",
+        )
+
+        bug_btn.grid(row=0, column=7, padx=(0, 0), sticky="w")
         self.root.update_idletasks()
 
         # Build UI sections
@@ -702,6 +747,10 @@ class MainWindowBuilder:
             },
         )
         log_tab.frame.pack(fill="both", expand=True)
+        # Store reference to log text widget
+        self.log_text = log_tab.log_text
+        # Attach logger to user log text widget
+        self.logger.attach_text_widget(self.log_text)
 
         # Load previous user log if append mode is enabled
         if self.settings.get("append_log", False):
@@ -728,6 +777,10 @@ class MainWindowBuilder:
             },
         )
         developer_tab.frame.pack(fill="both", expand=True)
+        # Store reference to developer log text widget
+        self.dev_text = developer_tab.log_text
+        # Attach logger to developer log text widget
+        self.logger.attach_dev_text_widget(self.dev_text)
 
     # Log control methods are now imported from ui.log_controls
 
@@ -751,8 +804,8 @@ class MainWindowBuilder:
 
     def refresh_dev_log_colors(self):
         """Refresh developer log color tags when theme changes."""
-        if self.dev_text:
-            self._configure_dev_log_colors()
+        # Dev log colors are handled by the logger; no special widget-level configuration needed
+        pass
 
     def _setup_tab_tooltip_handler(self):
         """Set up tooltip display for disabled tabs."""

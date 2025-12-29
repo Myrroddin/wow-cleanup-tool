@@ -61,7 +61,7 @@ body:
       description: |
         What actually happened? Please describe the observed behavior.
         
-        **Tip:** For faster debugging, please attach your Developer Log file. You can find it in the Developer tab of WoW Cleanup Tool (use the Save Log button to export it).
+        **Tip:** For faster debugging, please attach your Developer Log file. You can find it in the Developer Log tab of WoW Cleanup Tool (use the Save Log button to export it).
       description: What actually happened instead
       placeholder: Application window becomes unresponsive and shows "(Not Responding)" in title bar
     validations:
@@ -76,8 +76,13 @@ body:
         - Windows 11
         - Windows 10
         - Windows 8.1/8
-        - macOS (Sequoia/Sonoma/Ventura)
-        - macOS (Monterey or older)
+        - Windows 7
+        - macOS 26 (Tahoe)
+        - macOS 15 (Sequoia)
+        - macOS 14 (Sonoma)
+        - macOS 13 (Ventura)
+        - macOS 12 (Monterey)
+        - macOS 11 (Big Sur)
         - Linux (Ubuntu/Debian)
         - Linux (Fedora/RHEL)
         - Linux (Arch/Manjaro)
@@ -102,7 +107,7 @@ body:
       description: Which WoW version(s) are you using when the bug occurs?
       multiple: true
       options:
-        - Retail (The War Within)
+        - Retail (Midnight)
         - Classic (Mists of Pandaria)
         - Classic Era (Vanilla)
         - PTR (Public Test Realm)
@@ -166,19 +171,6 @@ body:
         - Language: English (enUS)
         - Verbose Logging: Enabled
         - WoW Folder: C:\Games\World of Warcraft
-    validations:
-      required: false
-
-  - type: dropdown
-    id: dependencies
-    attributes:
-      label: Optional Dependencies Installed
-      description: Which optional packages do you have installed?
-      multiple: true
-      options:
-        - send2trash (for Recycle Bin support)
-        - Pillow (for screenshot previews)
-        - None / Not sure
     validations:
       required: false
 

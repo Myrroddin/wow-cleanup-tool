@@ -2,6 +2,7 @@
 
 TRANSLATIONS = {
     "btn_browse": "Browse...",
+    "btn_bug_report": "Bug Report",
     "btn_clear_log": "Clear Log",
     "btn_clear_persistent_log": "Clear Persistent Log",
     "btn_copy_log": "Copy Log",

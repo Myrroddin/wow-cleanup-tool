@@ -268,6 +268,18 @@ class WoWLogger:
             text_widget.configure(state="normal")
             text_widget.delete("1.0", "end")
 
+            # Load current log file content directly from disk
+            try:
+                log_dir = Path.home() / ".wow_cleanup_tool"
+                user_log_file = log_dir / "user_log.txt"
+                if user_log_file.exists():
+                    with open(user_log_file, "r", encoding="utf-8") as f:
+                        log_content = f.read()
+                        if log_content:
+                            text_widget.insert("end", log_content)
+            except Exception:
+                pass
+
             # Add previous sessions if append mode
             if self.previous_log:
                 text_widget.insert("end", self.previous_log)
@@ -302,6 +314,26 @@ class WoWLogger:
         Args:
             dev_text_widget: tkinter.Text widget for developer tab
         """
+        try:
+            dev_text_widget.configure(state="normal")
+            dev_text_widget.delete("1.0", "end")
+
+            # Load current developer log file content directly from disk
+            try:
+                log_dir = Path.home() / ".wow_cleanup_tool"
+                dev_log_file = log_dir / "dev_log.txt"
+                if dev_log_file.exists():
+                    with open(dev_log_file, "r", encoding="utf-8") as f:
+                        log_content = f.read()
+                        if log_content:
+                            dev_text_widget.insert("end", log_content)
+            except Exception:
+                pass
+
+            dev_text_widget.configure(state="disabled")
+        except Exception:
+            pass
+
         # Create or update dev text widget handler
         if self.dev_text_handler:
             self.dev_text_handler.set_widget(dev_text_widget)
@@ -368,30 +400,6 @@ class WoWLogger:
 
     def set_append_mode(self, append: bool) -> None:
         self._append_mode = append
-
-    def attach_text_widget(self, widget):
-        # Attach a UI widget for user log display
-        pass
-
-    def attach_dev_text_widget(self, widget):
-        # Attach a UI widget for developer log display
-        pass
-
-    def clear(self):
-        # Clear UI widgets
-        pass
-
-    def get_lines(self):
-        # Get user log lines
-        return []
-
-    def get_dev_log(self):
-        # Get developer log content
-        return ""
-
-    def save_log_to_disk(self):
-        # Save user log
-        pass
 
     def error(self, text: str) -> None:
         """Log error message (only shown in developer tab).

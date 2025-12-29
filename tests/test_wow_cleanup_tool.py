@@ -36,7 +36,12 @@ class TestWoWCleanupToolSmoke(unittest.TestCase):
         self.patcher_license.stop()
         self.patcher_warning.stop()
         self.patcher_logger.stop()
-        self.root.destroy()
+        # Only destroy if the root window still exists
+        try:
+            if self.root.winfo_exists():
+                self.root.destroy()
+        except Exception:
+            pass
         if self.orig_home is not None:
             os.environ["HOME"] = self.orig_home
         else:

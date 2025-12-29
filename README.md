@@ -26,7 +26,6 @@ A lightweight, modular utility for managing and optimizing World of Warcraft ins
 - Log and Developer tabs now feature a visible text area and log controls (Clear, Save, Copy), using a grid-based modular layout
 - Centralized log controls utility (copy, save, clear, delete) for both logs
 - Modular UI: each main tab and log tab is a separate class in `src/ui/tabs/`
-- 98+ translation keys, easy localization (sorted, robust fallback)
 - Auto-save for theme, font, delete mode, logging, geometry
 - Custom widgets (e.g., tooltip)
 - Settings and logs are per-user, cross-platform

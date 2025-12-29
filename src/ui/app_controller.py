@@ -24,20 +24,28 @@ class ApplicationController:
         if self.logger:
             # Use localized message for WoW validation
             from localization import en_us
+
             if self.logger.verbose:
                 # Detect flavors using PathManager
                 try:
                     from wow.path_manager import PathManager
+
                     pm = PathManager()
                     is_valid, flavors = pm.validate_installation(new_path)
                     if is_valid and flavors:
                         # List of localized flavor names
                         flavor_names = ", ".join([name for _, name in flavors])
-                        msg = en_us.TRANSLATIONS["user_log_verbose_wow_validated"].replace("{}", flavor_names)
+                        msg = en_us.TRANSLATIONS[
+                            "user_log_verbose_wow_validated"
+                        ].replace("{}", flavor_names)
                     else:
-                        msg = en_us.TRANSLATIONS["user_log_verbose_wow_validated"].replace("{}", "")
+                        msg = en_us.TRANSLATIONS[
+                            "user_log_verbose_wow_validated"
+                        ].replace("{}", "")
                 except Exception:
-                    msg = en_us.TRANSLATIONS["user_log_verbose_wow_validated"].replace("{}", "")
+                    msg = en_us.TRANSLATIONS["user_log_verbose_wow_validated"].replace(
+                        "{}", ""
+                    )
             else:
                 msg = en_us.TRANSLATIONS["user_log_normal_wow_validated"]
             self.logger.log(msg)
