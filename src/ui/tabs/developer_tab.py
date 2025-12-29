@@ -14,7 +14,6 @@ class DeveloperTab:
         controls = ttk.Frame(self.frame)
         controls.grid(row=0, column=0, sticky="ew", pady=(0, 5))
         controls.columnconfigure(0, weight=1)
-        # Placeholder buttons (replace/add as needed)
         clear_btn = ttk.Button(controls, text=loc._("btn_clear_log"))
         clear_btn.grid(row=0, column=0, padx=(0, 8))
         save_btn = ttk.Button(controls, text=loc._("btn_save_log"))

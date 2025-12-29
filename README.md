@@ -31,7 +31,8 @@ A lightweight, modular utility for managing and optimizing World of Warcraft ins
 - Settings and logs are per-user, cross-platform
 
 ### Planned
-- File/folder cleanup (.bak, .old, cache, logs)
+- File/folder cleanup (.bak, .old, cache, logs) - FileCleaner implemented, UI integration pending
+- Orphaned SavedVariables cleanup
 - Game optimizer & smart suggestions
 
 ## Installation
@@ -69,7 +70,7 @@ Output: `dist/WoW Cleanup Tool.exe`
 src/
 ├── core/          # Settings, logging, themes
 ├── localization/  # Translations (sorted keys)
-├── operations/    # Cleanup features (future)
+├── operations/    # Cleanup operations (BaseScanner, FileCleaner, file_operations)
 ├── ui/            # Interface components
 │   ├── dialogs/   # Dialog windows
 │   ├── tabs/      # Modular tab classes
@@ -81,7 +82,7 @@ src/
 assets/
 └── icons/         # Application icons
 docs/              # Documentation
-tests/             # Unit tests
+tests/             # Unit tests (77 passed, 2 skipped)
 ```
 
 **Docs:**

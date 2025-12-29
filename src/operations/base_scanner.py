@@ -163,6 +163,3 @@ class BaseScanner:
                 return next(it, None) is not None
         except (OSError, PermissionError):
             return False
-
-
-""

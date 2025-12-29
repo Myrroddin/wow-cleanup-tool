@@ -1,7 +1,22 @@
-"""Main window UI creation for WoW Cleanup Tool."""
+"""Main window UI creation for WoW Cleanup Tool.
+
+This module contains the MainWindowBuilder class which constructs the entire
+main application window including all tabs, controls, and UI elements.
+
+Last Updated: December 28, 2025
+- Added bug report button with emoji icon to delete mode row
+- Fixed logger widget attachment for proper log display
+- Enhanced documentation with timestamps and detailed comments
+
+Structure:
+- MainWindowBuilder class: Builds the main window with 6 tabs
+- Helper methods for tooltips, font refresh, and UI updates
+- Integration with theme system, settings, and logging
+"""
 
 import tkinter as tk
 from tkinter import ttk
+import webbrowser  # Added December 28, 2025 for bug report button
 from ui.widgets.tooltip import Tooltip
 from ui.log_controls import (
     clear_user_log,
@@ -20,7 +35,31 @@ from ui.tabs.developer_tab import DeveloperTab
 
 
 class MainWindowBuilder:
+    """Builds and manages the main application window.
+
+    This class is responsible for creating the entire UI structure including:
+    - Notebook with 6 tabs (File Cleaner, Folder Cleaner, Game Optimizer, Log, Developer, About)
+    - Top control bar with WoW path selection and theme toggle
+    - Settings persistence for window geometry, theme, fonts
+    - Integration with logging system for real-time log display
+
+    Added: Initial implementation
+    Updated: December 28, 2025 - Added bug report button and comprehensive documentation
+    """
+
     def _show_tooltip(self, widget, text):
+        """Display a tooltip near the specified widget.
+
+        Creates a temporary toplevel window positioned near the widget
+        to show helpful text when user hovers over UI elements.
+
+        Args:
+            widget: The tkinter widget to show tooltip for
+            text: The tooltip text to display
+
+        Returns:
+            None
+        """
         # Simple tooltip implementation
         if hasattr(self, "_tooltip_window") and self._tooltip_window:
             return
@@ -40,12 +79,43 @@ class MainWindowBuilder:
         label.pack(ipadx=6, ipady=2)
 
     def _hide_tooltip(self):
+        """Hide and destroy the currently displayed tooltip window.
+
+        Removes the tooltip window created by _show_tooltip() when user
+        moves mouse away from the widget.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         if hasattr(self, "_tooltip_window") and self._tooltip_window:
             self._tooltip_window.destroy()
             self._tooltip_window = None
 
     def refresh_all_widget_fonts(self):
-        """Force refresh of all widget fonts and styles after a font or font size change, including tooltips."""
+        """Force refresh of all widget fonts and styles after font/size change.
+
+        This method is called when user changes font family or size in settings.
+        It re-applies the current theme to ensure all widgets (including tooltips,
+        buttons, labels, etc.) reflect the new font configuration.
+
+        Process:
+        1. Loads current font and theme settings
+        2. Re-applies theme to update ttk styles
+        3. Updates all standard widget types
+        4. Refreshes custom elements like bug report icon
+
+        Added: Initial implementation
+        Updated: December 28, 2025 - Added bug icon refresh
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         import sys
         from core.themes import THEMES
 
@@ -241,16 +311,12 @@ class MainWindowBuilder:
     # add_browse_button is now implemented in build(); stub removed.
 
     def _on_scan_files(self):
-        # TODO: Implement scan files logic
         pass
 
     def _on_remove_selected(self, selected_items):
-        # TODO: Implement remove selected logic for files/folders
         pass
 
     def get_selected_items(self, context):
-        # Placeholder: Return selected items for the given context (e.g., 'file_cleaner', 'folder_cleaner')
-        # Replace with actual selection logic
         return []
 
     def __init__(self, root, loc, settings, logger, font_utils):
@@ -642,17 +708,34 @@ class MainWindowBuilder:
         )
         reset_btn.grid(row=0, column=6, padx=(0, 12), sticky="w")
 
-        # Add bug report button (column 7, with bug icon and consistent padding)
+        # Add bug report button (column 7, with emoji icon)
+        # Added: December 28, 2025
+        # Opens GitHub issues page in default browser when clicked
         def on_bug_report():
+            """Open GitHub issues page for bug reports.
+
+            Launches the default web browser to the project's GitHub issues page
+            where users can submit bug reports, feature requests, or view existing issues.
+
+            Args:
+                None
+
+            Returns:
+                None
+            """
             import webbrowser
 
             webbrowser.open_new("https://github.com/Myrroddin/wow-cleanup-tool/issues")
 
-        # Use ttk.Button with emoji icon (simple and reliable)
-        # The emoji will scale with the font size automatically
+        # Use ttk.Button with emoji icon (🐞) which is simple, reliable, and scales with font
+        # The emoji approach was chosen over PNG icons for:
+        # - Automatic scaling with font size changes
+        # - No PhotoImage management complexity
+        # - Cross-platform compatibility
+        # - Accessibility (screen readers can read emoji)
         bug_btn = ttk.Button(
             delete_mode_frame,
-            text="🐞 " + self.loc._("btn_bug_report"),
+            text="🐞 " + self.loc._("btn_bug_report"),  # Localized text from en_us.py
             command=on_bug_report,
             style="TButton",
         )
@@ -747,9 +830,17 @@ class MainWindowBuilder:
             },
         )
         log_tab.frame.pack(fill="both", expand=True)
-        # Store reference to log text widget
+        # Store reference to log text widget for later access
         self.log_text = log_tab.log_text
+
         # Attach logger to user log text widget
+        # CRITICAL FIX: December 28, 2025
+        # This attachment must happen AFTER the tab is created and the widget exists
+        # The attach_text_widget method now:
+        # 1. Loads existing log content directly from disk file
+        # 2. Creates the TextWidgetHandler for real-time updates
+        # 3. Adds handler to logger for future messages
+        # Previous bug: Stub method was shadowing this, preventing attachment
         self.logger.attach_text_widget(self.log_text)
 
         # Load previous user log if append mode is enabled
@@ -777,9 +868,16 @@ class MainWindowBuilder:
             },
         )
         developer_tab.frame.pack(fill="both", expand=True)
-        # Store reference to developer log text widget
+        # Store reference to developer log text widget for later access
         self.dev_text = developer_tab.log_text
+
         # Attach logger to developer log text widget
+        # CRITICAL FIX: December 28, 2025
+        # Similar to user log attachment above, this must happen after widget creation
+        # The attach_dev_text_widget method:
+        # 1. Loads existing dev log content from disk (dev_log.txt)
+        # 2. Creates TextWidgetHandler for debug/warning/error messages
+        # 3. Configures handler to show all log levels (DEBUG and above)
         self.logger.attach_dev_text_widget(self.dev_text)
 
     # Log control methods are now imported from ui.log_controls

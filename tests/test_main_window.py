@@ -1,4 +1,20 @@
-"""Unit tests for MainWindowBuilder and bug report button functionality."""
+"""Unit tests for MainWindowBuilder and bug report button functionality.
+
+This test module verifies the MainWindowBuilder class and specifically tests
+the bug report button feature added on December 28, 2025.
+
+Test Coverage:
+- Bug report button creation and presence in UI
+- Bug button emoji icon and localized text
+- MainWindowBuilder initialization without errors
+
+Created: December 28, 2025
+Purpose: Ensure the new bug report button feature works correctly and is
+         properly integrated into the main window UI.
+
+Note: These tests require Tkinter to be available. If Tkinter is not available,
+      tests will be skipped gracefully with a skip message.
+"""
 
 import sys
 import os
@@ -8,6 +24,7 @@ import tempfile
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
 
+# Check if Tkinter is available for GUI testing
 try:
     import tkinter as tk
 
@@ -23,16 +40,51 @@ if TK_AVAILABLE:
         from localization import Localization
 
         class DummyFontUtils:
+            """Mock font utilities for testing without real font detection."""
+
             def get_available_fonts(self, default_label):
+                """Return a minimal list of test fonts.
+
+                Args:
+                    default_label: The default font label to include
+
+                Returns:
+                    list: List of font names for testing
+                """
                 return [default_label, "Arial", "Courier"]
 
             def get_font_sizes(self):
+                """Return a minimal list of test font sizes.
+
+                Returns:
+                    list: List of font size strings
+                """
                 return ["9", "10", "11", "12", "14", "16"]
 
         class TestBugReportButton(unittest.TestCase):
-            """Test bug report button functionality in MainWindow."""
+            """Test bug report button functionality in MainWindow.
+
+            This test class verifies that the bug report button:
+            1. Is created properly during MainWindow construction
+            2. Contains the expected emoji icon (🐞)
+            3. Has localized text from translation keys
+            4. Can be created without raising exceptions
+
+            Created: December 28, 2025
+            """
 
             def setUp(self):
+                """Set up test environment with mocked dependencies.
+
+                Creates:
+                - Temporary directory for isolated test environment
+                - Mocked dialogs (license, warnings)
+                - Mocked file handlers to avoid real file I/O
+                - Hidden Tkinter root window for testing
+                - Test instances of Logger, Localization, etc.
+
+                This method runs before each test to ensure clean state.
+                """
                 try:
                     self.temp_dir = tempfile.TemporaryDirectory()
                     self.orig_home = os.environ.get("HOME")

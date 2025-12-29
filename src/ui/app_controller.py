@@ -162,67 +162,6 @@ class ApplicationController:
 
         save_settings(self.settings)
 
-    def on_delete_mode_changed(self, *args):
-        """Handle delete mode changes.
-
-        Args:
-            *args: Variable trace arguments
-        """
-
-        def reset_settings(self):
-            """Immediately reset all settings to defaults (preserves cached data like wow_path)."""
-            # Store cached data before reset
-            wow_path = self.settings.get("wow_path", "")
-            geometry = self.settings.get("geometry", "")
-
-            # Clear ALL settings
-            self.settings.clear()
-
-            # Reset to defaults (only settings, not cached data)
-            self.settings["theme"] = "light"
-            self.settings["font_family"] = "TkDefaultFont"
-            self.settings["font_size"] = 9
-            self.settings["delete_mode"] = "trash"
-            self.settings["verbose_logging"] = True
-            self.settings["append_log"] = False
-            self.settings["language"] = "en"
-
-            # Reset dialog preferences (re-enable all "don't show again" dialogs)
-            self.settings["license_accepted"] = False
-            self.settings["disable_license_dialog"] = False
-            self.settings["disable_wow_close_warning"] = False
-
-            # Restore cached data
-            if wow_path:
-                self.settings["wow_path"] = wow_path
-            if geometry:
-                self.settings["geometry"] = geometry
-
-            # Save settings
-            from core.settings import save_settings
-
-            save_settings(self.settings)
-
-            # Show reset message
-            from tkinter import messagebox
-
-            messagebox.showinfo(
-                self.builder.loc._("btn_reset_settings"),
-                self.builder.loc._("status_settings_reset") + " applied.",
-            )
-
-        # Calculate new size with constraints
-        new_w = max(requested_w + 20, 480)  # Add padding for safety
-        new_h = max(requested_h + 20, 320)
-
-        # Don't exceed 90% of screen
-        new_w = min(new_w, int(sw * 0.9))
-        new_h = min(new_h, int(sh * 0.9))
-
-        # Apply new size while keeping position
-        self.root.geometry(f"{new_w}x{new_h}+{x}+{y}")
-        self.root.minsize(new_w, new_h)
-
     def reset_settings(self):
         """Reset all settings to defaults (preserves cached data like wow_path)."""
         # No confirmation dialog; reset settings immediately

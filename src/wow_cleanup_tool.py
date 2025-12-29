@@ -1,13 +1,9 @@
 """WoW Cleanup Tool - Main Application"""
 
 import sys
-import os
 import tkinter as tk
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from core.instance_utils import acquire_single_instance, release_single_instance
-
-instance_lock = acquire_single_instance()
 
 
 # Check and install dependencies silently before importing modules that need them
@@ -42,11 +38,8 @@ class WoWCleanupTool:
         reset_window_geometry(self)
 
     def __init__(self, root):
-        import platform
-        import time
-
         self.root = root
-        t0 = time.perf_counter()
+        self.instance_lock = acquire_single_instance()
 
         # Minimal startup: load settings, localization, logger
         self.settings = load_settings()
@@ -60,9 +53,6 @@ class WoWCleanupTool:
 
         # Hide main window until license is accepted
         self.root.withdraw()
-        import time
-
-        t1 = time.perf_counter()
         # Show license dialog
         theme_name = self.settings.get("theme", "light")
         license_accepted = show_license_dialog(
@@ -123,18 +113,15 @@ class WoWCleanupTool:
                 self.logger.error(detailed_error)
 
         # Detect WoW path on first run (after UI is ready)
-        def detect_and_log():
-            self._detect_wow_on_first_run()
-
-        self.root.after(100, detect_and_log)
+        self.root.after(100, self._detect_wow_on_first_run)
 
         # Show WoW close warning after detection (if not disabled)
-        def show_warning_and_log():
-            show_wow_close_warning(
+        self.root.after(
+            200,
+            lambda: show_wow_close_warning(
                 self.root, self.loc, self.settings.get("theme", "light"), self.settings
-            )
-
-        self.root.after(200, show_warning_and_log)
+            ),
+        )
 
     def on_theme_toggle(self):
         """Handle theme toggle with dev log color refresh."""
@@ -164,7 +151,7 @@ class WoWCleanupTool:
         # Save user log to disk if append mode is enabled
         if self.settings.get("append_log", False):
             self.logger.save_log_to_disk()
-        release_single_instance(instance_lock)
+        release_single_instance(getattr(self, "instance_lock", None))
         self.root.destroy()
 
 

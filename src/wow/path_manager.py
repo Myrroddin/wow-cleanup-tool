@@ -1,4 +1,22 @@
-"""WoW installation path detection and management."""
+"""WoW installation path detection and management.
+
+This module provides the PathManager class which handles:
+- Automatic detection of World of Warcraft installation paths
+- Registry lookups on Windows
+- Multi-flavor support (Retail, Classic, PTR, Beta, Classic Era)
+- Path validation and installation verification
+
+Last Updated: December 28, 2025
+- Added comprehensive documentation with timestamps
+- Enhanced comments for registry lookups and flavor detection
+- Documented the multi-installation detection logic
+
+The PathManager uses a combination of:
+1. Windows Registry lookups (if on Windows)
+2. Common installation paths (C:, D:, E:, F: drives)
+3. Flavor directory detection (_retail_, _classic_, etc.)
+4. Installation validation (checking for valid game files/folders)
+"""
 
 import os
 import sys
@@ -7,45 +25,74 @@ from typing import Optional, List, Tuple, Dict, Any
 
 
 class PathManager:
-    """Manages WoW installation paths and detection."""
+    """Manages WoW installation paths and detection.
 
-    # Common WoW installation locations
+    Responsibilities:
+    - Detect WoW installation path from registry or common locations
+    - Validate that a path contains a valid WoW installation
+    - Detect and manage multiple game flavors (versions)
+    - Provide localized display names for flavors
+
+    Added: Initial implementation
+    Updated: December 28, 2025 - Enhanced documentation
+    """
+
+    # Common WoW installation locations across different drive letters
+    # These are checked in order if registry lookup fails
     COMMON_PATHS: List[str] = [
-        r"C:\World of Warcraft",
-        r"C:\Program Files (x86)\World of Warcraft",
-        r"C:\Program Files\World of Warcraft",
-        r"D:\World of Warcraft",
+        r"C:\World of Warcraft",  # Most common location
+        r"C:\Program Files (x86)\World of Warcraft",  # Battle.net default
+        r"C:\Program Files\World of Warcraft",  # Alternative default
+        r"D:\World of Warcraft",  # Secondary drive installs
         r"E:\World of Warcraft",
         r"F:\World of Warcraft",
     ]
 
     # WoW flavor directories mapped to localization keys
+    # Each flavor represents a different game version that can coexist
     WOW_FLAVORS: Dict[str, str] = {
-        "_retail_": "flavor_retail",
-        "_ptr_": "flavor_ptr",
-        "_beta_": "flavor_beta",
-        "_classic_": "flavor_classic",
-        "_classic_era_": "flavor_classic_era",
+        "_retail_": "flavor_retail",  # Live/current version
+        "_ptr_": "flavor_ptr",  # Public Test Realm
+        "_beta_": "flavor_beta",  # Beta testing version
+        "_classic_": "flavor_classic",  # Classic WoW
+        "_classic_era_": "flavor_classic_era",  # Classic Era (level 60 cap)
     }
 
     def __init__(self, loc: Optional[Any] = None) -> None:
-        """Initialize PathManager.
+        """Initialize PathManager with optional localization support.
 
         Args:
-            loc: Optional Localization instance for translated flavor names
+            loc: Optional Localization instance for translated flavor names.
+                 If None, English fallback names will be used.
+
+        Returns:
+            None
+
+        Attributes Created:
+            wow_path: Currently selected WoW installation path (None until detected)
+            detected_flavors: Dict mapping flavor dirs to their full paths
+            loc: Localization instance for translating flavor names
         """
         self.wow_path: Optional[str] = None
         self.detected_flavors: Dict[str, str] = {}
         self.loc = loc
 
     def get_flavor_display_name(self, flavor_dir: str) -> str:
-        """Get display name for a WoW flavor.
+        """Get user-friendly display name for a WoW flavor directory.
+
+        Converts internal flavor directory names (e.g., "_retail_") to
+        localized display names (e.g., "Retail (Live)" in English).
 
         Args:
-            flavor_dir: Flavor directory name (e.g., "_retail_")
+            flavor_dir: Internal flavor directory name like "_retail_", "_classic_"
 
         Returns:
-            str: Localized display name or fallback English name
+            str: Localized display name if available, otherwise the flavor_dir itself
+
+        Example:
+            >>> pm = PathManager(loc)
+            >>> pm.get_flavor_display_name("_retail_")
+            "Retail (Live)"  # or translated equivalent
         """
         loc_key = self.WOW_FLAVORS.get(flavor_dir)
         if not loc_key:
@@ -66,19 +113,32 @@ class PathManager:
         return fallbacks.get(loc_key, flavor_dir)
 
     def detect_wow_path(self) -> Optional[str]:
-        """Detect WoW installation path.
+        """Detect WoW installation path automatically.
+
+        Detection Strategy:
+        1. On Windows: Check Windows Registry for official install path
+        2. Fallback: Check common installation locations in order
+        3. Validate each found path to ensure it's a valid WoW installation
+
+        This method updates self.wow_path if a valid installation is found.
+
+        Args:
+            None
 
         Returns:
-            str: WoW installation path or None if not found
+            str: Valid WoW installation path, or None if not found
+
+        Side Effects:
+            Sets self.wow_path to the detected path if successful
         """
-        # Try registry on Windows
+        # Try registry on Windows (most reliable method)
         if sys.platform == "win32":
             registry_path = self._get_path_from_registry()
             if registry_path and self._validate_wow_path(registry_path):
                 self.wow_path = registry_path
                 return registry_path
 
-        # Try common locations
+        # Try common locations as fallback
         for path in self.COMMON_PATHS:
             if self._validate_wow_path(path):
                 self.wow_path = path
@@ -89,8 +149,17 @@ class PathManager:
     def detect_all_wow_installations(self) -> List[str]:
         """Detect all WoW installations on the system.
 
+        Unlike detect_wow_path() which returns the first valid installation,
+        this method finds ALL valid WoW installations across all drives and
+        registry entries. Useful for systems with multiple WoW installs
+        (e.g., on different drives, or separate retail/classic installs).
+
+        Args:
+            None
+
         Returns:
-            list: List of all valid WoW installation paths
+            list: List of all valid WoW installation paths (may be empty)
+                  Duplicates are automatically removed.
         """
         found_installations: List[str] = []
 
@@ -110,10 +179,30 @@ class PathManager:
         return found_installations
 
     def _get_path_from_registry(self) -> Optional[str]:
-        """Get WoW path from Windows registry.
+        """Get WoW installation path from Windows Registry.
+
+        Blizzard's Battle.net installer registers the WoW installation path
+        in the Windows Registry. This is the most reliable detection method
+        on Windows systems.
+
+        Registry Locations Checked (in order):
+        1. HKLM\\SOFTWARE\\WOW6432Node\\Blizzard Entertainment\\World of Warcraft
+           (64-bit Windows, 32-bit application)
+        2. HKLM\\SOFTWARE\\Blizzard Entertainment\\World of Warcraft
+           (32-bit Windows or native 64-bit app)
+
+        Args:
+            None
 
         Returns:
-            str: Path from registry or None
+            str: InstallPath value from registry, or None if not found/accessible
+
+        Note:
+            Registry access may fail due to:
+            - WoW not installed via Battle.net
+            - Manual installation without registry entries
+            - Permission issues
+            All failures are silently handled (returns None).
         """
         registry_keys: List[Tuple[int, str]] = [
             (

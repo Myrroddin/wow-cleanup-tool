@@ -48,8 +48,17 @@ python -m unittest tests.test_logger
 - Settings load/save (mocked file I/O)
 - User log file save/load
 
-### `test_file_cleaner.py`, `test_localization_en_us.py`, `test_error_handler.py`, `test_wow_cleanup_tool.py`
-- Additional coverage for file operations, localization keys, error handling, and main app startup
+### `test_file_cleaner.py`
+- FileCleaner initialization (max_workers, logger)
+- Regex pattern matching for .bak/.old files (case-insensitive)
+- Scanning empty directories
+- Scanning directories with .bak files
+- Nested directory traversal
+- Permission error handling
+- Integration with PathManager (mocked)
+
+### `test_localization_en_us.py`, `test_error_handler.py`, `test_wow_cleanup_tool.py`, `test_main_window.py`, `test_log_tabs.py`
+- Additional coverage for localization keys, error handling, main app startup, main window initialization, and log tab functionality
 
 ## Test Structure
 

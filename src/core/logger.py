@@ -3,6 +3,11 @@ Modern logging system for WoW Cleanup Tool using Python's built-in logging modul
 
 Provides dual logging: user-facing operations log and developer debug/error log,
 with automatic timestamps, log rotation, and flexible formatting.
+
+Last Updated: December 28, 2025
+- Fixed widget attachment to load from disk files (not pre-attached widgets)
+- Removed stub methods that were shadowing real implementations
+- Added comprehensive documentation and type hints
 """
 
 import logging
@@ -13,14 +18,25 @@ from typing import Optional, Callable
 
 
 class TextWidgetHandler(logging.Handler):
-    """Custom logging handler that writes to a Tkinter Text widget."""
+    """Custom logging handler that writes to a Tkinter Text widget.
+
+    This handler enables real-time log display in the UI by forwarding log
+    records to a tkinter Text widget. Updates are scheduled on the main thread
+    to avoid threading issues with Tkinter.
+
+    Added: Initial implementation
+    Updated: December 28, 2025 - Added comprehensive documentation
+    """
 
     def __init__(self, text_widget=None, tag: Optional[str] = None):
-        """Initialize the handler.
+        """Initialize the text widget handler.
 
         Args:
-            text_widget: tkinter.Text widget to write to
-            tag: Optional tag name for text formatting
+            text_widget: tkinter.Text widget to write log messages to (can be None initially)
+            tag: Optional tag name for text formatting/styling in the widget
+
+        Returns:
+            None
         """
         super().__init__()
         self.text_widget = text_widget
@@ -29,8 +45,15 @@ class TextWidgetHandler(logging.Handler):
     def emit(self, record: logging.LogRecord) -> None:
         """Emit a log record to the text widget.
 
+        This method is called by the logging framework when a log message
+        needs to be written. It schedules a UI update on the main thread
+        to safely insert text into the Tkinter widget.
+
         Args:
-            record: LogRecord to emit
+            record: LogRecord object containing the log message, level, and metadata
+
+        Returns:
+            None
         """
         if not self.text_widget:
             return
@@ -66,14 +89,25 @@ class TextWidgetHandler(logging.Handler):
 
 
 class SessionSeparatorHandler(logging.Handler):
-    """Handler that adds session separators on first log entry."""
+    """Handler that adds session separators on first log entry.
+
+    When append mode is enabled, this handler adds a visual separator
+    showing when each application session started. The separator is only
+    added once per session, before the first log message.
+
+    Added: Initial implementation
+    Updated: December 28, 2025 - Added documentation
+    """
 
     def __init__(self, text_widget=None, session_width: int = 70):
-        """Initialize handler.
+        """Initialize the session separator handler.
 
         Args:
-            text_widget: tkinter.Text widget for session separator
-            session_width: Width of separator line
+            text_widget: tkinter.Text widget to insert separator into (can be None initially)
+            session_width: Width of the separator line in characters (default: 70)
+
+        Returns:
+            None
         """
         super().__init__()
         self.text_widget = text_widget
@@ -81,10 +115,17 @@ class SessionSeparatorHandler(logging.Handler):
         self.session_started = False
 
     def emit(self, record: logging.LogRecord) -> None:
-        """Add session separator before first message.
+        """Add session separator before the first log message.
+
+        Checks if this is the first message of the session. If so, inserts
+        a separator with timestamp at the top of the widget. Subsequent
+        calls do nothing.
 
         Args:
-            record: LogRecord (triggers separator check)
+            record: LogRecord that triggered this handler (used only to detect first call)
+
+        Returns:
+            None
         """
         if self.session_started or not self.text_widget:
             return

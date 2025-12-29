@@ -74,7 +74,7 @@ wow-cleanup-tool/
 ├── src/                    # Main application source code
 │   ├── core/               # Core infrastructure (settings, logging, themes)
 │   ├── localization/       # Multi-language support (98+ keys)
-│   ├── operations/         # File/folder cleanup, optimizer (future)
+│   ├── operations/         # File/folder cleanup operations (BaseScanner, FileCleaner, file_operations)
 │   ├── ui/                 # User interface components
 │   │   ├── dialogs/        # Dialog windows (license, warnings)
 │   │   ├── tabs/           # Modular tab classes (FileCleanerTab, LogTab, DeveloperTab, etc.; all grid-based)
@@ -108,8 +108,6 @@ wow-cleanup-tool/
 
 ### WoW (`src/wow/`)
 World of Warcraft specific functionality:
-- **game_optimizer.py**: Game configuration optimization features (future)
-- **game_validation.py**: Installation structure validation utilities
 - **path_handler.py**: WoW installation detection and user browsing
 - **path_manager.py**: Installation validation, flavor detection, path utilities
 
@@ -127,9 +125,8 @@ World of Warcraft specific functionality:
 
 ### 3. Performance
 - `os.scandir()` for fast file/folder listing
-- Parallel processing with ThreadPoolExecutor
-- Disk-aware threading (8 workers for SSD, 2 for HDD)
-- Compiled regex patterns at module level
+- Parallel processing with ThreadPoolExecutor (BaseScanner)
+- Compiled regex patterns at module level (FileCleaner)
 
 ### 4. User Experience
 - All user-facing text localized (sorted keys, robust fallback)
@@ -215,7 +212,8 @@ from .dialog_base import BaseDialog
 ### Operations
 ```python
 from operations.base_scanner import BaseScanner
-from operations.disk_utils import get_optimal_workers
+from operations.file_cleaner import FileCleaner
+from operations.file_operations import delete_files_batch
 ```
 
 ## Testing Checklist
