@@ -10,7 +10,15 @@ This roadmap tracks the development of the WoW Cleanup Tool, with a focus on mod
 
 ## Current Status
 - Modular UI refactor: All main tabs are now separate classes in `src/ui/tabs/`
-- Log and Developer tabs now include a visible text area and log control buttons, using a grid-based layout
+- **✅ Log and Developer tabs: FEATURE-COMPLETE**
+  - User Log Tab: 4 buttons (Clear Session Log, Delete Log File, Open Log Folder, Copy to Clipboard)
+  - Developer Log Tab: 3 buttons (Clear Session Log, Open Log Folder, Copy to Clipboard)
+  - Append-mode-aware "Clear Session Log": clears display + deletes file when append OFF; clears display only when append ON
+  - "Delete Log File" button dynamically dims/disables when append mode OFF (using overlay technique)
+  - Descriptions added to both tabs with proper word-wrapping
+  - Grid-based layout with matching aesthetics between tabs
+  - "Open Log Folder" replaces redundant save buttons (auto-save on every log entry)
+  - Button state adapts to theme changes without geometry issues
 - Log controls utility: Centralized log actions in `src/ui/log_controls.py`
 - Custom widgets: Tooltip and future widgets in `src/ui/widgets/`
 - Main window delegates to modular tabs and log controls
@@ -38,7 +46,12 @@ This roadmap tracks the development of the WoW Cleanup Tool, with a focus on mod
 - Codebase cleanup: Removed unused operation stubs (file_scanner, folder_scanner, orphan_scanner, disk_utils)
 - Removed dead UI methods and placeholder comments
 - Single-instance lock reusable within process for test suite compatibility
-- All tests passing: 77 passed, 2 skipped
+- **Comprehensive test coverage**:
+  - 91 total tests: 90 passed, 1 skipped
+  - New: Complete test suite for log_controls.py (11 tests covering all functions)
+  - Updated: Log tab tests for new button layout and append-mode-aware behavior
+  - Tests cover: initialization, validation, detection, UI widgets, log controls, file operations
+  - Mock objects for testing without filesystem dependencies
 
 ---
 

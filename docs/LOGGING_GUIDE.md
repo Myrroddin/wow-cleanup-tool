@@ -21,11 +21,21 @@ WoW Cleanup Tool uses a modern, dual-channel logging system built on Python's `l
   - Rotates at 5MB, keeps 3 backups
   - Always verbose, includes stack traces for errors
 
-### Log Controls Utility
-- All log actions (copy, save, clear, delete) are handled by `src/ui/log_controls.py`
-- Log tab and Developer tab both use this utility for consistent UI/UX
-- Delete button is visible only when append mode is enabled
-- Log controls respect delete mode (trash vs permanent)
+### Log Controls Utility (Feature-Complete)
+- All log actions (clear, open folder, copy, delete) are handled by `src/ui/log_controls.py`
+- **User Log Tab** (4 buttons):
+  - Clear Session Log: Append-mode-aware (clears display + deletes file when OFF; display only when ON)
+  - Delete Log File: Dynamically dims when append OFF, enabled when append ON
+  - Open Log Folder: Cross-platform folder opening (Windows/macOS/Linux)
+  - Copy to Clipboard: Full log contents
+- **Developer Log Tab** (3 buttons):
+  - Clear Session Log: Clears display only
+  - Open Log Folder: Cross-platform folder opening
+  - Copy to Clipboard: Full developer log contents
+- Delete button uses overlay technique for visual dimming without theme/geometry conflicts
+- Log controls respect delete mode (trash vs permanent) for file deletion
+- Descriptions with word-wrapping explain each tab's purpose
+- Grid-based layout ensures consistent spacing and alignment
 
 ### Log Levels
 | Level   | User Log | Dev Log | Description                      |

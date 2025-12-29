@@ -21,11 +21,10 @@ from ui.widgets.tooltip import Tooltip
 from ui.log_controls import (
     clear_user_log,
     copy_user_log,
-    save_user_log,
     delete_user_log,
     clear_dev_log,
     copy_dev_log,
-    save_dev_log,
+    open_log_folder,
 )
 from ui.tabs.file_cleaner_tab import FileCleanerTab
 from ui.tabs.folder_cleaner_tab import FolderCleanerTab
@@ -389,11 +388,13 @@ class MainWindowBuilder:
             value=self.settings.get("verbose_logging", True)
         )
 
-        # (Debug prints for wow_path_label must only appear after assignment)
-        self._create_tabbed_log_area(main_frame, row=3)
+        # Initialize append log BooleanVar (needed before tab creation)
         self.append_log_var = tk.BooleanVar(
             value=self.settings.get("append_log", False)
         )
+
+        # (Debug prints for wow_path_label must only appear after assignment)
+        self._create_tabbed_log_area(main_frame, row=3)
 
         # Initialize language StringVar with display name
         self.language_var = tk.StringVar(value="English (US)")
@@ -635,9 +636,6 @@ class MainWindowBuilder:
         chat_timestamps_cb.bind("<Leave>", lambda e: self._hide_tooltip())
 
         # Add append log checkbox to delete mode row (default off)
-        self.append_log_var = tk.BooleanVar(
-            value=self.settings.get("append_log", False)
-        )
         append_log_cb = ttk.Checkbutton(
             delete_mode_frame,
             text=self.loc._("label_append_log"),
@@ -823,11 +821,12 @@ class MainWindowBuilder:
             self.tab_frames["log"],
             self.loc,
             log_controls={
-                "clear": lambda: clear_user_log(self.log_text),
+                "clear": lambda: clear_user_log(self.log_text, self.logger),
                 "copy": lambda: copy_user_log(self.root, self.log_text, self.loc),
-                "save": lambda: save_user_log(self.log_text, self.loc),
+                "open_folder": lambda: open_log_folder(),
                 "delete": lambda: delete_user_log(self.settings, self.loc),
             },
+            append_log_var=self.append_log_var,
         )
         log_tab.frame.pack(fill="both", expand=True)
         # Store reference to log text widget for later access
@@ -864,7 +863,7 @@ class MainWindowBuilder:
             log_controls={
                 "clear": lambda: clear_dev_log(self.dev_text),
                 "copy": lambda: copy_dev_log(self.root, self.logger, self.loc),
-                "save": lambda: save_dev_log(self.logger, self.loc),
+                "open_folder": lambda: open_log_folder(),
             },
         )
         developer_tab.frame.pack(fill="both", expand=True)

@@ -3,15 +3,14 @@
 TRANSLATIONS = {
     "btn_browse": "Browse...",
     "btn_bug_report": "Bug Report",
-    "btn_clear_log": "Clear Log",
-    "btn_clear_persistent_log": "Clear Persistent Log",
-    "btn_copy_log": "Copy Log",
-    "btn_log_saved": "Log saved to: {}",
+    "btn_clear_log": "Clear Session Log",
+    "btn_clear_persistent_log": "Delete Log File",
+    "btn_copy_log": "Copy Log to Clipboard",
     "btn_no": "No",
     "btn_ok": "OK",
+    "btn_open_log_folder": "Open Log Folder",
     "btn_remove_selected": "Remove Selected",
     "btn_reset_settings": "Reset Settings",
-    "btn_save_log": "Save Log",
     "btn_scan_files": "Scan Files",
     "btn_select_all_toggle": "Select All / Unselect All",
     "btn_toggle_theme": "Toggle Theme",
@@ -32,9 +31,17 @@ TRANSLATIONS = {
     "dep_installing_count": "Installing {} required package(s)...",
     "dep_taking_longer": "Installation is taking longer than expected...",
     "dep_trying_stage": "Trying {} of {}...",
+    "desc_developer_log": (
+        "Technical log for debugging, errors, and warnings. These entries may be "
+        "requested when reporting bugs."
+    ),
     "desc_file_cleaner": (
         "Scan and remove unnecessary backup, temporary, and old files "
         "from your World of Warcraft installation."
+    ),
+    "desc_user_log": (
+        "Activity log showing what the application is doing. For warnings and errors, "
+        "see the Developer Log tab."
     ),
     "file_all_files": "All Files (*.*)",
     "file_text_files": "Text Files (*.txt)",
@@ -52,7 +59,9 @@ TRANSLATIONS = {
     "msg_license_instructions": (
         "Please read and accept the license agreement to continue using WoW Cleanup Tool."
     ),
-    "msg_multiple_installations_see_dev_log": "Multiple WoW installations detected. See the Developer Log for details.",
+    "msg_multiple_installations_see_dev_log": (
+        "Multiple WoW installations detected. See the Developer Log for details."
+    ),
     "msg_wow_close_warning": (
         "Please close World of Warcraft before running this tool to avoid file conflicts."
     ),

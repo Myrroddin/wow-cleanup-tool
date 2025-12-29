@@ -3,110 +3,66 @@
 
 A lightweight, modular utility for managing and optimizing World of Warcraft installations.
 
-## Table of Contents
-
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Development](#development)
-- [Testing](#testing)
-- [License](#license)
-
 ---
-
 
 ## Features
 
-### Available Now
-- Automatic WoW detection or manual path selection
-- Multi-flavor support: Retail, Classic, PTR, Beta
-- Light/dark themes, custom fonts (9–16pt)
-- Safe delete (trash) or permanent deletion
-- Dual logs: user actions & developer diagnostics (append mode, rotation)
-- Log and Developer tabs now feature a visible text area and log controls (Clear, Save, Copy), using a grid-based modular layout
-- Centralized log controls utility (copy, save, clear, delete) for both logs
-- Modular UI: each main tab and log tab is a separate class in `src/ui/tabs/`
-- Auto-save for theme, font, delete mode, logging, geometry
-- Custom widgets (e.g., tooltip)
-- Settings and logs are per-user, cross-platform
+- 🎯 **Automatic WoW detection** or manual path selection
+- 🎮 **Multi-flavor support**: Retail, Classic, PTR, Beta
+- 🎨 **Customizable UI**: Light/dark themes, custom fonts (9–16pt)
+- 🗑️ **Safe deletion**: Move to trash or delete permanently
+- 📋 **Dual logging system**: User activity log and developer diagnostics
+- ⚙️ **Auto-save preferences**: Theme, font, delete mode, logging settings
+- 🌍 **Cross-platform**: Windows, macOS, Linux
 
-### Planned
-- File/folder cleanup (.bak, .old, cache, logs) - FileCleaner implemented, UI integration pending
+### Coming Soon
+- File/folder cleanup (.bak, .old, cache, logs)
 - Orphaned SavedVariables cleanup
 - Game optimizer & smart suggestions
 
+---
+
 ## Installation
 
-**Requirements:**
+### Requirements
 - Python 3.8+
 - Windows, macOS, or Linux
 
-**Run from source:**
+### Run from Source
 ```bash
 git clone https://github.com/Myrroddin/wow-cleanup-tool.git
 cd wow-cleanup-tool
 python src/wow_cleanup_tool.py
 ```
-Dependencies install automatically on first run.
+*Dependencies install automatically on first run.*
 
-**Build executable:**
+### Build Executable
 ```bash
 pip install pyinstaller
 pyinstaller src/wow_cleanup_tool.spec
 ```
-Output: `dist/WoW Cleanup Tool.exe`
+Output: `dist/WoW Cleanup Tool` (platform-specific executable)
+
+---
 
 ## Usage
 
-1. Accept license on first run
-2. Auto-detect or browse for WoW path
-3. Configure preferences (theme, font, delete mode, logging)
-4. Use Log and Developer tabs for activity and diagnostics. Both tabs now display logs in a text area with grid-based layout and log control buttons.
+1. **First run**: Accept license agreement
+2. **Setup**: Auto-detect or browse for your WoW installation folder
+3. **Configure**: Choose theme, font, delete mode, and logging preferences
+4. **Monitor**: Use Log tabs to view activity and diagnostics
 
-## Development
+---
 
-**Structure:**
-```
-src/
-├── core/          # Settings, logging, themes
-├── localization/  # Translations (sorted keys)
-├── operations/    # Cleanup operations (BaseScanner, FileCleaner, file_operations)
-├── ui/            # Interface components
-│   ├── dialogs/   # Dialog windows
-│   ├── tabs/      # Modular tab classes
-│   ├── widgets/   # Custom widgets
-│   ├── log_controls.py  # Log controls utility
-│   └── main_window.py   # Main window builder
-├── wow/           # Path detection, validation
-└── wow_cleanup_tool.py  # Main application entry point
-assets/
-└── icons/         # Application icons
-docs/              # Documentation
-tests/             # Unit tests (77 passed, 2 skipped)
-```
+## Documentation
 
-**Docs:**
-- [Implementation Roadmap](docs/IMPLEMENTATION_ROADMAP.md)
-- [Logging Guide](docs/LOGGING_GUIDE.md)
-- [Project Structure](docs/PROJECT_STRUCTURE.md)
+📚 **For developers and contributors:**
+- [Implementation Roadmap](docs/IMPLEMENTATION_ROADMAP.md) - Current status and planned features
+- [Logging Guide](docs/LOGGING_GUIDE.md) - Logging system details
+- [Project Structure](docs/PROJECT_STRUCTURE.md) - Code organization
+- [Testing Guide](docs/tests_README.md) - Running and writing tests
 
-**Other highlights:**
-- Type hints throughout
-- Fast file scanning with `os.scandir()`
-- Extensible base classes
-- Parallel processing support
-
-## Testing
-
-Run all tests:
-```bash
-python -m unittest discover tests/ -v
-```
-Run a specific suite:
-```bash
-python -m unittest tests.test_path_manager
-```
-Tests are isolated/mocked for file-based code. See `docs/tests_README.md` for details.
+---
 
 ## License
 
@@ -117,3 +73,4 @@ GNU General Public License v3.0 – see [LICENSE](LICENSE)
 ---
 
 **Support:** [GitHub Issues](https://github.com/Myrroddin/wow-cleanup-tool/issues) | [Discussions](https://github.com/Myrroddin/wow-cleanup-tool/discussions)
+
