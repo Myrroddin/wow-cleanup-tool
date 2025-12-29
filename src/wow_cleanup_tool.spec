@@ -22,7 +22,7 @@ elif sys.platform == 'darwin':
     icon_file = 'wow_cleanup_icon/wow_cleanup_icon.icns'
     exe_name = 'WoW Cleanup Tool'
 else:  # Linux and others
-    icon_file = 'wow_cleanup_icon/46df463a-9eb4-433a-b4b0-5e6df94328d3-0.png'
+    icon_file = 'wow_cleanup_icon/wow_cleanup_icon.png'
     exe_name = 'WoW Cleanup Tool'
 
 a = Analysis(
