@@ -16,13 +16,13 @@ block_cipher = None
 
 # Determine platform-specific icon and executable name
 if sys.platform == 'win32':
-    icon_file = 'wow_cleanup_icon/wow_cleanup_icon.ico'
+    icon_file = 'assets/icons/wow_cleanup_icon.ico'
     exe_name = 'WoW Cleanup Tool'
 elif sys.platform == 'darwin':
-    icon_file = 'wow_cleanup_icon/wow_cleanup_icon.icns'
+    icon_file = 'assets/icons/wow_cleanup_icon.icns'
     exe_name = 'WoW Cleanup Tool'
 else:  # Linux and others
-    icon_file = 'wow_cleanup_icon/wow_cleanup_icon.png'
+    icon_file = 'assets/icons/wow_cleanup_icon.png'
     exe_name = 'WoW Cleanup Tool'
 
 a = Analysis(

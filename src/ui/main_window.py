@@ -785,8 +785,8 @@ class MainWindowBuilder:
         self.dev_tab_index = None
         for idx, (tab_id, tab_label) in enumerate(tabs):
             frame = ttk.Frame(self.notebook, padding=5)
-            tab_pad = (0, 12) if idx < len(tabs) - 1 else (0, 0)
-            self.notebook.add(frame, text=tab_label, padding=tab_pad)
+            # Unify tab padding: small horizontal spacing, no vertical padding
+            self.notebook.add(frame, text=tab_label, padding=(8, 0))
             self.tab_frames[tab_id] = frame
             if tab_id == "developer":
                 self.dev_tab_index = idx

@@ -6,7 +6,8 @@ from tkinter import ttk
 
 class LogTab:
     def __init__(self, parent, loc, log_controls, append_log_var=None):
-        self.frame = ttk.Frame(parent, padding=5)
+        # Reduce top padding to align description closer to tab header
+        self.frame = ttk.Frame(parent, padding=(0, 5, 5, 5))
         self.append_log_var = append_log_var
         self.original_btn_style = None  # Store original button configuration
         self._create_content(loc, log_controls)
@@ -47,9 +48,11 @@ class LogTab:
         # Create overlay using ttk.Label with custom style for dimming
         # This will be placed exactly over the button when disabled
         style = ttk.Style()
+        bg = style.lookup("TFrame", "background")
         style.configure(
             "DimmedOverlay.TLabel",
             foreground="#888888",  # Dim gray text
+            background=bg,
             anchor="center",
         )
 

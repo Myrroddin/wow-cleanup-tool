@@ -10,7 +10,7 @@ Total Tests: 91
 Passed: 90
 Skipped: 1
 Failed: 0
-Duration: 10.51s
+Duration: 40.05s
 
 ===============================================================================
 TEST BREAKDOWN
@@ -30,8 +30,8 @@ tests\test_wow_cleanup_tool.py ................. 2 passed
 ===============================================================================
 NOTES
 ===============================================================================
-- Skipped test: test_log_controls.py::test_delete_user_log_permanent
-  (requires user confirmation for permanent delete)
+- Skipped test: test_log_controls.py::test_copy_dev_log_copies_to_clipboard
+  (Tkinter clipboard not available in this environment)
 - All core functionality tested and passing
 - Log tab UI and controls fully tested
 - Cross-platform compatibility verified via mocks
