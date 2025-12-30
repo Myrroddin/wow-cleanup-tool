@@ -27,7 +27,7 @@ class BaseDialog:
         self.settings = settings
         self.title_key = title_key
         self.font_family = settings.get("font_family", "TkDefaultFont")
-        self.font_size = settings.get("font_size", 9)
+        self.font_size = settings.get("font_size", 12)
         self.dialog = None
 
         # Register this dialog instance

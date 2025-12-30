@@ -12,29 +12,25 @@ Run all tests:
 ```bash
 python -m unittest discover tests/ -v
 ```
-
+ pytest --maxfail=1 --disable-warnings
 Run a specific test file:
 ```bash
 python -m unittest tests.test_localization
 python -m unittest tests.test_path_manager
-python -m unittest tests.test_logger
-```
-
+ pytest tests/test_localization.py
+ pytest tests/test_path_manager.py
+ pytest tests/test_logger.py
 ## Test Coverage
 
 ### `test_localization.py`
 - Translation loading and fallback
 - Localization class initialization and translation lookup
-- Translation completeness calculation
-- Language display names
-- Module constants
-
 ### `test_path_manager.py`
 - PathManager initialization
-- Class constants (COMMON_PATHS, WOW_FLAVORS)
-- Path validation (valid/invalid/empty paths)
+ Default font size (now 12)
 - WoW flavor detection (single/multiple flavors)
 - Path getter methods (AddOns, WTF, Cache, etc.)
+ TButton padding scaling with font size (min padding guards and proportional growth)
 - Installation validation
 - Directory population checking
 

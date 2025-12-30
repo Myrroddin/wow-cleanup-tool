@@ -18,7 +18,7 @@ body:
       options:
         - label: I have searched existing issues to ensure this is not a duplicate
           required: true
-        - label: I have read the documentation ([README](https://github.com/Myrroddin/wow-cleanup-tool/blob/main/README.md) and [Technical Details](https://github.com/Myrroddin/wow-cleanup-tool/blob/main/Technical-Details.md))
+        - label: I have read the documentation ([README](https://github.com/Myrroddin/wow-cleanup-tool/blob/main/README.md) and [Developer Notes](https://github.com/Myrroddin/wow-cleanup-tool/blob/main/docs/README.md))
           required: false
 
   - type: dropdown

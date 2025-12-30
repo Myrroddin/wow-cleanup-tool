@@ -74,7 +74,7 @@ class WoWCleanupTool:
         )
         # Get font and theme settings (use defaults if missing)
         font_family = self.settings.get("font_family", "TkDefaultFont")
-        font_size = self.settings.get("font_size", 9)
+        font_size = self.settings.get("font_size", 12)
         theme_name = self.settings.get("theme", "light")
         # Apply theme and font to root before any widget creation
         apply_theme(self.root, theme_name, font_family, font_size)
@@ -88,6 +88,22 @@ class WoWCleanupTool:
         self.controller = ApplicationController(
             self.root, self.settings, self.ui_widgets, self.logger, builder
         )
+        # Wire font controls to controller handlers so changes apply immediately
+        font_combo = self.ui_widgets.get("font_combo")
+        if font_combo:
+            font_combo.bind(
+                "<<ComboboxSelected>>", self.controller.on_font_family_changed
+            )
+        font_size_combo = self.ui_widgets.get("font_size_combo")
+        if font_size_combo:
+            font_size_combo.bind(
+                "<<ComboboxSelected>>", self.controller.on_font_size_changed
+            )
+        language_combo = self.ui_widgets.get("language_combo")
+        if language_combo and hasattr(language_combo, "bind"):
+            language_combo.bind(
+                "<<ComboboxSelected>>", self.controller.on_language_changed
+            )
         # Store builder reference for theme updates
         self.builder = builder
         # Save settings on close

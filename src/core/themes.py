@@ -88,11 +88,15 @@ def apply_theme(root, theme_name, font_family="TkDefaultFont", font_size=9):
         foreground=theme_data["fg"],
         font=(font_family, font_size + 3, "bold"),
     )
+    # 2025-12-30: Scale button padding with font to avoid oversized borders on small fonts
+    pad_x = max(6, int(font_size * 0.7))
+    pad_y = max(3, int(font_size * 0.45))
     style.configure(
         "TButton",
         background=theme_data["button_bg"],
         foreground=theme_data["button_fg"],
         font=(font_family, font_size),
+        padding=(pad_x, pad_y),
     )
     style.map(
         "TButton",

@@ -17,12 +17,12 @@ A lightweight utility for managing and optimizing World of Warcraft installation
 ### Available Now ✅
 - **WoW Detection**: Automatic detection or manual path selection
 - **Multi-Flavor Support**: Retail, Classic, Classic Era, PTR, Beta
-- **Themes**: Light/dark mode with custom fonts (9-16pt)
+- **Themes**: Light/dark mode with custom fonts (8–16pt, default 12)
 - **Delete Modes**: Move to trash (safe) or permanent deletion
 - **Logging**:
   - Dual-channel logs (user operations + developer diagnostics)
   - Automatic rotation (1MB user, 5MB dev)
-  - Session preservation with append mode
+  - Session preservation with append mode (user log); dev log always persisted
   - Thread-safe for parallel operations
 - **Localization**: 98+ translation keys, robust English support, easy expansion
 - **Settings**: Auto-save theme, font, delete mode, verbose logging, geometry
@@ -30,7 +30,7 @@ A lightweight utility for managing and optimizing World of Warcraft installation
 - **Modular UI**: Each main tab (File Cleaner, Folder Cleaner, Game Optimizer, Log, Developer) is implemented as a separate class in `src/ui/tabs/`
 - **Log Controls Utility**: All log actions (copy, save, clear, delete) are handled by `src/ui/log_controls.py` for both user and developer logs
 - **Custom Widgets**: Tooltip and future widgets are in `src/ui/widgets/`
-- **Main Window Refactor**: `main_window.py` now delegates tab UI and log actions to dedicated modules, improving maintainability and testability
+- **Main Window Refactor**: `main_window.py` delegates tab UI and log actions to dedicated modules, improving maintainability and testability
 
 ### Coming Soon 🛠️
 - File cleanup (.bak, .old, temps)
@@ -48,16 +48,18 @@ A lightweight utility for managing and optimizing World of Warcraft installation
 ```bash
 git clone https://github.com/Myrroddin/wow-cleanup-tool.git
 cd wow-cleanup-tool
-python wow_cleanup_tool.py
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python src/wow_cleanup_tool.py
 ```
-Dependencies install automatically on first run.
 
 ### Build Executable
 ```bash
-pip install pyinstaller
-pyinstaller wow_cleanup_tool.spec
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+pyinstaller src/wow_cleanup_tool.spec
 ```
-Output: `dist/WoW Cleanup Tool.exe`
+Output: `dist/WoW Cleanup Tool` (platform-specific executable)
 
 ## Usage
 

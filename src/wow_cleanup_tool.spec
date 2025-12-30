@@ -1,99 +1,105 @@
 # -*- mode: python ; coding: utf-8 -*-
-"""
-PyInstaller spec file for WoW Cleanup Tool.
+"""PyInstaller spec for WoW Cleanup Tool.
 
-This file defines how PyInstaller should build the executable.
-You can use this locally or the GitHub Actions workflow will use similar settings.
+Ensures assets, license, and all source modules are bundled consistently across
+platforms. Run with:
 
-Usage:
-    pyinstaller wow_cleanup_tool.spec
+    pyinstaller src/wow_cleanup_tool.spec
 """
 
 import sys
-from PyInstaller.utils.hooks import collect_data_files
+from pathlib import Path
 
 block_cipher = None
 
+BASE_DIR = Path(__file__).resolve().parent
+REPO_ROOT = BASE_DIR.parent
+SRC_DIR = BASE_DIR
+ENTRYPOINT = SRC_DIR / "wow_cleanup_tool.py"
+
 # Determine platform-specific icon and executable name
-if sys.platform == 'win32':
-    icon_file = 'assets/icons/wow_cleanup_icon.ico'
-    exe_name = 'WoW Cleanup Tool'
-elif sys.platform == 'darwin':
-    icon_file = 'assets/icons/wow_cleanup_icon.icns'
-    exe_name = 'WoW Cleanup Tool'
+if sys.platform == "win32":
+    icon_file = REPO_ROOT / "assets" / "icons" / "wow_cleanup_icon.ico"
+    exe_name = "WoW Cleanup Tool"
+elif sys.platform == "darwin":
+    icon_file = REPO_ROOT / "assets" / "icons" / "wow_cleanup_icon.icns"
+    exe_name = "WoW Cleanup Tool"
 else:  # Linux and others
-    icon_file = 'assets/icons/wow_cleanup_icon.png'
-    exe_name = 'WoW Cleanup Tool'
+    icon_file = REPO_ROOT / "assets" / "icons" / "wow_cleanup_icon.png"
+    exe_name = "WoW Cleanup Tool"
+
+# Datas: include license, assets, and full source tree
+datas = [
+    (str(REPO_ROOT / "LICENSE"), "."),
+    (str(REPO_ROOT / "assets"), "assets"),
+    (str(SRC_DIR), "src"),
+]
 
 a = Analysis(
-    ['wow_cleanup_tool.py'],
-    pathex=[],
+    [str(ENTRYPOINT)],
+    pathex=[str(SRC_DIR)],
     binaries=[],
-    datas=[
-        ('LICENSE', '.'),  # License file displayed to users
-        ('src', 'src'),  # All Python modules (PyInstaller will compile to .pyc)
-    ],
+    datas=datas,
     hiddenimports=[
-        'tkinter',
-        'tkinter.ttk',
-        'tkinter.font',
-        'tkinter.messagebox',
-        'tkinter.filedialog',
-        'PIL',
-        'PIL.Image',
-        'PIL.ImageTk',
-        'PIL.ImageDraw',
-        'psutil',
-        'send2trash',
+        "tkinter",
+        "tkinter.ttk",
+        "tkinter.font",
+        "tkinter.messagebox",
+        "tkinter.filedialog",
+        "PIL",
+        "PIL.Image",
+        "PIL.ImageTk",
+        "PIL.ImageDraw",
+        "psutil",
+        "send2trash",
         # Core Modules
-        'core',
-        'core.dependencies',
-        'core.geometry',
-        'core.logger',
-        'core.settings',
-        'core.single_instance',
-        'core.themes',
+        "core",
+        "core.dependencies",
+        "core.logger",
+        "core.settings",
+        "core.single_instance",
+        "core.themes",
         # Localization Modules
-        'localization',
-        'localization.en_us',
+        "localization",
+        "localization.en_us",
         # UI Modules
-        'ui',
-        'ui.app_controller',
-        'ui.dialog_base',
-        'ui.font_utils',
-        'ui.geometry',
-        'ui.log_controls',
-        'ui.main_window',
-        'ui.ui_constants',
-        'ui.dialogs',
-        'ui.dialogs.license_dialog',
-        'ui.dialogs.multiple_installations',
-        'ui.dialogs.wow_close_warning',
-        'ui.tabs',
-        'ui.tabs.developer_tab',
-        'ui.tabs.file_cleaner_tab',
-        'ui.tabs.folder_cleaner_tab',
-        'ui.tabs.game_optimizer_tab',
-        'ui.tabs.log_tab',
-        'ui.widgets',
-        'ui.widgets.tooltip',
+        "ui",
+        "ui.app_controller",
+        "ui.dialog_base",
+        "ui.font_utils",
+        "ui.geometry",
+        "ui.log_controls",
+        "ui.main_window",
+        "ui.ui_constants",
+        "ui.dialogs",
+        "ui.dialogs.license_dialog",
+        "ui.dialogs.multiple_installations",
+        "ui.dialogs.wow_close_warning",
+        "ui.tabs",
+        "ui.tabs.developer_tab",
+        "ui.tabs.file_cleaner_tab",
+        "ui.tabs.folder_cleaner_tab",
+        "ui.tabs.game_optimizer_tab",
+        "ui.tabs.log_tab",
+        "ui.widgets",
+        "ui.widgets.tooltip",
         # WoW Modules
-        'wow',
-        'wow.path_handler',
-        'wow.path_manager',
+        "wow",
+        "wow.path_handler",
+        "wow.path_manager",
         # Operations Modules
-        'operations',
-        'operations.base_scanner',
-        'operations.file_cleaner',
-        'operations.file_operations',
+        "operations",
+        "operations.base_scanner",
+        "operations.file_cleaner",
+        "operations.file_operations",
     ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
     excludes=[
-        'tests',  # Exclude unit tests from executable
-        'pytest',
-        'unittest',
+        "tests",  # Exclude unit tests from executable
+        "pytest",
+        "unittest",
     ],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
@@ -123,7 +129,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=icon_file,
+    icon=str(icon_file),
 )
 
 # macOS-specific app bundle
@@ -131,7 +137,7 @@ if sys.platform == 'darwin':
     app = BUNDLE(
         exe,
         name='WoW Cleanup Tool.app',
-        icon=icon_file,
+        icon=str(icon_file),
         bundle_identifier='com.myrroddin.wowcleanuptool',
         info_plist={
             'NSPrincipalClass': 'NSApplication',

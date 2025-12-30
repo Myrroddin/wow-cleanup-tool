@@ -18,7 +18,7 @@ body:
       options:
         - label: I have searched existing issues to ensure this is not a duplicate
           required: true
-        - label: I have read the [Technical Details](https://github.com/Myrroddin/wow-cleanup-tool/blob/main/Technical-Details.md) documentation
+        - label: I have read the [Documentation](https://github.com/Myrroddin/wow-cleanup-tool/blob/main/README.md) and [Developer Notes](https://github.com/Myrroddin/wow-cleanup-tool/blob/main/docs/README.md)
           required: false
         - label: I am using the latest version of WoW Cleanup Tool
           required: true

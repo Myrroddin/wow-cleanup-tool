@@ -149,6 +149,32 @@ def parse_geometry(geometry):
         return None
 
 
+def resize_to_content(root, min_w=480, min_h=320):
+    """Resize window to fit requested content size while enforcing minimums.
+
+    Args:
+        root: Tk root window
+        min_w: Minimum width
+        min_h: Minimum height
+    """
+    # 2025-12-30: Shared helper to avoid duplicating geometry resize logic across UI events
+    try:
+        root.update_idletasks()
+        req_w = root.winfo_reqwidth()
+        req_h = root.winfo_reqheight()
+        w = max(req_w, min_w)
+        h = max(req_h, min_h)
+        geo = root.geometry()
+        parts = geo.split("+")
+        if len(parts) >= 3:
+            x_str, y_str = parts[1], parts[2]
+            root.geometry(f"{w}x{h}+{x_str}+{y_str}")
+        else:
+            root.geometry(f"{w}x{h}")
+    except Exception:
+        pass
+
+
 def on_configure(app):
     """Handle window resize/move events to keep window on screen.
 

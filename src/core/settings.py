@@ -14,6 +14,21 @@ import sys
 from typing import Optional, Dict, Any
 
 
+def get_default_settings() -> Dict[str, Any]:
+    """Return a fresh copy of default settings."""
+    return {
+        "language": get_system_language(),
+        "theme": "light",
+        "font_family": "TkDefaultFont",
+        "font_size": 12,
+        "delete_mode": "trash",  # 'trash' or 'permanent'
+        "verbose_logging": True,  # Show detailed operation messages
+        "append_log": False,  # Append to user log across sessions instead of clearing
+        "disable_license_dialog": False,  # Respect license dialog toggle
+        "disable_wow_close_warning": False,  # Respect warning dialog toggle
+    }
+
+
 def get_system_language() -> str:
     """Get the system's default language code.
 
@@ -146,17 +161,7 @@ def load_settings() -> Dict[str, Any]:
         dict: Combined settings dictionary (user + cached WoW path)
     """
     settings_file = get_settings_file()
-    defaults: Dict[str, Any] = {
-        "language": get_system_language(),  # Default to OS language, fallback to 'en'
-        "theme": "light",
-        "font_family": "TkDefaultFont",
-        "font_size": 9,
-        "delete_mode": "trash",  # 'trash' or 'permanent'
-        "verbose_logging": True,  # Show detailed operation messages (file deletions, config edits, etc.)
-        "append_log": False,  # Append to user log across sessions instead of clearing
-        "disable_license_dialog": False,  # Respect license dialog toggle
-        "disable_wow_close_warning": False,  # Respect warning dialog toggle
-    }
+    defaults: Dict[str, Any] = get_default_settings()
 
     user_settings: Dict[str, Any] = defaults.copy()
     if settings_file.exists():

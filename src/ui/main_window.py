@@ -119,7 +119,7 @@ class MainWindowBuilder:
         from core.themes import THEMES
 
         font_family = self.settings.get("font_family", "TkDefaultFont")
-        font_size = int(self.settings.get("font_size", 9))
+        font_size = int(self.settings.get("font_size", 12))
         theme_name = self.settings.get("theme", "light")
         theme_colors = THEMES.get(theme_name, THEMES["light"])
         # ...removed debug print...
@@ -206,7 +206,7 @@ class MainWindowBuilder:
         font_size_label.grid(row=0, column=6, padx=(4, 0))
         # Font Size Combobox
         font_sizes = self.font_utils.get_font_sizes()
-        saved_size = str(self.settings.get("font_size", 9))
+        saved_size = str(self.settings.get("font_size", 12))
         self.font_size_var = tk.StringVar(value=saved_size)
         font_size_combo = ttk.Combobox(
             parent,
@@ -293,7 +293,7 @@ class MainWindowBuilder:
         font_size_label.grid(row=0, column=6, padx=(4, 0))
         # Font Size Combobox
         font_sizes = self.font_utils.get_font_sizes()
-        self.font_size_var = tk.StringVar(value=str(self.settings.get("font_size", 9)))
+        self.font_size_var = tk.StringVar(value=str(self.settings.get("font_size", 12)))
         font_size_combo = ttk.Combobox(
             parent,
             textvariable=self.font_size_var,
@@ -366,7 +366,7 @@ class MainWindowBuilder:
             self.font_family_var = tk.StringVar(value=system_default_label)
         else:
             self.font_family_var = tk.StringVar(value=current_font)
-        self.font_size_var = tk.StringVar(value=str(self.settings.get("font_size", 9)))
+        self.font_size_var = tk.StringVar(value=str(self.settings.get("font_size", 12)))
 
         # Main frame
         main_frame = ttk.Frame(self.root, padding=10)
@@ -377,6 +377,7 @@ class MainWindowBuilder:
         main_frame.rowconfigure(3, weight=0)  # Tab bar does not expand
         main_frame.rowconfigure(4, weight=1)  # Tab content expands vertically
         main_frame.columnconfigure(0, weight=1)  # Ensure tab bar expands horizontally
+        self.main_frame = main_frame
 
         # Initialize delete mode StringVar
         self.delete_mode_var = tk.StringVar(
@@ -486,6 +487,7 @@ class MainWindowBuilder:
         other_langs = sorted(language_options[1:], key=lambda x: x[0].lower())
         language_options = [english] + other_langs
         language_names = [name for name, code in language_options]
+        self.language_options = language_options
         self.language_var = tk.StringVar(value=language_names[0])
         language_combo = ttk.Combobox(
             wow_path_frame,
@@ -495,6 +497,7 @@ class MainWindowBuilder:
             width=20,
         )
         language_combo.grid(row=0, column=3, sticky="w", padx=(0, 12))
+        self.language_combo = language_combo
 
         # Theme toggle button (column 4)
         theme_btn = ttk.Button(
@@ -537,7 +540,7 @@ class MainWindowBuilder:
 
         # Font size combobox (column 8)
         font_sizes = self.font_utils.get_font_sizes()
-        saved_size = str(self.settings.get("font_size", 9))
+        saved_size = str(self.settings.get("font_size", 12))
         self.font_size_var = tk.StringVar(value=saved_size)
         font_size_combo = ttk.Combobox(
             wow_path_frame,
@@ -651,46 +654,52 @@ class MainWindowBuilder:
 
         # Add reset settings button (now column 6, no right padding)
         def on_reset_settings():
-            from core.settings import load_settings, save_settings
+            from core.settings import get_default_settings, save_settings
+            from core.themes import apply_theme
+            import tkinter.messagebox as messagebox
 
-            # Reload defaults
-            defaults = load_settings.__globals__["load_settings"]()
-            # Remove wow_path from reset (preserve current path if set)
+            defaults = get_default_settings()
+            # Preserve current WoW path if present in the UI
             wow_path = self.wow_path_var.get() if self.wow_path_var else None
             if wow_path:
                 defaults["wow_path"] = wow_path
+
+            # Persist defaults immediately
             save_settings(defaults)
-            # Update all UI elements to reflect defaults
+
+            # Update in-memory settings
             self.settings.clear()
             self.settings.update(defaults)
-            # Language
-            self.language_var.set("English (US)")
-            # Theme
-            from core.themes import apply_theme
 
+            # Apply theme/fonts from defaults
             theme_name = self.settings.get("theme", "light")
             font_family = self.settings.get("font_family", "TkDefaultFont")
-            font_size = int(self.settings.get("font_size", 9))
+            font_size = int(self.settings.get("font_size", 12))
             apply_theme(self.root, theme_name, font_family, font_size)
-            # Font family and size
+
+            # Update UI-bound variables
             system_default_label = self.loc._("system_default_font")
-            if font_family == "TkDefaultFont":
-                self.font_family_var.set(system_default_label)
-            else:
-                self.font_family_var.set(font_family)
+            self.font_family_var.set(
+                system_default_label if font_family == "TkDefaultFont" else font_family
+            )
             self.font_size_var.set(str(font_size))
-            # Delete mode
             self.delete_mode_var.set(self.settings.get("delete_mode", "trash"))
-            # Verbose logging
             self.verbose_var.set(self.settings.get("verbose_logging", True))
-            # Append log
             self.append_log_var.set(self.settings.get("append_log", False))
-            # Chat timestamps
             self.chat_timestamps_var.set(self.settings.get("chat_timestamps", True))
-            # Refresh all widget fonts and theme
+            self.language_var.set("English (US)")
+
+            # Refresh widgets for new font/theme
             self.refresh_all_widget_fonts()
-            # Optionally, show a message to the user
-            import tkinter.messagebox as messagebox
+
+            # Resize window to fit default content
+            try:
+                from ui.geometry import resize_to_content
+
+                # 2025-12-30: Use shared helper so reset matches other resize paths
+                resize_to_content(self.root, 480, 320)
+            except Exception:
+                pass
 
             messagebox.showinfo(
                 self.loc._("btn_reset_settings"),
@@ -751,6 +760,7 @@ class MainWindowBuilder:
         self.refresh_all_widget_fonts()
         # Return references to important widgets
         return {
+            "main_frame": self.main_frame,
             "path_frame": wow_path_frame,
             "wow_path_var": self.wow_path_var,
             "path_entry": self.path_entry,
@@ -760,9 +770,13 @@ class MainWindowBuilder:
             "font_size_combo": getattr(self, "font_size_combo", None),
             "append_log_var": self.append_log_var,
             "language_var": self.language_var,
+            "language_combo": getattr(self, "language_combo", None),
+            "language_options": getattr(self, "language_options", []),
             "delete_mode_var": self.delete_mode_var,
             "verbose_var": self.verbose_var,
-            "reset_button": None,  # Stub for legacy reset_button
+            "reset_button": reset_btn,
+            "log_text": getattr(self, "log_text", None),
+            "dev_text": getattr(self, "dev_text", None),
         }
 
     # _create_title is now implemented in build(); stub removed.

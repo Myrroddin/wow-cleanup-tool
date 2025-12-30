@@ -9,9 +9,9 @@ A lightweight, modular utility for managing and optimizing World of Warcraft ins
 
 - 🎯 **Automatic WoW detection** or manual path selection
 - 🎮 **Multi-flavor support**: Retail, Classic, PTR, Beta
-- 🎨 **Customizable UI**: Light/dark themes, custom fonts (9–16pt)
+- 🎨 **Customizable UI**: Light/dark themes, custom fonts (8–16pt, default 12)
 - 🗑️ **Safe deletion**: Move to trash or delete permanently
-- 📋 **Dual logging system**: User activity log and developer diagnostics
+- 📋 **Dual logging system**: User activity log and developer diagnostics (dev log always persisted; user log persisted when append mode is on)
 - ⚙️ **Auto-save preferences**: Theme, font, delete mode, logging settings
 - 🌍 **Cross-platform**: Windows, macOS, Linux
 
@@ -32,13 +32,15 @@ A lightweight, modular utility for managing and optimizing World of Warcraft ins
 ```bash
 git clone https://github.com/Myrroddin/wow-cleanup-tool.git
 cd wow-cleanup-tool
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 python src/wow_cleanup_tool.py
 ```
-*Dependencies install automatically on first run.*
 
 ### Build Executable
 ```bash
-pip install pyinstaller
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 pyinstaller src/wow_cleanup_tool.spec
 ```
 Output: `dist/WoW Cleanup Tool` (platform-specific executable)
@@ -50,7 +52,7 @@ Output: `dist/WoW Cleanup Tool` (platform-specific executable)
 1. **First run**: Accept license agreement
 2. **Setup**: Auto-detect or browse for your WoW installation folder
 3. **Configure**: Choose theme, font, delete mode, and logging preferences
-4. **Monitor**: Use Log tabs to view activity and diagnostics
+4. **Monitor**: Use Log tabs to view activity and diagnostics (user log resets each launch unless append mode is enabled; developer log is always persisted with rotation)
 
 ---
 

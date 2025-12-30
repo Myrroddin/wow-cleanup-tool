@@ -50,6 +50,9 @@ class ApplicationController:
                 msg = en_us.TRANSLATIONS["user_log_normal_wow_validated"]
             self.logger.log(msg)
 
+        # 2025-12-30: Path strings can widen the layout; resize after updating
+        self.resize_to_fit_content()
+
     def handle_new_wow_path(self, new_path):
         """Alias for update_wow_path for backward compatibility."""
         return self.update_wow_path(new_path)
@@ -70,6 +73,18 @@ class ApplicationController:
         self.logger = logger
         self.builder = builder
 
+    def resize_to_fit_content(self):
+        """Resize the main window to fit current content while respecting minimums."""
+        try:
+            from ui.geometry import resize_to_content
+
+            min_w = getattr(getattr(self, "builder", None), "MIN_W", None) or 480
+            min_h = getattr(getattr(self, "builder", None), "MIN_H", None) or 320
+            # 2025-12-30: Centralized resize to keep all UI updates consistent
+            resize_to_content(self.root, min_w, min_h)
+        except Exception:
+            pass
+
     def toggle_theme(self):
         """Toggle between light and dark themes."""
         current_theme = self.settings.get("theme", "light")
@@ -77,7 +92,7 @@ class ApplicationController:
         self.settings["theme"] = new_theme
         # Apply theme with current font settings
         font_family = self.settings.get("font_family", "TkDefaultFont")
-        font_size = self.settings.get("font_size", 9)
+        font_size = self.settings.get("font_size", 12)
         themes.apply_theme(self.root, new_theme, font_family, font_size)
         # Force refresh all widget fonts/styles
         if self.builder and hasattr(self.builder, "refresh_all_widget_fonts"):
@@ -146,7 +161,7 @@ class ApplicationController:
         self.settings["font_family"] = actual_font
         font_family_var.set(selected)
         current_theme = self.settings.get("theme", "light")
-        font_size = self.settings.get("font_size", 9)
+        font_size = self.settings.get("font_size", 12)
         themes.apply_theme(self.root, current_theme, actual_font, font_size)
         self._refresh_all_fonts(actual_font, font_size)
         self.root.update_idletasks()
@@ -162,6 +177,30 @@ class ApplicationController:
 
         save_settings(self.settings)
 
+    def on_language_changed(self, event=None):
+        """Handle language selection changes and resize window for new text lengths."""
+        language_var = self.ui_widgets.get("language_var")
+        language_options = self.ui_widgets.get("language_options") or []
+        if not language_var or not language_options:
+            return
+
+        selected_name = language_var.get()
+        code = None
+        for display, lang_code in language_options:
+            if display == selected_name:
+                code = lang_code
+                break
+        if not code:
+            return
+
+        self.settings["language"] = code
+        from core.settings import save_settings
+
+        save_settings(self.settings)
+
+        # 2025-12-30: Different locales change label widths; keep geometry in sync
+        self.resize_to_fit_content()
+
     def reset_settings(self):
         """Reset all settings to defaults (preserves cached data like wow_path)."""
         # No confirmation dialog; reset settings immediately
@@ -174,18 +213,10 @@ class ApplicationController:
         self.settings.clear()
 
         # Reset to hardcoded app defaults (not user file contents)
-        from core.settings import get_system_language
+        from core.settings import get_default_settings
 
-        self.settings["language"] = get_system_language()
-        self.settings["theme"] = "light"
-        self.settings["font_family"] = "TkDefaultFont"
-        self.settings["font_size"] = 9
-        self.settings["delete_mode"] = "trash"
-        self.settings["verbose_logging"] = True
-        self.settings["append_log"] = False
+        self.settings.update(get_default_settings())
         self.settings["license_accepted"] = False
-        self.settings["disable_license_dialog"] = False
-        self.settings["disable_wow_close_warning"] = False
 
         # Restore cached data
         if wow_path:

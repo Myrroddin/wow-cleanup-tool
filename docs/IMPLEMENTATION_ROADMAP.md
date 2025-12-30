@@ -47,11 +47,11 @@ This roadmap tracks the development of the WoW Cleanup Tool, with a focus on mod
 - Removed dead UI methods and placeholder comments
 - Single-instance lock reusable within process for test suite compatibility
 - **Comprehensive test coverage**:
-  - 91 total tests: 90 passed, 1 skipped
-  - New: Complete test suite for log_controls.py (11 tests covering all functions)
-  - Updated: Log tab tests for new button layout and append-mode-aware behavior
-  - Tests cover: initialization, validation, detection, UI widgets, log controls, file operations
-  - Mock objects for testing without filesystem dependencies
+    - 93 total tests: all passing (pytest)
+    - New: Theme padding scaling coverage for TButton; default font size 12 regression
+    - Updated: Log controls tests (11 tests covering all functions)
+    - Tests cover: initialization, validation, detection, UI widgets, log controls, file operations
+    - Mock objects for testing without filesystem dependencies
 
 ---
 

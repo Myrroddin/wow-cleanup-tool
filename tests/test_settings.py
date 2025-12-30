@@ -40,6 +40,11 @@ class TestSettings(unittest.TestCase):
         self.assertEqual(loaded["theme"], "dark")
         self.assertEqual(loaded["font_size"], 12)
 
+    def test_default_font_size_is_12(self):
+        """Ensure new default font size is 12 for fresh settings."""
+        defaults = settings.get_default_settings()
+        self.assertEqual(defaults["font_size"], 12)
+
     def test_save_and_load_user_log(self):
         content = "Test log content"
         result = settings.save_user_log(content)

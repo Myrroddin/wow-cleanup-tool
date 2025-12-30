@@ -15,11 +15,11 @@ WoW Cleanup Tool uses a modern, dual-channel logging system built on Python's `l
 - **User Log** (`~/.wow_cleanup_tool/user_log.txt`)
   - INFO and essential messages only
   - Rotates at 1MB, keeps 5 backups
-  - Append mode: logs persist across sessions (newest at top)
+  - Append mode: logs persist across sessions (newest at top); when append is off, the file is cleared on startup
 - **Developer Log** (`~/.wow_cleanup_tool/dev_log.txt`)
   - DEBUG, INFO, WARNING, ERROR
   - Rotates at 5MB, keeps 3 backups
-  - Always verbose, includes stack traces for errors
+  - Always verbose, includes stack traces for errors; persisted across sessions by default
 
 ### Log Controls Utility (Feature-Complete)
 - All log actions (clear, open folder, copy, delete) are handled by `src/ui/log_controls.py`
