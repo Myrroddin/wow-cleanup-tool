@@ -22,7 +22,7 @@ pytest tests/test_logger.py
 
 ## Test Summary
 
-**Total**: 109 tests | **Passed**: 109 | **Skipped**: 1 | **Failed**: 0
+**Total**: 110 tests | **Passed**: 110 | **Skipped**: 0 | **Failed**: 0
 
 ## Test Coverage
 
@@ -67,7 +67,7 @@ pytest tests/test_logger.py
 - Trash vs permanent deletion modes
 - Logging and error handling
 
-### `test_log_controls.py` (9 tests, 1 skipped)
+### `test_log_controls.py` (10 tests)
 - Log control button operations (copy, save, clear, delete)
 - Logging integration
 - File I/O operations
@@ -101,10 +101,11 @@ pytest tests/test_logger.py
 
 ## Test Structure
 
-- Uses Python's built-in `unittest` framework
-- Each test file contains multiple `TestCase` classes
+- Uses `pytest` testing framework
+- Each test file contains multiple test functions or `TestCase` classes
 - `setUp()` and `tearDown()` methods handle test fixtures and mocks
 - Tests create temporary directories or use mocking for file I/O
+- Run with `pytest --maxfail=1 --disable-warnings` for fast feedback
 
 ## Type Safety
 

@@ -36,32 +36,17 @@ class FileCleanerTab:
     """
 
     def __init__(
-        self,
-        parent,
-        loc,
-        on_scan_files,
-        on_select_all_toggle,
-        on_remove_selected,
-        get_selected_items,
+        self, parent, loc, on_scan_files, on_select_all_toggle, on_remove_selected
     ):
         self.frame = ttk.Frame(parent, padding=5)
         self.backup_tree = None
         self.orphan_tree = None
         self._create_content(
-            loc,
-            on_scan_files,
-            on_select_all_toggle,
-            on_remove_selected,
-            get_selected_items,
+            loc, on_scan_files, on_select_all_toggle, on_remove_selected
         )
 
     def _create_content(
-        self,
-        loc,
-        on_scan_files,
-        on_select_all_toggle,
-        on_remove_selected,
-        get_selected_items,
+        self, loc, on_scan_files, on_select_all_toggle, on_remove_selected
     ):
         """Build the tab UI: description, buttons, and dual treeviews.
 
@@ -91,11 +76,10 @@ class FileCleanerTab:
         remove_btn = ttk.Button(
             button_frame,
             text=loc._("btn_remove_selected"),
-            command=lambda: on_remove_selected(get_selected_items("file_cleaner")),
+            command=lambda: on_remove_selected("file_cleaner"),
         )
         remove_btn.pack(side="left")
 
-        # Create sub-notebook with two cleanup modes
         sub_tabs = ttk.Notebook(self.frame)
         backup_tab = ttk.Frame(sub_tabs)
         orphan_tab = ttk.Frame(sub_tabs)
@@ -103,7 +87,6 @@ class FileCleanerTab:
         sub_tabs.add(orphan_tab, text=loc._("tab_orphaned_addons"))
         sub_tabs.pack(side="top", fill="both", expand=True)
 
-        # Create treeviews for scan results (collapsed by default)
         self.backup_tree = self._create_treeview(
             backup_tab, loc._("tab_backup_old_cleaner")
         )
@@ -130,16 +113,12 @@ class FileCleanerTab:
         Returns:
             Configured Treeview widget
         """
-        # Container frame for tree and scrollbars
         tree_frame = ttk.Frame(parent)
         tree_frame.pack(fill="both", expand=True, padx=5, pady=5)
 
-        # Dual scrollbars for large result sets
         vsb = ttk.Scrollbar(tree_frame, orient="vertical")
         hsb = ttk.Scrollbar(tree_frame, orient="horizontal")
 
-        # Treeview with file path and size columns
-        # Extended selectmode allows multi-select for batch deletion
         tree = ttk.Treeview(
             tree_frame,
             columns=("size",),
@@ -151,13 +130,11 @@ class FileCleanerTab:
         vsb.config(command=tree.yview)
         hsb.config(command=tree.xview)
 
-        # Column configuration
         tree.heading("#0", text="File Path", anchor="w")
         tree.heading("size", text=title, anchor="e")
         tree.column("#0", width=400, stretch=True)
         tree.column("size", width=100, stretch=False)
 
-        # Grid layout
         tree.grid(row=0, column=0, sticky="nsew")
         vsb.grid(row=0, column=1, sticky="ns")
         hsb.grid(row=1, column=0, sticky="ew")
@@ -210,7 +187,6 @@ class FileCleanerTab:
         if not all_ids:
             return
 
-        # Determine if everything is already selected across both trees
         all_selected = all(iid in selected_ids for _, iid in all_ids)
 
         if all_selected:
@@ -242,24 +218,19 @@ class FileCleanerTab:
         if not tree:
             return
 
-        # Clear previous scan results
         tree.delete(*tree.get_children())
 
         if not results:
             return
 
-        # Group files by WoW version for organized display (sorted alphabetically)
         for version_label, files in sorted(results.items()):
             if not files:
                 continue
 
-            # Create collapsed version node with file count
-            # Users can expand to see individual files
             version_node = tree.insert(
                 "", "end", text=f"{version_label} ({len(files)} files)", open=False
             )
 
-            # Add file entries; files may already include precomputed sizes
             for file_entry in sorted(files):
                 if isinstance(file_entry, (tuple, list)) and len(file_entry) >= 2:
                     file_path, size_str = file_entry[0], file_entry[1]

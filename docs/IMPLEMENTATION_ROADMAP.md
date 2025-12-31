@@ -10,6 +10,21 @@ This roadmap tracks the development of the WoW Cleanup Tool, with a focus on mod
 
 ## Current Status
 - Modular UI refactor: All main tabs are now separate classes in `src/ui/tabs/`
+- **✅ Core Application Features: FEATURE-COMPLETE**
+  - Automatic WoW path detection (registry scan + common paths)
+  - Manual path selection with validation
+  - Multi-flavor support (Retail, Classic, PTR, Beta, and combinations)
+  - Installation validation (flavor detection, directory structure)
+  - Settings persistence (theme, font, delete mode, logging preferences)
+  - Auto-save on all preference changes
+  - Cross-platform support (Windows, macOS, Linux)
+- **✅ UI Layout & Theming: FEATURE-COMPLETE**
+  - Light/dark theme support with live updates
+  - Custom font selection (8–16pt, default 12)
+  - Grid-based layout system with proper widget placement
+  - Dynamic resizing and responsive controls
+  - All dialogs and tooltips theme-aware
+  - Centralized theme/font refresh logic
 - **✅ File Cleaner Tab: FEATURE-COMPLETE**
   - Dual-panel UI: Backup files (.bak/.old) and Orphaned SavedVariables
   - Background scanning with progress callbacks
@@ -50,12 +65,13 @@ This roadmap tracks the development of the WoW Cleanup Tool, with a focus on mod
 - Removed unused imports (11 files cleaned up)
 - **BaseScanner** implemented with parallel version scanning, progress callbacks, and error isolation
 - **FileCleaner** implemented and tested (.bak/.old file scanner)
+- **OrphanScanner** implemented and integrated (scans SavedVariables for orphaned AddOn settings)
 - **file_operations.py**: batch delete/trash with logging
-- Codebase cleanup: Removed unused operation stubs (file_scanner, folder_scanner, orphan_scanner, disk_utils)
+- Codebase cleanup: Removed unused operation stubs (file_scanner, folder_scanner, disk_utils)
 - Removed dead UI methods and placeholder comments
 - Single-instance lock reusable within process for test suite compatibility
 - **Comprehensive test coverage**:
-    - 93 total tests: all passing (pytest)
+    - 110 total tests: all passing (pytest)
     - New: Theme padding scaling coverage for TButton; default font size 12 regression
     - Updated: Log controls tests (11 tests covering all functions)
     - Tests cover: initialization, validation, detection, UI widgets, log controls, file operations
@@ -98,19 +114,10 @@ class FolderScanner(BaseScanner):
         return results
 ```
 
-### Phase 3: Orphan Scanner
-**File**: `src/operations/orphan_scanner.py` (to be recreated)
-
-More complex - needs to:
-1. Scan `Interface/AddOns` for installed addons
-2. Scan `WTF/Account/**` for SavedVariables files
-3. Find .lua files for uninstalled addons
-4. Ignore Blizzard_* core files
-
-### Phase 4: UI Integration
-- Custom tree widget for displaying scan results
+### Phase 3: Game Optimizer & Advanced Features
+- Custom tree widget enhancements (filtering, sorting)
 - Progress bars for scan operations
-- Checkboxes for selective deletion
+- Performance metrics and suggestions
 - Summary dialogs after operations
 
 ## Performance Guidelines
@@ -144,39 +151,25 @@ def scan_worker():
 threading.Thread(target=scan_worker, daemon=True).start()
 ```
 
-## Localization Keys to Add
+## Localization Status
 
-When implementing cleanup features, add these keys to `en_us.py` following the established prefix conventions:
+**Completed Keys** (File Cleaner - already implemented):
+- ✅ `btn_scan_files` - "Scan Files"
+- ✅ `btn_remove_selected` - "Remove Selected"
+- ✅ `btn_select_all_toggle` - "Select All / Unselect All"
+- ✅ `option_delete_mode_trash` - "Move to Trash"
+- ✅ `option_delete_mode_permanent` - "Delete Permanently"
+- ✅ All tab labels (file_cleaner, folder_cleaner, game_optimizer, log, developer)
+- ✅ All WoW flavor display names (retail, classic, ptr, beta, etc.)
 
+**Keys Needed for Future Features** (Folder Scanner - when implemented):
 ```python
-# File Scanner (follow btn_, label_, status_ prefixes)
-"btn_scan_files": "Scan for .bak/.old Files",
-"status_scanning_files": "Scanning files...",
-"status_files_found": "Found {} .bak/.old files",
-"btn_delete_files": "Delete Selected Files",
-
-# Folder Scanner  
-"btn_scan_folders": "Scan Cleanable Folders",
-"status_scanning_folders": "Scanning folders...",
-"status_folders_found": "Found {} cleanable folders",
-"btn_clean_folders": "Clean Selected Folders",
-
-# Orphan Scanner
-"btn_scan_orphans": "Scan for Orphaned SavedVariables",
-"status_scanning_orphans": "Scanning for orphans...",
-"status_orphans_found": "Found {} orphaned files",
-"btn_delete_orphans": "Delete Selected Orphans",
-
-# Operations
-"title_confirm_delete": "Confirm Deletion",
-"msg_confirm_delete": "Are you sure you want to {} {} items?",
-"title_delete_complete": "Deletion Complete",
-"status_deleted_items": "Successfully processed {} items",
-"option_move_to_trash": "Move to Recycle Bin",
-"option_delete_permanently": "Delete Permanently",
+"btn_scan_folders": "Scan Cleanable Folders"
+"status_scanning_folders": "Scanning folders..."
+"status_folders_found": "Found {} cleanable folders"
 ```
 
-**Note**: All new keys should follow the prefix naming convention and be alphabetically sorted.
+**Note**: All new keys follow the prefix naming convention (btn_, status_, label_, etc.) and are alphabetically sorted in `en_us.py`.
 
 ## Testing Checklist
 

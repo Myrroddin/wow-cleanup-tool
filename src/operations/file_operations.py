@@ -27,8 +27,6 @@ def delete_files_batch(
             if delete_mode == "trash":
                 send2trash(path)
                 used_trash = True
-                if logger:
-                    logger.verbose(f"Moved to trash: {path}")
             else:
                 if os.path.isfile(path):
                     os.remove(path)
@@ -36,8 +34,6 @@ def delete_files_batch(
                     import shutil
 
                     shutil.rmtree(path)
-                if logger:
-                    logger.verbose(f"Deleted permanently: {path}")
             processed += 1
             processed_paths.append(path)
         except (OSError, IOError) as e:

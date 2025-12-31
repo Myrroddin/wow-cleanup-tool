@@ -37,7 +37,7 @@ TRANSLATIONS = {
     ),
     "desc_file_cleaner": (
         "Find and remove unnecessary files. Some files may return when "
-        "the game recreates them—this is expected."
+        "the game recreates them, which is expected."
     ),
     "desc_user_log": (
         "Activity log showing what the application is doing. For warnings and errors, "
@@ -63,6 +63,7 @@ TRANSLATIONS = {
     "msg_license_instructions": (
         "Please read and accept the license agreement to continue using WoW Cleanup Tool."
     ),
+    "msg_log_empty": "Log is empty.",
     "msg_multiple_installations_see_dev_log": (
         "Multiple WoW installations detected. See the Developer Log for details."
     ),
@@ -111,10 +112,10 @@ TRANSLATIONS = {
     ),
     "user_log_normal_app_started": "Application started successfully!",
     "user_log_normal_no_game_versions": "No WoW game versions detected.",
-    "user_log_normal_removed_files": "{}: removed {} file(s).",
+    "user_log_normal_removed_files": "[{}]: removed {} file(s).",
     "user_log_normal_wow_detected": "WoW installation detected.",
     "user_log_normal_wow_validated": "WoW installation validated.",
-    "user_log_verbose_removed_file": "{} removed {}",
+    "user_log_verbose_removed_file": "[{}]: removed {}",
     "user_log_verbose_wow_detected": "WoW installation detected at: {}",
     "user_log_verbose_wow_validated": (
         "WoW installation validated. Found {} game version(s)"

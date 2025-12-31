@@ -300,14 +300,12 @@ class MainWindowBuilder:
 
         December 30, 2025: Uses BackgroundTask utility for thread-safe scanning.
         Prevents UI freezing while maintaining safe Tkinter widget updates.
+
+        Note: WoW path validation happens on app startup. Feature tabs (including
+        File Cleaner) are disabled if no valid path is found, so this method
+        is only callable when a valid WoW installation exists.
         """
         from core.background_task import BackgroundTask
-
-        # December 30, 2025: Validate WoW path before starting background task
-        wow_path = self.settings.get("wow_path")
-        if not wow_path or not os.path.isdir(wow_path):
-            self.logger.log(self.loc._("invalid_wow_path"))
-            return
 
         def do_scan():
             """Background task: Scan all WoW versions for files."""
@@ -346,6 +344,7 @@ class MainWindowBuilder:
             )
 
             # December 30, 2025: Detect installed WoW versions
+            wow_path = self.settings.get("wow_path")
             path_manager = PathManager(self.loc)
             flavors = path_manager.detect_flavors(wow_path)
 
@@ -985,10 +984,9 @@ class MainWindowBuilder:
             self._on_scan_files,
             getattr(self, "_on_select_all_toggle", lambda items: None),
             self._on_remove_selected,
-            self.get_selected_items,
         )
         file_cleaner_tab.frame.pack(fill="both", expand=True)
-        self.file_cleaner_tab = file_cleaner_tab  # Store reference for scan results
+        self.file_cleaner_tab = file_cleaner_tab
 
         # Folder Cleaner Tab
         folder_cleaner_tab = FolderCleanerTab(
