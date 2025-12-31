@@ -287,12 +287,14 @@ Root Logger
 
 #### API Compatibility
 **Complete backward compatibility maintained:**
-- `logger.log(text)` - User log message
-- `logger.verbose(text)` - Verbose user message (if enabled)
+- `logger.log(text)` - User log message (use when verbose is OFF or no verbose alternative exists)
+- `logger.verbose(text)` - Verbose user message (use when verbose is ON; never call both log() and verbose() for same action)
 - `logger.debug(text)` - Developer debug message
 - `logger.error(text)` - Developer error message (increments error count)
 - `logger.warning(text)` - **NEW**: Developer warning message
 - `logger.set_verbose(bool)` - Enable/disable verbose mode
+
+**Universal Pattern:** Use if/else to call EITHER logger.log() OR logger.verbose(), never both. See [LOGGING_GUIDE.md](LOGGING_GUIDE.md) for details.
 - `logger.set_append_mode(bool)` - Enable/disable append mode
 - `logger.attach_text_widget(widget)` - Attach UI widget
 - `logger.attach_dev_text_widget(widget)` - Attach developer widget

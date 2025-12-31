@@ -36,17 +36,32 @@ class FileCleanerTab:
     """
 
     def __init__(
-        self, parent, loc, on_scan_files, on_select_all_toggle, on_remove_selected
+        self,
+        parent,
+        loc,
+        on_scan_files,
+        on_select_all_toggle,
+        on_remove_selected,
+        get_selected_items,
     ):
         self.frame = ttk.Frame(parent, padding=5)
         self.backup_tree = None
         self.orphan_tree = None
         self._create_content(
-            loc, on_scan_files, on_select_all_toggle, on_remove_selected
+            loc,
+            on_scan_files,
+            on_select_all_toggle,
+            on_remove_selected,
+            get_selected_items,
         )
 
     def _create_content(
-        self, loc, on_scan_files, on_select_all_toggle, on_remove_selected
+        self,
+        loc,
+        on_scan_files,
+        on_select_all_toggle,
+        on_remove_selected,
+        get_selected_items,
     ):
         """Build the tab UI: description, buttons, and dual treeviews.
 
@@ -76,7 +91,7 @@ class FileCleanerTab:
         remove_btn = ttk.Button(
             button_frame,
             text=loc._("btn_remove_selected"),
-            command=lambda: on_remove_selected("file_cleaner"),
+            command=lambda: on_remove_selected(get_selected_items("file_cleaner")),
         )
         remove_btn.pack(side="left")
 

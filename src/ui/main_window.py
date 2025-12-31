@@ -437,15 +437,17 @@ class MainWindowBuilder:
                     version_buckets.setdefault(version_label, []).append(path)
 
                 for version_label, paths in version_buckets.items():
-                    self.logger.log(
-                        self.loc._("user_log_normal_removed_files").format(
-                            version_label, len(paths)
-                        )
-                    )
-                    for path in paths:
-                        self.logger.verbose(
-                            self.loc._("user_log_verbose_removed_file").format(
-                                version_label, path
+                    if self.logger._verbose:
+                        for path in paths:
+                            self.logger.verbose(
+                                self.loc._("user_log_verbose_removed_file").format(
+                                    version_label, path
+                                )
+                            )
+                    else:
+                        self.logger.log(
+                            self.loc._("user_log_normal_removed_files").format(
+                                version_label, len(paths)
                             )
                         )
 
@@ -984,6 +986,7 @@ class MainWindowBuilder:
             self._on_scan_files,
             getattr(self, "_on_select_all_toggle", lambda items: None),
             self._on_remove_selected,
+            self.get_selected_items,
         )
         file_cleaner_tab.frame.pack(fill="both", expand=True)
         self.file_cleaner_tab = file_cleaner_tab

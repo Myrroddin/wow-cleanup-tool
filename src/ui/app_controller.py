@@ -46,9 +46,10 @@ class ApplicationController:
                     msg = en_us.TRANSLATIONS["user_log_verbose_wow_validated"].replace(
                         "{}", ""
                     )
+                self.logger.verbose(msg)
             else:
                 msg = en_us.TRANSLATIONS["user_log_normal_wow_validated"]
-            self.logger.log(msg)
+                self.logger.log(msg)
 
         # 2025-12-30: Path strings can widen the layout; resize after updating
         self.resize_to_fit_content()

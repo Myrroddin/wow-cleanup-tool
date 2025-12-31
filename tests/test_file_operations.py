@@ -168,7 +168,11 @@ class TestDeleteFilesBatch(unittest.TestCase):
         self.assertEqual(proc_paths, [])
 
     def test_delete_with_verbose_logging(self):
-        """Test that verbose logging is called for each deletion."""
+        """Test that verbose logging does NOT occur in file_operations (to prevent duplicate logging).
+        
+        Logging is handled by the calling code (main_window.py) using if/else pattern.
+        file_operations.py only logs errors, not successful deletions.
+        """
         test_file = os.path.join(self.temp_dir, "test.txt")
         with open(test_file, "w") as f:
             f.write("test")
@@ -177,9 +181,8 @@ class TestDeleteFilesBatch(unittest.TestCase):
             [test_file], delete_mode="permanent", logger=self.mock_logger
         )
 
-        # Should have logged the deletion
-        self.assertEqual(len(self.mock_logger.verbose_messages), 1)
-        self.assertIn("Deleted permanently", self.mock_logger.verbose_messages[0])
+        # Should NOT have verbose logging (handled by caller)
+        self.assertEqual(len(self.mock_logger.verbose_messages), 0)
 
     def test_return_tuple_structure(self):
         """Test that return value is correct 4-tuple structure."""

@@ -66,10 +66,11 @@ This roadmap tracks the development of the WoW Cleanup Tool, with a focus on mod
 - **BaseScanner** implemented with parallel version scanning, progress callbacks, and error isolation
 - **FileCleaner** implemented and tested (.bak/.old file scanner)
 - **OrphanScanner** implemented and integrated (scans SavedVariables for orphaned AddOn settings)
-- **file_operations.py**: batch delete/trash with logging
+- **file_operations.py**: batch delete/trash (logging handled by caller to prevent duplication)
 - Codebase cleanup: Removed unused operation stubs (file_scanner, folder_scanner, disk_utils)
 - Removed dead UI methods and placeholder comments
 - Single-instance lock reusable within process for test suite compatibility
+- **Universal logging pattern**: logger.log() vs logger.verbose() use if/else (never both for same action)
 - **Comprehensive test coverage**:
     - 110 total tests: all passing (pytest)
     - New: Theme padding scaling coverage for TButton; default font size 12 regression

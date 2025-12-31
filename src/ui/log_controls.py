@@ -43,9 +43,9 @@ def copy_user_log(root, log_text, loc):
         root.clipboard_clear()
         root.clipboard_append(user_log)
         root.update()  # Ensure clipboard persists after app loses focus
-        messagebox.showinfo(loc._("btn_copy_log"), loc._("btn_copy_log"))
+        messagebox.showinfo("Success", "Log copied to clipboard.")
     else:
-        messagebox.showinfo(loc._("btn_copy_log"), loc._("msg_log_empty"))
+        messagebox.showinfo("Info", loc._("msg_log_empty"))
 
 
 def open_log_folder():
@@ -99,6 +99,6 @@ def copy_dev_log(root, logger, loc):
         root.clipboard_clear()
         root.clipboard_append(dev_log)
         root.update()  # Ensure clipboard persists after app loses focus
-        messagebox.showinfo(loc._("btn_copy_log"), loc._("btn_copy_log"))
+        messagebox.showinfo("Success", "Developer log copied to clipboard.")
     else:
         messagebox.showinfo(loc._("btn_copy_log"), loc._("msg_log_empty"))

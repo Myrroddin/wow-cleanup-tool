@@ -6,11 +6,11 @@ Pytest: 9.0.2
 ===============================================================================
 TEST SUMMARY
 ===============================================================================
-Total Tests: 109
-Passed: 109
-Skipped: 1
+Total Tests: 110
+Passed: 110
+Skipped: 2
 Failed: 0
-Duration: 23.77s
+Duration: ~9.7s
 
 ===============================================================================
 TEST BREAKDOWN
@@ -20,7 +20,7 @@ tests\test_file_cleaner.py ..................... 9 passed
 tests\test_file_operations.py .................. 9 passed (NEW)
 tests\test_localization.py ..................... 15 passed
 tests\test_localization_en_us.py ............... 6 passed (UPDATED)
-tests\test_log_controls.py ..................... 9 passed, 1 skipped
+tests\test_log_controls.py ..................... 10 passed, 2 skipped
 tests\test_log_tabs.py ......................... 5 passed
 tests\test_logger.py ........................... 12 passed
 tests\test_main_window.py ...................... 4 passed (UPDATED)
@@ -38,7 +38,7 @@ NEW TEST FILES:
   * Tests for delete_files_batch 4-tuple return (processed_count, permanently_deleted, used_trash, processed_paths)
   * Covers single file, multiple files, directories, mixed operations
   * Tests trash and permanent deletion modes
-  * Validates logging and error handling
+  * Validates logging behavior (file_operations.py does NOT log successful deletions to prevent duplication)
 
 UPDATED TEST FILES:
 - test_file_cleaner.py (9 tests, +2 vs old 7)
@@ -71,12 +71,14 @@ REMOVED TESTS:
 FEATURE COVERAGE
 ===============================================================================
 
-Removal Logging (NEW):
+Removal Logging (UPDATED):
 - Grouped deletion logs by game version
-- Normal log format: "{version}: removed {count} file(s)."
-- Verbose log format: "{version} removed {path}" for each file
+- Universal pattern: logger.log() vs logger.verbose() use if/else (NEVER both for same action)
+- Normal log format: "[{version}]: removed {count} file(s)." (when verbose OFF)
+- Verbose log format: "[{version}] removed {path}" for each file (when verbose ON)
 - Unknown version fallback for unidentified files
 - Integration with background task deletion workflow
+- file_operations.py does NOT log successful deletions (calling code handles it)
 
 File Operations:
 - 4-tuple return signature now tested
@@ -97,11 +99,12 @@ Main Window:
 - UI state management during deletion
 
 ===============================================================================
-NOTES
-===============================================================================
-- All 109 tests pass successfully
-- 1 test skipped (log control environment limitation)
+NOTES10 tests pass successfully
+- 2 tests skipped (log control environment limitations)
 - Test suite now includes comprehensive coverage for removal logging
+- delete_files_batch signature updated and tested
+- Localization strings for removal operations verified
+- Universal logging pattern enforced: logger.log() and logger.verbose() never both called for same actionemoval logging
 - delete_files_batch signature updated and tested
 - Localization strings for removal operations verified
 - No obsolete or failing tests remain

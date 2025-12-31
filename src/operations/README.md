@@ -101,10 +101,14 @@ results = scanner.scan_versions(versions, progress_callback=on_progress)
 # Returns: {'Retail': [list of .bak/.old files], 'Classic': [...]}
 
 # Logger usage in scanners:
-# - logger.log(): Essential user messages
-# - logger.verbose(): Detailed operation messages (if verbose enabled)
+# - logger.log(): Essential user messages (use if/else with verbose)
+# - logger.verbose(): Detailed messages when verbose ON (use if/else with log)
 # - logger.debug(): Technical details → Developer tab
 # - logger.error(): Errors → Developer tab with error badge
+#
+# NOTE: file_operations.py does NOT log successful deletions.
+# Logging is handled by the calling code (main_window.py) using the if/else pattern
+# to prevent duplicate log entries. Only errors are logged in file_operations.py.
 ```
 
 ## Thread Safety

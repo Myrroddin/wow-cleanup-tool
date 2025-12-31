@@ -65,7 +65,7 @@ pytest tests/test_logger.py
 - Directory deletion
 - Mixed file/directory operations
 - Trash vs permanent deletion modes
-- Logging and error handling
+- Logging behavior (file_operations.py does NOT log successful deletions to prevent duplication; calling code handles logging)
 
 ### `test_log_controls.py` (10 tests)
 - Log control button operations (copy, save, clear, delete)

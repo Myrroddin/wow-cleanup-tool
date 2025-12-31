@@ -72,6 +72,31 @@ logger.warning("Using fallback path detection method")
 logger.error("Failed to delete file: Permission denied")
 ```
 
+### Universal Logging Pattern: logger.log() vs logger.verbose()
+
+**IMPORTANT:** Never call both `logger.log()` AND `logger.verbose()` for the same action. Use an if/else pattern:
+
+```python
+# When both verbose and normal messages exist:
+if getattr(self.logger, "_verbose", False):
+    # Verbose mode ON: show detailed message
+    self.logger.verbose(f"[Retail] removed {filepath}")
+else:
+    # Verbose mode OFF: show summary message
+    self.logger.log(f"[Retail]: removed {count} file(s).")
+
+# When only one message exists (no verbose alternative):
+logger.log("Simple status message")  # No if/else needed
+```
+
+**The Rule:**
+- `logger.log()` is used when there's NO verbose alternative OR when verbose mode is OFF
+- `logger.verbose()` is used when there IS a verbose alternative AND verbose mode is ON
+- **NEVER both for the same action** (prevents duplicate log entries)
+
+**Developer logs are simple:**
+- `logger.error()`, `logger.debug()`, `logger.warning()` always log (no branching needed)
+- Only user-facing logs need the if/else pattern
 
 
 ### Attach to UI Widgets
