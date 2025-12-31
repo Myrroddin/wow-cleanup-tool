@@ -28,6 +28,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Run tests
+        run: |
+          pytest --maxfail=1 --disable-warnings
+
       - name: Build Windows executable
         run: |
           pyinstaller src\wow_cleanup_tool.spec
@@ -70,6 +74,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Run tests
+        run: |
+          pytest --maxfail=1 --disable-warnings
+
       - name: Build macOS executable
         run: |
           pyinstaller src/wow_cleanup_tool.spec
@@ -111,6 +119,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
+      - name: Run tests
+        run: |
+          pytest --maxfail=1 --disable-warnings
 
       - name: Build Linux executable
         run: |

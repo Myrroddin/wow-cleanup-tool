@@ -49,8 +49,8 @@ class TestPathManagerConstants(unittest.TestCase):
             self.assertIsInstance(loc_key, str)
             self.assertTrue(flavor_dir.startswith("_"))
             self.assertTrue(flavor_dir.endswith("_"))
-            # Check that loc_key follows expected pattern
-            self.assertTrue(loc_key.startswith("flavor_"))
+            # Check that loc_key follows expected pattern (game_version_ prefix)
+            self.assertTrue(loc_key.startswith("game_version_"))
 
 
 class TestFlavorDisplayNames(unittest.TestCase):
@@ -61,11 +61,16 @@ class TestFlavorDisplayNames(unittest.TestCase):
         pm = PathManager()
 
         # Should return English fallback
-        self.assertEqual(pm.get_flavor_display_name("_retail_"), "Retail (Live)")
+        self.assertEqual(pm.get_flavor_display_name("_retail_"), "Retail")
         self.assertEqual(pm.get_flavor_display_name("_classic_"), "Classic")
-        self.assertEqual(pm.get_flavor_display_name("_ptr_"), "Public Test Realm")
-        self.assertEqual(pm.get_flavor_display_name("_beta_"), "Beta")
+        self.assertEqual(pm.get_flavor_display_name("_ptr_"), "Retail PTR")
+        self.assertEqual(pm.get_flavor_display_name("_beta_"), "Retail Beta")
         self.assertEqual(pm.get_flavor_display_name("_classic_era_"), "Classic Era")
+        self.assertEqual(pm.get_flavor_display_name("_classic_ptr_"), "Classic PTR")
+        self.assertEqual(pm.get_flavor_display_name("_classic_beta_"), "Classic Beta")
+        self.assertEqual(
+            pm.get_flavor_display_name("_classic_era_ptr_"), "Classic Era PTR"
+        )
 
     def test_get_flavor_display_name_unknown_flavor(self):
         """Test getting display name for unknown flavor."""

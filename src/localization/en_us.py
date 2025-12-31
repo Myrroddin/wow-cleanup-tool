@@ -36,15 +36,19 @@ TRANSLATIONS = {
         "requested when reporting bugs."
     ),
     "desc_file_cleaner": (
-        "Scan and remove unnecessary backup, temporary, and old files "
-        "from your World of Warcraft installation."
+        "Find and remove unnecessary files. Some files may return when "
+        "the game recreates them—this is expected."
     ),
     "desc_user_log": (
         "Activity log showing what the application is doing. For warnings and errors, "
         "see the Developer Log tab."
     ),
-    "file_all_files": "All Files (*.*)",
-    "file_text_files": "Text Files (*.txt)",
+    "error_prefix": "Error",
+    "game_version_classic": "Classic",
+    "game_version_classic_era": "Classic Era",
+    "game_version_modifier_beta": "Beta",
+    "game_version_modifier_ptr": "PTR",
+    "game_version_retail": "Retail",
     "invalid_wow_path": "Invalid WoW installation path.",
     "label_append_log": "Append Log (Persistent)",
     "label_delete_mode": "Delete Mode:",
@@ -68,12 +72,14 @@ TRANSLATIONS = {
     "option_delete_mode_permanent": "Delete Permanently",
     "option_delete_mode_trash": "Move to Trash",
     "option_dont_show_again": "Don't show this again",
+    "press_enter_to_exit": "Press Enter to exit...",
     "select_wow_folder": "Select World of Warcraft Folder",
     "status_detecting_wow": "Detecting World of Warcraft installation...",
     "status_initializing": "Initializing...",
+    "status_log_deleted": "Log Deleted",
     "status_validating_wow": "Validating WoW installation structure...",
     "system_default_font": "System Default",
-    "tab_backup_old_cleaner": "Backup & Old File Cleaner",
+    "tab_backup_old_cleaner": "Backup & Old Files",
     "tab_developer": "Developer Log",
     "tab_disabled_tooltip": (
         "This feature requires a valid WoW installation path. "
@@ -84,7 +90,7 @@ TRANSLATIONS = {
     "tab_game_optimizer": "Game Optimizer",
     "tab_log": "User Log",
     "tab_optimization_suggestions": "Optimization Suggestions",
-    "tab_orphan_cleaner": "Orphan Cleaner",
+    "tab_orphaned_addons": "Orphaned AddOn Settings",
     "title_backup_warning": "Important: Backup Your Data",
     "title_dependencies": "Installing Dependencies",
     "title_license": "License Agreement",
@@ -99,12 +105,16 @@ TRANSLATIONS = {
     "tooltip_language_menu": "Select application language",
     "tooltip_log_timestamps": "User Log and Developer Log",
     "tooltip_user_log_only": "User Log Only",
+    "unknown_version": "Unknown version",
     "user_log_normal_app_failure": (
         "The application failed to start. Please see the Developer Log for details."
     ),
     "user_log_normal_app_started": "Application started successfully!",
+    "user_log_normal_no_game_versions": "No WoW game versions detected.",
+    "user_log_normal_removed_files": "{}: removed {} file(s).",
     "user_log_normal_wow_detected": "WoW installation detected.",
     "user_log_normal_wow_validated": "WoW installation validated.",
+    "user_log_verbose_removed_file": "{} removed {}",
     "user_log_verbose_wow_detected": "WoW installation detected at: {}",
     "user_log_verbose_wow_validated": (
         "WoW installation validated. Found {} game version(s)"

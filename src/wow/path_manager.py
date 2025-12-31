@@ -50,12 +50,16 @@ class PathManager:
 
     # WoW flavor directories mapped to localization keys
     # Each flavor represents a different game version that can coexist
+    # December 30, 2025: Updated to use game_version_ keys with base + modifier pattern
     WOW_FLAVORS: Dict[str, str] = {
-        "_retail_": "flavor_retail",  # Live/current version
-        "_ptr_": "flavor_ptr",  # Public Test Realm
-        "_beta_": "flavor_beta",  # Beta testing version
-        "_classic_": "flavor_classic",  # Classic WoW
-        "_classic_era_": "flavor_classic_era",  # Classic Era (level 60 cap)
+        "_retail_": "game_version_retail",
+        "_ptr_": "game_version_retail+ptr",  # Retail PTR
+        "_beta_": "game_version_retail+beta",  # Retail Beta
+        "_classic_": "game_version_classic",
+        "_classic_ptr_": "game_version_classic+ptr",  # Classic PTR
+        "_classic_beta_": "game_version_classic+beta",  # Classic Beta
+        "_classic_era_": "game_version_classic_era",
+        "_classic_era_ptr_": "game_version_classic_era+ptr",  # Classic Era PTR
     }
 
     def __init__(self, loc: Optional[Any] = None) -> None:
@@ -80,35 +84,60 @@ class PathManager:
     def get_flavor_display_name(self, flavor_dir: str) -> str:
         """Get user-friendly display name for a WoW flavor directory.
 
+        December 30, 2025: Updated to support base + modifier pattern for
+        localized display (e.g., "Classic Era PTR", "Retail Beta").
+
         Converts internal flavor directory names (e.g., "_retail_") to
-        localized display names (e.g., "Retail (Live)" in English).
+        localized display names (e.g., "Retail" in English).
 
         Args:
-            flavor_dir: Internal flavor directory name like "_retail_", "_classic_"
+            flavor_dir: Internal flavor directory name like "_retail_", "_classic_ptr_"
 
         Returns:
             str: Localized display name if available, otherwise the flavor_dir itself
 
         Example:
             >>> pm = PathManager(loc)
-            >>> pm.get_flavor_display_name("_retail_")
-            "Retail (Live)"  # or translated equivalent
+            >>> pm.get_flavor_display_name("_classic_era_ptr_")
+            "Classic Era PTR"  # or translated equivalent
         """
         loc_key = self.WOW_FLAVORS.get(flavor_dir)
         if not loc_key:
             return flavor_dir
 
-        # If localization is available, use it
+        # December 30, 2025: Handle base + modifier pattern (e.g., "game_version_retail+ptr")
+        if "+" in loc_key:
+            base_key, modifier_key = loc_key.split("+", 1)
+            modifier_key = f"game_version_modifier_{modifier_key}"
+
+            if self.loc:
+                base = self.loc._(base_key)
+                modifier = self.loc._(modifier_key)
+                return f"{base} {modifier}"
+
+            # Fallback to English
+            base_fallbacks = {
+                "game_version_retail": "Retail",
+                "game_version_classic": "Classic",
+                "game_version_classic_era": "Classic Era",
+            }
+            modifier_fallbacks = {
+                "game_version_modifier_ptr": "PTR",
+                "game_version_modifier_beta": "Beta",
+            }
+            base = base_fallbacks.get(base_key, base_key)
+            modifier = modifier_fallbacks.get(modifier_key, modifier_key)
+            return f"{base} {modifier}"
+
+        # Simple key without modifier
         if self.loc:
             return self.loc._(loc_key)
 
         # Fallback to English
         fallbacks = {
-            "flavor_retail": "Retail (Live)",
-            "flavor_ptr": "Public Test Realm",
-            "flavor_beta": "Beta",
-            "flavor_classic": "Classic",
-            "flavor_classic_era": "Classic Era",
+            "game_version_retail": "Retail",
+            "game_version_classic": "Classic",
+            "game_version_classic_era": "Classic Era",
         }
         return fallbacks.get(loc_key, flavor_dir)
 

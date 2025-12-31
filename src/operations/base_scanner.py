@@ -116,7 +116,10 @@ class BaseScanner:
         raise NotImplementedError("Subclasses must implement _scan_version")
 
     def _scan_directory_recursive(
-        self, start_dir: str, filter_func: Callable[[os.DirEntry], bool]
+        self,
+        start_dir: str,
+        filter_func: Callable[[os.DirEntry], bool],
+        skip_dirs: Optional[set] = None,
     ) -> List[str]:
         """Recursively scan directory with os.scandir.
 
@@ -138,6 +141,9 @@ class BaseScanner:
                                 if filter_func(entry):
                                     results.append(entry.path)
                             elif entry.is_dir(follow_symlinks=False):
+                                # December 30, 2025: Skip known irrelevant directories
+                                if skip_dirs and entry.name.lower() in skip_dirs:
+                                    continue
                                 _scan_dir(entry.path)
                         except (OSError, PermissionError):
                             # Skip inaccessible entries

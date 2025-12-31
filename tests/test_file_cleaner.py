@@ -31,23 +31,25 @@ class TestFileCleaner(unittest.TestCase):
         self.assertEqual(scanner.max_workers, 4)
         self.assertIsNone(scanner.logger)
 
-    def test_bak_old_pattern(self):
-        """Test regex pattern matches .bak and .old files."""
-        pattern = FileCleaner.BAK_OLD_PATTERN
+    def test_bak_old_file_detection(self):
+        """Test FileCleaner detects .bak and .old files."""
+        # Create test files
+        test_files = ["config.bak", "settings.old", "data.txt", "backup.BAK"]
+        for filename in test_files:
+            file_path = os.path.join(self.temp_dir, filename)
+            open(file_path, "w").close()
 
-        # Should match
-        self.assertTrue(pattern.search("file.bak"))
-        self.assertTrue(pattern.search("file.old"))
-        self.assertTrue(pattern.search("FILE.BAK"))  # Case insensitive
-        self.assertTrue(pattern.search("FILE.OLD"))
-        self.assertTrue(pattern.search("my.config.bak"))
-        self.assertTrue(pattern.search(".bak"))  # Hidden file with .bak extension
+        results = self.scanner._scan_version(self.temp_dir)
 
-        # Should not match
-        self.assertIsNone(pattern.search("file.txt"))
-        self.assertIsNone(pattern.search("backup"))
-        self.assertIsNone(pattern.search("old_file"))
-        self.assertIsNone(pattern.search("bakfile"))
+        # Should find 3 .bak/.old files
+        self.assertEqual(len(results), 3)
+
+        # Verify correct files found
+        result_names = {os.path.basename(p) for p in results}
+        self.assertIn("config.bak", result_names)
+        self.assertIn("settings.old", result_names)
+        self.assertIn("backup.BAK", result_names)
+        self.assertNotIn("data.txt", result_names)
 
     def test_scan_empty_directory(self):
         """Test scanning an empty directory."""
@@ -114,7 +116,7 @@ class TestFileCleaner(unittest.TestCase):
 
 
 class TestFileCleanerWithPathManager(unittest.TestCase):
-    """Tests for FileCleaner integration with PathManager."""
+    """Tests for FileCleaner integration with version scanning."""
 
     def setUp(self):
         """Set up test fixtures."""
@@ -126,14 +128,8 @@ class TestFileCleanerWithPathManager(unittest.TestCase):
         if os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
 
-    def test_scan_all_flavors_mock(self):
-        """Test scan_all_flavors with mock PathManager."""
-
-        # Create mock PathManager
-        class MockPathManager:
-            def detect_flavors(self, wow_path):
-                return {"_retail_": "Retail (Live)", "_classic_": "Classic"}
-
+    def test_scan_versions_multiple_flavors(self):
+        """Test scan_versions with multiple flavor directories."""
         # Create fake flavor directories
         retail_dir = os.path.join(self.temp_dir, "_retail_")
         classic_dir = os.path.join(self.temp_dir, "_classic_")
@@ -144,14 +140,40 @@ class TestFileCleanerWithPathManager(unittest.TestCase):
         open(os.path.join(retail_dir, "retail.bak"), "w").close()
         open(os.path.join(classic_dir, "classic.old"), "w").close()
 
-        mock_pm = MockPathManager()
-        results = self.scanner.scan_all_flavors(self.temp_dir, mock_pm)
+        # Scan both versions
+        versions = [(retail_dir, "Retail"), (classic_dir, "Classic")]
+        results = self.scanner.scan_versions(versions)
 
         # Should have results for both flavors
-        self.assertIn("_retail_", results)
-        self.assertIn("_classic_", results)
-        self.assertEqual(len(results["_retail_"]), 1)
-        self.assertEqual(len(results["_classic_"]), 1)
+        self.assertIn("Retail", results)
+        self.assertIn("Classic", results)
+        self.assertEqual(len(results["Retail"]), 1)
+        self.assertEqual(len(results["Classic"]), 1)
+
+    def test_scan_versions_empty_list(self):
+        """Test scan_versions with empty version list."""
+        results = self.scanner.scan_versions([])
+        self.assertEqual(results, {})
+
+    def test_skip_dirs_custom(self):
+        """Test FileCleaner respects custom skip directories."""
+        # Create structure with cache directory
+        cache_dir = os.path.join(self.temp_dir, "cache")
+        normal_dir = os.path.join(self.temp_dir, "addons")
+        os.makedirs(cache_dir)
+        os.makedirs(normal_dir)
+
+        # Add .bak files to both
+        open(os.path.join(cache_dir, "cached.bak"), "w").close()
+        open(os.path.join(normal_dir, "addon.bak"), "w").close()
+
+        # Scanner with cache in skip list should not find cached.bak
+        results = self.scanner._scan_version(self.temp_dir)
+
+        # Should find addon.bak but skip cache/cached.bak
+        result_names = {os.path.basename(p) for p in results}
+        self.assertIn("addon.bak", result_names)
+        self.assertNotIn("cached.bak", result_names)
 
 
 if __name__ == "__main__":

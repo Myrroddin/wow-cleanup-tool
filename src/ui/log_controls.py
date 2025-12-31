@@ -75,9 +75,7 @@ def delete_user_log(settings, loc):
             send2trash(str(log_file))
         else:
             log_file.unlink()
-        messagebox.showinfo(
-            loc._("btn_delete") if hasattr(loc, "_") else "Delete", "Log file deleted."
-        )
+        messagebox.showinfo(loc._("status_log_deleted"), "Log file deleted.")
     except Exception as e:
         messagebox.showerror(loc._("error_prefix"), str(e))
 

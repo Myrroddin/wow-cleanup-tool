@@ -14,6 +14,7 @@ Structure:
 - Integration with theme system, settings, and logging
 """
 
+import os
 import tkinter as tk
 from tkinter import ttk
 import webbrowser  # Added December 28, 2025 for bug report button
@@ -47,51 +48,35 @@ class MainWindowBuilder:
     """
 
     def _show_tooltip(self, widget, text):
-        """Display a tooltip near the specified widget.
+        """Display a themed tooltip near the specified widget."""
+        try:
+            from core.themes import THEMES
 
-        Creates a temporary toplevel window positioned near the widget
-        to show helpful text when user hovers over UI elements.
+            # Clear any existing hover tooltip first
+            self._hide_tooltip()
 
-        Args:
-            widget: The tkinter widget to show tooltip for
-            text: The tooltip text to display
+            theme_name = self.settings.get("theme", "light")
+            theme = THEMES.get(theme_name, THEMES["light"])
+            font_family = self.settings.get("font_family", "TkDefaultFont")
+            font_size = int(self.settings.get("font_size", 12))
 
-        Returns:
-            None
-        """
-        # Simple tooltip implementation
-        if hasattr(self, "_tooltip_window") and self._tooltip_window:
-            return
-        x = widget.winfo_rootx() + 20
-        y = widget.winfo_rooty() + widget.winfo_height() + 10
-        self._tooltip_window = tw = tk.Toplevel(widget)
-        tw.wm_overrideredirect(True)
-        tw.wm_geometry(f"+{x}+{y}")
-        label = tk.Label(
-            tw,
-            text=text,
-            background="#ffffe0",
-            relief="solid",
-            borderwidth=1,
-            font=("TkDefaultFont", 9),
-        )
-        label.pack(ipadx=6, ipady=2)
+            tooltip = Tooltip(
+                widget, text, theme, font_family, font_size, wraplength=320
+            )
+            tooltip.show()
+            self._active_tooltip = tooltip
+        except Exception:
+            # Fail silently if tooltips cannot be shown (e.g., during headless tests)
+            pass
 
     def _hide_tooltip(self):
-        """Hide and destroy the currently displayed tooltip window.
-
-        Removes the tooltip window created by _show_tooltip() when user
-        moves mouse away from the widget.
-
-        Args:
-            None
-
-        Returns:
-            None
-        """
-        if hasattr(self, "_tooltip_window") and self._tooltip_window:
-            self._tooltip_window.destroy()
-            self._tooltip_window = None
+        """Hide the currently displayed hover tooltip (if any)."""
+        if getattr(self, "_active_tooltip", None):
+            try:
+                self._active_tooltip.hide()
+            except Exception:
+                pass
+            self._active_tooltip = None
 
     def refresh_all_widget_fonts(self):
         """Force refresh of all widget fonts and styles after font/size change.
@@ -129,6 +114,7 @@ class MainWindowBuilder:
         apply_theme(self.root, theme_name, font_family, font_size)
         # ...removed debug print...
         # Update ttk styles for all major widget types
+        Tooltip.refresh_all_visible_tooltips(theme_colors, font_family, font_size)
         style = ttk.Style()
         widget_types = [
             "TLabel",
@@ -310,13 +296,197 @@ class MainWindowBuilder:
     # add_browse_button is now implemented in build(); stub removed.
 
     def _on_scan_files(self):
-        pass
+        """Scan for backup/old files and orphaned SavedVariables.
+
+        December 30, 2025: Uses BackgroundTask utility for thread-safe scanning.
+        Prevents UI freezing while maintaining safe Tkinter widget updates.
+        """
+        from core.background_task import BackgroundTask
+
+        # December 30, 2025: Validate WoW path before starting background task
+        wow_path = self.settings.get("wow_path")
+        if not wow_path or not os.path.isdir(wow_path):
+            self.logger.log(self.loc._("invalid_wow_path"))
+            return
+
+        def do_scan():
+            """Background task: Scan all WoW versions for files."""
+            from operations.file_cleaner import FileCleaner
+            from operations.orphan_scanner import OrphanScanner
+            from wow.path_manager import PathManager
+
+            def _format_size(size_bytes: int) -> str:
+                """Format file size into human-readable string."""
+                for unit in ["B", "KB", "MB", "GB"]:
+                    if size_bytes < 1024.0:
+                        return f"{size_bytes:.1f} {unit}"
+                    size_bytes /= 1024.0
+                return f"{size_bytes:.1f} TB"
+
+            def _attach_sizes(results):
+                """Attach precomputed size strings to scan results."""
+                sized_results = {}
+                for version_label, files in results.items():
+                    sized_files = []
+                    for file_path in files:
+                        try:
+                            size = os.path.getsize(file_path)
+                            size_str = _format_size(size)
+                        except Exception:
+                            size_str = "Unknown"
+                        sized_files.append((file_path, size_str))
+                    sized_results[version_label] = sized_files
+                return sized_results
+
+            # December 30, 2025: Initialize parallel scanners
+            # 8 workers optimal for SSDs; automatically reduced for fewer versions
+            file_cleaner = FileCleaner(max_workers=8, logger=self.logger, loc=self.loc)
+            orphan_scanner = OrphanScanner(
+                max_workers=8, logger=self.logger, loc=self.loc
+            )
+
+            # December 30, 2025: Detect installed WoW versions
+            path_manager = PathManager(self.loc)
+            flavors = path_manager.detect_flavors(wow_path)
+
+            if not flavors:
+                self.logger.log(self.loc._("user_log_normal_no_game_versions"))
+                return None
+
+            # December 30, 2025: Build version list for parallel scanning
+            versions = []
+            for flavor_dir in flavors:
+                flavor_path = os.path.join(wow_path, flavor_dir)
+                version_label = path_manager.get_flavor_display_name(flavor_dir)
+                versions.append((flavor_path, version_label))
+
+            # December 30, 2025: Scan for backup/old files
+            backup_results = file_cleaner.scan_versions(versions)
+            backup_results = _attach_sizes(backup_results)
+
+            # December 30, 2025: Scan for orphaned SavedVariables
+            orphan_results = orphan_scanner.scan_versions(versions)
+            orphan_results = _attach_sizes(orphan_results)
+
+            return (backup_results, orphan_results)
+
+        def on_complete(results):
+            """Main thread callback: Update UI with scan results."""
+            if not results:
+                return
+
+            backup_results, orphan_results = results
+
+            # December 30, 2025: Update treeviews on main thread (thread-safe)
+            if hasattr(self, "file_cleaner_tab"):
+                self.file_cleaner_tab.populate_backup_tree(backup_results)
+                self.file_cleaner_tab.populate_orphan_tree(orphan_results)
+
+        # December 30, 2025: Execute in background with BackgroundTask utility
+        BackgroundTask.run(self.root, do_scan, on_complete, logger=self.logger)
 
     def _on_remove_selected(self, selected_items):
-        pass
+        if not selected_items:
+            return
+
+        from core.background_task import BackgroundTask
+        from operations.file_operations import delete_files_batch
+
+        delete_mode = self.delete_mode_var.get()
+        selected_paths = list(dict.fromkeys(selected_items))  # preserve order, dedupe
+
+        def _build_version_lookup():
+            lookup = {}
+            for tree in (
+                getattr(self.file_cleaner_tab, "backup_tree", None),
+                getattr(self.file_cleaner_tab, "orphan_tree", None),
+            ):
+                if not tree:
+                    continue
+                for version_node in tree.get_children(""):
+                    version_text = tree.item(version_node, "text") or ""
+                    version_label = version_text.rsplit(" (", 1)[0].strip()
+                    for child in tree.get_children(version_node):
+                        path = tree.item(child, "text")
+                        if path:
+                            lookup[path] = version_label
+            return lookup
+
+        version_lookup = _build_version_lookup()
+
+        def do_delete():
+            """Background deletion honoring user delete mode."""
+            processed, _, _, processed_paths = delete_files_batch(
+                selected_paths,
+                delete_mode=delete_mode,
+                logger=self.logger,
+                loc=self.loc,
+            )
+            return processed_paths
+
+        def on_complete(processed_paths):
+            """Main thread: remove deleted items from treeviews and log results."""
+            if not hasattr(self, "file_cleaner_tab") or processed_paths is None:
+                return
+
+            if processed_paths:
+                version_buckets = {}
+                for path in processed_paths:
+                    version_label = version_lookup.get(
+                        path, self.loc._("unknown_version")
+                    )
+                    version_buckets.setdefault(version_label, []).append(path)
+
+                for version_label, paths in version_buckets.items():
+                    self.logger.log(
+                        self.loc._("user_log_normal_removed_files").format(
+                            version_label, len(paths)
+                        )
+                    )
+                    for path in paths:
+                        self.logger.verbose(
+                            self.loc._("user_log_verbose_removed_file").format(
+                                version_label, path
+                            )
+                        )
+
+            removed = set(processed_paths or [])
+            for tree in (
+                self.file_cleaner_tab.backup_tree,
+                self.file_cleaner_tab.orphan_tree,
+            ):
+                if not tree:
+                    continue
+                for parent in list(tree.get_children("")):
+                    for child in list(tree.get_children(parent)):
+                        item_text = tree.item(child, "text")
+                        if item_text in removed:
+                            tree.delete(child)
+                    if not tree.get_children(parent):
+                        tree.delete(parent)
+
+        BackgroundTask.run(self.root, do_delete, on_complete, logger=self.logger)
 
     def get_selected_items(self, context):
-        return []
+        if context != "file_cleaner" or not hasattr(self, "file_cleaner_tab"):
+            return []
+
+        trees = [self.file_cleaner_tab.backup_tree, self.file_cleaner_tab.orphan_tree]
+        selected_paths = []
+
+        for tree in trees:
+            if not tree:
+                continue
+            for iid in tree.selection():
+                # Ignore parent nodes (version headers)
+                if tree.get_children(iid):
+                    continue
+                item_text = tree.item(iid, "text")
+                if item_text:
+                    selected_paths.append(item_text)
+
+        # Deduplicate while preserving selection order
+        return list(dict.fromkeys(selected_paths))
 
     def __init__(self, root, loc, settings, logger, font_utils):
         """Initialize the main window builder.
@@ -343,9 +513,11 @@ class MainWindowBuilder:
         self.dev_text = None
         self.dev_tab_index = None
         self.dev_badge_label = None
+        self._active_tooltip = None
         self.wow_path_var = None
         self.path_entry = None
         self.bug_icon_photo = None  # Store reference to bug icon PhotoImage
+        self.file_cleaner_tab = None  # Store reference for scan results
 
         # Track feature tab indices for enable/disable
         self.feature_tab_indices = []
@@ -813,10 +985,10 @@ class MainWindowBuilder:
             self._on_scan_files,
             getattr(self, "_on_select_all_toggle", lambda items: None),
             self._on_remove_selected,
-            getattr(self, "get_selectable_items", lambda ctx: []),
             self.get_selected_items,
         )
         file_cleaner_tab.frame.pack(fill="both", expand=True)
+        self.file_cleaner_tab = file_cleaner_tab  # Store reference for scan results
 
         # Folder Cleaner Tab
         folder_cleaner_tab = FolderCleanerTab(

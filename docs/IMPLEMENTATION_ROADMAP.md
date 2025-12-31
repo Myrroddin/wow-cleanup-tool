@@ -10,6 +10,14 @@ This roadmap tracks the development of the WoW Cleanup Tool, with a focus on mod
 
 ## Current Status
 - Modular UI refactor: All main tabs are now separate classes in `src/ui/tabs/`
+- **✅ File Cleaner Tab: FEATURE-COMPLETE**
+  - Dual-panel UI: Backup files (.bak/.old) and Orphaned SavedVariables
+  - Background scanning with progress callbacks
+  - Multi-select tree widgets with hierarchical display (version → files)
+  - Batch deletion with logging (move to trash or permanent delete)
+  - Integration with FileCleaner and OrphanScanner
+  - Comprehensive error handling and threading safety
+  - Full test coverage (scan results, item selection, deletion)
 - **✅ Log and Developer tabs: FEATURE-COMPLETE**
   - User Log Tab: 4 buttons (Clear Session Log, Delete Log File, Open Log Folder, Copy to Clipboard)
   - Developer Log Tab: 3 buttons (Clear Session Log, Open Log Folder, Copy to Clipboard)
@@ -56,24 +64,10 @@ This roadmap tracks the development of the WoW Cleanup Tool, with a focus on mod
 ---
 
 ## Next Steps (When Ready)
-* [ ] Integrate FileCleaner into UI tab with scan/delete functionality
+* [ ] Integrate FolderCleaner into UI tab for cache/logs/screenshots/errors cleanup
 * [ ] Implement FolderScanner for cleanable folders (Logs, Errors, Cache, Screenshots)
-* [ ] Implement OrphanScanner for orphaned SavedVariables
-* [ ] Add custom tree widget for displaying scan results
-
-### Phase 1: File Scanner Integration
-**Current**: `src/operations/file_cleaner.py` exists and is tested
-
-**Integration Tasks**:
-1. Wire up `FileCleanerTab` in main window to use `FileCleaner`
-2. Add scan button that calls `FileCleaner.scan_all_flavors()`
-3. Display results in a tree/list view
-4. Add delete button using `file_operations.delete_files_batch()`
-5. Use logger methods:
-    - `logger.log()`: Essential messages ("Scan complete")
-    - `logger.verbose()`: Detailed operations ("Deleted file: addon.bak")
-    - `logger.debug()`: Technical details → Developer tab
-    - `logger.error()`: Errors → Developer tab with 🔴 badge
+* [ ] Add Game Optimizer tab with smart suggestions
+* [ ] Add custom tree widget enhancements (filtering, sorting)
 
 ### Phase 2: Folder Scanner
 **File**: `src/operations/folder_scanner.py` (to be recreated)

@@ -15,10 +15,13 @@ A lightweight, modular utility for managing and optimizing World of Warcraft ins
 - ⚙️ **Auto-save preferences**: Theme, font, delete mode, logging settings
 - 🌍 **Cross-platform**: Windows, macOS, Linux
 
-### Coming Soon
-- File/folder cleanup (.bak, .old, cache, logs)
-- Orphaned SavedVariables cleanup
+### In Development
+- Folder cleaner (cache, logs, screenshots, errors)
+- Orphaned SavedVariables cleaner
 - Game optimizer & smart suggestions
+
+### Completed Features
+- ✅ **File Cleaner**: Scan and safely remove .bak/.old backup files
 
 ---
 
@@ -60,9 +63,11 @@ Output: `dist/WoW Cleanup Tool` (platform-specific executable)
 
 📚 **For developers and contributors:**
 - [Implementation Roadmap](docs/IMPLEMENTATION_ROADMAP.md) - Current status and planned features
-- [Logging Guide](docs/LOGGING_GUIDE.md) - Logging system details
-- [Project Structure](docs/PROJECT_STRUCTURE.md) - Code organization
 - [Testing Guide](docs/tests_README.md) - Running and writing tests
+- [Type Hints & Tests Summary](docs/TYPE_HINTS_AND_TESTS_SUMMARY.md) - Type safety and test implementation details
+- [Background Tasks Guide](docs/BACKGROUND_TASK_GUIDE.md) - Threading model for scanning and deletion operations
+- [Logging Guide](docs/LOGGING_GUIDE.md) - Logging system architecture and configuration
+- [Project Structure](docs/PROJECT_STRUCTURE.md) - Code organization and module layout
 
 ---
 

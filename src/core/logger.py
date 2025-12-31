@@ -74,8 +74,14 @@ class TextWidgetHandler(logging.Handler):
                     pass
 
             # Schedule UI update on main thread
-            if self.text_widget.winfo_exists():
-                self.text_widget.after(0, update)
+            # Note: In test environments without an event loop, winfo_exists() may raise RuntimeError
+            # This is safe to ignore since there's no UI to update anyway
+            try:
+                if self.text_widget.winfo_exists():
+                    self.text_widget.after(0, update)
+            except RuntimeError:
+                # No event loop running (test environment) - skip UI update
+                pass
         except Exception:
             self.handleError(record)
 

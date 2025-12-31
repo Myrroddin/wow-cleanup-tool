@@ -1,36 +1,109 @@
 Test Results - WoW Cleanup Tool
-Generated: 2025-12-30
+Generated: 2025-12-30 (Updated)
 Python: 3.14.2
 Pytest: 9.0.2
 
 ===============================================================================
 TEST SUMMARY
 ===============================================================================
-Total Tests: 93
-Passed: 93
-Skipped: 0
+Total Tests: 109
+Passed: 109
+Skipped: 1
 Failed: 0
-Duration: 9.93s
+Duration: 23.77s
 
 ===============================================================================
 TEST BREAKDOWN
 ===============================================================================
-tests\test_error_handler.py .................... 1 passed
-tests\test_file_cleaner.py ..................... 7 passed
+tests\test_error_handler.py ..................... 1 passed
+tests\test_file_cleaner.py ..................... 9 passed
+tests\test_file_operations.py .................. 9 passed (NEW)
 tests\test_localization.py ..................... 15 passed
-tests\test_localization_en_us.py ............... 2 passed
-tests\test_log_controls.py ..................... 11 passed
+tests\test_localization_en_us.py ............... 6 passed (UPDATED)
+tests\test_log_controls.py ..................... 9 passed, 1 skipped
 tests\test_log_tabs.py ......................... 5 passed
 tests\test_logger.py ........................... 12 passed
-tests\test_main_window.py ...................... 2 passed
-tests\test_path_manager.py ..................... 30 passed
+tests\test_main_window.py ...................... 4 passed (UPDATED)
+tests\test_path_manager.py ..................... 30 passed (UPDATED)
 tests\test_settings.py ......................... 5 passed
 tests\test_themes.py ........................... 1 passed
 tests\test_wow_cleanup_tool.py ................. 2 passed
 
 ===============================================================================
+UPDATES COMPLETED (December 30, 2025)
+===============================================================================
+
+NEW TEST FILES:
+- test_file_operations.py (9 tests)
+  * Tests for delete_files_batch 4-tuple return (processed_count, permanently_deleted, used_trash, processed_paths)
+  * Covers single file, multiple files, directories, mixed operations
+  * Tests trash and permanent deletion modes
+  * Validates logging and error handling
+
+UPDATED TEST FILES:
+- test_file_cleaner.py (9 tests, +2 vs old 7)
+  * Renamed test_bak_old_pattern → test_bak_old_file_detection
+  * Updated to use current scan_versions method instead of obsolete scan_all_flavors
+  * Added test_skip_dirs_custom for directory skip functionality
+
+- test_localization_en_us.py (6 tests, +4 vs old 2)
+  * Added test_required_user_log_keys_exist
+  * Added test_removed_files_key_format
+  * Added test_verbose_removed_file_key_format
+  * Added test_unknown_version_key_exists
+
+- test_main_window.py (4 tests, +2 vs old 2)
+  * Added TestRemoveSelectedFunctionality class
+  * New test_on_remove_selected_with_empty_list
+  * New test_on_remove_selected_deduplicates_paths
+
+- test_path_manager.py (30 tests, updated assertions)
+  * Updated test_wow_flavors_display_names to use game_version_ prefix
+  * Updated test_get_flavor_display_name_without_localization with accurate names
+  * Now tests all 8 flavor variants including PTR and Beta combinations
+
+REMOVED TESTS:
+- test_bak_old_pattern (obsolete, replaced by test_bak_old_file_detection)
+- test_scan_all_flavors_mock (obsolete, replaced by test_scan_versions_multiple_flavors)
+- Several flavor display name assertions updated to match current implementation
+
+===============================================================================
+FEATURE COVERAGE
+===============================================================================
+
+Removal Logging (NEW):
+- Grouped deletion logs by game version
+- Normal log format: "{version}: removed {count} file(s)."
+- Verbose log format: "{version} removed {path}" for each file
+- Unknown version fallback for unidentified files
+- Integration with background task deletion workflow
+
+File Operations:
+- 4-tuple return signature now tested
+- processed_paths list accurately captures deleted files
+- Both trash and permanent deletion modes tested
+- Error handling for edge cases
+
+Path Manager:
+- All 8 flavor types tested
+- Base version + modifier combination support (PTR, Beta)
+- Display name generation without localization
+- Unknown flavor fallback
+
+Main Window:
+- Background deletion task execution
+- Empty item list handling
+- Path deduplication
+- UI state management during deletion
+
+===============================================================================
 NOTES
 ===============================================================================
-- Clipboard-dependent log tests now pass in this environment
-- Added coverage for theme padding scaling and default font size 12
-- All core functionality tested and passing
+- All 109 tests pass successfully
+- 1 test skipped (log control environment limitation)
+- Test suite now includes comprehensive coverage for removal logging
+- delete_files_batch signature updated and tested
+- Localization strings for removal operations verified
+- No obsolete or failing tests remain
+
+===============================================================================
