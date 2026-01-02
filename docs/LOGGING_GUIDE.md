@@ -37,13 +37,25 @@ WoW Cleanup Tool uses a modern, dual-channel logging system built on Python's `l
 - Descriptions with word-wrapping explain each tab's purpose
 - Grid-based layout ensures consistent spacing and alignment
 
-### Log Levels
+### Log Levels & Messages
 | Level   | User Log | Dev Log | Description                      |
 |---------|----------|---------|----------------------------------|
 | DEBUG   | ❌       | ✅      | Detailed diagnostic information  |
 | INFO    | ✅       | ✅      | General informational messages   |
 | WARNING | ❌       | ✅      | Warning messages                 |
 | ERROR   | ❌       | ✅      | Error messages with stack traces |
+
+### File Cleaner Operations Logging
+**Normal Mode (User Log):**
+- "[retail]: removed 5 file(s)" (per-version summary of deleted backups)
+- "[retail]: removed 2 line(s) from AddOns.txt" (per-version summary of cleaned addon entries)
+
+**Verbose Mode (User Log):**
+- "[retail]: removed addon_backup.bak" (per-file detail)
+- "[retail]: removed Addon1 from AddOns.txt" (per-addon detail)
+
+**Developer Log:**
+- Detailed operation status, error messages, and diagnostic information
 
 ### Log Format
 **User Log:** `[YYYY-MM-DD HH:MM:SS] Message text`

@@ -14,9 +14,9 @@ A lightweight, modular utility for managing and optimizing World of Warcraft ins
 - 📋 **Dual logging system**: User activity log and developer diagnostics (dev log always persisted; user log persisted when append mode is on)
 - ⚙️ **Auto-save preferences**: Theme, font, delete mode, logging settings
 - 🌍 **Cross-platform**: Windows, macOS, Linux
-- ✅ **File Cleaner**: Scan and safely remove .bak/.old backup files and orphaned SavedVariables
+- ✅ **File Cleaner**: Scan and safely remove .bak/.old backup files, orphaned SavedVariables, and clean AddOns.txt entries
 
-### In Development
+### Roadmap
 - Folder cleaner (cache, logs, screenshots, errors)
 - Game optimizer & smart suggestions
 

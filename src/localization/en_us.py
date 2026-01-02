@@ -107,6 +107,7 @@ TRANSLATIONS = {
     "tooltip_log_timestamps": "User Log and Developer Log",
     "tooltip_user_log_only": "User Log Only",
     "unknown_version": "Unknown version",
+    "user_log_normal_addons_txt_cleaned": "[{}]: removed {} line(s) from AddOns.txt",
     "user_log_normal_app_failure": (
         "The application failed to start. Please see the Developer Log for details."
     ),
@@ -115,6 +116,7 @@ TRANSLATIONS = {
     "user_log_normal_removed_files": "[{}]: removed {} file(s).",
     "user_log_normal_wow_detected": "WoW installation detected.",
     "user_log_normal_wow_validated": "WoW installation validated.",
+    "user_log_verbose_addons_txt_cleaned": "[{}]: removed {} from AddOns.txt",
     "user_log_verbose_removed_file": "[{}]: removed {}",
     "user_log_verbose_wow_detected": "WoW installation detected at: {}",
     "user_log_verbose_wow_validated": (

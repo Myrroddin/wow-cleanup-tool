@@ -26,9 +26,11 @@ class TestEnUsLocalization(unittest.TestCase):
             "user_log_normal_wow_detected",
             "user_log_normal_wow_validated",
             "user_log_normal_removed_files",
+            "user_log_normal_addons_txt_cleaned",
             "user_log_verbose_wow_detected",
             "user_log_verbose_wow_validated",
             "user_log_verbose_removed_file",
+            "user_log_verbose_addons_txt_cleaned",
         ]
 
         for key in required_keys:
@@ -45,6 +47,20 @@ class TestEnUsLocalization(unittest.TestCase):
         key = "user_log_verbose_removed_file"
         value = en_us.TRANSLATIONS[key]
         self.assertIn("{}", value)
+
+    def test_addons_txt_keys_exist_with_format(self):
+        """Test that AddOns.txt cleaning keys exist and have format placeholders."""
+        normal_key = "user_log_normal_addons_txt_cleaned"
+        verbose_key = "user_log_verbose_addons_txt_cleaned"
+
+        self.assertIn(normal_key, en_us.TRANSLATIONS)
+        self.assertIn(verbose_key, en_us.TRANSLATIONS)
+
+        normal_value = en_us.TRANSLATIONS[normal_key]
+        verbose_value = en_us.TRANSLATIONS[verbose_key]
+
+        self.assertIn("{}", normal_value)
+        self.assertIn("{}", verbose_value)
 
     def test_unknown_version_key_exists(self):
         """Test that unknown_version key exists."""

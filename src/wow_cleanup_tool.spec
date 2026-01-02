@@ -1,8 +1,11 @@
 # -*- mode: python ; coding: utf-8 -*-
-"""PyInstaller spec for WoW Cleanup Tool.
+"""PyInstaller spec for WoW Cleanup Tool (v1.0 - Feature Complete).
 
 Ensures assets, license, and all source modules are bundled consistently across
-platforms. Run with:
+platforms. Features include automatic WoW detection, multi-flavor support,
+file cleaning with AddOns.txt integration, and dual logging system.
+
+Run with:
 
     pyinstaller src/wow_cleanup_tool.spec
 """
@@ -92,6 +95,7 @@ a = Analysis(
         "operations.base_scanner",
         "operations.file_cleaner",
         "operations.file_operations",
+        "operations.orphan_scanner",
     ],
     hookspath=[],
     hooksconfig={},

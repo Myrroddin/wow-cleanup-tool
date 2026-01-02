@@ -31,8 +31,13 @@ This roadmap tracks the development of the WoW Cleanup Tool, with a focus on mod
   - Multi-select tree widgets with hierarchical display (version → files)
   - Batch deletion with logging (move to trash or permanent delete)
   - Integration with FileCleaner and OrphanScanner
+  - AddOns.txt cleaning: Automatically removes orphaned addon names from AddOns.txt files when orphaned SavedVariables are deleted
+    - Scans entire WTF directory structure (account-level and realm-level SavedVariables)
+    - Extracts addon names from deleted .lua files
+    - Removes entries from AddOns.txt while preserving file integrity
+    - Supports multi-version WoW installations
   - Comprehensive error handling and threading safety
-  - Full test coverage (scan results, item selection, deletion)
+  - Full test coverage: 15 file operation tests + 6 AddOns.txt-specific tests + 12 orphan scanner tests
 - **✅ Log and Developer tabs: FEATURE-COMPLETE**
   - User Log Tab: 4 buttons (Clear Session Log, Delete Log File, Open Log Folder, Copy to Clipboard)
   - Developer Log Tab: 3 buttons (Clear Session Log, Open Log Folder, Copy to Clipboard)
@@ -72,11 +77,14 @@ This roadmap tracks the development of the WoW Cleanup Tool, with a focus on mod
 - Single-instance lock reusable within process for test suite compatibility
 - **Universal logging pattern**: logger.log() vs logger.verbose() use if/else (never both for same action)
 - **Comprehensive test coverage**:
-    - 110 total tests: all passing (pytest)
-    - New: Theme padding scaling coverage for TButton; default font size 12 regression
-    - Updated: Log controls tests (11 tests covering all functions)
-    - Tests cover: initialization, validation, detection, UI widgets, log controls, file operations
+    - 128 total tests: all passing (pytest), 1 skipped (platform-specific)
+    - New: 12 OrphanScanner tests (addon detection, orphan identification, multi-version scanning)
+    - New: 6 AddOns.txt cleaning tests (removal, Blizzard_ protection, .bak skipping, multi-character handling)
+    - Updated: Localization tests include AddOns.txt key validation
+    - Updated: Tkinter compatibility handling for CI/CD environments
+    - Tests cover: initialization, validation, detection, UI widgets, log controls, file operations, orphan scanning, AddOns.txt cleaning
     - Mock objects for testing without filesystem dependencies
+    - Execution time: 6.49 seconds
 
 ---
 

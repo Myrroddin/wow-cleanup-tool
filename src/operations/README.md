@@ -19,17 +19,43 @@ This module contains all file system operations for WoW cleanup functionality.
 ### Utilities
 - `disk_utils.py`: Disk type detection and performance optimization
 
-### Current Infrastructure
+### Current Implementation
+- **file_cleaner.py**: Scanner for .bak and .old backup files
+- **orphan_scanner.py**: Scanner for orphaned SavedVariables (unused .lua files)
+- **file_operations.py**: Batch delete/trash operations with full logging support
+  - `delete_files_batch()`: Handles both trash and permanent deletion with comprehensive logging
+  - `clean_addons_txt_for_orphans()`: Removes addon names from AddOns.txt when orphaned SavedVariables are deleted
+  - `_clean_single_addons_txt()`: Helper function for individual AddOns.txt file processing
 - Logging and settings infrastructure supports chat timestamps (user and developer logs)
-- Localization system with 98+ keys, tooltips, and robust English support
+- Localization system with 100+ keys, tooltips, and robust English support
 
 ### Future Scanners (to be implemented)
-- `file_scanner.py`: Scan for .bak and .old files
-- `folder_scanner.py`: Scan for cleanable folders (Logs, Errors, etc.)
-- `orphan_scanner.py`: Scan for orphaned SavedVariables
+- `folder_scanner.py`: Scan for cleanable folders (Logs, Errors, Cache, Screenshots)
 
-### Future Operations (to be implemented)
-- `file_operations.py`: Delete/move files with trash support and batch operations
+## File Operations: AddOns.txt Cleaning
+
+When orphaned SavedVariables are deleted, the tool automatically cleans corresponding entries from AddOns.txt files:
+
+```python
+from operations.file_operations import clean_addons_txt_for_orphans
+
+# Automatically removes orphaned addon names from all AddOns.txt files
+removed_count = clean_addons_txt_for_orphans(
+    orphan_paths=['/path/to/addon1.lua', '/path/to/addon2.lua'],
+    version_path='/wow/_retail_',
+    logger=logger,
+    loc=localization
+)
+
+# Key features:
+# - Scans entire WTF directory structure (account-level and realm-level)
+# - Extracts addon names from deleted .lua file paths
+# - Skips files matching 'Blizzard_*' pattern (protected Blizzard addons)
+# - Skips files ending with '.bak' (backup files)
+# - Handles multiple character directories across realms
+# - Preserves file formatting and removes blank lines
+# - Logs per-version summaries (normal mode) or per-addon details (verbose mode)
+```
 
 ## Performance Optimizations
 

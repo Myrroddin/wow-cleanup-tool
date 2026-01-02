@@ -389,19 +389,30 @@ class MainWindowBuilder:
             return
 
         from core.background_task import BackgroundTask
-        from operations.file_operations import delete_files_batch
+        from operations.file_operations import (
+            delete_files_batch,
+            clean_addons_txt_for_orphans,
+        )
 
         delete_mode = self.delete_mode_var.get()
         selected_paths = list(dict.fromkeys(selected_items))  # preserve order, dedupe
 
-        def _build_version_lookup():
+        def _build_version_and_tree_lookup():
+            """Build lookup for version labels and which tree each file belongs to."""
+
             lookup = {}
+            tree_lookup = {}
             for tree in (
                 getattr(self.file_cleaner_tab, "backup_tree", None),
                 getattr(self.file_cleaner_tab, "orphan_tree", None),
             ):
                 if not tree:
                     continue
+
+                tree_name = (
+                    "orphan" if tree == self.file_cleaner_tab.orphan_tree else "backup"
+                )
+
                 for version_node in tree.get_children(""):
                     version_text = tree.item(version_node, "text") or ""
                     version_label = version_text.rsplit(" (", 1)[0].strip()
@@ -409,9 +420,27 @@ class MainWindowBuilder:
                         path = tree.item(child, "text")
                         if path:
                             lookup[path] = version_label
-            return lookup
+                            tree_lookup[path] = tree_name
 
-        version_lookup = _build_version_lookup()
+            return lookup, tree_lookup
+
+        version_lookup, tree_lookup = _build_version_and_tree_lookup()
+
+        def _get_version_path_from_file(file_path):
+            """Extract WoW version path from a SavedVariables file path.
+
+            Example: C:\\WoW\\_retail_\\WTF\\... -> C:\\WoW\\_retail_
+            """
+
+            from wow.path_manager import PathManager
+
+            for flavor_dir in PathManager.WOW_FLAVORS.keys():
+                if flavor_dir in file_path:
+                    idx = file_path.find(flavor_dir)
+                    if idx != -1:
+                        end_idx = idx + len(flavor_dir)
+                        return file_path[:end_idx]
+            return None
 
         def do_delete():
             """Background deletion honoring user delete mode."""
@@ -421,11 +450,37 @@ class MainWindowBuilder:
                 logger=self.logger,
                 loc=self.loc,
             )
-            return processed_paths
 
-        def on_complete(processed_paths):
+            addons_txt_results = {}
+            if processed_paths:
+                orphan_files_by_version = {}
+                for path in processed_paths:
+                    if tree_lookup.get(path) != "orphan":
+                        continue
+
+                    version_path = _get_version_path_from_file(path)
+                    if version_path:
+                        orphan_files_by_version.setdefault(version_path, []).append(
+                            path
+                        )
+
+                for version_path, orphan_files in orphan_files_by_version.items():
+                    cleaned = clean_addons_txt_for_orphans(
+                        orphan_files, version_path, self.logger, self.loc
+                    )
+                    if cleaned:
+                        addons_txt_results[version_path] = cleaned
+
+            return processed_paths, addons_txt_results
+
+        def on_complete(result):
             """Main thread: remove deleted items from treeviews and log results."""
-            if not hasattr(self, "file_cleaner_tab") or processed_paths is None:
+
+            if not hasattr(self, "file_cleaner_tab") or result is None:
+                return
+
+            processed_paths, addons_txt_results = result
+            if processed_paths is None:
                 return
 
             if processed_paths:
@@ -448,6 +503,34 @@ class MainWindowBuilder:
                         self.logger.log(
                             self.loc._("user_log_normal_removed_files").format(
                                 version_label, len(paths)
+                            )
+                        )
+
+            if addons_txt_results:
+                from wow.path_manager import PathManager
+
+                path_manager = PathManager(self.loc)
+                for version_path, cleaned_files in addons_txt_results.items():
+                    version_label = self.loc._("unknown_version")
+                    for flavor_dir in PathManager.WOW_FLAVORS.keys():
+                        if version_path.endswith(flavor_dir):
+                            version_label = path_manager.get_flavor_display_name(
+                                flavor_dir
+                            )
+                            break
+
+                    total_lines = sum(cleaned_files.values())
+                    if self.logger._verbose:
+                        for addons_txt_path, removed_count in cleaned_files.items():
+                            self.logger.verbose(
+                                self.loc._(
+                                    "user_log_verbose_addons_txt_cleaned"
+                                ).format(version_label, f"{removed_count} addon(s)")
+                            )
+                    else:
+                        self.logger.log(
+                            self.loc._("user_log_normal_addons_txt_cleaned").format(
+                                version_label, total_lines
                             )
                         )
 

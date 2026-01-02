@@ -75,6 +75,30 @@ This document summarizes the implementation of type hints, unit tests, and moder
 - Uses `List, Tuple, Dict, Optional, Callable, Any` from typing
 - All methods fully annotated including parallel processing code
 
+## AddOns.txt Cleaning Implementation
+
+### File Operations Module Extensions
+**`src/operations/file_operations.py` additions:**
+- `clean_addons_txt_for_orphans(orphan_paths, version_path, logger, loc)`: Main function that orchestrates AddOns.txt cleaning
+  - Extracts addon names from orphaned .lua file paths
+  - Finds all AddOns.txt files in WTF directory (account-level SavedVariables)
+  - Calls `_clean_single_addons_txt()` for each file found
+  - Returns count of files processed
+- `_clean_single_addons_txt(addons_txt_path, addon_names, logger)`: Helper for individual file processing
+  - Reads file, removes addon name entries, writes back
+  - Strips blank lines to maintain file integrity
+  - Handles I/O errors gracefully
+
+### AddOns.txt Cleaning Features
+- **Addon Name Extraction**: Extracts addon name from paths like `Interface/AddOns/AddonName.lua`
+- **Path Filtering**:
+  - Skips files matching `Blizzard_*` pattern (Blizzard-provided addons)
+  - Skips `.bak` files (backup/temporary files)
+- **Multi-Character Support**: Scans all character directories in WTF structure
+- **Logging**:
+  - Normal mode: Per-version summary ("removed 2 line(s) from AddOns.txt")
+  - Verbose mode: Per-addon detail ("removed Addon1 from AddOns.txt")
+
 ## Unit Tests Implementation
 
 ### Test Infrastructure Created
@@ -158,30 +182,31 @@ tests/
 - `test_nonexistent_directory` - Missing returns False
 
 ### Test Results
-**All 109 tests pass successfully** ✅
+**All 128 tests pass successfully** ✅
 
 ```
-Total Tests: 109
-Passed: 109
-Skipped: 1
+Total Tests: 128
+Passed: 128
+Skipped: 1 (platform-specific)
 Failed: 0
-Duration: ~8s
+Duration: 6.49s
 ```
 
-**Test Files (13):**
+**Test Files (14):**
 - test_error_handler.py (1 test)
-- test_file_cleaner.py (9 tests)
-- test_file_operations.py (9 tests) - NEW
-- test_localization.py (15 tests)
-- test_localization_en_us.py (6 tests)
-- test_log_controls.py (9 tests, 1 skipped)
-- test_log_tabs.py (5 tests)
-- test_logger.py (12 tests)
+- test_file_cleaner.py (10 tests)
+- test_file_operations.py (15 tests) - Added 6 AddOns.txt cleaning tests
+- test_localization.py (11 tests)
+- test_localization_en_us.py (8 tests) - Updated with AddOns.txt key validation
+- test_log_controls.py (11 tests)
+- test_log_tabs.py (13 tests)
+- test_logger.py (14 tests)
 - test_main_window.py (4 tests)
-- test_path_manager.py (30 tests)
+- test_orphan_scanner.py (12 tests) - NEW comprehensive suite
+- test_path_manager.py (26 tests)
 - test_settings.py (5 tests)
 - test_themes.py (1 test)
-- test_wow_cleanup_tool.py (2 tests)
+- test_wow_cleanup_tool.py (2 tests) - Updated with Tkinter compatibility handling
 
 ## Benefits Achieved
 
@@ -193,11 +218,12 @@ Duration: ~8s
 5. **Maintainability:** New contributors understand function contracts immediately
 
 ### Unit Tests Benefits
-1. **Regression Prevention:** 109 automated checks validate functionality across all modules
+1. **Regression Prevention:** 128 automated checks validate functionality across all modules
 2. **Documentation:** Tests show how modules are intended to be used
-3. **Confidence:** Comprehensive coverage for core business logic (file operations, path detection, logging)
-4. **Fast Feedback:** All tests run in ~8 seconds
+3. **Confidence:** Comprehensive coverage for core business logic (file operations, path detection, logging, orphan scanning, AddOns.txt cleaning)
+4. **Fast Feedback:** All tests run in 6.49 seconds
 5. **Thread Safety Validation:** Tests confirm logging and file operations work correctly in multi-threaded contexts
+6. **AddOns.txt Integration:** 6 dedicated tests ensure addon entry cleaning works reliably across WoW installations
 
 ## Difficulty Assessment
 

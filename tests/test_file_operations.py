@@ -17,7 +17,7 @@ import shutil
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
 
-from operations.file_operations import delete_files_batch
+from operations.file_operations import delete_files_batch, clean_addons_txt_for_orphans
 
 
 class MockLogger:
@@ -169,7 +169,7 @@ class TestDeleteFilesBatch(unittest.TestCase):
 
     def test_delete_with_verbose_logging(self):
         """Test that verbose logging does NOT occur in file_operations (to prevent duplicate logging).
-        
+
         Logging is handled by the calling code (main_window.py) using if/else pattern.
         file_operations.py only logs errors, not successful deletions.
         """
@@ -233,6 +233,183 @@ class TestDeleteFilesBatch(unittest.TestCase):
         # But the files themselves should be deleted
         self.assertFalse(os.path.exists(test_file1))
         self.assertFalse(os.path.exists(test_file2))
+
+
+class TestCleanAddonsTxt(unittest.TestCase):
+    """Tests for clean_addons_txt_for_orphans function."""
+
+    def setUp(self):
+        """Set up test fixtures with WoW directory structure."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.mock_logger = MockLogger()
+
+        # Create mock WoW version structure
+        self.version_path = os.path.join(self.temp_dir, "_retail_")
+        os.makedirs(self.version_path)
+
+        # Create WTF directory structure
+        self.wtf_path = os.path.join(self.version_path, "WTF")
+        self.account_path = os.path.join(self.wtf_path, "Account")
+        self.account_name = "TESTACCOUNT"
+        self.realm_name = "TestRealm"
+        self.char_name = "TestChar"
+
+        self.char_path = os.path.join(
+            self.account_path, self.account_name, self.realm_name, self.char_name
+        )
+        os.makedirs(self.char_path, exist_ok=True)
+
+    def tearDown(self):
+        """Clean up test fixtures."""
+        if os.path.exists(self.temp_dir):
+            shutil.rmtree(self.temp_dir)
+
+    def test_clean_addons_txt_removes_orphaned_addon(self):
+        """Test that orphaned addon names are removed from AddOns.txt."""
+        # Create AddOns.txt with multiple addons
+        addons_txt = os.path.join(self.char_path, "AddOns.txt")
+        with open(addons_txt, "w", encoding="utf-8") as f:
+            f.write("DBM-Core\n")
+            f.write("Recount\n")
+            f.write("OrphanedAddon\n")
+            f.write("AtlasLoot\n")
+
+        # Simulate orphaned .lua file path
+        orphan_path = os.path.join(
+            self.wtf_path,
+            "Account",
+            self.account_name,
+            "SavedVariables",
+            "OrphanedAddon.lua",
+        )
+
+        # Clean the AddOns.txt
+        result = clean_addons_txt_for_orphans(
+            [orphan_path], self.version_path, self.mock_logger
+        )
+
+        # Verify the function returned correct count
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[addons_txt], 1)
+
+        # Verify AddOns.txt was cleaned
+        with open(addons_txt, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+
+        # Should have 3 lines remaining (DBM-Core, Recount, AtlasLoot)
+        self.assertEqual(len(lines), 3)
+        self.assertIn("DBM-Core\n", lines)
+        self.assertIn("Recount\n", lines)
+        self.assertIn("AtlasLoot\n", lines)
+        self.assertNotIn("OrphanedAddon\n", lines)
+
+    def test_clean_addons_txt_skips_blizzard_lua(self):
+        """Test that Blizzard_ .lua files don't trigger AddOns.txt cleaning."""
+        # Create AddOns.txt
+        addons_txt = os.path.join(self.char_path, "AddOns.txt")
+        with open(addons_txt, "w", encoding="utf-8") as f:
+            f.write("DBM-Core\n")
+            f.write("Blizzard_CompactRaidFrames\n")
+
+        # Simulate Blizzard_ .lua file (should be ignored)
+        blizzard_path = os.path.join(
+            self.wtf_path,
+            "Account",
+            self.account_name,
+            "SavedVariables",
+            "Blizzard_CompactRaidFrames.lua",
+        )
+
+        # Try to clean (should do nothing)
+        result = clean_addons_txt_for_orphans(
+            [blizzard_path], self.version_path, self.mock_logger
+        )
+
+        # Verify nothing was changed
+        self.assertEqual(len(result), 0)
+
+        # Verify AddOns.txt unchanged
+        with open(addons_txt, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+
+        self.assertEqual(len(lines), 2)
+
+    def test_clean_addons_txt_skips_bak_files(self):
+        """Test that .bak files don't trigger AddOns.txt cleaning."""
+        # Create AddOns.txt
+        addons_txt = os.path.join(self.char_path, "AddOns.txt")
+        with open(addons_txt, "w", encoding="utf-8") as f:
+            f.write("DBM-Core\n")
+            f.write("Recount\n")
+
+        # Simulate .bak file (should be ignored)
+        bak_path = os.path.join(
+            self.wtf_path, "Account", self.account_name, "SavedVariables", "Recount.bak"
+        )
+
+        # Try to clean (should do nothing)
+        result = clean_addons_txt_for_orphans(
+            [bak_path], self.version_path, self.mock_logger
+        )
+
+        # Verify nothing was changed
+        self.assertEqual(len(result), 0)
+
+    def test_clean_addons_txt_multiple_characters(self):
+        """Test that AddOns.txt is cleaned for multiple characters."""
+        # Create multiple character directories
+        char2_path = os.path.join(
+            self.account_path, self.account_name, self.realm_name, "TestChar2"
+        )
+        os.makedirs(char2_path, exist_ok=True)
+
+        # Create AddOns.txt for both characters
+        addons_txt1 = os.path.join(self.char_path, "AddOns.txt")
+        addons_txt2 = os.path.join(char2_path, "AddOns.txt")
+
+        for addons_txt in [addons_txt1, addons_txt2]:
+            with open(addons_txt, "w", encoding="utf-8") as f:
+                f.write("DBM-Core\n")
+                f.write("OrphanedAddon\n")
+
+        # Simulate orphaned .lua file
+        orphan_path = os.path.join(
+            self.wtf_path,
+            "Account",
+            self.account_name,
+            "SavedVariables",
+            "OrphanedAddon.lua",
+        )
+
+        # Clean AddOns.txt
+        result = clean_addons_txt_for_orphans(
+            [orphan_path], self.version_path, self.mock_logger
+        )
+
+        # Verify both files were cleaned
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[addons_txt1], 1)
+        self.assertEqual(result[addons_txt2], 1)
+
+    def test_clean_addons_txt_no_wtf_directory(self):
+        """Test graceful handling when WTF directory doesn't exist."""
+        # Use a version path without WTF directory
+        empty_version = os.path.join(self.temp_dir, "_classic_")
+        os.makedirs(empty_version)
+
+        orphan_path = "fake_path.lua"
+        result = clean_addons_txt_for_orphans(
+            [orphan_path], empty_version, self.mock_logger
+        )
+
+        # Should return empty dict
+        self.assertEqual(len(result), 0)
+
+    def test_clean_addons_txt_empty_orphan_list(self):
+        """Test that empty orphan list returns no changes."""
+        result = clean_addons_txt_for_orphans([], self.version_path, self.mock_logger)
+
+        self.assertEqual(len(result), 0)
 
 
 if __name__ == "__main__":

@@ -21,10 +21,12 @@ wow-cleanup-tool/
 │   │   └── themes.py         # Theme system (light/dark mode)
 │   ├── localization/         # Multi-language support
 │   │   ├── __init__.py       # Localization class
-│   │   └── en_us.py          # English translations (92 keys, organized by prefix)
-│   ├── operations/           # File system operations (future cleanup features)
-│   │   ├── base_scanner.py   # Base class for all scanners
-│   │   ├── disk_utils.py     # HDD/SSD detection and optimization
+│   │   └── en_us.py          # English translations (100+ keys, organized by prefix)
+│   ├── operations/           # File system operations
+│   │   ├── base_scanner.py   # Base class for all scanners (parallel processing, progress callbacks)
+│   │   ├── file_cleaner.py   # Scanner for .bak/.old backup files
+│   │   ├── file_operations.py# Batch delete/trash + AddOns.txt cleaning
+│   │   ├── orphan_scanner.py # Scanner for orphaned SavedVariables
 │   │   └── README.md         # Operations module documentation
 │   ├── ui/                   # User interface components
 │   │   ├── dialogs/          # Dialog windows
@@ -48,7 +50,7 @@ wow-cleanup-tool/
 │       ├── path_handler.py   # WoW path detection and user browsing
 │       └── path_manager.py   # Installation management and validation
 │   └── wow_cleanup_tool.py   # Main application entry point
-│   └── wow_cleanup_tool.spec # PyInstaller build configuration
+│   └── wow_cleanup_tool.spec # PyInstaller build configuration (v1.0 feature-complete)
 │
 ├── assets/
 │   └── icons/                # Application icons
@@ -58,58 +60,18 @@ wow-cleanup-tool/
 │
 ├── docs/                    # Documentation files
 │   ├── README.md
-
-# Project Structure
-
-## Directory Organization
-
-```
-wow-cleanup-tool/
-├── .github/                # GitHub configuration
-│   ├── workflows/          # CI/CD workflows
-│   │   └── build-release.yml
-│   ├── ISSUE_TEMPLATE/     # Issue templates
-│   └── FUNDING.yml         # Sponsorship info
-│
-├── src/                    # Main application source code
-│   ├── core/               # Core infrastructure (settings, logging, themes)
-│   ├── localization/       # Multi-language support (98+ keys)
-│   ├── operations/         # File/folder cleanup operations (BaseScanner, FileCleaner, file_operations)
-│   ├── ui/                 # User interface components
-│   │   ├── dialogs/        # Dialog windows (license, warnings)
-│   │   ├── tabs/           # Modular tab classes (FileCleanerTab, LogTab, DeveloperTab, etc.; all grid-based)
-│   │   ├── widgets/        # Custom widgets (Tooltip, etc.)
-│   │   ├── log_controls.py # Log controls utility (copy, save, clear, delete; used by both log tabs)
-│   │   └── main_window.py  # Main window builder (delegates to tabs/utilities)
-│   ├── wow/                # WoW-specific logic (path detection, validation)
-│   └── wow_cleanup_tool.py # Main application entry point
-│   └── wow_cleanup_tool.spec # PyInstaller build config
-│
-├── assets/
-│   └── icons/              # Application icons
-│
-├── docs/                   # Documentation files
-│   ├── README.md
 │   ├── LOGGING_GUIDE.md
 │   ├── PROJECT_STRUCTURE.md
 │   ├── TYPE_HINTS_AND_TESTS_SUMMARY.md
 │   ├── IMPLEMENTATION_ROADMAP.md
-│   └── tests_README.md
+│   ├── tests_README.md
+│   └── BACKGROUND_TASK_GUIDE.md
+│
+├── tests/                  # Unit tests (128 tests: 128 passed, 1 skipped)
 │
 ├── LICENSE                 # GPL-3.0 license
-├── requirements.txt        # Python dependencies
-└── tests/                  # Unit tests
+└── requirements.txt        # Python dependencies
 ```
-- All dialogs are theme-aware and localized
-- Use `BaseDialog` class for consistency
-- **license_dialog.py**: GPL-3.0 license acceptance (first-run)
-- **multiple_installations.py**: Warns about multiple WoW installations
-- **wow_close_warning.py**: Warns if WoW is running (can be disabled)
-
-### WoW (`src/wow/`)
-World of Warcraft specific functionality:
-- **path_handler.py**: WoW installation detection and user browsing
-- **path_manager.py**: Installation validation, flavor detection, path utilities
 
 ## Design Principles
 
@@ -135,10 +97,11 @@ World of Warcraft specific functionality:
 - Error handling with graceful degradation
 
 ### 5. Extensibility
-- `BaseScanner` class for new cleanup features
+- `BaseScanner` class for new cleanup features (FileCleaner, OrphanScanner, future FolderScanner)
+- File operations module with batch delete and AddOns.txt integration
 - Plugin-ready localization system
 - `BaseDialog` for new dialogs
-- Operations module ready for future scanners
+- Modular tab system for new UI features
 
 ## Build Configuration
 

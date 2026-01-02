@@ -29,19 +29,24 @@ class TestWoWCleanupToolSmoke(unittest.TestCase):
         self.mock_warning = self.patcher_warning.start()
         self.mock_logger = self.patcher_logger.start()
         self.mock_logger.return_value.level = 20  # logging.INFO
-        self.root = tk.Tk()
-        self.root.withdraw()  # Hide window during tests
+        try:
+            self.root = tk.Tk()
+            self.root.withdraw()  # Hide window during tests
+        except tk.TclError:
+            # Tkinter not available in test environment
+            self.root = None
 
     def tearDown(self):
         self.patcher_license.stop()
         self.patcher_warning.stop()
         self.patcher_logger.stop()
         # Only destroy if the root window still exists
-        try:
-            if self.root.winfo_exists():
-                self.root.destroy()
-        except Exception:
-            pass
+        if self.root is not None:
+            try:
+                if self.root.winfo_exists():
+                    self.root.destroy()
+            except Exception:
+                pass
         if self.orig_home is not None:
             os.environ["HOME"] = self.orig_home
         else:
@@ -52,14 +57,20 @@ class TestWoWCleanupToolSmoke(unittest.TestCase):
             del os.environ["USERPROFILE"]
         self.temp_dir.cleanup()
 
+    @unittest.skipIf(tk is None, "Tkinter not available")
     def test_app_initialization(self):
         # Should not raise
+        if self.root is None:
+            self.skipTest("Tkinter not available")
         try:
             app = WoWCleanupTool(self.root)
         except Exception as e:
             self.fail(f"WoWCleanupTool init raised: {e}")
 
+    @unittest.skipIf(tk is None, "Tkinter not available")
     def test_app_on_close(self):
+        if self.root is None:
+            self.skipTest("Tkinter not available")
         app = WoWCleanupTool(self.root)
         # Should not raise, and should handle double-destroy gracefully
         try:
