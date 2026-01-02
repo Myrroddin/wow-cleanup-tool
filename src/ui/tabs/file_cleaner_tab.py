@@ -144,8 +144,8 @@ class FileCleanerTab:
 
         tree.heading("#0", text=loc._("tree_header_file_path"), anchor="w")
         tree.heading("size", text=loc._("tree_header_size"), anchor="e")
-        tree.column("#0", width=400, stretch=True)
-        tree.column("size", width=150, minwidth=100, stretch=True, anchor="e")
+        tree.column("#0", width=500, stretch=True)
+        tree.column("size", width=100, minwidth=80, stretch=False, anchor="e")
 
         tree.grid(row=0, column=0, sticky="nsew")
         vsb.grid(row=0, column=1, sticky="ns")

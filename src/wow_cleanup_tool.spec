@@ -3,8 +3,8 @@
 
 Ensures assets, license, and all source modules are bundled consistently across
 platforms. Features include automatic WoW detection, multi-flavor support,
-file cleaning with AddOns.txt integration, dual logging system, and font-aware
-UI scaling.
+file cleaning with AddOns.txt integration, dual logging system, font-aware
+UI scaling, and defensive error handling.
 
 Run with:
 

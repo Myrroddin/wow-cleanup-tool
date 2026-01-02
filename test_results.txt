@@ -8,14 +8,14 @@ tests\test_file_cleaner.py .........                                     [  7%]
 tests\test_file_operations.py ...............                            [ 19%]
 tests\test_localization.py ...............                               [ 31%]
 tests\test_localization_en_us.py .......                                 [ 36%]
-tests\test_log_controls.py .........s.                                   [ 44%]
+tests\test_log_controls.py ...........                                   [ 44%]
 tests\test_log_tabs.py .....                                             [ 48%]
 tests\test_logger.py ............                                        [ 58%]
-tests\test_main_window.py ....                                           [ 61%]
+tests\test_main_window.py s...                                           [ 61%]
 tests\test_orphan_scanner.py ............                                [ 70%]
 tests\test_path_manager.py ..............................                [ 93%]
 tests\test_settings.py .....                                             [ 97%]
 tests\test_themes.py .                                                   [ 98%]
 tests\test_wow_cleanup_tool.py ..                                        [100%]
 
-======================= 128 passed, 1 skipped in 5.97s ========================
+======================= 128 passed, 1 skipped in 5.54s ========================

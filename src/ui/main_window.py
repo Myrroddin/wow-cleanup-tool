@@ -385,6 +385,13 @@ class MainWindowBuilder:
         BackgroundTask.run(self.root, do_scan, on_complete, logger=self.logger)
 
     def _on_remove_selected(self, selected_items):
+        # Defensive: ensure selected_items is a list
+        if isinstance(selected_items, str):
+            self.logger.error(
+                f"Bug: _on_remove_selected received string instead of list: {selected_items}"
+            )
+            return
+
         if not selected_items:
             return
 

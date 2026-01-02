@@ -149,6 +149,14 @@ def delete_files_batch(
     Returns:
         (processed_count, permanently_deleted, used_trash, processed_paths)
     """
+    # Defensive: ensure paths is actually a list
+    if isinstance(paths, str):
+        if logger:
+            logger.error(
+                f"Bug: delete_files_batch received string instead of list: {paths}"
+            )
+        return 0, False, False, []
+
     processed = 0
     used_trash = False
     processed_paths: List[str] = []

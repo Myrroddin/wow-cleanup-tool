@@ -73,6 +73,9 @@ class LicenseDialog(BaseDialog):
         # Use the actual max length without extra buffer to minimize whitespace
         optimal_width = max_line_length
 
+        # Calculate height based on font size (25 rows at 12pt → 2.08x scaling)
+        text_height = int(25 * (self.font_size / 12))
+
         # Text widget for license
         # Use 'none' wrap to preserve formatting exactly as in the license file
         license_text = tk.Text(
@@ -80,7 +83,7 @@ class LicenseDialog(BaseDialog):
             wrap="none",
             yscrollcommand=scrollbar.set,
             width=optimal_width,
-            height=25,
+            height=text_height,
             bg=theme["entry_bg"],
             fg=theme["entry_fg"],
             insertbackground=theme["fg"],
