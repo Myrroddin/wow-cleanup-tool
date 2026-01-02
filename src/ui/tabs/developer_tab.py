@@ -5,8 +5,9 @@ from tkinter import ttk
 
 
 class DeveloperTab:
-    def __init__(self, parent, loc, log_controls):
+    def __init__(self, parent, loc, log_controls, font_size=12):
         self.frame = ttk.Frame(parent, padding=5)
+        self.font_size = font_size
         self._create_content(loc, log_controls)
 
     def _create_content(self, loc, log_controls):
@@ -41,8 +42,10 @@ class DeveloperTab:
         copy_btn.grid(row=0, column=2)
 
         # Log display area
+        # Calculate height based on font size (18 rows at 12pt → 1.5x scaling)
+        text_height = int(18 * (self.font_size / 12))
         self.log_text = tk.Text(
-            self.frame, wrap="word", height=18, width=80, state="disabled"
+            self.frame, wrap="word", height=text_height, width=80, state="disabled"
         )
         self.log_text.grid(row=2, column=0, sticky="nsew")
 

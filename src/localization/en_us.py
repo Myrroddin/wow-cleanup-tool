@@ -106,7 +106,10 @@ TRANSLATIONS = {
     "tooltip_language_menu": "Select application language",
     "tooltip_log_timestamps": "User Log and Developer Log",
     "tooltip_user_log_only": "User Log Only",
-    "unknown_version": "Unknown version",
+    "tree_files_count": "files",
+    "tree_header_file_path": "File Path",
+    "tree_header_size": "Size",
+    "unknown": "Unknown",
     "user_log_normal_addons_txt_cleaned": "[{}]: removed {} line(s) from AddOns.txt",
     "user_log_normal_app_failure": (
         "The application failed to start. Please see the Developer Log for details."

@@ -62,7 +62,7 @@ class TestEnUsLocalization(unittest.TestCase):
         self.assertIn("{}", normal_value)
         self.assertIn("{}", verbose_value)
 
-    def test_unknown_version_key_exists(self):
-        """Test that unknown_version key exists."""
-        self.assertIn("unknown_version", en_us.TRANSLATIONS)
-        self.assertEqual(en_us.TRANSLATIONS["unknown_version"], "Unknown version")
+    def test_unknown_key_exists(self):
+        """Test that unknown key exists."""
+        self.assertIn("unknown", en_us.TRANSLATIONS)
+        self.assertEqual(en_us.TRANSLATIONS["unknown"], "Unknown")

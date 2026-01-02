@@ -175,6 +175,25 @@ def apply_theme(root, theme_name, font_family="TkDefaultFont", font_size=9):
             ("!selected", theme_data["fg"]),
         ],
     )
+    style.configure(
+        "Treeview",
+        background=theme_data["entry_bg"],
+        foreground=theme_data["fg"],
+        fieldbackground=theme_data["entry_bg"],
+        font=(font_family, font_size),
+        rowheight=int(font_size * 2.2),  # Scale row height with font
+    )
+    style.configure(
+        "Treeview.Heading",
+        background=theme_data["button_bg"],
+        foreground=theme_data["fg"],
+        font=(font_family, font_size, "bold"),
+    )
+    style.map(
+        "Treeview",
+        background=[("selected", theme_data["select_bg"])],
+        foreground=[("selected", theme_data["select_fg"])],
+    )
 
     # Apply to root window
     try:

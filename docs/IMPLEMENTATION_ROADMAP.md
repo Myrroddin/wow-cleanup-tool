@@ -41,6 +41,7 @@ This roadmap tracks the development of the WoW Cleanup Tool, with a focus on mod
 - **✅ Log and Developer tabs: FEATURE-COMPLETE**
   - User Log Tab: 4 buttons (Clear Session Log, Delete Log File, Open Log Folder, Copy to Clipboard)
   - Developer Log Tab: 3 buttons (Clear Session Log, Open Log Folder, Copy to Clipboard)
+  - Text widget dimensions dynamically scale with font size (height = 18 rows × font_size ÷ 12)
   - Append-mode-aware "Clear Session Log": clears display + deletes file when append OFF; clears display only when append ON
   - "Delete Log File" button dynamically dims/disables when append mode OFF (using overlay technique)
   - Descriptions added to both tabs with proper word-wrapping
@@ -77,14 +78,14 @@ This roadmap tracks the development of the WoW Cleanup Tool, with a focus on mod
 - Single-instance lock reusable within process for test suite compatibility
 - **Universal logging pattern**: logger.log() vs logger.verbose() use if/else (never both for same action)
 - **Comprehensive test coverage**:
-    - 128 total tests: all passing (pytest), 1 skipped (platform-specific)
+    - 129 total tests: 127 passed, 2 skipped (platform-specific)
     - New: 12 OrphanScanner tests (addon detection, orphan identification, multi-version scanning)
     - New: 6 AddOns.txt cleaning tests (removal, Blizzard_ protection, .bak skipping, multi-character handling)
     - Updated: Localization tests include AddOns.txt key validation
     - Updated: Tkinter compatibility handling for CI/CD environments
     - Tests cover: initialization, validation, detection, UI widgets, log controls, file operations, orphan scanning, AddOns.txt cleaning
     - Mock objects for testing without filesystem dependencies
-    - Execution time: 6.49 seconds
+    - Execution time: ~7-21 seconds (varies by system)
 
 ---
 

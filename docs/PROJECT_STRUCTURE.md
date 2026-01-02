@@ -67,7 +67,7 @@ wow-cleanup-tool/
 │   ├── tests_README.md
 │   └── BACKGROUND_TASK_GUIDE.md
 │
-├── tests/                  # Unit tests (128 tests: 128 passed, 1 skipped)
+├── tests/                  # Unit tests (129 tests: 127 passed, 2 skipped)
 │
 ├── LICENSE                 # GPL-3.0 license
 └── requirements.txt        # Python dependencies

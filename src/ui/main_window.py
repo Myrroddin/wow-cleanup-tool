@@ -486,9 +486,7 @@ class MainWindowBuilder:
             if processed_paths:
                 version_buckets = {}
                 for path in processed_paths:
-                    version_label = version_lookup.get(
-                        path, self.loc._("unknown_version")
-                    )
+                    version_label = version_lookup.get(path, self.loc._("unknown"))
                     version_buckets.setdefault(version_label, []).append(path)
 
                 for version_label, paths in version_buckets.items():
@@ -511,7 +509,7 @@ class MainWindowBuilder:
 
                 path_manager = PathManager(self.loc)
                 for version_path, cleaned_files in addons_txt_results.items():
-                    version_label = self.loc._("unknown_version")
+                    version_label = self.loc._("unknown")
                     for flavor_dir in PathManager.WOW_FLAVORS.keys():
                         if version_path.endswith(flavor_dir):
                             version_label = path_manager.get_flavor_display_name(
@@ -1097,6 +1095,7 @@ class MainWindowBuilder:
                 "delete": lambda: delete_user_log(self.settings, self.loc),
             },
             append_log_var=self.append_log_var,
+            font_size=self.settings.get("font_size", 12),
         )
         log_tab.frame.pack(fill="both", expand=True)
         # Store reference to log text widget for later access
@@ -1135,6 +1134,7 @@ class MainWindowBuilder:
                 "copy": lambda: copy_dev_log(self.root, self.logger, self.loc),
                 "open_folder": lambda: open_log_folder(),
             },
+            font_size=self.settings.get("font_size", 12),
         )
         developer_tab.frame.pack(fill="both", expand=True)
         # Store reference to developer log text widget for later access

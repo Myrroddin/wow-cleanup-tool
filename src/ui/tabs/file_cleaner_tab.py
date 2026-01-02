@@ -47,6 +47,7 @@ class FileCleanerTab:
         self.frame = ttk.Frame(parent, padding=5)
         self.backup_tree = None
         self.orphan_tree = None
+        self.loc = loc  # Store localization instance for use in other methods
         self._create_content(
             loc,
             on_scan_files,
@@ -102,15 +103,11 @@ class FileCleanerTab:
         sub_tabs.add(orphan_tab, text=loc._("tab_orphaned_addons"))
         sub_tabs.pack(side="top", fill="both", expand=True)
 
-        self.backup_tree = self._create_treeview(
-            backup_tab, loc._("tab_backup_old_cleaner")
-        )
+        self.backup_tree = self._create_treeview(backup_tab, loc)
 
-        self.orphan_tree = self._create_treeview(
-            orphan_tab, loc._("tab_orphaned_addons")
-        )
+        self.orphan_tree = self._create_treeview(orphan_tab, loc)
 
-    def _create_treeview(self, parent, title):
+    def _create_treeview(self, parent, loc):
         """Create a collapsible treeview for displaying scan results.
 
         Shows hierarchical file results grouped by WoW version,
@@ -123,7 +120,7 @@ class FileCleanerTab:
 
         Args:
             parent: Parent frame to contain the tree
-            title: Label for the size column (different per tab)
+            loc: Localization instance for translating header text
 
         Returns:
             Configured Treeview widget
@@ -145,10 +142,10 @@ class FileCleanerTab:
         vsb.config(command=tree.yview)
         hsb.config(command=tree.xview)
 
-        tree.heading("#0", text="File Path", anchor="w")
-        tree.heading("size", text=title, anchor="e")
+        tree.heading("#0", text=loc._("tree_header_file_path"), anchor="w")
+        tree.heading("size", text=loc._("tree_header_size"), anchor="e")
         tree.column("#0", width=400, stretch=True)
-        tree.column("size", width=100, stretch=False)
+        tree.column("size", width=150, minwidth=100, stretch=True, anchor="e")
 
         tree.grid(row=0, column=0, sticky="nsew")
         vsb.grid(row=0, column=1, sticky="ns")
@@ -243,7 +240,10 @@ class FileCleanerTab:
                 continue
 
             version_node = tree.insert(
-                "", "end", text=f"{version_label} ({len(files)} files)", open=False
+                "",
+                "end",
+                text=f"{version_label} ({len(files)} {self.loc._('tree_files_count')})",
+                open=False,
             )
 
             for file_entry in sorted(files):
@@ -255,7 +255,7 @@ class FileCleanerTab:
                         size = os.path.getsize(file_path)
                         size_str = self._format_size(size)
                     except Exception:
-                        size_str = "Unknown"
+                        size_str = self.loc._("unknown")
 
                 tree.insert(version_node, "end", text=file_path, values=(size_str,))
 

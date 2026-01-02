@@ -5,11 +5,12 @@ from tkinter import ttk
 
 
 class LogTab:
-    def __init__(self, parent, loc, log_controls, append_log_var=None):
+    def __init__(self, parent, loc, log_controls, append_log_var=None, font_size=12):
         # Reduce top padding to align description closer to tab header
         self.frame = ttk.Frame(parent, padding=(0, 5, 5, 5))
         self.append_log_var = append_log_var
         self.original_btn_style = None  # Store original button configuration
+        self.font_size = font_size
         self._create_content(loc, log_controls)
 
         # Set up trace to update delete button state when append mode changes
@@ -76,8 +77,10 @@ class LogTab:
         copy_btn.grid(row=0, column=3)
 
         # Log display area
+        # Calculate height based on font size (18 rows at 12pt → 1.5x scaling)
+        text_height = int(18 * (self.font_size / 12))
         self.log_text = tk.Text(
-            self.frame, wrap="word", height=18, width=80, state="disabled"
+            self.frame, wrap="word", height=text_height, width=80, state="disabled"
         )
         self.log_text.grid(row=2, column=0, sticky="nsew")
 

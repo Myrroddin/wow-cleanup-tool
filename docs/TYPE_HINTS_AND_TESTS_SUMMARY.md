@@ -218,10 +218,10 @@ Duration: 6.49s
 5. **Maintainability:** New contributors understand function contracts immediately
 
 ### Unit Tests Benefits
-1. **Regression Prevention:** 128 automated checks validate functionality across all modules
+1. **Regression Prevention:** 129 automated checks validate functionality across all modules (127 passed, 2 skipped)
 2. **Documentation:** Tests show how modules are intended to be used
 3. **Confidence:** Comprehensive coverage for core business logic (file operations, path detection, logging, orphan scanning, AddOns.txt cleaning)
-4. **Fast Feedback:** All tests run in 6.49 seconds
+4. **Fast Feedback:** All tests run in ~7-21 seconds (varies by system)
 5. **Thread Safety Validation:** Tests confirm logging and file operations work correctly in multi-threaded contexts
 6. **AddOns.txt Integration:** 6 dedicated tests ensure addon entry cleaning works reliably across WoW installations
 
