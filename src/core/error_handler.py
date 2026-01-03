@@ -1,4 +1,9 @@
-"""Error handler utility for WoW Cleanup Tool."""
+"""Top-level error handler for uncaught exceptions.
+
+Provides graceful error handling when unexpected exceptions occur during
+application startup or execution. Ensures the user sees error details and
+can report issues, even if the main UI fails to load.
+"""
 
 
 def handle_top_level_exception(e):

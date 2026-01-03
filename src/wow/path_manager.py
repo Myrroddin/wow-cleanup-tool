@@ -6,11 +6,6 @@ This module provides the PathManager class which handles:
 - Multi-flavor support (Retail, Classic, PTR, Beta, Classic Era)
 - Path validation and installation verification
 
-Last Updated: December 28, 2025
-- Added comprehensive documentation with timestamps
-- Enhanced comments for registry lookups and flavor detection
-- Documented the multi-installation detection logic
-
 The PathManager uses a combination of:
 1. Windows Registry lookups (if on Windows)
 2. Common installation paths (C:, D:, E:, F: drives)
@@ -22,6 +17,8 @@ import os
 import sys
 import winreg
 from typing import Optional, List, Tuple, Dict, Any
+
+from wow.version_manager import GameVersion
 
 
 class PathManager:
@@ -298,20 +295,20 @@ class PathManager:
         """
         return self._validate_wow_path(path)
 
-    def validate_installation(self, path: str) -> Tuple[bool, List[Tuple[str, str]]]:
+    def validate_installation(self, path: str) -> Tuple[bool, List[GameVersion]]:
         """Validate WoW installation and detect all game versions that have been run.
 
         Args:
             path: Path to WoW installation
 
         Returns:
-            tuple: (is_valid, list_of_flavors) where each flavor is (flavor_dir, display_name)
+            tuple: (is_valid, list_of_versions) where each version is a GameVersion object
         """
         if not path or not os.path.exists(path):
             return False, []
 
         # Detect all flavors that have been run at least once (have WTF/Account folder)
-        found_flavors: List[Tuple[str, str]] = []
+        found_versions: List[GameVersion] = []
         for flavor_dir in self.WOW_FLAVORS.keys():
             flavor_path = os.path.join(path, flavor_dir)
             wtf_path = os.path.join(flavor_path, "WTF")
@@ -325,12 +322,13 @@ class PathManager:
                 try:
                     if self._has_populated_directory(account_path):
                         display_name = self.get_flavor_display_name(flavor_dir)
-                        found_flavors.append((flavor_dir, display_name))
+                        version = GameVersion(flavor_dir, display_name, flavor_path)
+                        found_versions.append(version)
                 except (OSError, PermissionError):
                     continue
 
         # Valid if at least one flavor has been run
-        return len(found_flavors) > 0, found_flavors
+        return len(found_versions) > 0, found_versions
 
     def detect_flavors(self, wow_path: Optional[str] = None) -> Dict[str, str]:
         """Detect installed WoW flavors that have been run at least once.

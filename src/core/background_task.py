@@ -1,8 +1,14 @@
 """Background task executor for thread-safe UI operations.
 
-December 30, 2025: Utility class to standardize background threading across tabs.
-Ensures Tkinter UI remains responsive during I/O-heavy operations while maintaining
-thread-safe updates via root.after().
+Provides utilities for running long-running operations in background threads
+while keeping the Tkinter UI responsive. Ensures all UI updates occur on the
+main thread to avoid threading issues.
+
+Key features:
+- Execute I/O-heavy operations without freezing the UI
+- Thread-safe callbacks for completion and error handling
+- Support for progress updates during long operations
+- Automatic daemon threading (threads terminate with application)
 """
 
 import threading
@@ -12,9 +18,9 @@ from typing import Callable, Optional, Any
 class BackgroundTask:
     """Execute long-running operations in background threads with safe UI updates.
 
-    December 30, 2025: Designed to prevent UI freezing during file scanning,
-    deletion, and other I/O-heavy operations while ensuring all Tkinter widget
-    updates occur on the main thread.
+    Designed to prevent UI freezing during file scanning, deletion, and other
+    I/O-heavy operations. All Tkinter widget updates occur on the main thread
+    via root.after() to maintain thread safety.
 
     Example usage:
         def do_scan():
@@ -38,8 +44,8 @@ class BackgroundTask:
     ):
         """Execute task in background thread with thread-safe callbacks.
 
-        December 30, 2025: Main entry point for background operations. Task runs
-        in daemon thread; callbacks execute on main thread via root.after().
+        This is the main entry point for background operations. The task runs
+        in a daemon thread while callbacks execute on the main thread via root.after().
 
         Args:
             root: Tkinter root window (required for thread-safe UI updates)
@@ -57,15 +63,15 @@ class BackgroundTask:
         def thread_wrapper():
             """Background thread wrapper with exception handling."""
             try:
-                # December 30, 2025: Execute task in background thread
+                # Execute task in background thread
                 result = task()
 
-                # December 30, 2025: Schedule completion callback on main thread
+                # Schedule completion callback on main thread
                 if on_complete:
                     root.after(0, lambda: on_complete(result))
 
             except Exception as e:
-                # December 30, 2025: Handle errors on main thread
+                # Handle errors on main thread
                 if on_error:
                     root.after(0, lambda: on_error(e))
                 elif logger:
@@ -75,7 +81,7 @@ class BackgroundTask:
                     # Fallback: re-raise on main thread for visibility
                     root.after(0, lambda: (_ for _ in ()).throw(e))
 
-        # December 30, 2025: Start daemon thread (auto-terminates with app)
+        # Start daemon thread (auto-terminates with application)
         thread = threading.Thread(target=thread_wrapper, daemon=True)
         thread.start()
 
@@ -90,8 +96,8 @@ class BackgroundTask:
     ):
         """Execute task with progress updates.
 
-        December 30, 2025: Extended version supporting progress callbacks for
-        long-running operations that report status updates.
+        Extended version supporting progress callbacks for long-running operations
+        that need to report status updates to the user.
 
         Args:
             root: Tkinter root window
@@ -121,15 +127,15 @@ class BackgroundTask:
         def thread_wrapper():
             """Background thread wrapper with progress support."""
             try:
-                # December 30, 2025: Pass thread-safe progress callback to task
+                # Pass thread-safe progress callback to task
                 result = task(progress_wrapper)
 
-                # December 30, 2025: Schedule completion on main thread
+                # Schedule completion on main thread
                 if on_complete:
                     root.after(0, lambda: on_complete(result))
 
             except Exception as e:
-                # December 30, 2025: Handle errors on main thread
+                # Handle errors on main thread
                 if on_error:
                     root.after(0, lambda: on_error(e))
                 elif logger:
@@ -137,6 +143,6 @@ class BackgroundTask:
                 else:
                     root.after(0, lambda: (_ for _ in ()).throw(e))
 
-        # December 30, 2025: Start daemon thread
+        # Start daemon thread
         thread = threading.Thread(target=thread_wrapper, daemon=True)
         thread.start()

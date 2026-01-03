@@ -12,6 +12,7 @@ TRANSLATIONS = {
     "btn_remove_selected": "Remove Selected",
     "btn_reset_settings": "Reset Settings",
     "btn_scan_files": "Scan Files",
+    "btn_scan_folders": "Scan Folders",
     "btn_select_all_toggle": "Select All / Unselect All",
     "btn_toggle_theme": "Toggle Theme",
     "btn_yes": "Yes",
@@ -39,11 +40,23 @@ TRANSLATIONS = {
         "Find and remove unnecessary files. Some files may return when "
         "the game recreates them, which is expected."
     ),
+    "desc_folder_cleaner": (
+        "Find and remove unnecessary folders. Some folders may return when "
+        "the game recreates them, which is expected."
+    ),
+    "desc_screenshot_interaction": (
+        "Click a screenshot in the list to preview it. Click the preview to open it in a larger popup. "
+        "Press Escape or click outside the popup to close."
+    ),
     "desc_user_log": (
         "Activity log showing what the application is doing. For warnings and errors, "
         "see the Developer Log tab."
     ),
     "error_prefix": "Error",
+    "folder_cache": "Cache",
+    "folder_errors": "Errors",
+    "folder_logs": "Logs",
+    "folder_screenshots": "Screenshots",
     "game_version_classic": "Classic",
     "game_version_classic_era": "Classic Era",
     "game_version_modifier_beta": "Beta",
@@ -99,11 +112,19 @@ TRANSLATIONS = {
     "title_multiple_installations": "Multiple WoW Installations Detected",
     "title_reset_settings": "Confirm Reset",
     "tooltip_browse_wow_folder": "Choose your main WoW folder (not a subfolder).",
+    "tooltip_cache_warning": (
+        "NOT RECOMMENDED: Removing the Cache folder may cause temporary performance issues. "
+        "The game will rebuild it automatically. Only remove if experiencing problems."
+    ),
     "tooltip_clear_log": "Clear the current session log.",
     "tooltip_clear_persistent_log": (
         "Clear the persistent user log file (only available in append mode)."
     ),
     "tooltip_language_menu": "Select application language",
+    "tooltip_select_all_cache_manual": (
+        "Cache must be selected manually. This toggle only affects Errors, Logs, "
+        "and Screenshots."
+    ),
     "tooltip_log_timestamps": "User Log and Developer Log",
     "tooltip_user_log_only": "User Log Only",
     "tree_files_count": "files",
@@ -117,6 +138,7 @@ TRANSLATIONS = {
     "user_log_normal_app_started": "Application started successfully!",
     "user_log_normal_no_game_versions": "No WoW game versions detected.",
     "user_log_normal_removed_files": "[{}]: removed {} file(s).",
+    "user_log_normal_removed_folder": "[{}]: removed {} folder",
     "user_log_normal_wow_detected": "WoW installation detected.",
     "user_log_normal_wow_validated": "WoW installation validated.",
     "user_log_verbose_addons_txt_cleaned": "[{}]: removed {} from AddOns.txt",

@@ -74,7 +74,10 @@ class FileCleanerTab:
           * Orphaned AddOn Settings
         """
         desc_label = ttk.Label(
-            self.frame, text=loc._("desc_file_cleaner"), justify="left"
+            self.frame,
+            text=loc._("desc_file_cleaner"),
+            justify="left",
+            wraplength=600,
         )
         desc_label.pack(side="top", fill="x", pady=(0, 10))
         button_frame = ttk.Frame(self.frame)
@@ -146,6 +149,12 @@ class FileCleanerTab:
         tree.heading("size", text=loc._("tree_header_size"), anchor="e")
         tree.column("#0", width=500, stretch=True)
         tree.column("size", width=100, minwidth=80, stretch=False, anchor="e")
+
+        # Use fixed monospace font for better path readability, locked at 10pt
+        style = ttk.Style()
+        style.configure("Fixed.Treeview", font=("TkFixedFont", 10))
+        style.configure("Fixed.Treeview.Heading", font=("TkFixedFont", 10, "bold"))
+        tree.configure(style="Fixed.Treeview")
 
         tree.grid(row=0, column=0, sticky="nsew")
         vsb.grid(row=0, column=1, sticky="ns")

@@ -1,13 +1,14 @@
-"""
-Modern logging system for WoW Cleanup Tool using Python's built-in logging module.
+"""Modern logging system for WoW Cleanup Tool.
 
-Provides dual logging: user-facing operations log and developer debug/error log,
-with automatic timestamps, log rotation, and flexible formatting.
+Provides dual logging:
+- User-facing operations log for displaying what the application is doing
+- Developer debug/error log for technical diagnostics and bug reports
 
-Last Updated: December 28, 2025
-- Fixed widget attachment to load from disk files (not pre-attached widgets)
-- Removed stub methods that were shadowing real implementations
-- Added comprehensive documentation and type hints
+Features:
+- Automatic timestamps on all log entries
+- Log file rotation to prevent excessive disk usage
+- Flexible formatting for both UI widgets and file output
+- Thread-safe logging from background operations
 """
 
 import logging
@@ -21,11 +22,9 @@ class TextWidgetHandler(logging.Handler):
     """Custom logging handler that writes to a Tkinter Text widget.
 
     This handler enables real-time log display in the UI by forwarding log
-    records to a tkinter Text widget. Updates are scheduled on the main thread
-    to avoid threading issues with Tkinter.
-
-    Added: Initial implementation
-    Updated: December 28, 2025 - Added comprehensive documentation
+    records to a tkinter Text widget. All UI updates are scheduled on the main
+    thread to avoid threading issues with Tkinter, which requires all widget
+    operations to occur on the thread that created them.
     """
 
     def __init__(self, text_widget=None, tag: Optional[str] = None):

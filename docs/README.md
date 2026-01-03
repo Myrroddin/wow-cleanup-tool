@@ -8,6 +8,7 @@ A lightweight utility for managing and optimizing World of Warcraft installation
 - [Installation](#installation)
 - [Usage](#usage)
 - [Development](#development)
+- [Documentation](#documentation)
 - [License](#license)
 
 ---
@@ -31,6 +32,12 @@ A lightweight utility for managing and optimizing World of Warcraft installation
 - **Log Controls Utility**: All log actions (copy, save, clear, delete) are handled by `src/ui/log_controls.py` for both user and developer logs
 - **Custom Widgets**: Tooltip and future widgets are in `src/ui/widgets/`
 - **Main Window Refactor**: `main_window.py` delegates tab UI and log actions to dedicated modules, improving maintainability and testability
+- **Screenshot Viewer**: 
+  - Dynamic preview panel below screenshot list
+  - Click-to-expand 50% screen popup viewer
+  - Help text with interaction instructions
+  - ESC/click-outside to close popup
+- **GameVersion Architecture**: Centralized game version management via immutable `GameVersion` class for type-safe version handling
 
 ### Coming Soon 🛠️
 - File cleanup (.bak, .old, temps)
@@ -85,18 +92,72 @@ Output: `dist/WoW Cleanup Tool` (platform-specific executable)
 ```
 src/
 ├── core/          # Settings, logging, themes
-├── localization/  # Translations (97+ keys)
-├── operations/    # Cleanup features (future)
+├── localization/  # Translations (98+ keys)
+├── operations/    # Cleanup features
 ├── ui/            # Interface components
 │   ├── dialogs/   # Dialog windows
 │   ├── tabs/      # Modular tab classes (FileCleanerTab, LogTab, etc.)
-│   ├── widgets/   # Custom widgets (Tooltip, etc.)
+│   ├── widgets/   # Custom widgets (Tooltip, ScreenshotViewer, etc.)
 │   ├── log_controls.py  # Log controls utility
 │   └── main_window.py   # Main window builder (delegates to tabs/utilities)
-├── wow/           # Path detection, validation
-python wow_cleanup_tool.py
+├── wow/           # Path detection, validation, version management
+└── tests/         # 151+ comprehensive unit tests
+```
 
-# WoW Cleanup Tool
+**Running Tests**:
+```bash
+pytest --maxfail=1 --disable-warnings
+```
+
+## Documentation
+
+**For Code Understanding**:
+- [CODE_DOCUMENTATION.md](CODE_DOCUMENTATION.md) — Detailed module reference with TOC
+  - Main application entry point
+  - Core utilities (logger, settings, themes)
+  - Localization and operations
+  - UI components and WoW integration
+  
+**For Development**:
+- [TYPE_HINTS_AND_TESTS_SUMMARY.md](TYPE_HINTS_AND_TESTS_SUMMARY.md) — Type hints and testing strategy with TOC
+  - Type hints coverage across all modules
+  - Unit test details (151 tests, 98%+ coverage)
+  - Test coverage breakdown by module
+
+**For Project Planning**:
+- [IMPLEMENTATION_ROADMAP.md](IMPLEMENTATION_ROADMAP.md) — Features and progress tracking
+- [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) — Architecture overview
+- [LOGGING_GUIDE.md](LOGGING_GUIDE.md) — Logging system details
+- [BACKGROUND_TASK_GUIDE.md](BACKGROUND_TASK_GUIDE.md) — Threading and async patterns
+- [tests_README.md](tests_README.md) — Test execution and writing
+
+## Recent Updates (January 3, 2026)
+
+### New Features
+- **GameVersion Class**: Centralized game version representation (`src/wow/version_manager.py`)
+  - Type-safe version handling across tabs
+  - Immutable attributes (flavor_dir, display_name, path)
+  - Conversion methods (from_tuple, to_tuple)
+  
+- **Screenshot Interaction Instructions**: Localized help text (`desc_screenshot_interaction`)
+  - Displayed above preview pane
+  - Clear click-to-preview, click-to-expand instructions
+  
+- **Larger Screenshot Popup**: Increased from 25% to 50% of screen size
+  - Better visibility while remaining centered
+  - Aspect ratio preserved
+
+### Improvements
+- FolderCleanerTab refactored to use GameVersion objects
+- Fixed screenshot popup click handler
+- Updated PathManager.validate_installation() to return GameVersion list
+- Improved test coverage for new GameVersion functionality
+
+---
+
+## License
+
+GPL-3.0 - See [LICENSE](../LICENSE) for details
 
 A lightweight, modular utility for managing and optimizing World of Warcraft installations.
 

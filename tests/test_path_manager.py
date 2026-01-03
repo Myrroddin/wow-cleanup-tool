@@ -311,7 +311,7 @@ class TestValidateInstallation(unittest.TestCase):
         is_valid, flavors = self.pm.validate_installation(self.temp_dir)
         self.assertTrue(is_valid)
         self.assertEqual(len(flavors), 1)
-        self.assertEqual(flavors[0][0], "_retail_")
+        self.assertEqual(flavors[0].flavor_dir, "_retail_")
 
 
 class TestHasPopulatedDirectory(unittest.TestCase):

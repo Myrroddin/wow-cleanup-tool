@@ -1,13 +1,13 @@
 """OrphanScanner: Detects orphaned SavedVariables files.
 
-Finds .lua and .bak files in WTF\\Account\\*\\SavedVariables that don't
-correspond to installed AddOns, excluding critical Blizzard_ .lua files.
+Identifies .lua and .bak files in WTF\\Account\\*\\SavedVariables that don't
+correspond to currently installed AddOns. These files are leftover from
+uninstalled addons and can be safely removed to free up disk space.
 
-Last Updated: December 30, 2025
-- Initial implementation with BaseScanner inheritance
-- Parallel scanning across multiple WoW versions
-- Critical protection: excludes Blizzard_ .lua files (game-required)
-- Blizzard_ .bak files are safe to remove
+Critical Protection:
+- Excludes Blizzard_.lua files (required by the game engine)
+- Blizzard_.bak files can be safely removed
+- Only targets files from truly uninstalled AddOns
 """
 
 import os

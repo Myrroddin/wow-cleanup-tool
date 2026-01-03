@@ -3,11 +3,6 @@
 This module contains the MainWindowBuilder class which constructs the entire
 main application window including all tabs, controls, and UI elements.
 
-Last Updated: December 28, 2025
-- Added bug report button with emoji icon to delete mode row
-- Fixed logger widget attachment for proper log display
-- Enhanced documentation with timestamps and detailed comments
-
 Structure:
 - MainWindowBuilder class: Builds the main window with 6 tabs
 - Helper methods for tooltips, font refresh, and UI updates
@@ -17,7 +12,8 @@ Structure:
 import os
 import tkinter as tk
 from tkinter import ttk
-import webbrowser  # Added December 28, 2025 for bug report button
+import webbrowser
+
 from ui.widgets.tooltip import Tooltip
 from ui.log_controls import (
     clear_user_log,
@@ -32,19 +28,18 @@ from ui.tabs.folder_cleaner_tab import FolderCleanerTab
 from ui.tabs.game_optimizer_tab import GameOptimizerTab
 from ui.tabs.log_tab import LogTab
 from ui.tabs.developer_tab import DeveloperTab
+from wow.version_manager import GameVersion
 
 
 class MainWindowBuilder:
     """Builds and manages the main application window.
 
     This class is responsible for creating the entire UI structure including:
-    - Notebook with 6 tabs (File Cleaner, Folder Cleaner, Game Optimizer, Log, Developer, About)
+    - Notebook with 6 tabs (File Cleaner, Folder Cleaner, Game Optimizer, Log, Developer)
     - Top control bar with WoW path selection and theme toggle
     - Settings persistence for window geometry, theme, fonts
     - Integration with logging system for real-time log display
-
-    Added: Initial implementation
-    Updated: December 28, 2025 - Added bug report button and comprehensive documentation
+    - Game version tracking for multi-flavor operations
     """
 
     def _show_tooltip(self, widget, text):
@@ -557,25 +552,198 @@ class MainWindowBuilder:
         BackgroundTask.run(self.root, do_delete, on_complete, logger=self.logger)
 
     def get_selected_items(self, context):
-        if context != "file_cleaner" or not hasattr(self, "file_cleaner_tab"):
-            return []
-
-        trees = [self.file_cleaner_tab.backup_tree, self.file_cleaner_tab.orphan_tree]
-        selected_paths = []
-
-        for tree in trees:
-            if not tree:
-                continue
-            for iid in tree.selection():
-                # Ignore parent nodes (version headers)
-                if tree.get_children(iid):
+        if context == "file_cleaner":
+            if not hasattr(self, "file_cleaner_tab"):
+                return []
+            trees = [
+                self.file_cleaner_tab.backup_tree,
+                self.file_cleaner_tab.orphan_tree,
+            ]
+            selected_paths = []
+            for tree in trees:
+                if not tree:
                     continue
-                item_text = tree.item(iid, "text")
-                if item_text:
-                    selected_paths.append(item_text)
+                for iid in tree.selection():
+                    # Ignore parent nodes (version headers)
+                    if tree.get_children(iid):
+                        continue
+                    item_text = tree.item(iid, "text")
+                    if item_text:
+                        selected_paths.append(item_text)
+            # Deduplicate while preserving selection order
+            return list(dict.fromkeys(selected_paths))
+        elif context == "folder_cleaner":
+            if not hasattr(self, "folder_cleaner_tab"):
+                return []
+            return self.folder_cleaner_tab.get_selected_folders()
+        return []
+
+    def _on_remove_selected_folders(self, selected_folders):
+        """Remove selected folders based on delete mode setting.
+
+        Args:
+            selected_folders: List of folder paths to remove
+        """
+        if not selected_folders:
+            return
+
+        from core.background_task import BackgroundTask
+        import shutil
+        import os
+
+        delete_mode = self.delete_mode_var.get()
+
+        def do_remove():
+            """Background task: Remove selected folders."""
+            removed_folders = []
+
+            for folder_path in selected_folders:
+                try:
+                    if delete_mode == "trash":
+                        # Move to trash
+                        from send2trash import send2trash
+
+                        send2trash(folder_path)
+                    else:
+                        # Permanent delete
+                        shutil.rmtree(folder_path)
+                    removed_folders.append(folder_path)
+
+                    # Log with game version and folder name
+                    from wow.path_manager import PathManager
+
+                    path_manager = PathManager(self.loc)
+
+                    # Find which game version this folder belongs to
+                    game_version_label = self.loc._("unknown")
+                    for game_version in self.game_versions:
+                        if game_version.flavor_dir in folder_path:
+                            game_version_label = game_version.display_name
+                            break
+
+                    # Extract folder name from path
+                    folder_name = os.path.basename(folder_path.rstrip(os.sep))
+
+                    # Log the removal (always logs regardless of verbose setting)
+                    self.logger.log(
+                        self.loc._(
+                            "user_log_normal_removed_folder",
+                            game_version_label,
+                            folder_name,
+                        )
+                    )
+                except Exception as e:
+                    self.logger.error(f"Failed to remove {folder_path}: {str(e)}")
+
+            return removed_folders
+
+        def on_complete(removed_folders):
+            """Main thread callback: Update UI and clear selections."""
+            if removed_folders:
+                # Clear checkboxes for removed folders
+                for (
+                    flavor_dir,
+                    folders_dict,
+                ) in self.folder_cleaner_tab.folder_checkboxes.items():
+                    for folder_type, (var, _, folder_path) in folders_dict.items():
+                        if folder_path in removed_folders:
+                            var.set(False)
+
+        BackgroundTask.run(self.root, do_remove, on_complete, logger=self.logger)
 
         # Deduplicate while preserving selection order
         return list(dict.fromkeys(selected_paths))
+
+    def _on_scan_folders(self):
+        """Scan for cleanable folders and screenshots content.
+
+        Displays found folders in the folder cleaner tab with checkboxes and,
+        when a Screenshots folder exists, lists its files for preview.
+        Cache folder is always displayed last if found.
+        """
+        from core.background_task import BackgroundTask
+
+        def do_scan():
+            """Background task: Scan all WoW versions for cleanable folders.
+
+            January 3, 2026: Optimized with os.scandir for 2-3x faster screenshot enumeration.
+            Uses scandir instead of listdir to avoid loading all names into memory.
+            """
+            import os
+            from wow.path_manager import PathManager
+
+            wow_path = self.settings.get("wow_path")
+            path_manager = PathManager(self.loc)
+            flavors = path_manager.detect_flavors(wow_path)
+
+            if not flavors:
+                self.logger.log(self.loc._("user_log_normal_no_game_versions"))
+                return None
+
+            # Folders to scan for (in display order, cache always last)
+            folder_types = ["Errors", "Logs", "Screenshots", "Cache"]
+
+            results = {}
+            screenshot_files = {}
+            allowed_image_exts = {
+                ".png",
+                ".jpg",
+                ".jpeg",
+                ".bmp",
+                ".gif",
+                ".tga",
+                ".tiff",
+            }
+
+            for flavor_dir in flavors:
+                flavor_path = os.path.join(wow_path, flavor_dir)
+                found_folders = {}
+
+                for folder_type in folder_types:
+                    folder_path = os.path.join(flavor_path, folder_type)
+                    # Use try/except instead of exists check (EAFP pattern - faster)
+                    try:
+                        # January 3, 2026: Use scandir for folder existence check
+                        with os.scandir(folder_path) as entries:
+                            # Verify it's actually a directory by successfully opening it
+                            found_folders[folder_type.lower()] = folder_path
+
+                            if folder_type == "Screenshots":
+                                files = []
+                                # January 3, 2026: scandir is 2-3x faster than listdir
+                                # and doesn't load all filenames into memory at once
+                                for entry in entries:
+                                    try:
+                                        if not entry.is_file(follow_symlinks=False):
+                                            continue
+                                        _, ext = os.path.splitext(entry.name)
+                                        if ext.lower() not in allowed_image_exts:
+                                            continue
+                                        files.append(entry.path)
+                                    except (OSError, PermissionError):
+                                        continue
+
+                                screenshot_files[flavor_dir] = sorted(files)
+                    except (OSError, PermissionError, FileNotFoundError):
+                        # Folder doesn't exist or isn't accessible
+                        continue
+
+                if found_folders:
+                    results[flavor_dir] = found_folders
+
+            return {"folders": results, "screenshots": screenshot_files}
+
+        def on_complete(results):
+            """Main thread callback: Update UI with scan results."""
+            if results and hasattr(self, "folder_cleaner_tab"):
+                folder_results = results.get("folders", {})
+                screenshot_results = results.get("screenshots", {})
+                self.folder_cleaner_tab.display_scan_results(
+                    folder_results, screenshot_results
+                )
+
+        # Execute in background with BackgroundTask utility
+        BackgroundTask.run(self.root, do_scan, on_complete, logger=self.logger)
 
     def __init__(self, root, loc, settings, logger, font_utils):
         """Initialize the main window builder.
@@ -607,6 +775,10 @@ class MainWindowBuilder:
         self.path_entry = None
         self.bug_icon_photo = None  # Store reference to bug icon PhotoImage
         self.file_cleaner_tab = None  # Store reference for scan results
+        self.folder_cleaner_tab = None  # Store reference for folder scan results
+        # Store detected game versions (as GameVersion objects)
+        # These are populated during WoW path validation and used by tabs
+        self.game_versions: list[GameVersion] = []
 
         # Track feature tab indices for enable/disable
         self.feature_tab_indices = []
@@ -655,6 +827,19 @@ class MainWindowBuilder:
             value=self.settings.get("append_log", False)
         )
 
+        # Initialize game versions early (needed before tab creation)
+        from wow.path_manager import PathManager
+
+        path_manager = PathManager(self.loc)
+        detected_path = path_manager.detect_wow_path()
+        valid = (
+            path_manager.validate_wow_path(detected_path) if detected_path else False
+        )
+        if valid and detected_path:
+            _, self.game_versions = path_manager.validate_installation(detected_path)
+        else:
+            self.game_versions = []
+
         # (Debug prints for wow_path_label must only appear after assignment)
         self._create_tabbed_log_area(main_frame, row=3)
 
@@ -695,12 +880,7 @@ class MainWindowBuilder:
         )
         wow_path_label.grid(row=0, column=0, sticky="w", padx=(0, 12))
 
-        # Auto-detect WoW path
-        path_manager = PathManager(self.loc)
-        detected_path = path_manager.detect_wow_path()
-        valid = (
-            path_manager.validate_wow_path(detected_path) if detected_path else False
-        )
+        # Use the already-detected WoW path from earlier in build()
         wow_path_value = detected_path if valid else ""
 
         self.wow_path_var = tk.StringVar(value=wow_path_value)
@@ -1081,9 +1261,17 @@ class MainWindowBuilder:
 
         # Folder Cleaner Tab
         folder_cleaner_tab = FolderCleanerTab(
-            self.tab_frames["folder_cleaner"], self.loc
+            self.tab_frames["folder_cleaner"],
+            self.loc,
+            on_scan_folders=self._on_scan_folders,
+            on_select_all_toggle=lambda: folder_cleaner_tab.toggle_select_all(),
+            on_remove_selected=self._on_remove_selected_folders,
+            get_selected_items=lambda context: [],  # Placeholder (not used for folder cleaner)
+            game_versions=self.game_versions,
+            settings=self.settings,
         )
         folder_cleaner_tab.frame.pack(fill="both", expand=True)
+        self.folder_cleaner_tab = folder_cleaner_tab  # Store reference
 
         # Game Optimizer Tab
         game_optimizer_tab = GameOptimizerTab(

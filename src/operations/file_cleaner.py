@@ -1,12 +1,13 @@
-"""
-FileCleaner: Scans for .bak and .old files in WoW directories.
-Uses BaseScanner for optimized parallel scanning with os.scandir.
+"""FileCleaner: Scans for backup and old files in WoW directories.
 
-Last Updated: December 30, 2025
-- Refactored to inherit from BaseScanner for parallel processing
-- Replaced os.walk with os.scandir for 2-3x performance improvement
-- Supports multi-threaded scanning across WoW versions
-- Uses efficient directory filtering during traversal
+Identifies .bak and .old files that can be safely removed to free up disk space.
+Uses BaseScanner for optimized parallel scanning with os.scandir, providing
+2-3x faster performance than traditional os.walk approaches.
+
+Features:
+- Parallel scanning across multiple WoW game versions
+- Efficient directory filtering to skip irrelevant folders
+- Thread-safe operation for UI responsiveness
 """
 
 import os
@@ -26,10 +27,10 @@ DEFAULT_SKIP_DIRS: Set[str] = {
 
 
 class FileCleaner(BaseScanner):
-    """Scans for .bak and .old files recursively.
+    """Scans for .bak and .old files recursively across WoW installations.
 
-    December 30, 2025: Refactored to use BaseScanner's optimized
-    parallel scanning infrastructure with os.scandir.
+    Inherits from BaseScanner to leverage optimized parallel scanning
+    infrastructure with os.scandir for better performance.
     """
 
     def __init__(
@@ -42,13 +43,14 @@ class FileCleaner(BaseScanner):
         """Initialize FileCleaner with optional skip directory set.
 
         Args:
-            max_workers: Parallel workers for BaseScanner
-            logger: Optional logger
-            loc: Optional localization instance
+            max_workers: Number of parallel workers for BaseScanner
+            logger: Optional logger instance for operation logging
+            loc: Optional localization instance for translated messages
             skip_dirs: Optional set of directory names (case-insensitive) to skip
+                      during scanning. Defaults to common irrelevant directories.
         """
         super().__init__(max_workers=max_workers, logger=logger, loc=loc)
-        # December 30, 2025: Allow customization; default covers known irrelevant dirs
+        # Allow customization; default covers known irrelevant directories
         self.skip_dirs: Set[str] = {d.lower() for d in (skip_dirs or DEFAULT_SKIP_DIRS)}
 
     def _scan_version(self, version_path: str) -> List[str]:
@@ -58,18 +60,18 @@ class FileCleaner(BaseScanner):
             version_path: Path to WoW version (e.g., C:\\WoW\\_retail_)
 
         Returns:
-            List of .bak/.old file paths
+            List of .bak/.old file paths found in the version directory
         """
 
-        # December 30, 2025: Define filter for backup/old files
+        # Define filter for backup/old files
         # This inline function is passed to BaseScanner's recursive scanner
         def is_backup_file(entry: os.DirEntry) -> bool:
             """Filter for .bak and .old files (case-insensitive)."""
             name_lower = entry.name.lower()
             return name_lower.endswith(".bak") or name_lower.endswith(".old")
 
-        # December 30, 2025: Use BaseScanner's optimized os.scandir traversal
-        # Avoids creating unnecessary file lists in memory and skips irrelevant dirs
+        # Use BaseScanner's optimized os.scandir traversal
+        # Avoids creating unnecessary file lists in memory and skips irrelevant directories
         results = self._scan_directory_recursive(
             version_path, is_backup_file, skip_dirs=self.skip_dirs
         )
@@ -77,7 +79,14 @@ class FileCleaner(BaseScanner):
         return results
 
     def delete_files(self, file_paths: List[str]) -> int:
-        """Delete files in the provided list."""
+        """Delete files in the provided list.
+
+        Args:
+            file_paths: List of absolute file paths to delete
+
+        Returns:
+            int: Number of files successfully deleted
+        """
         deleted = 0
         for path in file_paths:
             try:
