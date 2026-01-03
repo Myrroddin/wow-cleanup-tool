@@ -3,6 +3,8 @@
 This document provides a comprehensive overview of all Python modules in the project,
 explaining what each file does and how they work together.
 
+**See also**: [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) for directory organization and design principles.
+
 ## Table of Contents
 
 - [Project Structure](#project-structure)
@@ -69,6 +71,8 @@ tests/                           # Unit tests for all modules
 - `TextWidgetHandler`: Custom handler for Tkinter Text widgets
 - `SessionSeparatorHandler`: Adds session markers in append mode
 
+**See also**: [LOGGING_GUIDE.md](LOGGING_GUIDE.md) for detailed logging usage and patterns.
+
 ### settings.py
 **Purpose**: Manages user preferences and application state.
 
@@ -126,6 +130,8 @@ tests/                           # Unit tests for all modules
 **Key Methods**:
 - `BackgroundTask.run()`: Execute task with completion callback
 - `BackgroundTask.run_with_progress()`: Execute with progress updates
+
+**See also**: [BACKGROUND_TASK_GUIDE.md](BACKGROUND_TASK_GUIDE.md) for usage patterns and best practices.
 
 ### bootstrap.py
 **Purpose**: Ensures required Python packages are installed before startup.
@@ -432,5 +438,12 @@ The application prioritizes file safety:
 - User-friendly error messages
 - Graceful degradation (app works even if optional features fail)
 - Detailed error logs for bug reports
+
+---
+
+**Related Documentation**:
+- [tests_README.md](tests_README.md) - Unit test suite and coverage
+- [TYPE_HINTS_AND_TESTS_SUMMARY.md](TYPE_HINTS_AND_TESTS_SUMMARY.md) - Type hints and testing details
+- [IMPLEMENTATION_ROADMAP.md](IMPLEMENTATION_ROADMAP.md) - Development roadmap and guidelines
 
 """

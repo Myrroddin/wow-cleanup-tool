@@ -12,16 +12,18 @@ wow-cleanup-tool/
 │
 ├── src/                      # Main application source code
 │   ├── core/                 # Core application infrastructure
+│   │   ├── background_task.py# Threaded background task runner with error handling
+│   │   ├── bootstrap.py      # Application bootstrap and dependency checks
 │   │   ├── dependencies.py   # Parallel dependency installation (ThreadPoolExecutor, queue-based)
-│   │   ├── geometry.py       # Window sizing and positioning utilities
-│   │   ├── global_settings.py# Global constants and configuration
+│   │   ├── error_handler.py  # Global error handling and reporting
+│   │   ├── instance_utils.py # Single instance enforcement utilities
 │   │   ├── logger.py         # Dual-channel logging (user + developer)
 │   │   ├── settings.py       # Settings persistence (per-user + cache)
 │   │   ├── single_instance.py# Prevent multiple app instances
 │   │   └── themes.py         # Theme system (light/dark mode)
 │   ├── localization/         # Multi-language support
 │   │   ├── __init__.py       # Localization class
-│   │   └── en_us.py          # English translations (100+ keys, organized by prefix)
+│   │   └── en_us.py          # English translations (140+ keys, organized by prefix)
 │   ├── operations/           # File system operations
 │   │   ├── base_scanner.py   # Base class for all scanners (parallel processing, progress callbacks)
 │   │   ├── file_cleaner.py   # Scanner for .bak/.old backup files
@@ -33,168 +35,132 @@ wow-cleanup-tool/
 │   │   │   ├── __init__.py   # Dialog exports
 │   │   │   ├── license_dialog.py       # GPL-3.0 license dialog
 │   │   │   ├── multiple_installations.py # Multiple WoW installs warning
+│   │   │   ├── screenshot_viewer.py    # Screenshot preview with caching
 │   │   │   └── wow_close_warning.py    # WoW running warning
-│   │   ├── widgets/          # Custom widgets (future use)
+│   │   ├── tabs/             # Tab implementations
+│   │   │   ├── developer_tab.py     # Developer log tab
+│   │   │   ├── file_cleaner_tab.py  # File cleaner tab
+│   │   │   ├── folder_cleaner_tab.py# Folder cleaner tab with screenshot caching
+│   │   │   ├── game_optimizer_tab.py# Game optimizer tab
+│   │   │   └── log_tab.py           # User log tab
+│   │   ├── widgets/          # Custom widgets
 │   │   │   ├── __init__.py   # Widgets package
 │   │   │   └── tooltip.py    # Fixed 10pt TkFixedFont tooltips with boundary detection
 │   │   ├── __init__.py       # UI module exports
 │   │   ├── app_controller.py # Event handlers and UI state management
+│   │   ├── custom_tabbar.py  # Custom tab bar with tooltips and debouncing
 │   │   ├── dialog_base.py    # Base class for theme-aware dialogs
 │   │   ├── font_utils.py     # System font detection
 │   │   ├── geometry.py       # Window geometry calculations
+│   │   ├── log_controls.py   # Centralized log control buttons
 │   │   ├── main_window.py    # Main window builder (6 tabs)
+│   │   ├── text_widget_handler.py # Text widget log output handler
 │   │   └── ui_constants.py   # UI dimensions and styling constants
-│   └── wow/                  # WoW-specific functionality
-│       ├── __init__.py       # WoW module exports
-│       ├── game_optimizer.py # Game configuration optimization (future)
-│       ├── game_validation.py# Installation validation utilities
-│       ├── path_handler.py   # WoW path detection and user browsing
-│       └── path_manager.py   # Installation management and validation
-│   └── wow_cleanup_tool.py   # Main application entry point
-│   └── wow_cleanup_tool.spec # PyInstaller build configuration (v1.0 feature-complete)
+│   ├── wow/                  # WoW-specific functionality
+│   │   ├── __init__.py       # WoW module exports
+│   │   ├── path_handler.py   # WoW path detection and user browsing
+│   │   ├── path_manager.py   # Installation management and validation
+│   │   └── version_manager.py# Game version detection and management
+│   ├── wow_cleanup_tool.py   # Main application entry point
+│   └── wow_cleanup_tool.spec # PyInstaller build configuration
 │
 ├── assets/
 │   └── icons/                # Application icons
 │       ├── wow_cleanup_icon.ico   # Windows icon
-│       ├── wow_cleanup_icon.icns  # macOS icon
-│       └── *.png                  # Icon resources (app uses emoji for UI elements)
+│       └── wow_cleanup_icon.icns  # macOS icon
 │
 ├── docs/                    # Documentation files
-│   ├── README.md
-│   ├── LOGGING_GUIDE.md
-│   ├── PROJECT_STRUCTURE.md
-│   ├── TYPE_HINTS_AND_TESTS_SUMMARY.md
-│   ├── IMPLEMENTATION_ROADMAP.md
-│   ├── tests_README.md
-│   └── BACKGROUND_TASK_GUIDE.md
+│   ├── BACKGROUND_TASK_GUIDE.md    # BackgroundTask usage guide
+│   ├── CODE_DOCUMENTATION.md       # Code documentation standards
+│   ├── IMPLEMENTATION_ROADMAP.md   # Development roadmap
+│   ├── LOGGING_GUIDE.md            # Logging system guide
+│   ├── PROJECT_STRUCTURE.md        # This file
+│   ├── README.md                   # Main documentation
+│   ├── tests_README.md             # Test suite documentation
+│   └── TYPE_HINTS_AND_TESTS_SUMMARY.md # Type hints and testing overview
 │
-├── tests/                  # Unit tests (129 tests: 127 passed, 2 skipped)
+├── tests/                  # Unit tests (189 tests: 188 passed, 1 skipped)
+│   ├── test_dependencies.py        # DependencyManager tests (20 tests)
+│   ├── test_error_handler.py       # ErrorHandler tests
+│   ├── test_file_cleaner.py        # FileCleaner tests
+│   ├── test_file_operations.py     # File operations tests
+│   ├── test_folder_cleaner_tab.py  # FolderCleanerTab tests (28 tests)
+│   ├── test_localization.py        # Localization tests
+│   ├── test_localization_en_us.py  # English translation tests
+│   ├── test_log_controls.py        # Log controls tests
+│   ├── test_log_tabs.py            # Log/Developer tab tests
+│   ├── test_logger.py              # Logger tests
+│   ├── test_main_window.py         # Main window tests
+│   ├── test_orphan_scanner.py      # OrphanScanner tests
+│   ├── test_path_manager.py        # PathManager tests
+│   ├── test_screenshot_viewer.py   # Screenshot viewer tests
+│   ├── test_settings.py            # Settings tests
+│   ├── test_themes.py              # Theme system tests
+│   ├── test_tooltip.py             # Tooltip widget tests (9 tests)
+│   └── test_wow_cleanup_tool.py    # Main application tests
+│
+├── tools/                  # Development utilities
+│   └── audit_i18n_keys.py  # Localization key audit tool
 │
 ├── LICENSE                 # GPL-3.0 license
-└── requirements.txt        # Python dependencies
+├── README.md               # Project readme
+├── requirements.txt        # Python dependencies
+└── test_results.txt        # Latest test execution results
 ```
 
 ## Design Principles
 
-### 1. Separation of Concerns
-- **Backend** (operations): Pure logic, no UI, returns data
-- **Frontend** (ui): Displays data, handles user interaction
-- **Core**: System-level infrastructure used by both
+**Separation of Concerns**: Backend (operations) = pure logic; Frontend (ui) = user interaction; Core = shared infrastructure
 
-### 2. Modularity
-- Each module has single responsibility
-- Clear import hierarchy: core → localization/operations/wow → ui → main
-- No circular dependencies
+**Modularity**: Single responsibility per module; clear import hierarchy (core → localization/operations/wow → ui → main); no circular dependencies
 
-### 3. Performance
-- `os.scandir()` for fast file/folder listing
-- Parallel processing with ThreadPoolExecutor (BaseScanner, dependencies)
-- Compiled regex patterns at module level (FileCleaner)
-- Configure event debouncing (50ms) prevents layout calculation churn
-- Screenshot caching with PIL Image.thumbnail() and LANCZOS resampling
-- Tab tooltip debouncing (200ms) reduces Toplevel widget creation
-- Emoji icons for auto-scaling without PNG image loading
-- Thread-safe queue-based communication for parallel operations
-- Minimal update_idletasks calls in main window
+**Performance**: os.scandir() for fast I/O; ThreadPoolExecutor parallel processing (BaseScanner, dependencies); compiled regex patterns; Configure debouncing (50ms); screenshot caching (PIL LANCZOS); tab tooltip debouncing (200ms); emoji auto-scaling; thread-safe queue communication; minimal update_idletasks
 
-### 4. User Experience
-- All user-facing text localized (sorted keys, robust fallback)
-- Theme-aware UI components
-- Settings persistence across sessions (per-user JSON)
-- Error handling with graceful degradation
+**User Experience**: Localized text with fallback; theme-aware UI; persistent settings (per-user JSON); graceful error degradation
 
-### 5. Extensibility
-- `BaseScanner` class for new cleanup features (FileCleaner, OrphanScanner, future FolderScanner)
-- File operations module with batch delete and AddOns.txt integration
-- Plugin-ready localization system
-- `BaseDialog` for new dialogs
-- Modular tab system for new UI features
+**Extensibility**: BaseScanner for new cleanup features; batch file operations; plugin-ready localization; BaseDialog for themed dialogs; modular tab system
 
-## Build Configuration
+## Build & Configuration
 
-### PyInstaller (`wow_cleanup_tool.spec`)
-Defines how to build standalone executables:
-- Includes all module paths
-- Platform-specific icon selection
-- Hidden imports for dynamic modules
-- Single-file executable output
+**PyInstaller** (`wow_cleanup_tool.spec`): Defines standalone executable builds with module paths, platform icons, hidden imports, single-file output
 
-### GitHub Actions (`.github/workflows/build-release.yml`)
-Automated builds for Windows, macOS, and Linux:
-- Triggers on version tags (v*.*.*)
-- Builds platform-specific executables
-- Creates release artifacts
-- Automatic version updates in code
+**GitHub Actions** (`.github/workflows/build-release.yml`): Automated CI/CD for Windows/macOS/Linux on version tags (v*.*.*), creates release artifacts
 
 ## Data Files
 
-### Settings
-- **User settings**: `~/.wow_cleanup_tool/settings.json`
-  - Theme, font, language, window geometry
-  - Delete mode ('trash' or 'permanent')
-  - Verbose logging (True/False)
-  - Append log (True/False, enables log persistence)
-  - Per-user, cross-platform
+**Settings** (`~/.wow_cleanup_tool/settings.json`): Theme, font, language, window geometry, delete mode (trash/permanent), verbose/append logging  
+**WoW Cache** (`<WoW_Install>/.wow_cleanup_cache.json`): Cached WoW path, avoids admin rights for global settings  
+**User Log** (`~/.wow_cleanup_tool/user_log.txt`): Persistent log when append mode enabled, newest-first with session separators
 
-- **WoW path cache**: `<WoW_Install>/.wow_cleanup_cache.json`
-  - Cached detected WoW installation path
-  - Avoids requiring admin rights for global settings
-
-- **User log**: `~/.wow_cleanup_tool/user_log.txt`
-  - Persistent log file (when append mode enabled)
-  - Newest sessions at top with separators
-  - Each session timestamped
-
-### Logs
-- **Tabbed interface** in main window:
-  - **Feature tabs**: File Cleaner, Folder Cleaner, Game Optimizer, Optimization Suggestions (future)
-  - **Log tab**: User operations with Copy/Save/Delete (log_controls.py)
-    - `.log()`: Essential messages
-    - `.verbose()`: Detailed operations (if verbose enabled)
-    - Delete button visible only when append mode enabled
-    - Respects delete mode setting (trash vs permanent)
-  - **Developer tab**: Technical diagnostics (always verbose)
-    - `.debug()`: Blue-colored debug messages
-    - `.error()`: Red-colored errors with 🔴 badge counter
-    - Copy/Save buttons for bug reports
-- **Session management**: When append mode enabled, logs persist with newest-first ordering
-- No external log files required (user preference)
+**Tabbed Logging**:
+- Feature tabs: File Cleaner, Folder Cleaner, Game Optimizer, Optimization Suggestions
+- Log tab: User operations with `.log()` (essential) and `.verbose()` (detailed); Copy/Save/Delete buttons (log_controls.py); delete button dimmed when append OFF; respects delete mode
+- Developer tab: Technical diagnostics with `.debug()` (blue), `.error()` (red + 🔴 badge counter); Copy/Save for bug reports; always verbose
+- Session management: Append mode persists logs newest-first
 
 ## Import Patterns
 
-### Main Application
-```python
-from core.logger import Logger
-from core.settings import load_settings, save_settings
-from localization import Localization
-from ui.main_window import MainWindow
-from wow.path_manager import PathManager
-```
+**Main**: `from core.logger import Logger; from core.settings import load_settings; from localization import Localization; from ui.main_window import MainWindow; from wow.path_manager import PathManager`
 
-### UI Components
-```python
-from ..core.themes import apply_theme
-from ..localization import Localization
-from .ui_constants import DialogDimensions
-from .dialog_base import BaseDialog
-```
+**UI**: `from ..core.themes import apply_theme; from ..localization import Localization; from .ui_constants import DialogDimensions; from .dialog_base import BaseDialog`
 
-### Operations
-```python
-from operations.base_scanner import BaseScanner
-from operations.file_cleaner import FileCleaner
-from operations.file_operations import delete_files_batch
-```
+**Operations**: `from operations.base_scanner import BaseScanner; from operations.file_cleaner import FileCleaner; from operations.file_operations import delete_files_batch`
 
 ## Testing Checklist
-
-When modifying structure:
 - [ ] Run application to verify imports
-- [ ] Check for linting errors
+- [ ] Check linting errors
 - [ ] Update `wow_cleanup_tool.spec` if modules added/moved
-- [ ] Update this document
-- [ ] Update `IMPLEMENTATION_ROADMAP.md` if relevant
+- [ ] Update this document and `IMPLEMENTATION_ROADMAP.md`
 - [ ] Test PyInstaller build: `pyinstaller wow_cleanup_tool.spec`
-- [ ] Verify no __pycache__ committed to git
-- [ ] Ensure all user-facing strings are localized and sorted
-- [ ] Ensure all new/changed code is covered by isolated unit tests
+- [ ] Verify no __pycache__ committed
+- [ ] Ensure user-facing strings localized and sorted
+- [ ] Ensure new/changed code covered by isolated unit tests
+
+---
+
+**Related Documentation**:
+- [CODE_DOCUMENTATION.md](CODE_DOCUMENTATION.md) - Detailed module descriptions
+- [LOGGING_GUIDE.md](LOGGING_GUIDE.md) - Logging system usage
+- [BACKGROUND_TASK_GUIDE.md](BACKGROUND_TASK_GUIDE.md) - Background task patterns
+- [tests_README.md](tests_README.md) - Test suite and coverage
+- [IMPLEMENTATION_ROADMAP.md](IMPLEMENTATION_ROADMAP.md) - Development roadmap

@@ -1,43 +1,19 @@
-
-
-# Logging System - User & Developer Guide
+# Logging System Guide
 
 ## Overview
 
-WoW Cleanup Tool uses a modern, dual-channel logging system built on Python's `logging` module. All log actions in the UI (copy, save, clear, delete) are handled by a centralized log controls utility (`src/ui/log_controls.py`), ensuring consistent behavior for both User Log and Developer Log tabs. The modular UI delegates log actions to this utility for maintainability and testability. Logs are automatically rotated, support append mode, and are thread-safe for parallel operations.
+Dual-channel logging system built on Python's `logging` module with automatic rotation, append mode, and thread-safe operations. All log actions (copy, save, clear, delete) handled by `src/ui/log_controls.py` for consistent behavior.
 
-**Log and Developer tabs now feature a visible text area and log control buttons (Clear, Save, Copy), using a grid-based modular layout.**
+## Log Channels
 
+**User Log** (`~/.wow_cleanup_tool/user_log.txt`): INFO messages, 1MB rotation, 5 backups, append mode toggleable  
+**Developer Log** (`~/.wow_cleanup_tool/dev_log.txt`): DEBUG/INFO/WARNING/ERROR, 5MB rotation, 3 backups, always verbose
 
-## Features
+### Log Controls (src/ui/log_controls.py)
+- **User Log Tab**: Clear Session Log (append-aware), Delete Log File (dimmed when append OFF), Open Log Folder, Copy to Clipboard
+- **Developer Log Tab**: Clear Session Log (display only), Open Log Folder, Copy to Clipboard
+- Respects delete mode (trash vs permanent), cross-platform folder opening, grid-based layout
 
-### Dual Log Channels
-- **User Log** (`~/.wow_cleanup_tool/user_log.txt`)
-  - INFO and essential messages only
-  - Rotates at 1MB, keeps 5 backups
-  - Append mode: logs persist across sessions (newest at top); when append is off, the file is cleared on startup
-- **Developer Log** (`~/.wow_cleanup_tool/dev_log.txt`)
-  - DEBUG, INFO, WARNING, ERROR
-  - Rotates at 5MB, keeps 3 backups
-  - Always verbose, includes stack traces for errors; persisted across sessions by default
-
-### Log Controls Utility (Feature-Complete)
-- All log actions (clear, open folder, copy, delete) are handled by `src/ui/log_controls.py`
-- **User Log Tab** (4 buttons):
-  - Clear Session Log: Append-mode-aware (clears display + deletes file when OFF; display only when ON)
-  - Delete Log File: Dynamically dims when append OFF, enabled when append ON
-  - Open Log Folder: Cross-platform folder opening (Windows/macOS/Linux)
-  - Copy to Clipboard: Full log contents
-- **Developer Log Tab** (3 buttons):
-  - Clear Session Log: Clears display only
-  - Open Log Folder: Cross-platform folder opening
-  - Copy to Clipboard: Full developer log contents
-- Delete button uses overlay technique for visual dimming without theme/geometry conflicts
-- Log controls respect delete mode (trash vs permanent) for file deletion
-- Descriptions with word-wrapping explain each tab's purpose
-- Grid-based layout ensures consistent spacing and alignment
-
-### Log Levels & Messages
 | Level   | User Log | Dev Log | Description                      |
 |---------|----------|---------|----------------------------------|
 | DEBUG   | ❌       | ✅      | Detailed diagnostic information  |
@@ -45,188 +21,81 @@ WoW Cleanup Tool uses a modern, dual-channel logging system built on Python's `l
 | WARNING | ❌       | ✅      | Warning messages                 |
 | ERROR   | ❌       | ✅      | Error messages with stack traces |
 
-### File Cleaner Operations Logging
-**Normal Mode (User Log):**
-- "[retail]: removed 5 file(s)" (per-version summary of deleted backups)
-- "[retail]: removed 2 line(s) from AddOns.txt" (per-version summary of cleaned addon entries)
+**Log Format**: User Log: `[YYYY-MM-DD HH:MM:SS] Message`; Developer Log: `[YYYY-MM-DD HH:MM:SS] [LEVEL] Message`
 
-**Verbose Mode (User Log):**
-- "[retail]: removed addon_backup.bak" (per-file detail)
-- "[retail]: removed Addon1 from AddOns.txt" (per-addon detail)
-
-**Developer Log:**
-- Detailed operation status, error messages, and diagnostic information
-
-### Log Format
-**User Log:** `[YYYY-MM-DD HH:MM:SS] Message text`
-**Developer Log:** `[YYYY-MM-DD HH:MM:SS] [LEVEL] Message text`
+**File Cleaner Output Examples**:
+- Normal: `[retail]: removed 5 file(s)` or `[retail]: removed 2 line(s) from AddOns.txt`
+- Verbose: `[retail]: removed addon_backup.bak` or `[retail]: removed Addon1 from AddOns.txt`
 
 ## Usage for Developers
 
 ### Basic Logging
-
-
 ```python
 from src.core.logger import Logger
 
-# Initialize logger
 logger = Logger(verbose=True, append_mode=True)
-
-# User-facing messages (Log tab)
-logger.log("Operation completed successfully")
-
-# Verbose messages (Log tab, if verbose enabled)
-logger.verbose("Deleted file: addon_backup.bak")
-
-# Developer messages (Developer tab)
-logger.debug("Scanning directory: C:\\WoW\\_retail_")
-logger.warning("Using fallback path detection method")
-logger.error("Failed to delete file: Permission denied")
+logger.log("Operation completed successfully")  # User Log
+logger.verbose("Deleted file: addon_backup.bak")  # User Log (if verbose)
+logger.debug("Scanning directory: C:\\WoW\\_retail_")  # Developer Log
+logger.warning("Using fallback path detection method")  # Developer Log
+logger.error("Failed to delete file: Permission denied")  # Developer Log
 ```
 
-### Universal Logging Pattern: logger.log() vs logger.verbose()
-
-**IMPORTANT:** Never call both `logger.log()` AND `logger.verbose()` for the same action. Use an if/else pattern:
+### Critical Pattern: logger.log() vs logger.verbose()
+**Never call both for the same action** - use if/else to prevent duplicate entries:
 
 ```python
 # When both verbose and normal messages exist:
 if getattr(self.logger, "_verbose", False):
-    # Verbose mode ON: show detailed message
-    self.logger.verbose(f"[Retail] removed {filepath}")
+    self.logger.verbose(f"[Retail] removed {filepath}")  # Detailed
 else:
-    # Verbose mode OFF: show summary message
-    self.logger.log(f"[Retail]: removed {count} file(s).")
+    self.logger.log(f"[Retail]: removed {count} file(s).")  # Summary
 
-# When only one message exists (no verbose alternative):
+# When only one message exists:
 logger.log("Simple status message")  # No if/else needed
 ```
 
-**The Rule:**
-- `logger.log()` is used when there's NO verbose alternative OR when verbose mode is OFF
-- `logger.verbose()` is used when there IS a verbose alternative AND verbose mode is ON
-- **NEVER both for the same action** (prevents duplicate log entries)
+**Rule**: `logger.log()` when verbose OFF or no verbose alternative; `logger.verbose()` when verbose ON with alternative. Developer logs (`error()`, `debug()`, `warning()`) always log without branching.
 
-**Developer logs are simple:**
-- `logger.error()`, `logger.debug()`, `logger.warning()` always log (no branching needed)
-- Only user-facing logs need the if/else pattern
-
-
-### Attach to UI Widgets
+### Configuration & UI Integration
 ```python
-# Attach to Log tab text widget (now a grid-based tk.Text)
+# Attach to UI widgets
 logger.attach_text_widget(user_log_text_widget)
-
-# Attach to Developer tab text widget (now a grid-based tk.Text)
 logger.attach_dev_text_widget(dev_log_text_widget)
-```
 
-
-### Configuration
-```python
-# Enable/disable verbose logging
-logger.set_verbose(True)   # Show all operations
-logger.set_verbose(False)  # Show only important messages
-
-# Enable/disable append mode
-logger.set_append_mode(True)   # Keep logs across sessions
-logger.set_append_mode(False)  # Clear logs on restart
-
-# Set error callback for badge updates
+# Configure logging behavior
+logger.set_verbose(True)        # Show all operations
+logger.set_append_mode(True)    # Keep logs across sessions
 logger.set_error_callback(lambda count: update_error_badge(count))
 ```
 
-
-### Advanced: Custom Handlers
-You can add custom handlers (e.g., email, syslog, JSON) to the developer logger:
+### Custom Handlers (Advanced)
 ```python
-import logging
+# Add custom handlers (email, syslog, JSON)
 import logging.handlers
 dev_logger = logging.getLogger('wow_cleanup.dev')
 email_handler = logging.handlers.SMTPHandler(
-  mailhost='smtp.example.com',
-  fromaddr='app@example.com',
-  toaddrs=['admin@example.com'],
-  subject='WoW Cleanup Tool - Critical Error')
+    mailhost='smtp.example.com', fromaddr='app@example.com',
+    toaddrs=['admin@example.com'], subject='Critical Error')
 email_handler.setLevel(logging.ERROR)
 dev_logger.addHandler(email_handler)
 ```
 
-
 ## Log File Locations
-
-### Windows
-```
-C:\Users\<YourName>\.wow_cleanup_tool\
-├── user_log.txt          (current user log)
-├── user_log.txt.1        (backup 1)
-├── ...
-├── dev_log.txt           (current developer log)
-├── dev_log.txt.1         (backup 1)
-└── dev_log.txt.2         (backup 2)
-```
-
-### Linux/macOS
-```
-~/.wow_cleanup_tool/
-├── user_log.txt
-├── user_log.txt.1
-├── ...
-├── dev_log.txt
-└── dev_log.txt.1
-```
-
-
-## API Reference
-All logging methods work seamlessly:
-```python
-logger.log("Message")           # User log
-logger.verbose("Verbose msg")  # User log (if verbose)
-logger.debug("Debug msg")      # Developer log
-logger.error("Error msg")      # Developer log
-logger.warning("Warning msg")  # Developer log
-logger.set_verbose(True)
-logger.attach_text_widget(widget)
-```
-
-
-## Benefits
-
-### For Users
-- Log files never grow huge (automatic rotation)
-- Logs persist across sessions (append mode)
-- Can analyze old logs (numbered backups)
-- Timestamps on every message
-
-### For Developers
-- Thread-safe logging (parallel operations)
-- Standard Python logging (compatible with tools)
-- Easy to extend (add handlers)
-- Professional logging practices
-- Better debugging with log levels
-
+**Windows**: `C:\Users\<YourName>\.wow_cleanup_tool\user_log.txt[.1-.5]`, `dev_log.txt[.1-.3]`  
+**Linux/macOS**: `~/.wow_cleanup_tool/user_log.txt[.1-.5]`, `dev_log.txt[.1-.3]`
 
 ## Troubleshooting
 
-### Logs not appearing in UI?
-Check that widgets are attached:
+**Logs not in UI?** Verify widgets attached: `logger.attach_text_widget(widget)`, `logger.attach_dev_text_widget(dev_widget)`
+
+**Change rotation?** Edit `src/core/logger.py` in `_setup_file_handlers()`:
 ```python
-logger.attach_text_widget(user_widget)
-logger.attach_dev_text_widget(dev_widget)
+user_file_handler = RotatingFileHandler(
+    user_log_file, maxBytes=2*1024*1024, backupCount=10, encoding='utf-8')
 ```
 
-### Want to change rotation settings?
-Edit `src/core/logger.py` in `_setup_file_handlers()`:
-```python
-user_file_handler = logging.handlers.RotatingFileHandler(
-  user_log_file,
-  maxBytes=2 * 1024 * 1024,  # 2MB instead of 1MB
-  backupCount=10,            # 10 backups instead of 5
-  encoding='utf-8'
-)
-```
-
-### Want logs to go to console too?
-Add a StreamHandler:
+**Console output?** Add StreamHandler:
 ```python
 console = logging.StreamHandler()
 console.setLevel(logging.DEBUG)
@@ -234,16 +103,9 @@ console.setFormatter(logger.dev_formatter)
 logger.dev_logger.addHandler(console)
 ```
 
-
-## Future Enhancements
-- Email notifications for critical errors
-- Syslog integration for server deployments
-- JSON-formatted logs for log analysis tools
-- Compressed log rotation (gzip old logs)
-- Network logging (send logs to central server)
-- Filtering by module/function name
-- Performance metrics logging
+## Benefits
+- **Users**: Automatic rotation, persistent logs, backups, timestamps
+- **Developers**: Thread-safe, standard Python logging, extensible, professional practices
 
 ---
-
-For more information: https://docs.python.org/3/library/logging.html
+Documentation: https://docs.python.org/3/library/logging.html
