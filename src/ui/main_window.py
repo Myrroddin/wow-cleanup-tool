@@ -52,12 +52,8 @@ class MainWindowBuilder:
 
             theme_name = self.settings.get("theme", "light")
             theme = THEMES.get(theme_name, THEMES["light"])
-            font_family = self.settings.get("font_family", "TkDefaultFont")
-            font_size = int(self.settings.get("font_size", 12))
 
-            tooltip = Tooltip(
-                widget, text, theme, font_family, font_size, wraplength=320
-            )
+            tooltip = Tooltip(widget, text, theme, wraplength=280)
             tooltip.show()
             self._active_tooltip = tooltip
         except Exception:
@@ -109,7 +105,7 @@ class MainWindowBuilder:
         apply_theme(self.root, theme_name, font_family, font_size)
         # ...removed debug print...
         # Update ttk styles for all major widget types
-        Tooltip.refresh_all_visible_tooltips(theme_colors, font_family, font_size)
+        Tooltip.refresh_all_visible_tooltips(theme_colors)
         style = ttk.Style()
         widget_types = [
             "TLabel",
@@ -126,34 +122,18 @@ class MainWindowBuilder:
             "TScrollbar",
         ]
 
-        # Refresh bug icon if it exists
-        self._refresh_bug_icon(font_size)
+        # Refresh tab description wraplengths
+        if hasattr(self, "file_cleaner_tab"):
+            self.file_cleaner_tab.refresh_wraplength(font_size)
+        if hasattr(self, "folder_cleaner_tab"):
+            self.folder_cleaner_tab.refresh_wraplength(font_size)
+        if hasattr(self, "log_tab"):
+            self.log_tab.refresh_wraplength(font_size)
+        if hasattr(self, "developer_tab"):
+            self.developer_tab.refresh_wraplength(font_size)
 
         # Only font/style update logic should be here. All widget creation and layout must be in build().
         pass
-
-    def _refresh_bug_icon(self, font_size):
-        """Refresh the bug icon to match current font size."""
-        try:
-            from PIL import Image, ImageTk
-            from pathlib import Path
-
-            # Determine icon size based on font size
-            icon_size = max(16, font_size + 6)
-
-            # Load and resize the bug icon
-            icon_path = (
-                Path(__file__).parent.parent.parent / "assets" / "icons" / "bug_16.png"
-            )
-            if icon_path.exists():
-                bug_icon = Image.open(icon_path)
-                bug_icon = bug_icon.resize(
-                    (icon_size, icon_size), Image.Resampling.LANCZOS
-                )
-                self.bug_icon_photo = ImageTk.PhotoImage(bug_icon)
-        except Exception:
-            # Silently fail if icon refresh is not possible
-            pass
 
     def add_font_controls(self, parent, on_font_family_changed, on_font_size_changed):
         """Add font family and size controls to the given parent widget."""
@@ -215,55 +195,70 @@ class MainWindowBuilder:
 
     def __init__(self, *args, **kwargs):
         def show_tooltip(event):
-            """Show tooltip when hovering over a disabled tab."""
+            """Show tooltip when hovering over a disabled tab (debounced)."""
             if (
                 not hasattr(self, "_tab_tooltip_bindings")
                 or not self._tab_tooltip_bindings
             ):
                 return
-            try:
-                elem = self.tabbar.identify(event.x, event.y)
-                if elem and hasattr(self.tabbar, "index"):
-                    tab_idx = self.tabbar.index(f"@{event.x},{event.y}")
-                    if tab_idx in self._tab_tooltip_bindings:
-                        if (
-                            self._current_tooltip_tab == tab_idx
-                            and self._tooltip_window
-                        ):
-                            return
-                        tooltip_text = self._tab_tooltip_bindings[tab_idx]
-                        if self._tooltip_window:
-                            self._tooltip_window.destroy()
-                        from core.themes import THEMES
 
-                        current_theme = self.settings.get("theme", "dark")
-                        theme_colors = THEMES.get(current_theme, THEMES["dark"])
-                        self._tooltip_window = tk.Toplevel(self.tabbar)
-                        self._tooltip_window.wm_overrideredirect(True)
-                        self._tooltip_window.wm_geometry(
-                            f"+{event.x_root + 10}+{event.y_root + 10}"
-                        )
-                        label = tk.Label(
-                            self._tooltip_window,
-                            text=tooltip_text,
-                            background=theme_colors.get("tooltip_bg", "#ffffe0"),
-                            foreground=theme_colors.get("tooltip_fg", "#000000"),
-                            relief="solid",
-                            borderwidth=1,
-                            font=("TkDefaultFont", 9),
-                            padx=8,
-                            pady=5,
-                            wraplength=300,
-                            justify="left",
-                        )
-                        label.pack()
-                        self._current_tooltip_tab = tab_idx
-                    else:
-                        hide_tooltip(None)
-            except Exception:
-                pass
+            # Cancel pending tooltip if any
+            if self._tooltip_timer:
+                self.tabbar.after_cancel(self._tooltip_timer)
+                self._tooltip_timer = None
+
+            # Schedule tooltip after 200ms delay to avoid rapid create/destroy
+            def _show_delayed():
+                try:
+                    elem = self.tabbar.identify(event.x, event.y)
+                    if elem and hasattr(self.tabbar, "index"):
+                        tab_idx = self.tabbar.index(f"@{event.x},{event.y}")
+                        if tab_idx in self._tab_tooltip_bindings:
+                            if (
+                                self._current_tooltip_tab == tab_idx
+                                and self._tooltip_window
+                            ):
+                                return
+                            tooltip_text = self._tab_tooltip_bindings[tab_idx]
+                            if self._tooltip_window:
+                                self._tooltip_window.destroy()
+                            from core.themes import THEMES
+
+                            current_theme = self.settings.get("theme", "dark")
+                            theme_colors = THEMES.get(current_theme, THEMES["dark"])
+                            self._tooltip_window = tk.Toplevel(self.tabbar)
+                            self._tooltip_window.wm_overrideredirect(True)
+                            self._tooltip_window.wm_geometry(
+                                f"+{event.x_root + 10}+{event.y_root + 10}"
+                            )
+                            label = tk.Label(
+                                self._tooltip_window,
+                                text=tooltip_text,
+                                background=theme_colors.get("tooltip_bg", "#ffffe0"),
+                                foreground=theme_colors.get("tooltip_fg", "#000000"),
+                                relief="solid",
+                                borderwidth=1,
+                                font=("TkDefaultFont", 9),
+                                padx=8,
+                                pady=5,
+                                wraplength=300,
+                                justify="left",
+                            )
+                            label.pack()
+                            self._current_tooltip_tab = tab_idx
+                        else:
+                            hide_tooltip(None)
+                except Exception:
+                    pass
+
+            self._tooltip_timer = self.tabbar.after(200, _show_delayed)
 
         def hide_tooltip(event):
+            # Cancel pending tooltip
+            if self._tooltip_timer:
+                self.tabbar.after_cancel(self._tooltip_timer)
+                self._tooltip_timer = None
+            # Destroy existing tooltip
             if self._tooltip_window:
                 self._tooltip_window.destroy()
                 self._tooltip_window = None
@@ -771,9 +766,9 @@ class MainWindowBuilder:
         self.dev_tab_index = None
         self.dev_badge_label = None
         self._active_tooltip = None
+        self._tooltip_timer = None  # Debounce timer for tab tooltips
         self.wow_path_var = None
         self.path_entry = None
-        self.bug_icon_photo = None  # Store reference to bug icon PhotoImage
         self.file_cleaner_tab = None  # Store reference for scan results
         self.folder_cleaner_tab = None  # Store reference for folder scan results
         # Store detected game versions (as GameVersion objects)
@@ -888,7 +883,6 @@ class MainWindowBuilder:
             wow_path_frame, textvariable=self.wow_path_var, width=24
         )
         self.path_entry.grid(row=0, column=1, sticky="w", padx=(0, 12))
-        self.root.update_idletasks()
 
         # Browse button
         def on_browse():
@@ -1189,7 +1183,6 @@ class MainWindowBuilder:
         )
 
         bug_btn.grid(row=0, column=7, padx=(0, 0), sticky="w")
-        self.root.update_idletasks()
 
         # Build UI sections
         path_frame = wow_path_frame
@@ -1255,6 +1248,7 @@ class MainWindowBuilder:
             getattr(self, "_on_select_all_toggle", lambda items: None),
             self._on_remove_selected,
             self.get_selected_items,
+            font_size=self.settings.get("font_size", 12),
         )
         file_cleaner_tab.frame.pack(fill="both", expand=True)
         self.file_cleaner_tab = file_cleaner_tab
@@ -1269,6 +1263,7 @@ class MainWindowBuilder:
             get_selected_items=lambda context: [],  # Placeholder (not used for folder cleaner)
             game_versions=self.game_versions,
             settings=self.settings,
+            font_size=self.settings.get("font_size", 12),
         )
         folder_cleaner_tab.frame.pack(fill="both", expand=True)
         self.folder_cleaner_tab = folder_cleaner_tab  # Store reference
@@ -1295,6 +1290,7 @@ class MainWindowBuilder:
         log_tab.frame.pack(fill="both", expand=True)
         # Store reference to log text widget for later access
         self.log_text = log_tab.log_text
+        self.log_tab = log_tab  # Store tab reference for font updates
 
         # Attach logger to user log text widget
         # CRITICAL FIX: December 28, 2025
@@ -1334,6 +1330,7 @@ class MainWindowBuilder:
         developer_tab.frame.pack(fill="both", expand=True)
         # Store reference to developer log text widget for later access
         self.dev_text = developer_tab.log_text
+        self.developer_tab = developer_tab  # Store tab reference for font updates
 
         # Attach logger to developer log text widget
         # CRITICAL FIX: December 28, 2025

@@ -25,12 +25,23 @@ This roadmap tracks the development of the WoW Cleanup Tool, with a focus on mod
   - Dynamic resizing and responsive controls
   - All dialogs and tooltips theme-aware
   - Centralized theme/font refresh logic
+- **✅ Performance Optimizations: FEATURE-COMPLETE**
+  - Configure event debouncing (50ms) across all tabs prevents layout thrashing
+  - Screenshot caching with PIL Image.thumbnail() and LANCZOS resampling
+  - Tab tooltip debouncing (200ms) eliminates Motion event Toplevel creation churn
+  - Emoji icons replace PNG files for auto-scaling without image loading overhead
+  - Parallel dependency installation (ThreadPoolExecutor, 3 workers, 30s timeout)
+  - Thread-safe queue-based UI updates (queue.Queue + root.after polling)
+  - Reduced update_idletasks calls in main window
+  - Fixed TkFixedFont 10pt for tooltips with smart boundary detection
 - **✅ File Cleaner Tab: FEATURE-COMPLETE**
   - Dual-panel UI: Backup files (.bak/.old) and Orphaned SavedVariables
   - Background scanning with progress callbacks
   - Multi-select tree widgets with hierarchical display (version → files)
   - Batch deletion with logging (move to trash or permanent delete)
   - Integration with FileCleaner and OrphanScanner
+  - 50ms Configure event debouncing for smooth resizing
+  - Dynamic wraplength based on widget width
   - AddOns.txt cleaning: Automatically removes orphaned addon names from AddOns.txt files when orphaned SavedVariables are deleted
     - Scans entire WTF directory structure (account-level and realm-level SavedVariables)
     - Extracts addon names from deleted .lua files
@@ -44,6 +55,8 @@ This roadmap tracks the development of the WoW Cleanup Tool, with a focus on mod
   - Developer Log Tab: 3 buttons (Clear Session Log, Open Log Folder, Copy to Clipboard)
   - Text widget dimensions dynamically scale with font size (log tabs: 18 rows, license: 25 rows × font_size ÷ 12)
   - All tk.Text widgets now font-aware across entire application
+  - 50ms Configure event debouncing for smooth resizing
+  - Dynamic wraplength based on widget width
   - Append-mode-aware "Clear Session Log": clears display + deletes file when append OFF; clears display only when append ON
   - "Delete Log File" button dynamically dims/disables when append mode OFF (using overlay technique)
   - Descriptions added to both tabs with proper word-wrapping

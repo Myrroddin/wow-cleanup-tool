@@ -18,11 +18,13 @@ class FolderCleanerTab:
         get_selected_items,
         game_versions,
         settings=None,
+        font_size=12,
     ):
         self.frame = ttk.Frame(parent, padding=5)
         self.loc = loc  # Store localization instance for use in other methods
         self.game_versions = game_versions  # List of GameVersion objects
         self.settings = settings  # Store settings for theme/font access
+        self.font_size = font_size
         self.sub_tabs = None  # Store sub-tabs notebook reference
         self.version_frames = {}  # Store frame for each game version
         self.folder_checkboxes = (
@@ -34,6 +36,10 @@ class FolderCleanerTab:
         self.screenshot_previews = {}
         self.screenshot_images = {}
         self.screenshot_item_paths = {}
+        self.screenshot_cache = (
+            {}
+        )  # Cache for loaded screenshots: {file_path: PhotoImage}
+        self._configure_timer = None  # Debounce timer for configure events
         self._create_content(
             loc,
             on_scan_folders,
@@ -57,13 +63,14 @@ class FolderCleanerTab:
         - Button frame: Scan Folders, Select All, Remove Selected
         - Sub-notebook with tabs for each detected game version
         """
-        desc_label = ttk.Label(
+        self.desc_label = ttk.Label(
             self.frame,
             text=loc._("desc_folder_cleaner"),
             justify="left",
-            wraplength=600,
         )
-        desc_label.pack(side="top", fill="x", pady=(0, 10))
+        self.desc_label.pack(side="top", fill="x", pady=(0, 10))
+        # Bind to configure event with debouncing to reduce flicker
+        self.desc_label.bind("<Configure>", self._debounced_update_wraplength)
 
         button_frame = ttk.Frame(self.frame)
         button_frame.pack(side="top", fill="x", pady=(0, 10))
@@ -121,6 +128,9 @@ class FolderCleanerTab:
             self.screenshot_previews[flavor_dir] = None
             self.screenshot_images[flavor_dir] = None
             self.screenshot_item_paths[flavor_dir] = {}
+
+        # Clear screenshot cache to free memory
+        self.screenshot_cache.clear()
 
         for flavor_dir, folders in results.items():
             if flavor_dir not in self.version_frames:
@@ -231,6 +241,28 @@ class FolderCleanerTab:
         widget.bind("<Enter>", show_tooltip)
         widget.bind("<Leave>", hide_tooltip)
 
+    def _update_wraplength(self, event=None):
+        """Update wraplength based on actual widget width."""
+        if hasattr(self, "desc_label"):
+            # Get actual widget width, subtract padding for margins
+            width = self.desc_label.winfo_width()
+            if width > 1:  # Ensure widget is actually rendered
+                self.desc_label.configure(wraplength=max(width - 20, 100))
+
+    def _debounced_update_wraplength(self, event=None):
+        """Debounce wraplength updates to reduce flicker during resize."""
+        # Cancel existing timer if any
+        if self._configure_timer:
+            self.frame.after_cancel(self._configure_timer)
+        # Schedule update after 50ms of no resize events
+        self._configure_timer = self.frame.after(50, self._update_wraplength)
+
+    def refresh_wraplength(self, font_size):
+        """Update description label wraplength when font size changes."""
+        self.font_size = font_size
+        # Trigger a wraplength update based on current width
+        self._update_wraplength()
+
     def toggle_select_all(self):
         """Toggle selection of all folders except cache (which must be manual).
 
@@ -328,14 +360,20 @@ class FolderCleanerTab:
         right_panel = ttk.Frame(container)
         right_panel.grid(row=0, column=1, sticky="nsew", padx=(10, 0))
 
-        # Add instruction label at the top
+        # Add instruction label at the top with dynamic wraplength
         instruction_label = ttk.Label(
             right_panel,
             text=self.loc._("desc_screenshot_interaction"),
             justify="left",
-            wraplength=180,
         )
         instruction_label.pack(side="top", fill="x", pady=(0, 10))
+        # Bind to update wraplength based on panel width with debouncing
+        instruction_label.bind(
+            "<Configure>",
+            lambda e, lbl=instruction_label: self._update_instruction_wraplength(
+                e, lbl
+            ),
+        )
 
         # Preview canvas starts at 200x200, resizes dynamically per image aspect ratio
         preview_canvas = tk.Canvas(
@@ -365,6 +403,11 @@ class FolderCleanerTab:
             return os.path.relpath(file_path, root_path)
         except Exception:
             return os.path.basename(file_path)
+
+    def _update_instruction_wraplength(self, event, label):
+        """Update instruction label wraplength based on panel width."""
+        if event.width > 1:
+            label.configure(wraplength=max(event.width - 20, 100))
 
     def _on_screenshot_selected(self, flavor_dir):
         tree = self.screenshot_trees.get(flavor_dir)
@@ -425,21 +468,32 @@ class FolderCleanerTab:
             self._clear_preview(flavor_dir)
             return
 
-        try:
-            img = Image.open(file_path)
-        except Exception:
-            self._clear_preview(flavor_dir)
-            return
+        # Check cache first for performance
+        if file_path in self.screenshot_cache:
+            photo = self.screenshot_cache[file_path]
+            # Cached image already has correct dimensions
+            new_width = photo.width()
+            new_height = photo.height()
+        else:
+            try:
+                img = Image.open(file_path)
+            except Exception:
+                self._clear_preview(flavor_dir)
+                return
 
-        # Scale to 200px width, preserve aspect ratio
-        original_width, original_height = img.size
-        max_width = 200
-        aspect_ratio = original_height / original_width
-        new_width = min(original_width, max_width)
-        new_height = int(new_width * aspect_ratio)
+            # Calculate thumbnail size (preserves aspect ratio)
+            original_width, original_height = img.size
+            max_width = 200
+            aspect_ratio = original_height / original_width
+            new_width = min(original_width, max_width)
+            new_height = int(new_width * aspect_ratio)
 
-        img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
-        photo = ImageTk.PhotoImage(img)
+            # Use thumbnail() instead of resize() - more efficient, modifies in-place
+            img.thumbnail((new_width, new_height), Image.Resampling.LANCZOS)
+            photo = ImageTk.PhotoImage(img)
+
+            # Cache the resized image
+            self.screenshot_cache[file_path] = photo
 
         # Resize canvas to match scaled image
         canvas.config(width=new_width, height=new_height)

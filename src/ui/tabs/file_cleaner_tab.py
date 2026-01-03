@@ -43,11 +43,14 @@ class FileCleanerTab:
         on_select_all_toggle,
         on_remove_selected,
         get_selected_items,
+        font_size=12,
     ):
         self.frame = ttk.Frame(parent, padding=5)
         self.backup_tree = None
         self.orphan_tree = None
         self.loc = loc  # Store localization instance for use in other methods
+        self.font_size = font_size
+        self._configure_timer = None  # Debounce timer for configure events
         self._create_content(
             loc,
             on_scan_files,
@@ -73,13 +76,14 @@ class FileCleanerTab:
           * Backup & Old Files
           * Orphaned AddOn Settings
         """
-        desc_label = ttk.Label(
+        self.desc_label = ttk.Label(
             self.frame,
             text=loc._("desc_file_cleaner"),
             justify="left",
-            wraplength=600,
         )
-        desc_label.pack(side="top", fill="x", pady=(0, 10))
+        self.desc_label.pack(side="top", fill="x", pady=(0, 10))
+        # Bind to configure event with debouncing to reduce flicker
+        self.desc_label.bind("<Configure>", self._debounced_update_wraplength)
         button_frame = ttk.Frame(self.frame)
         button_frame.pack(side="top", fill="x", pady=(0, 10))
         scan_btn = ttk.Button(
@@ -183,6 +187,28 @@ class FileCleanerTab:
 
         walk()
         return items
+
+    def _update_wraplength(self, event=None):
+        """Update wraplength based on actual widget width."""
+        if hasattr(self, "desc_label"):
+            # Get actual widget width, subtract padding for margins
+            width = self.desc_label.winfo_width()
+            if width > 1:  # Ensure widget is actually rendered
+                self.desc_label.configure(wraplength=max(width - 20, 100))
+
+    def _debounced_update_wraplength(self, event=None):
+        """Debounce wraplength updates to reduce flicker during resize."""
+        # Cancel existing timer if any
+        if self._configure_timer:
+            self.frame.after_cancel(self._configure_timer)
+        # Schedule update after 50ms of no resize events
+        self._configure_timer = self.frame.after(50, self._update_wraplength)
+
+    def refresh_wraplength(self, font_size):
+        """Update description label wraplength when font size changes."""
+        self.font_size = font_size
+        # Trigger a wraplength update based on current width
+        self._update_wraplength()
 
     def toggle_select_all(self):
         """Toggle selection state across both treeviews.

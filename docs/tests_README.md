@@ -22,9 +22,26 @@ pytest tests/test_logger.py
 
 ## Test Summary
 
-**Total**: 110 tests | **Passed**: 110 | **Skipped**: 0 | **Failed**: 0
+**Total**: 189 tests | **Passed**: 188 | **Skipped**: 1 | **Failed**: 0
 
 ## Test Coverage
+
+### `test_dependencies.py` (20 tests) - NEW
+- DependencyManager parallel installation with ThreadPoolExecutor (3 workers max)
+- Queue-based communication for progress updates (update_queue parameter)
+- Package installation with stable/beta/alpha fallback strategies
+- 30-second timeout handling for slow installations
+- Installation result tracking and caching
+- Error handling and graceful fallbacks
+
+### `test_tooltip.py` (9 tests) - NEW
+- Tooltip widget initialization with theme colors
+- Fixed TkFixedFont 10pt rendering
+- Toplevel window creation and lifecycle (show/hide)
+- Smart boundary detection (280px wraplength default)
+- Screen edge detection to prevent off-screen tooltips
+- Multiple show/hide cycles
+- Long text wrapping with custom wraplength
 
 ### `test_localization.py` (15 tests)
 - Translation loading and fallback
@@ -93,6 +110,14 @@ pytest tests/test_logger.py
 - Verbose logging message format
 - Unknown version fallback
 - Alphabetically sorted keys
+
+### `test_folder_cleaner_tab.py` - Updated Tests (+12 new)
+Added comprehensive tests for new features:
+- **Screenshot Caching**: Cache initialization, storage/retrieval, clearing on rescan
+- **Configure Debouncing**: Event debouncing with 50ms timer, timer cancellation
+- **Wraplength Updates**: Font size changes trigger instruction label wraplength refresh
+- **Stale Data Clearing**: Old data cleared between scan operations
+- **Previous Tests Retained**: All original folder display, selection, and preview tests
 
 ### Other Tests
 - `test_error_handler.py` (1 test) - Error handling utilities

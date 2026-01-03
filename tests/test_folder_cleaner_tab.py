@@ -395,3 +395,106 @@ def test_no_folders_message_displayed(folder_tab):
         mock_frame.winfo_children.called
         or len(folder_tab.folder_checkboxes.get("_retail_", {})) == 0
     )
+
+
+def test_screenshot_cache_initialization(folder_tab):
+    """Test screenshot cache is initialized as empty dict."""
+    assert folder_tab.screenshot_cache == {}
+    assert isinstance(folder_tab.screenshot_cache, dict)
+
+
+def test_screenshot_cache_stores_images(folder_tab):
+    """Test screenshots are cached after loading."""
+    mock_photo = MagicMock()
+    mock_photo.width.return_value = 200
+    mock_photo.height.return_value = 150
+
+    file_path = "C:/WoW/_retail_/Screenshots/shot1.jpg"
+    folder_tab.screenshot_cache[file_path] = mock_photo
+
+    assert file_path in folder_tab.screenshot_cache
+    assert folder_tab.screenshot_cache[file_path] == mock_photo
+
+
+def test_screenshot_cache_cleared_on_rescan(folder_tab):
+    """Test screenshot cache is cleared when display_scan_results is called."""
+    # Pre-populate cache
+    folder_tab.screenshot_cache["old_path"] = MagicMock()
+    assert len(folder_tab.screenshot_cache) > 0
+
+    with patch("ui.tabs.folder_cleaner_tab.tk.BooleanVar"):
+        mock_frame = MagicMock()
+        folder_tab.version_frames["_retail_"] = mock_frame
+
+        results = {"_retail_": {}}
+        folder_tab.display_scan_results(results)
+
+        # Cache should be empty after rescan
+        assert folder_tab.screenshot_cache == {}
+
+
+def test_debounced_wraplength_initialization(folder_tab):
+    """Test debounce timer is initialized to None."""
+    assert folder_tab._configure_timer is None
+
+
+def test_debounced_update_wraplength_sets_timer(folder_tab):
+    """Test _debounced_update_wraplength schedules update with timer."""
+    with patch.object(folder_tab.frame, "after") as mock_after:
+        folder_tab._debounced_update_wraplength()
+
+        # Should call after with 50ms delay
+        mock_after.assert_called_once()
+        call_args = mock_after.call_args[0]
+        assert call_args[0] == 50  # 50ms debounce
+
+
+def test_debounced_wraplength_cancels_previous_timer(folder_tab):
+    """Test _debounced_update_wraplength cancels previous timer."""
+    with patch.object(folder_tab.frame, "after") as mock_after:
+        with patch.object(folder_tab.frame, "after_cancel") as mock_cancel:
+            # Set a fake timer
+            folder_tab._configure_timer = 12345
+
+            folder_tab._debounced_update_wraplength()
+
+            # Should cancel previous timer
+            mock_cancel.assert_called_once_with(12345)
+            # Should schedule new timer
+            mock_after.assert_called_once()
+
+
+def test_refresh_wraplength_updates_on_font_change(folder_tab):
+    """Test refresh_wraplength updates when font size changes."""
+    original_font_size = folder_tab.font_size
+    folder_tab.font_size = 14
+
+    with patch.object(folder_tab, "_update_wraplength") as mock_update:
+        folder_tab.refresh_wraplength(16)
+
+        assert folder_tab.font_size == 16
+        mock_update.assert_called_once()
+
+
+def test_screenshot_cache_stores_images_simple(folder_tab):
+    """Test screenshot cache can store and retrieve PhotoImage objects."""
+    mock_photo = MagicMock()
+    file_path = "C:/WoW/_retail_/Screenshots/shot1.jpg"
+    folder_tab.screenshot_cache[file_path] = mock_photo
+
+    assert file_path in folder_tab.screenshot_cache
+    assert folder_tab.screenshot_cache[file_path] == mock_photo
+
+
+def test_update_instruction_wraplength(folder_tab):
+    """Test instruction label wraplength updates based on panel width."""
+    mock_label = MagicMock()
+    mock_event = MagicMock()
+    mock_event.width = 300
+
+    folder_tab._update_instruction_wraplength(mock_event, mock_label)
+
+    # Should set wraplength to width - 20
+    mock_label.configure.assert_called_once()
+    call_kwargs = mock_label.configure.call_args[1]
+    assert call_kwargs["wraplength"] == 280

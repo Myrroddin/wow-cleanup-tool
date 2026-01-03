@@ -188,15 +188,31 @@ tests/
 - `test_nonexistent_directory` - Missing returns False
 
 ### Test Results
-**All 128 tests pass successfully** ✅
+**All 188 tests pass successfully** ✅
 
 ```
-Total Tests: 128
-Passed: 128
-Skipped: 1 (platform-specific)
+Total Tests: 189 (collected)
+Passed: 188
+Skipped: 1 (platform-specific: test_clear_dev_log_clears_display)
 Failed: 0
-Duration: 6.49s
+Duration: 7.41s
 ```
+
+#### New Tests Added (43 tests)
+- **test_dependencies.py** (20 tests): DependencyManager parallel installation, queue communication, fallback strategies, timeout handling
+- **test_tooltip.py** (9 tests): Tooltip widget with fixed font, theme colors, boundary detection
+- **test_folder_cleaner_tab.py** (+12 new tests): Screenshot caching, Configure debouncing, wraplength updates, stale data clearing
+
+#### Test Coverage by Module
+- Dependencies: 20 tests (parallel execution, timeouts, fallback strategies)
+- Tooltip: 9 tests (fixed font, themes, boundaries, show/hide)
+- Folder Cleaner Tab: 27 tests (original 15 + 12 new cache/debounce/wraplength tests)
+- File Operations: 15 tests (delete batch, AddOns.txt cleaning)
+- Path Manager: 30 tests (flavor detection, path validation)
+- Logger: 14 tests (logging, widget attachment)
+- Log Controls: 10 tests (copy, save, clear, delete)
+- Localization: 22 tests (translations, language detection)
+- Other: 1 test each (error handling, themes, main window, screenshot viewer, etc.)
 
 **Test Files (14):**
 - test_error_handler.py (1 test)

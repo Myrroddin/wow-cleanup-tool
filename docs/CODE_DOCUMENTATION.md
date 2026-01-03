@@ -139,10 +139,11 @@ tests/                           # Unit tests for all modules
 **Purpose**: Handles automatic installation of missing dependencies.
 
 **Features**:
-- Checks for required packages
-- Attempts automatic installation via pip
-- Shows progress dialog during installation
-- Fallback strategies if pip is slow or unavailable
+- Checks for required packages (Pillow, psutil, send2trash)
+- Parallel installation via ThreadPoolExecutor (up to 3 packages simultaneously)
+- Thread-safe UI updates using queue-based communication
+- 30-second timeout per package with --no-cache-dir flag
+- Progress dialog with real-time package status
 - User-friendly error messages if installation fails
 
 ### instance_utils.py / single_instance.py
@@ -263,13 +264,10 @@ semantic keys (e.g., "btn_scan_files", "msg_log_empty")
 
 **Structure**:
 - Top control bar (WoW path, theme toggle, settings)
-- Notebook with 6 tabs:
-  * File Cleaner
-  * Folder Cleaner
-  * Game Optimizer
-  * User Log
-  * Developer Log
-  * (Reserved for future features)
+- Bug report button using 🐞 emoji (auto-scales with font)
+- Notebook with 6 tabs (File Cleaner, Folder Cleaner, Game Optimizer, User Log, Developer Log)
+- 200ms tab tooltip debouncing to prevent flicker
+- Minimal update_idletasks calls for performance
 - Settings persistence for window geometry
 - Integration with logging system
 
@@ -294,6 +292,8 @@ semantic keys (e.g., "btn_scan_files", "msg_log_empty")
 - Select all/unselect all toggle
 - Per-file selection checkboxes
 - Background scanning (non-blocking)
+- 50ms Configure event debouncing for smooth resizing
+- Dynamic wraplength based on widget width
 - Size totals
 
 #### folder_cleaner_tab.py
@@ -303,8 +303,11 @@ semantic keys (e.g., "btn_scan_files", "msg_log_empty")
 - Sub-tabs for each WoW version (Retail, Classic, etc.)
 - Checkboxes for each folder type
 - Warning tooltip for Cache folder
-- Screenshot browser with preview (200px width, aspect-ratio height)
-- Click preview to open full-size viewer (25% screen size)
+- Screenshot browser with cached PIL Image objects
+- Image.thumbnail() with LANCZOS resampling for efficient previews
+- 50ms Configure event debouncing for smooth resizing
+- Dynamic wraplength based on widget width
+- Click preview to open full-size viewer (50% screen size)
 
 #### game_optimizer_tab.py
 **Purpose**: Reserved for future game optimization features.
@@ -317,8 +320,10 @@ semantic keys (e.g., "btn_scan_files", "msg_log_empty")
 - Clear log button
 - Copy to clipboard
 - Open log folder
-- Delete persistent log
+- Delete persistent log (log_tab only, append-mode aware)
 - Timestamp toggle
+- 50ms Configure event debouncing for smooth resizing
+- Dynamic wraplength based on widget width
 
 ### Dialogs (src/ui/dialogs/)
 
@@ -346,11 +351,11 @@ semantic keys (e.g., "btn_scan_files", "msg_log_empty")
 **Purpose**: Themed tooltips for UI elements.
 
 **Features**:
-- Follow mouse cursor
-- Theme-aware colors
-- Configurable font
-- Word wrapping
-- Delay before showing
+- Fixed TkFixedFont 10pt for consistency
+- Theme-aware colors (background, foreground, border)
+- Smart boundary detection (280px wraplength)
+- Automatic positioning to avoid screen edges
+- Delay before showing (200ms for tab tooltips)
 
 ### Utility Modules (src/ui/)
 
@@ -409,11 +414,16 @@ The application prioritizes file safety:
 ## Performance Optimizations
 
 - os.scandir instead of os.walk (2-3x faster)
-- ThreadPoolExecutor for parallel scanning
+- ThreadPoolExecutor for parallel scanning and dependency installation
 - Directory filtering during traversal (skip irrelevant folders)
+- Configure event debouncing (50ms) to reduce layout calculations
+- Screenshot caching with PIL Image.thumbnail() and LANCZOS resampling
+- Tab tooltip debouncing (200ms) to prevent Toplevel creation churn
+- Emoji icons instead of PNG for auto-scaling without image loading
+- Thread-safe queue-based communication for parallel operations
+- Reduced update_idletasks calls in main window
 - Lazy loading of UI components
 - Background threading for I/O operations
-- Efficient string operations
 
 ## Error Handling
 

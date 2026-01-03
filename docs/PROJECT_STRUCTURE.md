@@ -12,7 +12,7 @@ wow-cleanup-tool/
 │
 ├── src/                      # Main application source code
 │   ├── core/                 # Core application infrastructure
-│   │   ├── dependencies.py   # External dependency management
+│   │   ├── dependencies.py   # Parallel dependency installation (ThreadPoolExecutor, queue-based)
 │   │   ├── geometry.py       # Window sizing and positioning utilities
 │   │   ├── global_settings.py# Global constants and configuration
 │   │   ├── logger.py         # Dual-channel logging (user + developer)
@@ -35,7 +35,8 @@ wow-cleanup-tool/
 │   │   │   ├── multiple_installations.py # Multiple WoW installs warning
 │   │   │   └── wow_close_warning.py    # WoW running warning
 │   │   ├── widgets/          # Custom widgets (future use)
-│   │   │   └── __init__.py   # Widgets package
+│   │   │   ├── __init__.py   # Widgets package
+│   │   │   └── tooltip.py    # Fixed 10pt TkFixedFont tooltips with boundary detection
 │   │   ├── __init__.py       # UI module exports
 │   │   ├── app_controller.py # Event handlers and UI state management
 │   │   ├── dialog_base.py    # Base class for theme-aware dialogs
@@ -56,7 +57,7 @@ wow-cleanup-tool/
 │   └── icons/                # Application icons
 │       ├── wow_cleanup_icon.ico   # Windows icon
 │       ├── wow_cleanup_icon.icns  # macOS icon
-│       └── *.png                  # PNG icons
+│       └── *.png                  # Icon resources (app uses emoji for UI elements)
 │
 ├── docs/                    # Documentation files
 │   ├── README.md
@@ -87,8 +88,14 @@ wow-cleanup-tool/
 
 ### 3. Performance
 - `os.scandir()` for fast file/folder listing
-- Parallel processing with ThreadPoolExecutor (BaseScanner)
+- Parallel processing with ThreadPoolExecutor (BaseScanner, dependencies)
 - Compiled regex patterns at module level (FileCleaner)
+- Configure event debouncing (50ms) prevents layout calculation churn
+- Screenshot caching with PIL Image.thumbnail() and LANCZOS resampling
+- Tab tooltip debouncing (200ms) reduces Toplevel widget creation
+- Emoji icons for auto-scaling without PNG image loading
+- Thread-safe queue-based communication for parallel operations
+- Minimal update_idletasks calls in main window
 
 ### 4. User Experience
 - All user-facing text localized (sorted keys, robust fallback)

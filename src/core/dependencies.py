@@ -3,6 +3,8 @@
 import subprocess
 import sys
 import importlib.util
+import queue
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from tkinter import ttk
 
 
@@ -33,12 +35,15 @@ class DependencyManager:
 
         return self.missing_packages
 
-    def install_missing_dependencies(self, callback=None, progress_callback=None):
-        """Install all missing dependencies.
+    def install_missing_dependencies(
+        self, callback=None, progress_callback=None, update_queue=None
+    ):
+        """Install all missing dependencies in parallel with thread-safe queue updates.
 
         Args:
             callback: Optional callback function(package_name, success, message, timed_out)
             progress_callback: Optional callback for installation progress
+            update_queue: Optional queue.Queue for thread-safe UI updates
 
         Returns:
             bool: True if all installations succeeded
@@ -51,23 +56,65 @@ class DependencyManager:
 
         all_success = True
 
-        for package_name in self.missing_packages:
-            package_spec = self.REQUIRED_PACKAGES[package_name]
-            success, message, timed_out = self._install_package(
-                package_spec, progress_callback
-            )
-
-            self.installation_results[package_name] = {
-                "success": success,
-                "message": message,
-                "timed_out": timed_out,
+        # Install packages in parallel using ThreadPoolExecutor
+        with ThreadPoolExecutor(
+            max_workers=min(3, len(self.missing_packages))
+        ) as executor:
+            # Submit all installation tasks
+            future_to_package = {
+                executor.submit(
+                    self._install_package,
+                    self.REQUIRED_PACKAGES[package_name],
+                    progress_callback,
+                    update_queue,
+                ): package_name
+                for package_name in self.missing_packages
             }
 
-            if callback:
-                callback(package_name, success, message, timed_out)
+            # Process results as they complete
+            for future in as_completed(future_to_package):
+                package_name = future_to_package[future]
+                try:
+                    success, message, timed_out = future.result()
 
-            if not success:
-                all_success = False
+                    self.installation_results[package_name] = {
+                        "success": success,
+                        "message": message,
+                        "timed_out": timed_out,
+                    }
+
+                    if callback:
+                        if update_queue:
+                            update_queue.put(
+                                ("complete", package_name, success, message, timed_out)
+                            )
+                        else:
+                            callback(package_name, success, message, timed_out)
+
+                    if not success:
+                        all_success = False
+                except Exception as e:
+                    self.installation_results[package_name] = {
+                        "success": False,
+                        "message": f"Installation error: {e}",
+                        "timed_out": False,
+                    }
+                    if callback:
+                        if update_queue:
+                            update_queue.put(
+                                (
+                                    "complete",
+                                    package_name,
+                                    False,
+                                    f"Installation error: {e}",
+                                    False,
+                                )
+                            )
+                        else:
+                            callback(
+                                package_name, False, f"Installation error: {e}", False
+                            )
+                    all_success = False
 
         return all_success
 
@@ -83,7 +130,7 @@ class DependencyManager:
         spec = importlib.util.find_spec(package_name)
         return spec is not None
 
-    def _install_package(self, package_spec, progress_callback=None):
+    def _install_package(self, package_spec, progress_callback=None, update_queue=None):
         """Install a single package using pip with fallback strategy.
 
         Tries to install in this order:
@@ -94,6 +141,7 @@ class DependencyManager:
         Args:
             package_spec: Package specification (e.g., 'package>=1.0.0')
             progress_callback: Optional callback for progress updates
+            update_queue: Optional queue for thread-safe UI updates
 
         Returns:
             tuple: (success, message, timed_out)
@@ -103,13 +151,23 @@ class DependencyManager:
 
         # Strategy 1: Try stable release with version constraint
         if progress_callback:
-            progress_callback("stable", package_name)
+            if update_queue:
+                update_queue.put(("progress", "stable", package_name))
+            else:
+                progress_callback("stable", package_name)
         try:
             subprocess.check_call(
-                [sys.executable, "-m", "pip", "install", package_spec],
+                [
+                    sys.executable,
+                    "-m",
+                    "pip",
+                    "install",
+                    "--no-cache-dir",
+                    package_spec,
+                ],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
-                timeout=60,
+                timeout=30,
             )
             return (True, f"Successfully installed {package_spec}", False)
         except subprocess.TimeoutExpired:
@@ -119,13 +177,24 @@ class DependencyManager:
 
         # Strategy 2: Try latest pre-release (beta/rc)
         if progress_callback:
-            progress_callback("beta", package_name)
+            if update_queue:
+                update_queue.put(("progress", "beta", package_name))
+            else:
+                progress_callback("beta", package_name)
         try:
             subprocess.check_call(
-                [sys.executable, "-m", "pip", "install", "--pre", package_name],
+                [
+                    sys.executable,
+                    "-m",
+                    "pip",
+                    "install",
+                    "--no-cache-dir",
+                    "--pre",
+                    package_name,
+                ],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
-                timeout=60,
+                timeout=30,
             )
             return (
                 True,
@@ -139,7 +208,10 @@ class DependencyManager:
 
         # Strategy 3: Try latest alpha with upgrade flag
         if progress_callback:
-            progress_callback("alpha", package_name)
+            if update_queue:
+                update_queue.put(("progress", "alpha", package_name))
+            else:
+                progress_callback("alpha", package_name)
         try:
             subprocess.check_call(
                 [
@@ -147,13 +219,14 @@ class DependencyManager:
                     "-m",
                     "pip",
                     "install",
+                    "--no-cache-dir",
                     "--pre",
                     "--upgrade",
                     package_name,
                 ],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
-                timeout=60,
+                timeout=30,
             )
             return (True, f"Successfully installed {package_name} (alpha)", timed_out)
         except subprocess.TimeoutExpired:
@@ -162,25 +235,6 @@ class DependencyManager:
             return (False, f"Failed to install {package_spec}: {e}", timed_out)
 
         return (False, f"Failed to install {package_spec}", timed_out)
-
-    def get_installation_summary(self):
-        """Get summary of installation results.
-
-        Returns:
-            dict: Summary with success/failure counts and details
-        """
-        if not self.installation_results:
-            return {"total": 0, "successful": 0, "failed": 0, "details": {}}
-
-        successful = sum(1 for r in self.installation_results.values() if r["success"])
-        failed = len(self.installation_results) - successful
-
-        return {
-            "total": len(self.installation_results),
-            "successful": successful,
-            "failed": failed,
-            "details": self.installation_results.copy(),
-        }
 
 
 def check_and_install_dependencies():
@@ -292,53 +346,104 @@ def check_and_install_dependencies():
         had_timeout = False
         total_packages = len(missing)
         current_package_index = 0
+        installation_complete = False
+        installation_success = False
 
-        def progress_callback(stage, package):
-            stage_names = {
-                "stable": loc._("version_stable"),
-                "beta": loc._("version_beta"),
-                "alpha": loc._("version_alpha"),
-            }
-            detail_label.config(
-                text=loc._("dep_trying_stage").format(
-                    stage_names.get(stage, stage), package
-                )
+        # Create queue for thread-safe communication
+        update_queue = queue.Queue()
+
+        # Track active packages for parallel progress display
+        active_packages = set()
+
+        def process_queue():
+            """Process queue messages on main thread (thread-safe UI updates)."""
+            nonlocal had_timeout, current_package_index, installation_complete, installation_success
+
+            try:
+                while True:
+                    msg = update_queue.get_nowait()
+                    msg_type = msg[0]
+
+                    if msg_type == "progress":
+                        # Format: ("progress", stage, package_name)
+                        stage, package = msg[1], msg[2]
+                        active_packages.add(package)
+                        stage_names = {
+                            "stable": loc._("version_stable"),
+                            "beta": loc._("version_beta"),
+                            "alpha": loc._("version_alpha"),
+                        }
+                        # Show all active packages
+                        if len(active_packages) == 1:
+                            detail_label.config(
+                                text=loc._("dep_trying_stage").format(
+                                    stage_names.get(stage, stage), package
+                                )
+                            )
+                        else:
+                            detail_label.config(
+                                text=f"Installing {len(active_packages)} packages in parallel..."
+                            )
+                        package_progress.start(10)
+
+                    elif msg_type == "complete":
+                        # Format: ("complete", package, success, message, timed_out)
+                        package, success, message, timed_out = msg[1:]
+                        if package in active_packages:
+                            active_packages.remove(package)
+
+                        if timed_out:
+                            had_timeout = True
+
+                        package_progress.stop()
+                        status = "✓" if success else "✗"
+                        status_label.config(text=f"{status} {package}")
+                        if timed_out:
+                            detail_label.config(text=loc._("dep_taking_longer"))
+
+                        current_package_index += 1
+                        overall_progress["value"] = (
+                            current_package_index / total_packages
+                        ) * 100
+
+                    elif msg_type == "done":
+                        # Installation thread finished
+                        installation_complete = True
+                        installation_success = msg[1]
+
+            except queue.Empty:
+                pass
+
+            # Continue polling if not complete
+            if not installation_complete:
+                progress_window.after(50, process_queue)
+
+        def run_installation():
+            """Run installation in background, signal completion via queue."""
+            success = manager.install_missing_dependencies(
+                callback=lambda *args: None,  # Handled via queue
+                progress_callback=lambda *args: None,  # Handled via queue
+                update_queue=update_queue,
             )
-            # Start indeterminate animation for current package
-            package_progress.start(10)
+            update_queue.put(("done", success))
+
+        # Start queue polling
+        progress_window.after(50, process_queue)
+
+        # Start installation in background thread
+        import threading
+
+        install_thread = threading.Thread(target=run_installation, daemon=True)
+        install_thread.start()
+
+        # Wait for installation to complete
+        while not installation_complete:
             progress_window.update()
-
-        def install_callback(package, success, message, timed_out):
-            nonlocal had_timeout, current_package_index
-            if timed_out:
-                had_timeout = True
-
-            # Stop package progress animation
-            package_progress.stop()
-
-            status = "✓" if success else "✗"
-            status_label.config(text=f"{status} {package}")
-            if timed_out:
-                detail_label.config(text=loc._("dep_taking_longer"))
-
-            # Update overall progress
-            current_package_index += 1
-            overall_progress["value"] = (current_package_index / total_packages) * 100
-
-            progress_window.update()
-
-        status_label.config(text=loc._("dep_installing_count").format(len(missing)))
-        overall_progress["maximum"] = 100
-        overall_progress["value"] = 0
-        progress_window.update()
-
-        success = manager.install_missing_dependencies(
-            callback=install_callback, progress_callback=progress_callback
-        )
+            root.update()
 
         progress_window.destroy()
 
-        if not success:
+        if not installation_success:
             messagebox.showerror(
                 loc._("dep_install_failed"), loc._("dep_install_failed_msg")
             )
