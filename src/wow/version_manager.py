@@ -5,8 +5,6 @@ the application. This eliminates the need to pass tuples and provides a
 single source of truth for version information.
 """
 
-from typing import List, Optional
-
 
 class GameVersion:
     """Represents a single World of Warcraft game version (flavor).

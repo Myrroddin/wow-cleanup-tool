@@ -22,7 +22,7 @@ pytest tests/test_dependencies.py
 ## Coverage by Module
 
 **New Tests:**
-- `test_dependencies.py` (20): Parallel installation (ThreadPoolExecutor 3 workers), queue communication, fallback strategies (stable→beta→alpha), 30s timeout
+- `test_dependencies.py` (20): Parallel installation (ThreadPoolExecutor 3 workers), queue communication, stable releases only, 30s timeout
 - `test_tooltip.py` (9): TkFixedFont 10pt, theme colors, boundary detection, show/hide lifecycle
 - `test_folder_cleaner_tab.py` (+12): Screenshot caching, Configure debouncing (50ms), wraplength updates
 

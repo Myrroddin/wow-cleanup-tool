@@ -6,7 +6,22 @@ Handles loading, saving, and managing user preferences and application state.
 - WoW path is cached machine-wide in a shared location that doesn't require admin rights
 """
 
-import json
+try:
+    import orjson as json_module
+
+    USE_ORJSON = True
+except ImportError:
+    import json as json_module
+
+    USE_ORJSON = False
+
+try:
+    import darkdetect
+
+    DARKDETECT_AVAILABLE = True
+except ImportError:
+    DARKDETECT_AVAILABLE = False
+
 import locale
 import os
 from pathlib import Path
@@ -16,9 +31,19 @@ from typing import Optional, Dict, Any
 
 def get_default_settings() -> Dict[str, Any]:
     """Return a fresh copy of default settings."""
+    # Auto-detect OS theme on first launch if available
+    default_theme = "light"
+    if DARKDETECT_AVAILABLE:
+        try:
+            os_theme = darkdetect.theme()
+            if os_theme:  # Returns "Dark", "Light", or None
+                default_theme = os_theme.lower()
+        except Exception:
+            pass  # Fallback to light theme
+
     return {
         "language": get_system_language(),
-        "theme": "light",
+        "theme": default_theme,
         "font_family": "TkDefaultFont",
         "font_size": 12,
         "delete_mode": "trash",  # 'trash' or 'permanent'
@@ -42,7 +67,7 @@ def get_system_language() -> str:
             if lang:
                 # Extract language code (e.g., 'en_US' -> 'en')
                 return lang.split("_")[0].lower()
-    except:
+    except Exception:
         pass
 
     # Fallback to English
@@ -112,8 +137,15 @@ def load_wow_path_cache() -> Optional[str]:
         return None
 
     try:
-        with open(cache_file, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        with open(
+            cache_file,
+            "rb" if USE_ORJSON else "r",
+            encoding=None if USE_ORJSON else "utf-8",
+        ) as f:
+            if USE_ORJSON:
+                data = json_module.loads(f.read())
+            else:
+                data = json_module.load(f)
             return data.get("wow_path")
     except Exception:
         return None
@@ -146,8 +178,16 @@ def save_wow_path_cache(wow_path: str) -> bool:
 
     try:
         cache_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(cache_file, "w", encoding="utf-8") as f:
-            json.dump({"wow_path": wow_path}, f, indent=2, ensure_ascii=False)
+        data = {"wow_path": wow_path}
+        with open(
+            cache_file,
+            "wb" if USE_ORJSON else "w",
+            encoding=None if USE_ORJSON else "utf-8",
+        ) as f:
+            if USE_ORJSON:
+                f.write(json_module.dumps(data, option=json_module.OPT_INDENT_2))
+            else:
+                json_module.dump(data, f, indent=2, ensure_ascii=False)
         return True
     except Exception as e:
         print(f"[settings.py] Error saving WoW path cache: {e}")
@@ -166,8 +206,15 @@ def load_settings() -> Dict[str, Any]:
     user_settings: Dict[str, Any] = defaults.copy()
     if settings_file.exists():
         try:
-            with open(settings_file, "r", encoding="utf-8") as f:
-                loaded = json.load(f)
+            with open(
+                settings_file,
+                "rb" if USE_ORJSON else "r",
+                encoding=None if USE_ORJSON else "utf-8",
+            ) as f:
+                if USE_ORJSON:
+                    loaded = json_module.loads(f.read())
+                else:
+                    loaded = json_module.load(f)
                 user_settings = {**defaults, **loaded}
         except Exception:
             pass
@@ -211,8 +258,15 @@ def save_settings(settings: Dict[str, Any]) -> bool:
     write_needed = True
     if settings_file.exists():
         try:
-            with open(settings_file, "r", encoding="utf-8") as f:
-                current_settings = json.load(f)
+            with open(
+                settings_file,
+                "rb" if USE_ORJSON else "r",
+                encoding=None if USE_ORJSON else "utf-8",
+            ) as f:
+                if USE_ORJSON:
+                    current_settings = json_module.loads(f.read())
+                else:
+                    current_settings = json_module.load(f)
             # Only write if settings have changed
             if current_settings == user_settings:
                 write_needed = False
@@ -223,8 +277,19 @@ def save_settings(settings: Dict[str, Any]) -> bool:
     if write_needed:
         try:
             settings_file.parent.mkdir(parents=True, exist_ok=True)
-            with open(settings_file, "w", encoding="utf-8") as f:
-                json.dump(user_settings, f, indent=2, ensure_ascii=False)
+            with open(
+                settings_file,
+                "wb" if USE_ORJSON else "w",
+                encoding=None if USE_ORJSON else "utf-8",
+            ) as f:
+                if USE_ORJSON:
+                    f.write(
+                        json_module.dumps(
+                            user_settings, option=json_module.OPT_INDENT_2
+                        )
+                    )
+                else:
+                    json_module.dump(user_settings, f, indent=2, ensure_ascii=False)
         except Exception as e:
             print(f"[settings.py] Error saving settings: {e}")
             user_success = False

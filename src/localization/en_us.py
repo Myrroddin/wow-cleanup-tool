@@ -6,7 +6,6 @@ TRANSLATIONS = {
     "btn_clear_log": "Clear Session Log",
     "btn_clear_persistent_log": "Delete Log File",
     "btn_copy_log": "Copy Log to Clipboard",
-    "btn_no": "No",
     "btn_ok": "OK",
     "btn_open_log_folder": "Open Log Folder",
     "btn_remove_selected": "Remove Selected",
@@ -15,7 +14,6 @@ TRANSLATIONS = {
     "btn_scan_folders": "Scan Folders",
     "btn_select_all_toggle": "Select All / Unselect All",
     "btn_toggle_theme": "Toggle Theme",
-    "btn_yes": "Yes",
     "dep_install_complete": "Installation Complete",
     "dep_install_complete_msg": (
         "Dependencies were successfully installed, but some packages\n"
@@ -27,11 +25,11 @@ TRANSLATIONS = {
         "Failed to install required dependencies.\n\n"
         "The application cannot run without these packages.\n\n"
         "Please install manually:\n"
-        "pip install send2trash psutil Pillow"
+        "pip install send2trash Pillow sv-ttk darkdetect orjson"
     ),
-    "dep_installing_count": "Installing {} required package(s)...",
+    "dep_installing_parallel": "Installing {} packages in parallel...",
+    "dep_installing_single": "Installing {}...",
     "dep_taking_longer": "Installation is taking longer than expected...",
-    "dep_trying_stage": "Trying {} of {}...",
     "desc_developer_log": (
         "Technical log for debugging, errors, and warnings. These entries may be "
         "requested when reporting bugs."
@@ -77,6 +75,14 @@ TRANSLATIONS = {
         "Please read and accept the license agreement to continue using WoW Cleanup Tool."
     ),
     "msg_log_empty": "Log is empty.",
+    "msg_multiple_installations": (
+        "Multiple World of Warcraft installations detected. "
+        "Only one installation should exist on your system."
+    ),
+    "msg_multiple_installations_instructions": (
+        "Please choose one installation to use, or move/uninstall the others. "
+        "The application will now exit."
+    ),
     "msg_multiple_installations_see_dev_log": (
         "Multiple WoW installations detected. See the Developer Log for details."
     ),
@@ -88,10 +94,8 @@ TRANSLATIONS = {
     "option_dont_show_again": "Don't show this again",
     "press_enter_to_exit": "Press Enter to exit...",
     "select_wow_folder": "Select World of Warcraft Folder",
-    "status_detecting_wow": "Detecting World of Warcraft installation...",
     "status_initializing": "Initializing...",
     "status_log_deleted": "Log Deleted",
-    "status_validating_wow": "Validating WoW installation structure...",
     "system_default_font": "System Default",
     "tab_backup_old_cleaner": "Backup & Old Files",
     "tab_developer": "Developer Log",
@@ -110,7 +114,6 @@ TRANSLATIONS = {
     "title_license": "License Agreement",
     "title_main_window": "WoW Cleanup Tool",
     "title_multiple_installations": "Multiple WoW Installations Detected",
-    "title_reset_settings": "Confirm Reset",
     "tooltip_browse_wow_folder": "Choose your main WoW folder (not a subfolder).",
     "tooltip_cache_warning": (
         "NOT RECOMMENDED: Removing the Cache folder may cause temporary performance issues. "
@@ -147,9 +150,6 @@ TRANSLATIONS = {
     "user_log_verbose_wow_validated": (
         "WoW installation validated. Found {} game version(s)"
     ),
-    "version_alpha": "alpha version",
-    "version_beta": "beta version",
-    "version_stable": "stable release",
     "warning": "Warning",
     "warning_icon": "⚠",
 }

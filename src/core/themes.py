@@ -1,10 +1,17 @@
 """
 Theme system for WoW Cleanup Tool.
 
-Provides light and dark themes with comprehensive widget styling.
+Provides light and dark themes using sv-ttk with fallback to custom themes.
 """
 
 from tkinter import ttk
+
+try:
+    import sv_ttk
+
+    SV_TTK_AVAILABLE = True
+except ImportError:
+    SV_TTK_AVAILABLE = False
 
 THEMES = {
     "light": {
@@ -52,6 +59,29 @@ def apply_theme(root, theme_name, font_family="TkDefaultFont", font_size=9):
     Returns:
         dict: Theme data dictionary
     """
+    # Use sv-ttk if available for modern Windows 11-style UI
+    if SV_TTK_AVAILABLE:
+        try:
+            if theme_name == "dark":
+                sv_ttk.set_theme("dark")
+            else:
+                sv_ttk.set_theme("light")
+
+            # Apply font customization
+            style = ttk.Style(root)
+            style.configure(".", font=(font_family, font_size))
+            style.configure("TButton", font=(font_family, font_size))
+            style.configure("TLabel", font=(font_family, font_size))
+            style.configure("Title.TLabel", font=(font_family, font_size + 3, "bold"))
+            style.configure("TLabelFrame.Label", font=(font_family, font_size, "bold"))
+
+            # Return theme data for compatibility
+            return THEMES.get(theme_name, THEMES["light"])
+        except Exception:
+            # Fall back to custom themes if sv-ttk fails
+            pass
+
+    # Fallback: Use custom theme styling
     theme_data = THEMES.get(theme_name, THEMES["light"])
 
     # Configure ttk styles

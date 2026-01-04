@@ -2,11 +2,9 @@
 from __future__ import annotations
 
 import ast
-import os
 import re
-import sys
 from pathlib import Path
-from typing import Iterable, Set, Dict, Tuple
+from typing import Iterable, Set, Dict
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SRC_DIR = REPO_ROOT / "src"
@@ -122,6 +120,58 @@ def extract_used_keys_regex(text: str) -> Set[str]:
         used.add(m.group(1))
     # TRANSLATIONS["key"]
     for m in re.finditer(r"""\bTRANSLATIONS\[\s*["']([^"']+)["']\s*\]""", text):
+        used.add(m.group(1))
+    # Dialog helper methods: create_button/create_title_label/create_checkbox/create_message_label with string key as 2nd parameter
+    # Pattern: create_button( \s* identifier , \s* "key"
+    for m in re.finditer(
+        r"""\bcreate_(?:button|title_label|checkbox|message_label)\s*\([^)]*?[,\(]\s*["']([^"']+)["']\s*[,)]""",
+        text,
+    ):
+        used.add(m.group(1))
+    # super().__init__ with string key for dialog title
+    for m in re.finditer(
+        r"""super\s*\(\s*\)\s*\.__init__\s*\([^)]*?[,\(]\s*["']([^"']+)["']\s*[,)]""",
+        text,
+    ):
+        used.add(m.group(1))
+    # Dictionary value patterns: string values that look like locale keys in mappings
+    # Matches: "game_version_classic", "folder_cache" etc. when assigned as values
+    for m in re.finditer(
+        r""":\s*["']((game_version|folder)_[a-z_]+)["']""",
+        text,
+    ):
+        used.add(m.group(1))
+    # Dynamic f-string patterns: self.loc._(f"prefix_{variable}")
+    # Detects known dynamic prefixes like "folder_" and "game_version_"
+    if re.search(r"""self\.loc\._\(f["']folder_\{""", text):
+        # folder_* keys are accessed dynamically
+        for key in [
+            "folder_cache",
+            "folder_errors",
+            "folder_logs",
+            "folder_screenshots",
+        ]:
+            used.add(key)
+    if re.search(r"""self\.loc\._\(f["']game_version_\{""", text):
+        # game_version_* keys are accessed dynamically
+        for key in [
+            "game_version_classic",
+            "game_version_classic_era",
+            "game_version_retail",
+            "game_version_modifier_beta",
+            "game_version_modifier_ptr",
+        ]:
+            used.add(key)
+    # Modifier keys constructed from base+modifier pattern
+    if re.search(r"""modifier_key\s*=\s*f["']game_version_modifier_\{""", text):
+        # game_version_modifier_* keys are constructed dynamically
+        for key in ["game_version_modifier_beta", "game_version_modifier_ptr"]:
+            used.add(key)
+    # Tab widget .add() with text=loc._("key") pattern
+    for m in re.finditer(
+        r"""\.add\s*\([^)]*?text\s*=\s*loc\._\(["']([^"']+)["']\)""",
+        text,
+    ):
         used.add(m.group(1))
     return used
 

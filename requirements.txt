@@ -1,5 +1,15 @@
-send2trash>=1.8.0
-psutil>=5.9.0
-Pillow>=10.0.0
+send2trash>=2.0.0
+Pillow>=12.1.0
+
+# UI Enhancements
+sv-ttk>=2.6.0
+darkdetect>=0.8.0
+
+# Performance
+orjson>=3.11.0
+
 # Packaging
-pyinstaller>=6.5.0
+pyinstaller>=6.17.0
+
+# Development
+ruff>=0.14.0

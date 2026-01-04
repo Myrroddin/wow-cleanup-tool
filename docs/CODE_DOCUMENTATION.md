@@ -36,7 +36,7 @@ tests/                           # Unit tests for all modules
 **Purpose**: Main application entry point that initializes and runs the WoW Cleanup Tool.
 
 **Key Responsibilities**:
-- Checks and installs required dependencies (Pillow, psutil, send2trash)
+- Checks and installs required dependencies (Pillow, send2trash, sv-ttk, darkdetect, orjson)
 - Ensures only one instance runs at a time (prevents conflicts)
 - Loads user settings and preferences
 - Detects World of Warcraft installation path
@@ -50,7 +50,7 @@ tests/                           # Unit tests for all modules
 3. Settings and localization loading
 4. WoW path detection and validation
 5. License agreement (first run only)
-6. WoW close warning (if WoW is running)
+6. WoW close warning (user precaution)
 7. Main window creation and display
 
 ## Core Modules (src/core/)
@@ -74,7 +74,11 @@ tests/                           # Unit tests for all modules
 **See also**: [LOGGING_GUIDE.md](LOGGING_GUIDE.md) for detailed logging usage and patterns.
 
 ### settings.py
-**Purpose**: Manages user preferences and application state.
+**Purpose**: Manages user preferences and application state with high-performance JSON serialization.
+
+**Dependencies**:
+- `orjson`: Fast JSON serialization (2-3x faster than stdlib, with fallback to json)
+- `darkdetect`: OS theme detection for automatic theme selection on first launch
 
 **Storage Locations**:
 - User settings: `~/.wow_cleanup_tool/settings.json` (per-user)
@@ -83,21 +87,32 @@ tests/                           # Unit tests for all modules
 
 **Managed Settings**:
 - Language preference
-- Theme (light/dark)
+- Theme (light/dark) - Auto-detected from OS on first launch
 - Font family and size
 - Delete mode (trash vs permanent)
 - Verbose logging toggle
 - Window geometry (size, position)
 - Dialog preferences (license acceptance, warnings)
 
+**Performance**:
+- Uses orjson for 2-3x faster settings load/save compared to stdlib json
+- Binary mode file operations for optimal throughput
+- Automatic fallback to stdlib json if orjson unavailable
+
 ### themes.py
-**Purpose**: Provides light and dark color themes for the entire application.
+**Purpose**: Provides modern Windows 11-style UI theming with sv-ttk and fallback themes.
+
+**Dependencies**:
+- `sv-ttk`: Modern Sun Valley theme system (Windows 11 look and feel)
+- Fallback to custom light/dark themes if sv-ttk unavailable
 
 **Features**:
+- Modern Windows 11-style UI when sv-ttk is available
 - Comprehensive widget styling (buttons, labels, frames, etc.)
 - Consistent colors across all UI elements
 - Theme switching without restart
-- Font-aware padding calculations
+- Font customization preserved in both sv-ttk and custom themes
+- Automatic graceful degradation to custom themes if sv-ttk fails
 - Tooltip theming support
 
 **Theme Data**:
@@ -137,20 +152,24 @@ tests/                           # Unit tests for all modules
 **Purpose**: Ensures required Python packages are installed before startup.
 
 **Dependencies Checked**:
+**External Dependencies**:
 - Pillow (PIL): Image handling for screenshot viewer
-- psutil: Process detection (checking if WoW is running)
 - send2trash: Safe file deletion (move to recycle bin)
+- sv-ttk: Modern Windows 11-style UI theming
+- darkdetect: Automatic OS theme detection
+- orjson: High-performance JSON serialization
 
 ### dependencies.py
 **Purpose**: Handles automatic installation of missing dependencies.
 
 **Features**:
-- Checks for required packages (Pillow, psutil, send2trash)
-- Parallel installation via ThreadPoolExecutor (up to 3 packages simultaneously)
+- Checks for required packages (Pillow, send2trash, sv-ttk, darkdetect, orjson)
+- Parallel installation via ThreadPoolExecutor (up to 5 packages simultaneously)
 - Thread-safe UI updates using queue-based communication
 - 30-second timeout per package with --no-cache-dir flag
 - Progress dialog with real-time package status
 - User-friendly error messages if installation fails
+- Stable release installation only (no beta/alpha fallback)
 
 ### instance_utils.py / single_instance.py
 **Purpose**: Prevents multiple instances of the application from running.
@@ -236,7 +255,12 @@ semantic keys (e.g., "btn_scan_files", "msg_log_empty")
 ## WoW Detection (src/wow/)
 
 ### path_manager.py
-**Purpose**: Detects and manages World of Warcraft installation paths.
+**Purpose**: Detects and manages World of Warcraft installation paths with result caching.
+
+**Performance Optimization**:
+- Uses `@lru_cache` decorator for expensive flavor name lookups
+- Caches up to 128 flavor display names to avoid repeated translation lookups
+- Significantly reduces CPU usage during multi-flavor scanning
 
 **Detection Methods**:
 1. Windows Registry lookups (if on Windows)
@@ -337,7 +361,7 @@ semantic keys (e.g., "btn_scan_files", "msg_log_empty")
 **Purpose**: Shows GPL license agreement on first run.
 
 #### wow_close_warning.py
-**Purpose**: Warns user if WoW is running (prevents file conflicts).
+**Purpose**: Displays precautionary warning to close WoW before using cleanup tools (prevents potential file conflicts).
 
 #### multiple_installations.py
 **Purpose**: Handles detection of multiple WoW installations.

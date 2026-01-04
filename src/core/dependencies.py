@@ -12,9 +12,11 @@ class DependencyManager:
     """Manage and install required external dependencies."""
 
     REQUIRED_PACKAGES = {
-        "send2trash": "send2trash>=1.8.0",
-        "psutil": "psutil>=5.9.0",
-        "PIL": "Pillow>=10.0.0",
+        "send2trash": "send2trash>=2.0.0",
+        "PIL": "Pillow>=12.1.0",
+        "sv_ttk": "sv-ttk>=2.6.0",
+        "darkdetect": "darkdetect>=0.8.0",
+        "orjson": "orjson>=3.11.0",
     }
 
     def __init__(self):
@@ -131,12 +133,7 @@ class DependencyManager:
         return spec is not None
 
     def _install_package(self, package_spec, progress_callback=None, update_queue=None):
-        """Install a single package using pip with fallback strategy.
-
-        Tries to install in this order:
-        1. Latest stable release
-        2. Latest beta/rc version (--pre flag)
-        3. Latest alpha version (--pre flag with upgrade)
+        """Install a single package using pip (stable releases only).
 
         Args:
             package_spec: Package specification (e.g., 'package>=1.0.0')
@@ -147,14 +144,14 @@ class DependencyManager:
             tuple: (success, message, timed_out)
         """
         package_name = package_spec.split(">=")[0].split("==")[0]
-        timed_out = False
 
-        # Strategy 1: Try stable release with version constraint
+        # Install latest stable release with version constraint
         if progress_callback:
             if update_queue:
-                update_queue.put(("progress", "stable", package_name))
+                update_queue.put(("progress", package_name))
             else:
-                progress_callback("stable", package_name)
+                progress_callback(package_name)
+
         try:
             subprocess.check_call(
                 [
@@ -171,70 +168,9 @@ class DependencyManager:
             )
             return (True, f"Successfully installed {package_spec}", False)
         except subprocess.TimeoutExpired:
-            timed_out = True
-        except subprocess.CalledProcessError:
-            pass
-
-        # Strategy 2: Try latest pre-release (beta/rc)
-        if progress_callback:
-            if update_queue:
-                update_queue.put(("progress", "beta", package_name))
-            else:
-                progress_callback("beta", package_name)
-        try:
-            subprocess.check_call(
-                [
-                    sys.executable,
-                    "-m",
-                    "pip",
-                    "install",
-                    "--no-cache-dir",
-                    "--pre",
-                    package_name,
-                ],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                timeout=30,
-            )
-            return (
-                True,
-                f"Successfully installed {package_name} (pre-release)",
-                timed_out,
-            )
-        except subprocess.TimeoutExpired:
-            timed_out = True
-        except subprocess.CalledProcessError:
-            pass
-
-        # Strategy 3: Try latest alpha with upgrade flag
-        if progress_callback:
-            if update_queue:
-                update_queue.put(("progress", "alpha", package_name))
-            else:
-                progress_callback("alpha", package_name)
-        try:
-            subprocess.check_call(
-                [
-                    sys.executable,
-                    "-m",
-                    "pip",
-                    "install",
-                    "--no-cache-dir",
-                    "--pre",
-                    "--upgrade",
-                    package_name,
-                ],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                timeout=30,
-            )
-            return (True, f"Successfully installed {package_name} (alpha)", timed_out)
-        except subprocess.TimeoutExpired:
-            timed_out = True
+            return (False, f"Installation timed out for {package_spec}", True)
         except (subprocess.CalledProcessError, Exception) as e:
-            return (False, f"Failed to install {package_spec}: {e}", timed_out)
-
-        return (False, f"Failed to install {package_spec}", timed_out)
+            return (False, f"Failed to install {package_spec}: {e}", False)
 
 
 def check_and_install_dependencies():
@@ -365,24 +301,19 @@ def check_and_install_dependencies():
                     msg_type = msg[0]
 
                     if msg_type == "progress":
-                        # Format: ("progress", stage, package_name)
-                        stage, package = msg[1], msg[2]
+                        # Format: ("progress", package_name)
+                        package = msg[1]
                         active_packages.add(package)
-                        stage_names = {
-                            "stable": loc._("version_stable"),
-                            "beta": loc._("version_beta"),
-                            "alpha": loc._("version_alpha"),
-                        }
                         # Show all active packages
                         if len(active_packages) == 1:
                             detail_label.config(
-                                text=loc._("dep_trying_stage").format(
-                                    stage_names.get(stage, stage), package
-                                )
+                                text=loc._("dep_installing_single").format(package)
                             )
                         else:
                             detail_label.config(
-                                text=f"Installing {len(active_packages)} packages in parallel..."
+                                text=loc._("dep_installing_parallel").format(
+                                    len(active_packages)
+                                )
                             )
                         package_progress.start(10)
 

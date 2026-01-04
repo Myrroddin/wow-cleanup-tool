@@ -1,7 +1,5 @@
 """Event handlers and UI controllers for the main application."""
 
-import tkinter as tk
-from tkinter import ttk
 from core import themes
 
 
@@ -95,9 +93,9 @@ class ApplicationController:
         font_family = self.settings.get("font_family", "TkDefaultFont")
         font_size = self.settings.get("font_size", 12)
         themes.apply_theme(self.root, new_theme, font_family, font_size)
-        # Force refresh all widget fonts/styles
-        if self.builder and hasattr(self.builder, "refresh_all_widget_fonts"):
-            self.builder.refresh_all_widget_fonts()
+        # Fast theme-only refresh (skip expensive font/wraplength updates)
+        if self.builder and hasattr(self.builder, "refresh_theme_only"):
+            self.builder.refresh_theme_only()
             # Also refresh all open dialogs
             try:
                 from ui.dialog_base import BaseDialog
@@ -111,7 +109,6 @@ class ApplicationController:
 
     def on_font_size_changed(self, event=None):
         """Handle font size changes and ensure settings and StringVar are updated."""
-        import sys
 
         try:
             font_size_var = self.ui_widgets.get("font_size_var")
@@ -143,7 +140,6 @@ class ApplicationController:
 
     def on_font_family_changed(self, event=None):
         """Handle font family changes and ensure settings and StringVar are updated."""
-        import sys
 
         font_family_var = self.ui_widgets.get("font_family_var")
         if not font_family_var:
@@ -288,7 +284,6 @@ class ApplicationController:
 
     def _refresh_all_fonts(self, font_family, font_size):
         """Force refresh of all main window widgets to apply new font settings everywhere."""
-        import sys
         from core import themes
 
         # Debug print removed

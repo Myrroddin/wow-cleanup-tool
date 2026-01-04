@@ -40,7 +40,7 @@ Key Naming Conventions:
 """
 
 import importlib
-from typing import Dict, Optional
+from typing import Dict
 
 DEFAULT_LANGUAGE: str = "en_us"
 

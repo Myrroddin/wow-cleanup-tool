@@ -3,7 +3,7 @@
 import sys
 import os
 import pytest
-from unittest.mock import Mock, MagicMock, patch, PropertyMock
+from unittest.mock import Mock, MagicMock, patch
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
 
@@ -42,7 +42,7 @@ def folder_tab(loc, settings, game_versions):
         mock_frame = MagicMock()
         mock_frame_class.return_value = mock_frame
 
-        with patch("ui.tabs.folder_cleaner_tab.ttk.Notebook") as mock_notebook:
+        with patch("ui.tabs.folder_cleaner_tab.ttk.Notebook"):
             tab = FolderCleanerTab(
                 parent=mock_parent,
                 loc=loc,
@@ -252,7 +252,6 @@ def test_relative_path_for_display(folder_tab):
 
 def test_relative_path_for_display_fallback(folder_tab):
     """Test relative path display falls back to basename on error."""
-    import os
 
     # Mock os.path.relpath to raise exception
     with patch("os.path.relpath", side_effect=ValueError("Invalid path")):
@@ -466,7 +465,6 @@ def test_debounced_wraplength_cancels_previous_timer(folder_tab):
 
 def test_refresh_wraplength_updates_on_font_change(folder_tab):
     """Test refresh_wraplength updates when font size changes."""
-    original_font_size = folder_tab.font_size
     folder_tab.font_size = 14
 
     with patch.object(folder_tab, "_update_wraplength") as mock_update:

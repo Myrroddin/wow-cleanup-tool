@@ -18,12 +18,15 @@ A lightweight utility for managing and optimizing World of Warcraft installation
 ### Available Now ✅
 - **WoW Detection**: Automatic detection or manual path selection
 - **Multi-Flavor Support**: Retail, Classic, Classic Era, PTR, Beta
-- **Themes**: Light/dark mode with custom fonts (8–16pt, default 12)
+- **Modern UI**: Windows 11-style theming with sv-ttk
+- **Themes**: Light/dark mode with automatic OS theme detection (first launch)
+- **Customization**: Custom fonts (8–16pt, default 12), theme toggle button
 - **Delete Modes**: Move to trash (safe) or permanent deletion
 - **Logging**:
   - Dual-channel logs (user operations + developer diagnostics)
   - Automatic rotation, thread-safe for parallel operations
   - Session preservation with append mode
+- **Performance**: Fast JSON serialization (orjson) and result caching (lru_cache)
 - **Localization**: 98+ translation keys, robust English support, easy expansion
 - **Settings**: Auto-save theme, font, delete mode, verbose logging, geometry
 - **Chat Timestamps**: Toggle timestamps in both User Log and Developer Log
@@ -39,7 +42,7 @@ A lightweight utility for managing and optimizing World of Warcraft installation
 ## Installation
 
 ### Requirements
-- Python 3.8+
+- Python 3.10+
 - Windows, macOS, or Linux
 
 ### Run from Source

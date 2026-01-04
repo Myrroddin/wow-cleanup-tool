@@ -16,7 +16,7 @@ Note: These tests require Tkinter to be available. If Tkinter is not available,
 import sys
 import os
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 import tempfile
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
@@ -153,7 +153,7 @@ if TK_AVAILABLE:
                 builder = MainWindowBuilder(
                     self.root, self.loc, self.settings, self.logger, self.font_utils
                 )
-                ui_widgets = builder.build(theme_toggle_callback=None)
+                builder.build(theme_toggle_callback=None)
 
                 # The bug button should be created with emoji and text
                 # We verify by checking that the builder was created successfully
@@ -230,7 +230,7 @@ if TK_AVAILABLE:
                 builder = MainWindowBuilder(
                     self.root, self.loc, self.settings, self.logger, self.font_utils
                 )
-                ui_widgets = builder.build(theme_toggle_callback=None)
+                builder.build(theme_toggle_callback=None)
 
                 # Should return early without error
                 builder._on_remove_selected([])
@@ -241,7 +241,7 @@ if TK_AVAILABLE:
                 builder = MainWindowBuilder(
                     self.root, self.loc, self.settings, self.logger, self.font_utils
                 )
-                ui_widgets = builder.build(theme_toggle_callback=None)
+                builder.build(theme_toggle_callback=None)
 
                 # Provide duplicate paths - should be deduplicated
                 # (We use nonexistent paths to avoid actual deletion)
@@ -250,15 +250,15 @@ if TK_AVAILABLE:
                 builder._on_remove_selected(paths)
                 self.assertTrue(True)
 
-    except ImportError as e:
+    except ImportError:
         # If imports fail, create a stub
         class TestBugReportButton(unittest.TestCase):
             def test_import_failed(self):
-                self.skipTest(f"Could not import modules: {e}")
+                self.skipTest("Could not import modules")
 
         class TestRemoveSelectedFunctionality(unittest.TestCase):
             def test_import_failed(self):
-                self.skipTest(f"Could not import modules: {e}")
+                self.skipTest("Could not import modules")
 
 else:
 

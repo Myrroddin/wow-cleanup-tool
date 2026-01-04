@@ -31,6 +31,33 @@ class DeveloperTab:
         )
         clear_btn.grid(row=0, column=0, padx=(0, 8))
 
+        # Add tooltip to clear button
+        from ui.widgets.tooltip import Tooltip
+        from core.themes import THEMES
+
+        def setup_clear_tooltip():
+            def on_enter(e):
+                theme_name = self.settings.get("theme", "light")
+                theme = THEMES.get(theme_name, THEMES["light"])
+                t = Tooltip(
+                    clear_btn,
+                    loc._("tooltip_clear_log"),
+                    theme,
+                    self.settings.get("font_family", "TkDefaultFont"),
+                    int(self.settings.get("font_size", 12)),
+                )
+                t.show()
+                clear_btn._tip = t
+
+            def on_leave(e):
+                if hasattr(clear_btn, "_tip"):
+                    clear_btn._tip.hide()
+
+            clear_btn.bind("<Enter>", on_enter)
+            clear_btn.bind("<Leave>", on_leave)
+
+        setup_clear_tooltip()
+
         open_folder_btn = ttk.Button(
             controls,
             text=loc._("btn_open_log_folder"),

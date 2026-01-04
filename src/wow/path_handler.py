@@ -1,6 +1,5 @@
 """WoW path browser and detection utilities."""
 
-import os
 import sys
 from tkinter import filedialog
 from ui.dialogs import wow_close_warning, show_multiple_installations_dialog
@@ -75,8 +74,6 @@ class WoWPathHandler:
         current_path = self.settings.get("wow_path", "")
         if current_path:
             return None  # Already configured
-
-        self.logger.log(self.loc._("status_detecting_wow"))
 
         # Check for multiple installations first
         all_installations = self.path_manager.detect_all_wow_installations()

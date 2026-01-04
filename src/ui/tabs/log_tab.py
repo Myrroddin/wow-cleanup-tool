@@ -41,12 +41,63 @@ class LogTab:
         )
         clear_btn.grid(row=0, column=0, padx=(0, 8))
 
+        # Add tooltip to clear button
+        from ui.widgets.tooltip import Tooltip
+        from core.themes import THEMES
+
+        def setup_clear_tooltip():
+            def on_enter(e):
+                theme_name = self.settings.get("theme", "light")
+                theme = THEMES.get(theme_name, THEMES["light"])
+                t = Tooltip(
+                    clear_btn,
+                    loc._("tooltip_clear_log"),
+                    theme,
+                    self.settings.get("font_family", "TkDefaultFont"),
+                    int(self.settings.get("font_size", 12)),
+                )
+                t.show()
+                clear_btn._tip = t
+
+            def on_leave(e):
+                if hasattr(clear_btn, "_tip"):
+                    clear_btn._tip.hide()
+
+            clear_btn.bind("<Enter>", on_enter)
+            clear_btn.bind("<Leave>", on_leave)
+
+        setup_clear_tooltip()
+
         self.delete_btn = ttk.Button(
             controls,
             text=loc._("btn_clear_persistent_log"),
             command=log_controls["delete"],
         )
         self.delete_btn.grid(row=0, column=1, padx=(0, 8))
+
+        # Add tooltip to delete button
+        def setup_delete_tooltip():
+            def on_enter(e):
+                theme_name = self.settings.get("theme", "light")
+                theme = THEMES.get(theme_name, THEMES["light"])
+                t = Tooltip(
+                    self.delete_btn,
+                    loc._("tooltip_clear_persistent_log"),
+                    theme,
+                    self.settings.get("font_family", "TkDefaultFont"),
+                    int(self.settings.get("font_size", 12)),
+                )
+                t.show()
+                self.delete_btn._tip = t
+
+            def on_leave(e):
+                if hasattr(self.delete_btn, "_tip"):
+                    self.delete_btn._tip.hide()
+
+            self.delete_btn.bind("<Enter>", on_enter)
+            self.delete_btn.bind("<Leave>", on_leave)
+
+        setup_delete_tooltip()
 
         # Create overlay using ttk.Label with custom style for dimming
         # This will be placed exactly over the button when disabled

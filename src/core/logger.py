@@ -441,35 +441,6 @@ class WoWLogger:
         """Log warning message (developer tab)."""
         self.dev_logger.warning(text)
 
-    def set_verbose(self, verbose: bool) -> None:
-        self._verbose = verbose
-
-    def set_append_mode(self, append: bool) -> None:
-        self._append_mode = append
-
-    def error(self, text: str) -> None:
-        """Log error message (only shown in developer tab).
-
-        Args:
-            text: Error message to log
-        """
-        self.dev_logger.error(text)
-        self.error_count += 1
-
-        if self.error_callback:
-            try:
-                self.error_callback(self.error_count)
-            except Exception:
-                pass
-
-    def warning(self, text: str) -> None:
-        """Log warning message (shown in developer tab).
-
-        Args:
-            text: Warning message to log
-        """
-        self.dev_logger.warning(text)
-
     def get_lines(self) -> list:
         """Get user log content as list of lines (for compatibility).
 

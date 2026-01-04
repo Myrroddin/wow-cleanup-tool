@@ -1,12 +1,10 @@
 """Utility functions for log controls (copy, clear, delete, open folder) for user and developer logs."""
 
-import tkinter as tk
 from tkinter import messagebox
 import os
 import sys
 import subprocess
 from core.settings import get_user_log_file
-from pathlib import Path
 
 # User log controls
 

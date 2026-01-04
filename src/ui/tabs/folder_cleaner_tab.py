@@ -4,7 +4,6 @@ import tkinter as tk
 from tkinter import ttk
 from ui.widgets.tooltip import Tooltip
 from ui.dialogs.screenshot_viewer import ScreenshotViewer
-from wow.version_manager import GameVersion
 
 
 class FolderCleanerTab:
@@ -219,15 +218,11 @@ class FolderCleanerTab:
         def show_tooltip(event):
             theme_name = self.settings.get("theme", "light")
             theme = THEMES.get(theme_name, THEMES["light"])
-            font_family = self.settings.get("font_family", "TkDefaultFont")
-            font_size = int(self.settings.get("font_size", 12))
 
             tooltip = Tooltip(
                 widget,
                 self.loc._("tooltip_select_all_cache_manual"),
                 theme,
-                font_family,
-                font_size,
                 wraplength=320,
             )
             tooltip.show()

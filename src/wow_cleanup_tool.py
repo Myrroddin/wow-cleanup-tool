@@ -4,13 +4,7 @@ import sys
 import tkinter as tk
 
 from core.instance_utils import acquire_single_instance, release_single_instance
-
-
-# Check and install dependencies silently before importing modules that need them
 from core.bootstrap import ensure_dependencies
-
-ensure_dependencies()
-
 from core.settings import load_settings, save_settings
 from core.logger import Logger
 from core.themes import apply_theme
@@ -23,9 +17,11 @@ from ui import (
     font_utils,
     MainWindowBuilder,
     ApplicationController,
-    setup_geometry,
-    on_configure,
 )
+
+
+# Check and install dependencies silently before continuing
+ensure_dependencies()
 
 
 class WoWCleanupTool:
@@ -160,7 +156,6 @@ class WoWCleanupTool:
 
     def on_close(self):
         """Handle window close event, abstracted for future profiles."""
-        from core.settings import save_settings
 
         save_settings(self.settings)
 
@@ -174,7 +169,7 @@ class WoWCleanupTool:
 def main():
     try:
         root = tk.Tk()
-        app = WoWCleanupTool(root)
+        WoWCleanupTool(root)
         root.mainloop()
     except Exception as e:
         from core.error_handler import handle_top_level_exception

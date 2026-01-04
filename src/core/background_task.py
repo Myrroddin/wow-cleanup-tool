@@ -70,16 +70,18 @@ class BackgroundTask:
                 if on_complete:
                     root.after(0, lambda: on_complete(result))
 
-            except Exception as e:
+            except Exception as exc:
                 # Handle errors on main thread
                 if on_error:
-                    root.after(0, lambda: on_error(e))
+                    root.after(0, lambda e=exc: on_error(e))
                 elif logger:
                     # Default error logging if no custom handler
-                    root.after(0, lambda: logger.error(f"Background task error: {e}"))
+                    root.after(
+                        0, lambda e=exc: logger.error(f"Background task error: {e}")
+                    )
                 else:
                     # Fallback: re-raise on main thread for visibility
-                    root.after(0, lambda: (_ for _ in ()).throw(e))
+                    root.after(0, lambda e=exc: (_ for _ in ()).throw(e))
 
         # Start daemon thread (auto-terminates with application)
         thread = threading.Thread(target=thread_wrapper, daemon=True)
@@ -134,14 +136,16 @@ class BackgroundTask:
                 if on_complete:
                     root.after(0, lambda: on_complete(result))
 
-            except Exception as e:
+            except Exception as exc:
                 # Handle errors on main thread
                 if on_error:
-                    root.after(0, lambda: on_error(e))
+                    root.after(0, lambda e=exc: on_error(e))
                 elif logger:
-                    root.after(0, lambda: logger.error(f"Background task error: {e}"))
+                    root.after(
+                        0, lambda e=exc: logger.error(f"Background task error: {e}")
+                    )
                 else:
-                    root.after(0, lambda: (_ for _ in ()).throw(e))
+                    root.after(0, lambda e=exc: (_ for _ in ()).throw(e))
 
         # Start daemon thread
         thread = threading.Thread(target=thread_wrapper, daemon=True)

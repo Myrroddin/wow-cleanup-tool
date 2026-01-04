@@ -13,6 +13,7 @@ The PathManager uses a combination of:
 4. Installation validation (checking for valid game files/folders)
 """
 
+from functools import lru_cache
 import os
 import sys
 import winreg
@@ -78,6 +79,7 @@ class PathManager:
         self.detected_flavors: Dict[str, str] = {}
         self.loc = loc
 
+    @lru_cache(maxsize=128)
     def get_flavor_display_name(self, flavor_dir: str) -> str:
         """Get user-friendly display name for a WoW flavor directory.
 

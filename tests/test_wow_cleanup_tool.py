@@ -5,7 +5,7 @@ import tempfile
 import sys
 import os
 import tkinter as tk
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
 
@@ -63,7 +63,7 @@ class TestWoWCleanupToolSmoke(unittest.TestCase):
         if self.root is None:
             self.skipTest("Tkinter not available")
         try:
-            app = WoWCleanupTool(self.root)
+            WoWCleanupTool(self.root)
         except Exception as e:
             self.fail(f"WoWCleanupTool init raised: {e}")
 
