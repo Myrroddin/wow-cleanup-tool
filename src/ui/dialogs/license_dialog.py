@@ -36,7 +36,7 @@ class LicenseDialog(BaseDialog):
             min_height=DialogDimensions.MIN_LICENSE_HEIGHT,
         )
 
-        # Get theme data
+        # Get theme data for styling elements that don't use BaseDialog helpers
         from core.themes import THEMES
 
         theme = THEMES.get(self.theme_name, THEMES["light"])
@@ -44,24 +44,24 @@ class LicenseDialog(BaseDialog):
         # Main content frame
         content = self.create_content_frame(dialog)
 
-        # Title
+        # Title (uses built-in styling)
         title = self.create_title_label(content, "title_license")
         title.pack(pady=(0, DialogDimensions.SPACING_MEDIUM))
 
-        # Instructions
+        # Instructions (using message label which doesn't have explicit styling)
         instructions = self.create_message_label(
             content, "msg_license_instructions", wraplength=DialogDimensions.WRAP_LONG
         )
         instructions.pack(pady=(0, DialogDimensions.SPACING_MEDIUM))
 
-        # License text frame with scrollbar
-        text_frame = ttk.Frame(content)
+        # License text frame with scrollbar (styled to match theme)
+        text_frame = ttk.Frame(content, style="TFrame")
         text_frame.pack(
             fill="both", expand=True, pady=(0, DialogDimensions.SPACING_LARGE)
         )
 
         # Scrollbar
-        scrollbar = ttk.Scrollbar(text_frame)
+        scrollbar = ttk.Scrollbar(text_frame, style="TScrollbar")
         scrollbar.pack(side="right", fill="y")
 
         # Load license text first to determine width
@@ -76,8 +76,7 @@ class LicenseDialog(BaseDialog):
         # Calculate height based on font size (25 rows at 12pt → 2.08x scaling)
         text_height = int(25 * (self.font_size / 12))
 
-        # Text widget for license
-        # Use 'none' wrap to preserve formatting exactly as in the license file
+        # Text widget for license - with proper theme colors
         license_text = tk.Text(
             text_frame,
             wrap="none",
@@ -90,6 +89,8 @@ class LicenseDialog(BaseDialog):
             selectbackground=theme["select_bg"],
             selectforeground=theme["select_fg"],
             font=(self.font_family, self.font_size),
+            relief="flat",
+            borderwidth=0,
         )
         license_text.pack(side="left", fill="both", expand=True)
         scrollbar.config(command=license_text.yview)
@@ -105,7 +106,7 @@ class LicenseDialog(BaseDialog):
         dont_show.pack(pady=(0, DialogDimensions.SPACING_LARGE))
 
         # Button frame
-        button_frame = ttk.Frame(content)
+        button_frame = ttk.Frame(content, style="TFrame")
         button_frame.pack()
 
         # Accept button

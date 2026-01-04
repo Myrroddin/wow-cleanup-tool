@@ -1,5 +1,21 @@
-"""
-File operations for deleting or trashing files/folders in WoW Cleanup Tool.
+"""File operations for deleting or trashing files/folders in WoW Cleanup Tool.
+
+This module provides the centralized file deletion functionality for the application,
+replacing direct os.remove() calls with safer alternatives:
+
+- delete_files_batch(): Handles both trash and permanent deletion modes
+  - Respects user preferences (send2trash vs os.remove/shutil.rmtree)
+  - Provides consistent logging and error handling
+  - Returns detailed operation results for UI feedback
+
+- clean_addons_txt_for_orphans(): Automatically removes orphaned addon entries
+  - Cleans AddOns.txt files when SavedVariables are deleted
+  - Traverses account/realm/character directory structures
+  - Preserves file formatting and handles edge cases
+
+Note: All file deletion in the application should use delete_files_batch() instead
+of direct os.remove() or shutil.rmtree() calls to ensure send2trash integration
+and user preference support.
 """
 
 from typing import List, Tuple, Dict, Set

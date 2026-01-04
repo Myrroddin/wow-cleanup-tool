@@ -8,6 +8,12 @@ Critical Protection:
 - Excludes Blizzard_.lua files (required by the game engine)
 - Blizzard_.bak files can be safely removed
 - Only targets files from truly uninstalled AddOns
+
+Note:
+- OrphanScanner handles DETECTION only, not deletion
+- File deletion is performed by operations.file_operations.delete_files_batch()
+- This separation allows delete_files_batch() to support send2trash integration
+  and respect user delete mode preferences (trash vs permanent)
 """
 
 import os

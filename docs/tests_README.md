@@ -17,27 +17,18 @@ pytest tests/test_dependencies.py
 
 ## Results
 
-**189 tests** | 188 passed | 1 skipped | 0 failed
+**194 tests collected** | 192 passed | 2 skipped | 0 failed
 
 ## Coverage by Module
 
-**New Tests:**
-- `test_dependencies.py` (20): Parallel installation (ThreadPoolExecutor 3 workers), queue communication, stable releases only, 30s timeout
-- `test_tooltip.py` (9): TkFixedFont 10pt, theme colors, boundary detection, show/hide lifecycle
-- `test_folder_cleaner_tab.py` (+12): Screenshot caching, Configure debouncing (50ms), wraplength updates
+**Highlights:**
+- `test_dependencies.py` (20): Parallel installation (3 workers), queue comms, 30s timeout
+- `test_folder_cleaner_tab.py`: Screenshot caching, debounce, wraplength, selection/removal flows
+- `test_main_window.py`: Screenshot remove handler (trash vs permanent), early-return safety
+- `test_tooltip.py` (9): TkFixedFont 10pt, theme colors, boundary detection, lifecycle
 
-**Existing Tests:**
-- `test_localization.py` (15): Translation loading, fallback, key validation
-- `test_path_manager.py` (30): Flavor detection (8 flavors), path validation, installation checks
-- `test_logger.py` (12): Thread-safe logging, rotation, append mode, widget handlers
-- `test_file_cleaner.py` (9): .bak/.old detection, nested scanning, permissions
-- `test_file_operations.py` (15): Batch delete (4-tuple return), trash/permanent modes, AddOns.txt cleaning
-- `test_log_controls.py` (10): Copy, save, clear, delete operations
-- `test_log_tabs.py` (5): Tab initialization, timestamps, layout
-- `test_main_window.py` (4): Window init, tab management, background tasks
-- `test_orphan_scanner.py` (12): Addon detection, orphan identification
-- `test_settings.py` (5): Settings load/save
-- Others: error_handler (1), themes (1), wow_cleanup_tool (2), screenshot_viewer (2), localization_en_us (7)
+**Other Coverage:**
+- Localization (fallback, key validation), path_manager (8 flavors), logger (rotation, append), file_cleaner/file_operations (trash vs permanent, AddOns.txt), log controls/tabs, orphan scanner, settings, themes, tooltip, screenshot viewer, entrypoint smoke tests.
 
 ## Framework
 

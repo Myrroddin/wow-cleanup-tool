@@ -16,7 +16,7 @@ Note: These tests require Tkinter to be available. If Tkinter is not available,
 import sys
 import os
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 import tempfile
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
@@ -140,7 +140,7 @@ if TK_AVAILABLE:
                 builder = MainWindowBuilder(
                     self.root, self.loc, self.settings, self.logger, self.font_utils
                 )
-                ui_widgets = builder.build(theme_toggle_callback=None)
+                ui_widgets = builder.build()
 
                 # Check that builder has the necessary attributes
                 self.assertIsNotNone(builder.root)
@@ -153,7 +153,7 @@ if TK_AVAILABLE:
                 builder = MainWindowBuilder(
                     self.root, self.loc, self.settings, self.logger, self.font_utils
                 )
-                builder.build(theme_toggle_callback=None)
+                builder.build()
 
                 # The bug button should be created with emoji and text
                 # We verify by checking that the builder was created successfully
@@ -230,7 +230,7 @@ if TK_AVAILABLE:
                 builder = MainWindowBuilder(
                     self.root, self.loc, self.settings, self.logger, self.font_utils
                 )
-                builder.build(theme_toggle_callback=None)
+                builder.build()
 
                 # Should return early without error
                 builder._on_remove_selected([])
@@ -241,7 +241,7 @@ if TK_AVAILABLE:
                 builder = MainWindowBuilder(
                     self.root, self.loc, self.settings, self.logger, self.font_utils
                 )
-                builder.build(theme_toggle_callback=None)
+                builder.build()
 
                 # Provide duplicate paths - should be deduplicated
                 # (We use nonexistent paths to avoid actual deletion)
@@ -249,6 +249,142 @@ if TK_AVAILABLE:
                 # Method should handle gracefully
                 builder._on_remove_selected(paths)
                 self.assertTrue(True)
+
+        class TestScreenshotRemoval(unittest.TestCase):
+            """Test screenshot removal handler behavior."""
+
+            def setUp(self):
+                try:
+                    self.temp_dir = tempfile.TemporaryDirectory()
+                    self.orig_home = os.environ.get("HOME")
+                    self.orig_userprofile = os.environ.get("USERPROFILE")
+                    os.environ["HOME"] = self.temp_dir.name
+                    os.environ["USERPROFILE"] = self.temp_dir.name
+
+                    patcher_license = patch("ui.show_license_dialog", return_value=True)
+                    patcher_warning = patch(
+                        "ui.show_wow_close_warning", return_value=None
+                    )
+                    patcher_logger = patch(
+                        "logging.handlers.RotatingFileHandler", autospec=True
+                    )
+                    self.mock_license = patcher_license.start()
+                    self.mock_warning = patcher_warning.start()
+                    self.mock_logger = patcher_logger.start()
+                    self.mock_logger.return_value.level = 20
+                    self.addCleanup(patcher_license.stop)
+                    self.addCleanup(patcher_warning.stop)
+                    self.addCleanup(patcher_logger.stop)
+
+                    self.root = tk.Tk()
+                    self.root.withdraw()
+
+                    self.loc = Localization("en_us")
+                    self.settings = load_settings()
+                    self.logger = Logger(verbose=True, append_mode=False)
+                    self.font_utils = DummyFontUtils()
+                except Exception as e:
+                    self.skipTest(f"Setup failed: {e}")
+
+            def tearDown(self):
+                try:
+                    if hasattr(self, "root") and self.root.winfo_exists():
+                        self.root.destroy()
+                except Exception:
+                    pass
+                if hasattr(self, "orig_home"):
+                    if self.orig_home is not None:
+                        os.environ["HOME"] = self.orig_home
+                    else:
+                        if "HOME" in os.environ:
+                            del os.environ["HOME"]
+                if hasattr(self, "orig_userprofile"):
+                    if self.orig_userprofile is not None:
+                        os.environ["USERPROFILE"] = self.orig_userprofile
+                    else:
+                        if "USERPROFILE" in os.environ:
+                            del os.environ["USERPROFILE"]
+                if hasattr(self, "temp_dir"):
+                    self.temp_dir.cleanup()
+
+            def test_remove_screenshots_returns_early_without_inputs(self):
+                builder = MainWindowBuilder(
+                    self.root, self.loc, self.settings, self.logger, self.font_utils
+                )
+                builder.build()
+
+                with patch("core.background_task.BackgroundTask.run") as mock_run:
+                    builder._on_remove_selected_screenshots(None, None, [])
+                    mock_run.assert_not_called()
+
+            def test_remove_screenshots_trash_mode_deletes_files_and_empty_folder(self):
+                builder = MainWindowBuilder(
+                    self.root, self.loc, self.settings, self.logger, self.font_utils
+                )
+                builder.build()
+                builder.delete_mode_var.set("trash")
+                builder._on_scan_folders = MagicMock()
+
+                def run_sync(root, func, callback, logger=None):
+                    result = func()
+                    callback(result)
+
+                with patch(
+                    "core.background_task.BackgroundTask.run", side_effect=run_sync
+                ) as mock_run, patch("send2trash.send2trash") as mock_send, patch(
+                    "os.remove"
+                ) as mock_remove, patch(
+                    "os.path.isdir", return_value=True
+                ), patch(
+                    "os.scandir", return_value=iter([])
+                ):
+
+                    builder._on_remove_selected_screenshots(
+                        "_retail_",
+                        "C:/WoW/_retail_/Screenshots",
+                        ["file1.jpg", "file2.jpg"],
+                    )
+
+                mock_run.assert_called_once()
+                mock_send.assert_any_call("file1.jpg")
+                mock_send.assert_any_call("file2.jpg")
+                mock_send.assert_any_call("C:/WoW/_retail_/Screenshots")
+                mock_remove.assert_not_called()
+                builder._on_scan_folders.assert_called_once()
+
+            def test_remove_screenshots_permanent_mode_uses_os_remove_and_rmtree(self):
+                builder = MainWindowBuilder(
+                    self.root, self.loc, self.settings, self.logger, self.font_utils
+                )
+                builder.build()
+                builder.delete_mode_var.set("permanent")
+                builder._on_scan_folders = MagicMock()
+
+                def run_sync(root, func, callback, logger=None):
+                    result = func()
+                    callback(result)
+
+                with patch(
+                    "core.background_task.BackgroundTask.run", side_effect=run_sync
+                ) as mock_run, patch("shutil.rmtree") as mock_rmtree, patch(
+                    "os.remove"
+                ) as mock_remove, patch(
+                    "os.path.isdir", return_value=True
+                ), patch(
+                    "os.scandir", return_value=iter([])
+                ):
+
+                    builder._on_remove_selected_screenshots(
+                        "_retail_",
+                        "C:/WoW/_retail_/Screenshots",
+                        ["file1.jpg", "file2.jpg"],
+                    )
+
+                mock_run.assert_called_once()
+                mock_remove.assert_any_call("file1.jpg")
+                mock_remove.assert_any_call("file2.jpg")
+                mock_rmtree.assert_called_once_with("C:/WoW/_retail_/Screenshots")
+                builder._on_scan_folders.assert_called_once()
 
     except ImportError:
         # If imports fail, create a stub

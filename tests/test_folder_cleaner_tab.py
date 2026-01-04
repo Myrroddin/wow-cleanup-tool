@@ -3,7 +3,7 @@
 import sys
 import os
 import pytest
-from unittest.mock import Mock, MagicMock, patch
+from unittest.mock import Mock, MagicMock, patch, call
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
 
@@ -48,6 +48,7 @@ def folder_tab(loc, settings, game_versions):
                 loc=loc,
                 on_scan_folders=Mock(),
                 on_select_all_toggle=Mock(),
+                on_remove_screenshots=Mock(),
                 on_remove_selected=Mock(),
                 get_selected_items=Mock(),
                 game_versions=game_versions,
@@ -133,6 +134,25 @@ def test_display_scan_results_with_screenshots(folder_tab):
             assert len(args[3]) == 2
 
 
+def test_screenshot_toggle_button_hidden_without_screenshots(folder_tab):
+    """Toggle button should be absent when no screenshots folder exists."""
+    with patch("ui.tabs.folder_cleaner_tab.tk.BooleanVar"):
+        mock_frame = MagicMock()
+        folder_tab.version_frames["_retail_"] = mock_frame
+
+        results = {
+            "_retail_": {
+                "errors": "C:/WoW/_retail_/Errors",
+                "logs": "C:/WoW/_retail_/Logs",
+            }
+        }
+
+        folder_tab.display_scan_results(results)
+
+        assert folder_tab.screenshot_toggle_buttons.get("_retail_") is None
+        assert folder_tab.screenshot_remove_buttons.get("_retail_") is None
+
+
 def test_toggle_select_all_selects_when_unselected(folder_tab):
     """Test toggle_select_all selects all non-cache folders when some are unselected."""
     # Mock BooleanVar instances
@@ -184,6 +204,85 @@ def test_toggle_select_all_unselects_when_all_selected(folder_tab):
     errors_var.set.assert_called_once_with(False)
     logs_var.set.assert_called_once_with(False)
     cache_var.set.assert_not_called()
+
+
+def test_toggle_screenshot_selection_updates_state(folder_tab):
+    """Select/unselect all screenshots toggles selection and label text."""
+
+    selection_state = set()
+
+    def fake_get_children(node=""):
+        return ["shot_0", "shot_1"] if node == "" else []
+
+    tree = MagicMock()
+    tree.get_children.side_effect = fake_get_children
+    tree.selection.side_effect = lambda: list(selection_state)
+    tree.selection_add.side_effect = lambda iid: selection_state.add(iid)
+    tree.selection_remove.side_effect = lambda iid: selection_state.discard(iid)
+
+    button = MagicMock()
+    button.state = MagicMock()
+
+    folder_tab.screenshot_trees["_retail_"] = tree
+    folder_tab.screenshot_toggle_buttons["_retail_"] = button
+
+    with patch.object(folder_tab, "_on_screenshot_selected"):
+        folder_tab._toggle_screenshot_selection("_retail_")
+
+    assert selection_state == {"shot_0", "shot_1"}
+    assert button.configure.call_args_list[-1] == call(
+        text="btn_unselect_all_screenshots"
+    )
+
+    with patch.object(folder_tab, "_on_screenshot_selected"):
+        folder_tab._toggle_screenshot_selection("_retail_")
+
+    assert selection_state == set()
+    assert button.configure.call_args_list[-1] == call(
+        text="btn_select_all_screenshots"
+    )
+
+
+def test_remove_screenshots_invokes_callback(folder_tab):
+    """Remove screenshots button should call provided callback with selection."""
+
+    with patch("ui.tabs.folder_cleaner_tab.tk.BooleanVar"):
+        with patch.object(folder_tab, "_build_screenshot_view"):
+            mock_frame = MagicMock()
+            folder_tab.version_frames["_retail_"] = mock_frame
+
+            results = {
+                "_retail_": {
+                    "screenshots": "C:/WoW/_retail_/Screenshots",
+                }
+            }
+            folder_tab.display_scan_results(results, {"_retail_": []})
+
+    # Wire up fake tree selection and paths
+    mock_tree = MagicMock()
+    mock_tree.selection.return_value = ["shot_0", "shot_1"]
+    folder_tab.screenshot_trees["_retail_"] = mock_tree
+    folder_tab.screenshot_item_paths["_retail_"] = {
+        "shot_0": "C:/WoW/_retail_/Screenshots/shot1.jpg",
+        "shot_1": "C:/WoW/_retail_/Screenshots/shot2.jpg",
+    }
+
+    callback = folder_tab.on_remove_screenshots
+    folder_tab.on_remove_screenshots = MagicMock()
+
+    folder_tab._on_remove_screenshots_click("_retail_")
+
+    folder_tab.on_remove_screenshots.assert_called_once_with(
+        "_retail_",
+        "C:/WoW/_retail_/Screenshots",
+        [
+            "C:/WoW/_retail_/Screenshots/shot1.jpg",
+            "C:/WoW/_retail_/Screenshots/shot2.jpg",
+        ],
+    )
+
+    # Restore original callback
+    folder_tab.on_remove_screenshots = callback
 
 
 def test_toggle_select_all_ignores_cache(folder_tab):

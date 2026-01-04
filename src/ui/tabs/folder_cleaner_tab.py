@@ -13,6 +13,7 @@ class FolderCleanerTab:
         loc,
         on_scan_folders,
         on_select_all_toggle,
+        on_remove_screenshots,
         on_remove_selected,
         get_selected_items,
         game_versions,
@@ -24,6 +25,7 @@ class FolderCleanerTab:
         self.game_versions = game_versions  # List of GameVersion objects
         self.settings = settings  # Store settings for theme/font access
         self.font_size = font_size
+        self.on_remove_screenshots = on_remove_screenshots
         self.sub_tabs = None  # Store sub-tabs notebook reference
         self.version_frames = {}  # Store frame for each game version
         self.folder_checkboxes = (
@@ -35,6 +37,8 @@ class FolderCleanerTab:
         self.screenshot_previews = {}
         self.screenshot_images = {}
         self.screenshot_item_paths = {}
+        self.screenshot_toggle_buttons = {}
+        self.screenshot_remove_buttons = {}
         self.screenshot_cache = (
             {}
         )  # Cache for loaded screenshots: {file_path: PhotoImage}
@@ -101,6 +105,7 @@ class FolderCleanerTab:
                 version_tab = ttk.Frame(self.sub_tabs)
                 self.version_frames[game_version.flavor_dir] = version_tab
                 self.folder_checkboxes[game_version.flavor_dir] = {}
+                self.screenshot_remove_buttons[game_version.flavor_dir] = None
                 self.sub_tabs.add(version_tab, text=game_version.display_name)
             self.sub_tabs.pack(side="top", fill="both", expand=True)
 
@@ -130,6 +135,8 @@ class FolderCleanerTab:
 
         # Clear screenshot cache to free memory
         self.screenshot_cache.clear()
+        self.screenshot_toggle_buttons = {}
+        self.screenshot_remove_buttons = {}
 
         for flavor_dir, folders in results.items():
             if flavor_dir not in self.version_frames:
@@ -148,6 +155,8 @@ class FolderCleanerTab:
             # Create horizontal container for checkboxes
             checkbox_frame = ttk.Frame(frame)
             checkbox_frame.pack(side="top", anchor="w", pady=5)
+
+            has_screenshots = "screenshots" in folders
 
             # Display folders horizontally in specified order
             for folder_type in folder_order:
@@ -172,12 +181,33 @@ class FolderCleanerTab:
                 # Store reference
                 self.folder_checkboxes[flavor_dir][folder_type] = (var, cb, folder_path)
 
+            screenshot_toggle_btn = None
+            remove_shots_btn = None
+            if has_screenshots:
+                screenshot_toggle_btn = ttk.Button(
+                    checkbox_frame,
+                    text=self.loc._("btn_select_all_screenshots"),
+                    command=lambda fd=flavor_dir: self._toggle_screenshot_selection(fd),
+                )
+                screenshot_toggle_btn.pack(side="left", padx=(0, 15))
+
+                remove_shots_btn = ttk.Button(
+                    checkbox_frame,
+                    text=self.loc._("btn_remove_selected_screenshots"),
+                    command=lambda fd=flavor_dir: self._on_remove_screenshots_click(fd),
+                )
+                remove_shots_btn.pack(side="left", padx=(0, 15))
+
+            self.screenshot_toggle_buttons[flavor_dir] = screenshot_toggle_btn
+            self.screenshot_remove_buttons[flavor_dir] = remove_shots_btn
+
             # Build screenshots tree/preview when the folder exists
-            if "screenshots" in folders:
+            if has_screenshots:
                 files = screenshot_files.get(flavor_dir, [])
                 self._build_screenshot_view(
                     flavor_dir, frame, folders["screenshots"], files
                 )
+                self._update_screenshot_toggle_label(flavor_dir)
 
     def _add_cache_tooltip(self, widget, flavor_dir):
         """Add theme-aware tooltip to cache checkbox."""
@@ -186,15 +216,11 @@ class FolderCleanerTab:
         def show_tooltip(event):
             theme_name = self.settings.get("theme", "light")
             theme = THEMES.get(theme_name, THEMES["light"])
-            font_family = self.settings.get("font_family", "TkDefaultFont")
-            font_size = int(self.settings.get("font_size", 12))
 
             tooltip = Tooltip(
                 widget,
                 self.loc._("tooltip_cache_warning"),
                 theme,
-                font_family,
-                font_size,
                 wraplength=320,
             )
             tooltip.show()
@@ -282,6 +308,96 @@ class FolderCleanerTab:
                 if folder_type != "cache":
                     var.set(new_state)
 
+    def _collect_tree_items(self, tree):
+        """Recursively collect item IDs from a treeview."""
+        if not tree:
+            return []
+
+        items = []
+
+        def walk(node=""):
+            for child in tree.get_children(node):
+                items.append(child)
+                walk(child)
+
+        walk()
+        return items
+
+    def _update_screenshot_toggle_label(self, flavor_dir):
+        """Update screenshot toggle text and disabled state based on selection."""
+        button = self.screenshot_toggle_buttons.get(flavor_dir)
+        tree = self.screenshot_trees.get(flavor_dir)
+
+        if not button or not tree or not getattr(button, "state", None):
+            return
+
+        item_ids = self._collect_tree_items(tree)
+
+        if not item_ids:
+            button.state(["disabled"])
+            button.configure(text=self.loc._("btn_select_all_screenshots"))
+            return
+
+        button.state(["!disabled"])
+
+        selected_ids = set(tree.selection())
+        all_selected = all(iid in selected_ids for iid in item_ids)
+
+        new_text = (
+            "btn_unselect_all_screenshots"
+            if all_selected
+            else "btn_select_all_screenshots"
+        )
+        button.configure(text=self.loc._(new_text))
+
+    def _get_selected_screenshots(self, flavor_dir):
+        tree = self.screenshot_trees.get(flavor_dir)
+        if not tree:
+            return []
+
+        selected = []
+        for iid in tree.selection():
+            path = self.screenshot_item_paths.get(flavor_dir, {}).get(iid)
+            if path:
+                selected.append(path)
+        return list(dict.fromkeys(selected))
+
+    def _on_remove_screenshots_click(self, flavor_dir):
+        """Invoke removal callback with selected screenshots for a flavor."""
+        if not self.on_remove_screenshots:
+            return
+
+        folder_entry = self.folder_checkboxes.get(flavor_dir, {}).get("screenshots")
+        folder_path = folder_entry[2] if folder_entry else None
+        selected_files = self._get_selected_screenshots(flavor_dir)
+
+        self.on_remove_screenshots(flavor_dir, folder_path, selected_files)
+
+    def _toggle_screenshot_selection(self, flavor_dir):
+        """Toggle select all/unselect all screenshots for a given flavor."""
+        tree = self.screenshot_trees.get(flavor_dir)
+        if not tree:
+            return
+
+        item_ids = self._collect_tree_items(tree)
+        if not item_ids:
+            self._update_screenshot_toggle_label(flavor_dir)
+            return
+
+        selected_ids = set(tree.selection())
+        all_selected = all(iid in selected_ids for iid in item_ids)
+
+        if all_selected:
+            for iid in item_ids:
+                tree.selection_remove(iid)
+        else:
+            for iid in item_ids:
+                tree.selection_add(iid)
+
+        # Keep preview and button text in sync with selection
+        self._on_screenshot_selected(flavor_dir)
+        self._update_screenshot_toggle_label(flavor_dir)
+
     def get_selected_folders(self):
         """Get list of selected folder paths (excludes unselected folders).
 
@@ -317,7 +433,7 @@ class FolderCleanerTab:
             columns=(),
             yscrollcommand=vsb.set,
             xscrollcommand=hsb.set,
-            selectmode="browse",
+            selectmode="extended",
         )
 
         vsb.config(command=tree.yview)
@@ -371,14 +487,19 @@ class FolderCleanerTab:
         )
 
         # Preview canvas starts at 200x200, resizes dynamically per image aspect ratio
+        # Wrapped in a frame to allow centering within the available space
+        preview_frame = ttk.Frame(right_panel)
+        preview_frame.pack(side="top", fill="both", expand=True)
+
         preview_canvas = tk.Canvas(
-            right_panel,
+            preview_frame,
             width=200,
             height=200,
             highlightthickness=1,
             highlightbackground="#ccc",
         )
-        preview_canvas.pack(side="top", fill="both", expand=True)
+        # Center the canvas horizontally using pack with side="top" anchor
+        preview_canvas.pack(anchor="n", pady=(0, 0))
 
         # Bind click to open screenshot viewer
         preview_canvas.bind(
@@ -412,12 +533,14 @@ class FolderCleanerTab:
         selection = tree.selection()
         if not selection:
             self._clear_preview(flavor_dir)
+            self._update_screenshot_toggle_label(flavor_dir)
             return
 
         item_id = selection[0]
         file_path = self.screenshot_item_paths.get(flavor_dir, {}).get(item_id)
         if file_path:
             self._show_screenshot(flavor_dir, file_path)
+        self._update_screenshot_toggle_label(flavor_dir)
 
     def _clear_preview(self, flavor_dir):
         canvas = self.screenshot_previews.get(flavor_dir)

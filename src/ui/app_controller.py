@@ -28,11 +28,13 @@ class ApplicationController:
                 try:
                     from wow.path_manager import PathManager
 
-                    pm = PathManager()
+                    pm = PathManager(self.loc)
                     is_valid, flavors = pm.validate_installation(new_path)
                     if is_valid and flavors:
-                        # List of localized flavor names
-                        flavor_names = ", ".join([name for _, name in flavors])
+                        # Join localized display names from GameVersion objects
+                        flavor_names = ", ".join(
+                            [flavor.display_name for flavor in flavors]
+                        )
                         msg = en_us.TRANSLATIONS[
                             "user_log_verbose_wow_validated"
                         ].replace("{}", flavor_names)
@@ -71,6 +73,8 @@ class ApplicationController:
         self.ui_widgets = ui_widgets
         self.logger = logger
         self.builder = builder
+        # Localization used for flavor names in verbose logs
+        self.loc = getattr(builder, "loc", None)
 
     def resize_to_fit_content(self):
         """Resize the main window to fit current content while respecting minimums."""
@@ -84,15 +88,17 @@ class ApplicationController:
         except Exception:
             pass
 
-    def toggle_theme(self):
-        """Toggle between light and dark themes."""
-        current_theme = self.settings.get("theme", "light")
-        new_theme = "dark" if current_theme == "light" else "light"
-        self.settings["theme"] = new_theme
+    def set_theme(self, theme_name):
+        """Set the application theme to the specified value.
+
+        Args:
+            theme_name: Theme name ('light', 'dark', or 'system')
+        """
+        self.settings["theme"] = theme_name
         # Apply theme with current font settings
         font_family = self.settings.get("font_family", "TkDefaultFont")
         font_size = self.settings.get("font_size", 12)
-        themes.apply_theme(self.root, new_theme, font_family, font_size)
+        themes.apply_theme(self.root, theme_name, font_family, font_size)
         # Fast theme-only refresh (skip expensive font/wraplength updates)
         if self.builder and hasattr(self.builder, "refresh_theme_only"):
             self.builder.refresh_theme_only()
@@ -100,7 +106,7 @@ class ApplicationController:
             try:
                 from ui.dialog_base import BaseDialog
 
-                BaseDialog.refresh_all_open_dialogs(new_theme, font_family, font_size)
+                BaseDialog.refresh_all_open_dialogs(theme_name, font_family, font_size)
             except Exception:
                 pass
         from core.settings import save_settings
@@ -249,23 +255,23 @@ class ApplicationController:
         if self.ui_widgets.get("language_var"):
             self.ui_widgets["language_var"].set("English (US)")
 
-        # Apply default theme (light) and refresh all widget fonts/styles
-        themes.apply_theme(self.root, "light", "TkDefaultFont", 9)
+        # Reset to default theme and refresh all widget fonts/styles
+        theme_name = self.settings.get("theme", "system")
+        font_family = self.settings.get("font_family", "TkDefaultFont")
+        font_size = int(self.settings.get("font_size", 12))
+        themes.apply_theme(self.root, theme_name, font_family, font_size)
         # Force all UI widgets to update theme and font
         if self.builder and hasattr(self.builder, "refresh_all_widget_fonts"):
             self.builder.refresh_all_widget_fonts()
         # Also force refresh of all fonts for classic widgets
-        self._refresh_all_fonts("TkDefaultFont", 9)
+        self._refresh_all_fonts(font_family, font_size)
         # Refresh all open dialogs to new theme
         try:
             from ui.dialog_base import BaseDialog
 
-            BaseDialog.refresh_all_open_dialogs("light", "TkDefaultFont", 9)
+            BaseDialog.refresh_all_open_dialogs(theme_name, font_family, font_size)
         except Exception:
             pass
-        # If there are any theme toggle callbacks, trigger them
-        if hasattr(self, "on_theme_changed") and callable(self.on_theme_changed):
-            self.on_theme_changed()
         # Refresh developer log colors to match new theme
         if self.builder and hasattr(self.builder, "refresh_dev_log_colors"):
             self.builder.refresh_dev_log_colors()

@@ -15,13 +15,6 @@ except ImportError:
 
     USE_ORJSON = False
 
-try:
-    import darkdetect
-
-    DARKDETECT_AVAILABLE = True
-except ImportError:
-    DARKDETECT_AVAILABLE = False
-
 import locale
 import os
 from pathlib import Path
@@ -31,15 +24,9 @@ from typing import Optional, Dict, Any
 
 def get_default_settings() -> Dict[str, Any]:
     """Return a fresh copy of default settings."""
-    # Auto-detect OS theme on first launch if available
-    default_theme = "light"
-    if DARKDETECT_AVAILABLE:
-        try:
-            os_theme = darkdetect.theme()
-            if os_theme:  # Returns "Dark", "Light", or None
-                default_theme = os_theme.lower()
-        except Exception:
-            pass  # Fallback to light theme
+    # Default to system theme (auto-detect OS theme)
+    # Will be resolved to light/dark at runtime based on current OS preference
+    default_theme = "system"
 
     return {
         "language": get_system_language(),

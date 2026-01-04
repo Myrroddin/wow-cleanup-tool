@@ -49,8 +49,15 @@ class WoWCleanupTool:
 
         # Hide main window until license is accepted
         self.root.withdraw()
-        # Show license dialog
+
+        # Apply theme to root BEFORE showing license dialog
+        # This ensures sv-ttk is initialized for all subsequent dialogs
         theme_name = self.settings.get("theme", "light")
+        font_family = self.settings.get("font_family", "TkDefaultFont")
+        font_size = self.settings.get("font_size", 12)
+        apply_theme(self.root, theme_name, font_family, font_size)
+
+        # Show license dialog (now properly themed)
         license_accepted = show_license_dialog(
             self.root, self.loc, theme_name, self.settings
         )
@@ -68,22 +75,20 @@ class WoWCleanupTool:
         self.path_handler = WoWPathHandler(
             self.root, self.settings, self.logger, self.loc, self.path_manager
         )
-        # Get font and theme settings (use defaults if missing)
-        font_family = self.settings.get("font_family", "TkDefaultFont")
-        font_size = self.settings.get("font_size", 12)
-        theme_name = self.settings.get("theme", "light")
-        # Apply theme and font to root before any widget creation
-        apply_theme(self.root, theme_name, font_family, font_size)
+        # Theme and font were already applied before license dialog
+        # No need to apply again
         # Pass browse_wow_path as a callback for the builder's browse button
         self.settings["browse_callback"] = self.browse_wow_path
         builder = MainWindowBuilder(
             self.root, self.loc, self.settings, self.logger, font_utils
         )
-        self.ui_widgets = builder.build(theme_toggle_callback=self.on_theme_toggle)
+        self.ui_widgets = builder.build()
         # Initialize application controller
         self.controller = ApplicationController(
             self.root, self.settings, self.ui_widgets, self.logger, builder
         )
+        # Pass controller reference to builder for theme menu handler
+        builder._controller = self.controller
         # Wire font controls to controller handlers so changes apply immediately
         font_combo = self.ui_widgets.get("font_combo")
         if font_combo:
@@ -134,13 +139,6 @@ class WoWCleanupTool:
                 self.root, self.loc, self.settings.get("theme", "light"), self.settings
             ),
         )
-
-    def on_theme_toggle(self):
-        """Handle theme toggle with dev log color refresh."""
-        self.controller.toggle_theme()
-        # Refresh developer log colors
-        if hasattr(self, "builder") and hasattr(self.builder, "refresh_dev_log_colors"):
-            self.builder.refresh_dev_log_colors()
 
     def browse_wow_path(self):
         """Delegate WoW path browsing to path handler/controller."""

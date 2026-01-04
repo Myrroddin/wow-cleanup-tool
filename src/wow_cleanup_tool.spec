@@ -3,8 +3,10 @@
 
 Ensures assets, license, and all source modules are bundled consistently across
 platforms. Features include automatic WoW detection, multi-flavor support,
+modern Windows 11-style UI (sv-ttk), automatic OS theme detection (darkdetect),
 file cleaning with AddOns.txt integration, dual logging system, font-aware
-UI scaling, and defensive error handling.
+UI scaling, and defensive error handling. Performance optimizations include
+fast JSON serialization (orjson) and intelligent caching (lru_cache).
 
 Run with:
 
@@ -63,6 +65,7 @@ a = Analysis(
         "core.dependencies",
         "core.logger",
         "core.settings",
+        "core.background_task",
         "core.single_instance",
         "core.themes",
         # Localization Modules
@@ -76,12 +79,15 @@ a = Analysis(
         "ui.geometry",
         "ui.log_controls",
         "ui.main_window",
+        "ui.text_widget_handler",
         "ui.ui_constants",
         "ui.dialogs",
         "ui.dialogs.license_dialog",
         "ui.dialogs.multiple_installations",
+        "ui.dialogs.screenshot_viewer",
         "ui.dialogs.wow_close_warning",
         "ui.tabs",
+        "ui.custom_tabbar",
         "ui.tabs.developer_tab",
         "ui.tabs.file_cleaner_tab",
         "ui.tabs.folder_cleaner_tab",

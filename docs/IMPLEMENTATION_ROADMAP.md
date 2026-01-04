@@ -12,54 +12,44 @@ Tracks WoW Cleanup Tool development with modular architecture: tabs in `src/ui/t
 
 ## Completed Features ✅
 
-### Core Application
-- WoW path detection (registry + common paths), manual selection, validation
-- Multi-flavor support (Retail, Classic, PTR, Beta, combinations)
-- Settings persistence (theme, font, delete mode, logging), auto-save
-- Cross-platform (Windows, macOS, Linux)
+### Core & Platform
+- WoW path detection (registry + common paths) with manual override and validation
+- Multi-flavor support (Retail, Classic, Era, PTR, Beta)
+- Settings persistence (theme, font, delete mode, logging) with auto-save
+- Cross-platform startup (Windows/macOS/Linux)
 
 ### UI & Theming
-- Light/dark themes with live updates, centralized refresh logic
-- Custom fonts (8–16pt, default 12), dynamic scaling
-- Grid-based layout, responsive controls, theme-aware dialogs/tooltips
+- Light/dark themes with instant refresh; custom fonts (8–16pt)
+- Debounced layout (50ms tabs, 200ms tooltips) and theme-aware dialogs/tooltips
+- Bug-report emoji button, minimized `update_idletasks` usage
 
-### Performance Optimizations
-- Configure event debouncing (50ms tabs, 200ms tooltips) prevents layout thrashing
-- Screenshot caching (PIL Image.thumbnail, LANCZOS resampling)
-- Emoji icons (auto-scale, no image loading overhead)
-- Parallel dependency installation (ThreadPoolExecutor, 3 workers, 30s timeout)
-- Thread-safe queue-based UI updates (queue.Queue + root.after)
-- Fixed TkFixedFont 10pt tooltips with boundary detection
+### Performance & Infrastructure
+- `refresh_theme_only()` fast toggle; `@lru_cache` on flavor names
+- orjson settings I/O; queue-based UI updates; parallel dependency installs (3 workers)
+- LANCZOS thumbnail caching for screenshots
 
-### File Cleaner Tab
-- Dual-panel: Backup files (.bak/.old) + Orphaned SavedVariables
-- Background scanning, progress callbacks, hierarchical tree display
-- Batch deletion (trash/permanent), FileCleaner/OrphanScanner integration
-- AddOns.txt cleaning: Auto-removes orphaned addon entries from WTF structure
-- Test coverage: 15 file ops + 6 AddOns.txt + 12 orphan scanner tests
+### Folder & File Cleaning
+- File Cleaner: .bak/.old cleanup, AddOns.txt repair, batch delete (trash/permanent)
+- Folder Cleaner: cache/log/error toggles plus screenshot viewer (preview, expand, select/unselect/remove)
+- Delete mode honored across tabs; background scans via `BackgroundTask`
 
-### Log Tabs
-- User: 4 buttons (Clear Session, Delete File, Open Folder, Copy)
-- Developer: 3 buttons (Clear Session, Open Folder, Copy)
-- Font-aware dimensions (18 rows × font_size ÷ 12), dynamic wraplength
-- Append-mode aware, button state management, theme adaptation
-
-### Code Quality
-- Modular UI, centralized utilities, removed dead code/unused imports
-- BaseScanner (parallel scanning, callbacks), defensive programming
-- Type guards, universal logging pattern (if/else, not both)
-- 189 tests (188 passed, 1 skipped), mock objects, ~7s execution
+### Logging & Quality
+- Dual-channel logging with rotation, append mode, and centralized log controls
+- Type hints across core modules; ruff/black clean
+- Tests: ~194 collected (192 pass, 2 skip); coverage includes screenshot removal flows
 
 ## Upcoming Features
-- [ ] Folder Cleaner tab (Cache, Logs, Errors, Screenshots)
-- [ ] FolderScanner implementation
-- [ ] Game Optimizer tab with smart suggestions
+- [ ] Game Optimizer tab with actionable suggestions
 - [ ] Tree widget enhancements (filtering, sorting)
+- [ ] Additional language packs (beyond en_us)
+- [ ] PyInstaller hardening and release notes for first tagged build
 
 ## Localization
-- **Default/Fallback**: English (US)
-- **Pending**: 11 additional languages
-- **Keys**: Alphabetically sorted with prefix convention (btn_, status_, label_)
+- **Status**: Complete with 100 keys defined, 98 actively used (98% utilization)
+- **Default/Fallback**: English (US) - `src/localization/en_us.py`
+- **Audit Tool**: `tools/audit_i18n_keys.py` with enhanced regex patterns for 98% accuracy
+- **Pending**: 11 additional languages ready for translation
+- **Keys**: Alphabetically sorted with prefix convention (btn_, status_, label_, msg_, etc.)
 
 ## Development Guidelines
 

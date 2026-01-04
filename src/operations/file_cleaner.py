@@ -8,6 +8,12 @@ Features:
 - Parallel scanning across multiple WoW game versions
 - Efficient directory filtering to skip irrelevant folders
 - Thread-safe operation for UI responsiveness
+
+Note:
+- FileCleaner handles DETECTION only, not deletion
+- File deletion is performed by operations.file_operations.delete_files_batch()
+- This separation allows delete_files_batch() to support send2trash integration
+  and respect user delete mode preferences (trash vs permanent)
 """
 
 import os
@@ -78,23 +84,6 @@ class FileCleaner(BaseScanner):
 
         return results
 
-    def delete_files(self, file_paths: List[str]) -> int:
-        """Delete files in the provided list.
-
-        Args:
-            file_paths: List of absolute file paths to delete
-
-        Returns:
-            int: Number of files successfully deleted
-        """
-        deleted = 0
-        for path in file_paths:
-            try:
-                os.remove(path)
-                deleted += 1
-                if self.logger:
-                    self.logger.verbose(f"Deleted: {path}")
-            except Exception as e:
-                if self.logger:
-                    self.logger.error(f"Failed to delete {path}: {e}")
-        return deleted
+    # NOTE: File deletion is handled by operations.file_operations.delete_files_batch()
+    # which supports send2trash integration and respects user delete mode preferences.
+    # FileCleaner is responsible only for scanning/detection, not deletion.

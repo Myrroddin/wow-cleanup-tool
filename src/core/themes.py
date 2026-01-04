@@ -13,6 +13,22 @@ try:
 except ImportError:
     SV_TTK_AVAILABLE = False
 
+
+def resolve_system_theme() -> str:
+    """Resolve 'system' theme to actual light or dark based on OS.
+
+    Returns:
+        str: "light" or "dark" depending on current OS theme setting
+    """
+    try:
+        import darkdetect
+
+        os_theme = darkdetect.theme()
+        return "dark" if os_theme and os_theme.lower() == "dark" else "light"
+    except Exception:
+        return "light"  # Fallback to light if detection fails
+
+
 THEMES = {
     "light": {
         "bg": "#f0f0f0",
@@ -50,15 +66,22 @@ THEMES = {
 def apply_theme(root, theme_name, font_family="TkDefaultFont", font_size=9):
     """Apply theme and font to the application.
 
+    Attempts to use sv-ttk for modern Windows 11-style theming first.
+    Falls back to custom theme implementation if sv-ttk is unavailable or fails.
+
     Args:
         root: Tkinter root window
-        theme_name: Name of theme ("light" or "dark")
+        theme_name: Name of theme ("light", "dark", or "system")
         font_family: Font family to use
         font_size: Font size to use
 
     Returns:
         dict: Theme data dictionary
     """
+    # Resolve "system" theme to actual light or dark
+    if theme_name == "system":
+        theme_name = resolve_system_theme()
+
     # Use sv-ttk if available for modern Windows 11-style UI
     if SV_TTK_AVAILABLE:
         try:
@@ -81,7 +104,11 @@ def apply_theme(root, theme_name, font_family="TkDefaultFont", font_size=9):
             # Fall back to custom themes if sv-ttk fails
             pass
 
-    # Fallback: Use custom theme styling
+    # ============================================================================
+    # FALLBACK THEME IMPLEMENTATION
+    # The code below is used only when sv-ttk is unavailable or fails to load.
+    # This ensures graceful degradation on systems without sv-ttk installed.
+    # ============================================================================
     theme_data = THEMES.get(theme_name, THEMES["light"])
 
     # Configure ttk styles
@@ -277,9 +304,13 @@ def get_theme_colors(theme_name):
     """Get color dictionary for a theme.
 
     Args:
-        theme_name: Name of theme ("light" or "dark")
+        theme_name: Name of theme ("light", "dark", or "system")
 
     Returns:
         dict: Theme color data
     """
+    # Resolve "system" theme to actual light or dark
+    if theme_name == "system":
+        theme_name = resolve_system_theme()
+
     return THEMES.get(theme_name, THEMES["light"])

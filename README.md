@@ -8,19 +8,19 @@ A lightweight, modular utility for managing and optimizing World of Warcraft ins
 ## Features
 
 - 🎯 **Automatic WoW detection** or manual path selection
-- 🎮 **Multi-flavor support**: Retail, Classic, PTR, Beta
+- 🎮 **Multi-flavor support**: Retail, Classic, Era, PTR, Beta
 - 🎨 **Modern UI**: Windows 11-style theming with automatic OS theme detection
 - 🌈 **Customizable appearance**: Light/dark themes, custom fonts (8–16pt, default 12)
-- 🗑️ **Safe deletion**: Move to trash or delete permanently
-- 📋 **Dual logging system**: User activity log and developer diagnostics (dev log always persisted; user log persisted when append mode is on)
-- ⚙️ **Auto-save preferences**: Theme, font, delete mode, logging settings
-- 🌍 **Cross-platform**: Windows, macOS, Linux
-- ✅ **File Cleaner**: Scan and safely remove .bak/.old backup files, orphaned SavedVariables, and clean AddOns.txt entries
-- ⚡ **Performance optimized**: Fast JSON serialization and result caching
+- 🗑️ **Safe deletion**: Move to trash or delete permanently (honored across tabs)
+- 🧹 **Folder Cleaner**: Cache/log/error toggles plus screenshot viewer (preview, expand, select/unselect/remove)
+- ✅ **File Cleaner**: Remove .bak/.old backups, orphaned SavedVariables, and clean AddOns.txt entries
+- 📋 **Dual logging**: User log (append-aware) and developer log with rotation and centralized controls
+- ⚡ **Performance**: sv-ttk UI, orjson settings, lru_cache flavor lookups, debounced resize/tooltip handling
+- 🔧 **Quality**: Full type hints, ruff/black clean, ~192 tests passing (2 skipped)
 
 ### Roadmap
-- Folder cleaner (cache, logs, screenshots, errors)
 - Game optimizer & smart suggestions
+- Release hardening and first tagged build
 
 ---
 
@@ -41,11 +41,15 @@ python src/wow_cleanup_tool.py
 
 ### Build Executable
 ```bash
-python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 pyinstaller src/wow_cleanup_tool.spec
 ```
-Output: `dist/WoW Cleanup Tool` (platform-specific executable)
+Output: platform-specific binary under `dist/`.
+
+### CI & Releases
+- GitHub Actions workflow: `.github/workflows/build-release.yml` builds multi-platform artifacts on tags (`v*.*.*`).
+- Local builds use the same `src/wow_cleanup_tool.spec` to match CI outputs.
+- Report issues or request builds via [GitHub Issues](https://github.com/Myrroddin/wow-cleanup-tool/issues).
 
 ---
 
@@ -60,12 +64,14 @@ Output: `dist/WoW Cleanup Tool` (platform-specific executable)
 
 ## Documentation
 
-📚 **For developers and contributors:**
+📚 [Main Documentation](docs/README.md) - Overview and feature details
+- [Code Documentation](docs/CODE_DOCUMENTATION.md) - Comprehensive module reference and API guide
+- [Project Structure](docs/PROJECT_STRUCTURE.md) - Directory organization and design principles
 - [Implementation Roadmap](docs/IMPLEMENTATION_ROADMAP.md) - Current status and planned features
 - [Testing Guide](docs/tests_README.md) - Running and writing tests
 - [Type Hints & Tests Summary](docs/TYPE_HINTS_AND_TESTS_SUMMARY.md) - Type safety and test implementation details
-- [Background Tasks Guide](docs/BACKGROUND_TASK_GUIDE.md) - Threading model for scanning and deletion operations
 - [Logging Guide](docs/LOGGING_GUIDE.md) - Logging system architecture and configuration
+- [Background Tasks Guide](docs/BACKGROUND_TASK_GUIDE.md) - Threading model for scanning and deletion operations
 - [Project Structure](docs/PROJECT_STRUCTURE.md) - Code organization and module layout
 
 ---

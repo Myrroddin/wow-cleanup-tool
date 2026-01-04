@@ -1,8 +1,15 @@
-"""
-Base scanner class for all cleanup operations.
+"""Base scanner class for all cleanup operations.
 
 Provides common functionality for scanning WoW installations,
 including parallel processing and progress reporting.
+
+Architecture Note:
+- BaseScanner and its subclasses (FileCleaner, OrphanScanner) handle DETECTION only
+- File deletion is handled separately by operations.file_operations.delete_files_batch()
+- This separation of concerns allows:
+  * Scanners to focus on efficient file discovery
+  * Centralized deletion logic with send2trash integration
+  * Consistent user preference handling (trash vs permanent delete)
 """
 
 import os

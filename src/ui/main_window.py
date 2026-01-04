@@ -36,7 +36,7 @@ class MainWindowBuilder:
 
     This class is responsible for creating the entire UI structure including:
     - Notebook with 6 tabs (File Cleaner, Folder Cleaner, Game Optimizer, Log, Developer)
-    - Top control bar with WoW path selection and theme toggle
+    - Top control bar with WoW path selection and theme selector
     - Settings persistence for window geometry, theme, fonts
     - Integration with logging system for real-time log display
     - Game version tracking for multi-flavor operations
@@ -45,13 +45,13 @@ class MainWindowBuilder:
     def _show_tooltip(self, widget, text):
         """Display a themed tooltip near the specified widget."""
         try:
-            from core.themes import THEMES
+            from core.themes import get_theme_colors
 
             # Clear any existing hover tooltip first
             self._hide_tooltip()
 
-            theme_name = self.settings.get("theme", "light")
-            theme = THEMES.get(theme_name, THEMES["light"])
+            theme_name = self.settings.get("theme", "system")
+            theme = get_theme_colors(theme_name)
 
             tooltip = Tooltip(widget, text, theme, wraplength=280)
             tooltip.show()
@@ -72,17 +72,17 @@ class MainWindowBuilder:
     def refresh_theme_only(self):
         """Fast theme refresh without font/wraplength updates.
 
-        Optimized for theme toggle - only refreshes theme colors, not fonts.
+        Optimized for theme changes - only refreshes theme colors, not fonts.
         Skips expensive wraplength recalculations and font reapplications.
 
         This is ~3x faster than refresh_all_widget_fonts() for theme-only changes.
         """
-        from core.themes import THEMES, apply_theme
+        from core.themes import apply_theme, get_theme_colors
 
-        theme_name = self.settings.get("theme", "light")
+        theme_name = self.settings.get("theme", "system")
         font_family = self.settings.get("font_family", "TkDefaultFont")
         font_size = int(self.settings.get("font_size", 12))
-        theme_colors = THEMES.get(theme_name, THEMES["light"])
+        theme_colors = get_theme_colors(theme_name)
 
         # Minimal apply_theme - just updates ttk theme
         apply_theme(self.root, theme_name, font_family, font_size)
@@ -188,20 +188,6 @@ class MainWindowBuilder:
         font_size_combo.bind("<<ComboboxSelected>>", on_font_size_changed)
         self.font_size_combo = font_size_combo
         return font_combo, font_size_combo
-
-    def add_theme_toggle(self, parent, command):
-        """Add a toggle theme button to the given parent widget."""
-        btn = ttk.Button(
-            parent,
-            text=self.loc._("btn_toggle_theme"),
-            command=command,
-            style="TButton",
-        )
-        btn.grid(row=0, column=3, padx=(8, 0))
-        # No tooltip for theme toggle button
-        return btn
-
-    # add_browse_button is now implemented in build(); stub removed.
 
     def _on_scan_files(self):
         """Scan for backup/old files and orphaned SavedVariables.
@@ -560,6 +546,64 @@ class MainWindowBuilder:
 
         BackgroundTask.run(self.root, do_remove, on_complete, logger=self.logger)
 
+    def _on_remove_selected_screenshots(self, flavor_dir, folder_path, selected_files):
+        """Remove selected screenshots and optionally the empty screenshots folder."""
+        if not folder_path and not selected_files:
+            return
+
+        from core.background_task import BackgroundTask
+        import os
+        import shutil
+
+        delete_mode = self.delete_mode_var.get()
+
+        def do_remove():
+            removed_files = []
+            folder_removed = False
+
+            for file_path in selected_files or []:
+                try:
+                    if delete_mode == "trash":
+                        from send2trash import send2trash
+
+                        send2trash(file_path)
+                    else:
+                        os.remove(file_path)
+                    removed_files.append(file_path)
+                except Exception as e:
+                    self.logger.error(
+                        f"Failed to remove screenshot {file_path}: {str(e)}"
+                    )
+
+            # If folder exists and is empty (either originally or after deletions), remove it
+            if folder_path and os.path.isdir(folder_path):
+                try:
+                    is_empty = not any(os.scandir(folder_path))
+                except Exception:
+                    is_empty = False
+
+                if is_empty:
+                    try:
+                        if delete_mode == "trash":
+                            from send2trash import send2trash
+
+                            send2trash(folder_path)
+                        else:
+                            shutil.rmtree(folder_path)
+                        folder_removed = True
+                    except Exception as e:
+                        self.logger.error(
+                            f"Failed to remove screenshots folder {folder_path}: {str(e)}"
+                        )
+
+            return {"files": removed_files, "folder_removed": folder_removed}
+
+        def on_complete(result):
+            if result and (result.get("files") or result.get("folder_removed")):
+                self._on_scan_folders()
+
+        BackgroundTask.run(self.root, do_remove, on_complete, logger=self.logger)
+
     def _on_scan_folders(self):
         """Scan for cleanable folders and screenshots content.
 
@@ -689,10 +733,9 @@ class MainWindowBuilder:
         # Track feature tab indices for enable/disable
         self.feature_tab_indices = []
 
-    def build(self, theme_toggle_callback=None):
-        # from ui.custom_tabbar import CustomTabBar  # Already imported at top
-
+    def build(self):
         """Build and return the main window UI components.
+
         Returns:
             dict: Dictionary containing references to key UI components
         """
@@ -777,7 +820,7 @@ class MainWindowBuilder:
         wow_path_frame.grid(row=1, column=0, sticky="ew", pady=(0, 6))
         # Ensure wow_path_frame expands horizontally
         main_frame.columnconfigure(0, weight=1)
-        for i in range(8):
+        for i in range(9):
             wow_path_frame.columnconfigure(i, weight=0)
 
         wow_path_label = ttk.Label(
@@ -844,14 +887,37 @@ class MainWindowBuilder:
         language_combo.grid(row=0, column=3, sticky="w", padx=(0, 12))
         self.language_combo = language_combo
 
-        # Theme toggle button (column 4)
-        theme_btn = ttk.Button(
-            wow_path_frame,
-            text=self.loc._("btn_toggle_theme"),
-            command=theme_toggle_callback,
-            style="TButton",
+        # Theme selector menu (column 4)
+        # Get current theme for initial selection
+        current_theme = self.settings.get("theme", "system")
+        theme_options = [
+            (self.loc._("option_theme_system"), "system"),
+            (self.loc._("option_theme_light"), "light"),
+            (self.loc._("option_theme_dark"), "dark"),
+        ]
+        theme_names = [name for name, code in theme_options]
+        theme_codes = {name: code for name, code in theme_options}
+        current_theme_display = next(
+            (name for name, code in theme_options if code == current_theme),
+            theme_names[0],
         )
-        theme_btn.grid(row=0, column=4, padx=(0, 12))
+        self.theme_var = tk.StringVar(value=current_theme_display)
+
+        def on_theme_changed(event=None):
+            theme_code = theme_codes[self.theme_var.get()]
+            if hasattr(self, "_controller") and self._controller:
+                self._controller.set_theme(theme_code)
+
+        theme_combo = ttk.Combobox(
+            wow_path_frame,
+            textvariable=self.theme_var,
+            values=theme_names,
+            state="readonly",
+            width=10,
+        )
+        theme_combo.bind("<<ComboboxSelected>>", on_theme_changed)
+        theme_combo.grid(row=0, column=4, padx=(0, 12))
+        self.theme_combo = theme_combo
 
         # Font label (column 5)
         font_label = ttk.Label(
@@ -909,9 +975,30 @@ class MainWindowBuilder:
 
         # Dynamically set minimum window width to fit all widgets in the WoW path row (including paddings)
         total_width = 0
-        paddings = [(0, 12), (0, 12), (0, 12), (0, 0)]
+        paddings = [
+            (0, 12),  # wow_path_label
+            (0, 12),  # path_entry
+            (0, 12),  # browse_btn
+            (0, 12),  # language_combo
+            (0, 12),  # theme_combo
+            (0, 12),  # font_label
+            (0, 12),  # font_combo
+            (0, 12),  # font_size_label
+            (0, 0),  # font_size_combo (last item, no right padding)
+        ]
         for widget, pad in zip(
-            [wow_path_label, self.path_entry, browse_btn, language_combo], paddings
+            [
+                wow_path_label,
+                self.path_entry,
+                browse_btn,
+                language_combo,
+                theme_combo,
+                font_label,
+                font_combo,
+                font_size_label,
+                font_size_combo,
+            ],
+            paddings,
         ):
             widget.update_idletasks()
             total_width += widget.winfo_reqwidth() + sum(pad)
@@ -1003,6 +1090,11 @@ class MainWindowBuilder:
             from core.themes import apply_theme
             import tkinter.messagebox as messagebox
 
+            # Capture current settings to check if anything actually changed
+            old_theme = self.settings.get("theme", "light")
+            old_font_family = self.settings.get("font_family", "TkDefaultFont")
+            old_font_size = int(self.settings.get("font_size", 12))
+
             defaults = get_default_settings()
             # Preserve current WoW path if present in the UI
             wow_path = self.wow_path_var.get() if self.wow_path_var else None
@@ -1016,35 +1108,50 @@ class MainWindowBuilder:
             self.settings.clear()
             self.settings.update(defaults)
 
-            # Apply theme/fonts from defaults
-            theme_name = self.settings.get("theme", "light")
-            font_family = self.settings.get("font_family", "TkDefaultFont")
-            font_size = int(self.settings.get("font_size", 12))
-            apply_theme(self.root, theme_name, font_family, font_size)
+            # Check if theme/font actually changed
+            new_theme = self.settings.get("theme", "light")
+            new_font_family = self.settings.get("font_family", "TkDefaultFont")
+            new_font_size = int(self.settings.get("font_size", 12))
+
+            theme_changed = old_theme != new_theme
+            font_changed = (
+                old_font_family != new_font_family or old_font_size != new_font_size
+            )
+
+            # Only refresh if something actually changed
+            if theme_changed or font_changed:
+                apply_theme(self.root, new_theme, new_font_family, new_font_size)
+                self.refresh_all_widget_fonts()
 
             # Update UI-bound variables
             system_default_label = self.loc._("system_default_font")
             self.font_family_var.set(
-                system_default_label if font_family == "TkDefaultFont" else font_family
+                system_default_label
+                if new_font_family == "TkDefaultFont"
+                else new_font_family
             )
-            self.font_size_var.set(str(font_size))
+            self.font_size_var.set(str(new_font_size))
+            # Update theme selector to show current theme
+            if hasattr(self, "theme_var"):
+                theme_options = [
+                    (self.loc._("option_theme_system"), "system"),
+                    (self.loc._("option_theme_light"), "light"),
+                    (self.loc._("option_theme_dark"), "dark"),
+                ]
+                theme_display = next(
+                    (name for name, code in theme_options if code == new_theme),
+                    theme_options[0][0],
+                )
+                self.theme_var.set(theme_display)
             self.delete_mode_var.set(self.settings.get("delete_mode", "trash"))
             self.verbose_var.set(self.settings.get("verbose_logging", True))
             self.append_log_var.set(self.settings.get("append_log", False))
             self.chat_timestamps_var.set(self.settings.get("chat_timestamps", True))
             self.language_var.set("English (US)")
 
-            # Refresh widgets for new font/theme
-            self.refresh_all_widget_fonts()
-
-            # Resize window to fit default content
-            try:
-                from ui.geometry import resize_to_content
-
-                # 2025-12-30: Use shared helper so reset matches other resize paths
-                resize_to_content(self.root, 480, 320)
-            except Exception:
-                pass
+            # Note: Window geometry is NOT reset here to preserve user's window size preference.
+            # If user wants to reset window size/position, they should use the geometry reset
+            # which is triggered when window size becomes problematic (off-screen, etc.).
 
             messagebox.showinfo(
                 self.loc._("btn_reset_settings"),
@@ -1162,6 +1269,7 @@ class MainWindowBuilder:
             self.loc,
             on_scan_folders=self._on_scan_folders,
             on_select_all_toggle=lambda: folder_cleaner_tab.toggle_select_all(),
+            on_remove_screenshots=self._on_remove_selected_screenshots,
             on_remove_selected=self._on_remove_selected_folders,
             get_selected_items=lambda context: [],  # Placeholder (not used for folder cleaner)
             game_versions=self.game_versions,

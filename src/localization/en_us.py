@@ -9,11 +9,13 @@ TRANSLATIONS = {
     "btn_ok": "OK",
     "btn_open_log_folder": "Open Log Folder",
     "btn_remove_selected": "Remove Selected",
+    "btn_remove_selected_screenshots": "Remove Selected Screenshots",
     "btn_reset_settings": "Reset Settings",
     "btn_scan_files": "Scan Files",
     "btn_scan_folders": "Scan Folders",
+    "btn_select_all_screenshots": "Select All Screenshots",
     "btn_select_all_toggle": "Select All / Unselect All",
-    "btn_toggle_theme": "Toggle Theme",
+    "btn_unselect_all_screenshots": "Unselect All Screenshots",
     "dep_install_complete": "Installation Complete",
     "dep_install_complete_msg": (
         "Dependencies were successfully installed, but some packages\n"
@@ -67,6 +69,7 @@ TRANSLATIONS = {
     "label_font": "Font",
     "label_font_size": "Font Size",
     "label_log_timestamps": "Log Timestamps",
+    "label_theme": "Theme",
     "label_verbose_logging": "Verbose Logging",
     "label_wow_installation_path": "WoW Installation Path:",
     "license_accept": "Accept",
@@ -92,6 +95,9 @@ TRANSLATIONS = {
     "option_delete_mode_permanent": "Delete Permanently",
     "option_delete_mode_trash": "Move to Trash",
     "option_dont_show_again": "Don't show this again",
+    "option_theme_dark": "Dark",
+    "option_theme_light": "Light",
+    "option_theme_system": "System",
     "press_enter_to_exit": "Press Enter to exit...",
     "select_wow_folder": "Select World of Warcraft Folder",
     "status_initializing": "Initializing...",
@@ -124,11 +130,11 @@ TRANSLATIONS = {
         "Clear the persistent user log file (only available in append mode)."
     ),
     "tooltip_language_menu": "Select application language",
+    "tooltip_log_timestamps": "User Log and Developer Log",
     "tooltip_select_all_cache_manual": (
         "Cache must be selected manually. This toggle only affects Errors, Logs, "
         "and Screenshots."
     ),
-    "tooltip_log_timestamps": "User Log and Developer Log",
     "tooltip_user_log_only": "User Log Only",
     "tree_files_count": "files",
     "tree_header_file_path": "File Path",
