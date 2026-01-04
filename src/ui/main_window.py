@@ -1281,7 +1281,7 @@ class MainWindowBuilder:
 
         # Game Optimizer Tab
         game_optimizer_tab = GameOptimizerTab(
-            self.tab_frames["game_optimizer"], self.loc
+            self.tab_frames["game_optimizer"], self.loc, logger=self.logger
         )
         game_optimizer_tab.frame.pack(fill="both", expand=True)
 

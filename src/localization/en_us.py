@@ -8,11 +8,13 @@ TRANSLATIONS = {
     "btn_copy_log": "Copy Log to Clipboard",
     "btn_ok": "OK",
     "btn_open_log_folder": "Open Log Folder",
+    "btn_refresh_hardware": "Refresh Hardware Info",
     "btn_remove_selected": "Remove Selected",
     "btn_remove_selected_screenshots": "Remove Selected Screenshots",
     "btn_reset_settings": "Reset Settings",
     "btn_scan_files": "Scan Files",
     "btn_scan_folders": "Scan Folders",
+    "btn_scan_hardware": "Scan Hardware",
     "btn_select_all_screenshots": "Select All Screenshots",
     "btn_select_all_toggle": "Select All / Unselect All",
     "btn_unselect_all_screenshots": "Unselect All Screenshots",
@@ -27,7 +29,7 @@ TRANSLATIONS = {
         "Failed to install required dependencies.\n\n"
         "The application cannot run without these packages.\n\n"
         "Please install manually:\n"
-        "pip install send2trash Pillow sv-ttk darkdetect orjson"
+        "pip install send2trash Pillow sv-ttk darkdetect orjson psutil GPUtil py-cpuinfo"
     ),
     "dep_installing_parallel": "Installing {} packages in parallel...",
     "dep_installing_single": "Installing {}...",
@@ -43,6 +45,9 @@ TRANSLATIONS = {
     "desc_folder_cleaner": (
         "Find and remove unnecessary folders. Some folders may return when "
         "the game recreates them, which is expected."
+    ),
+    "desc_game_optimizer": (
+        "Optimize your World of Warcraft Config.wtf files to enhance CPU and GPU performance."
     ),
     "desc_screenshot_interaction": (
         "Click a screenshot in the list to preview it. Click the preview to open it in a larger popup. "
@@ -64,16 +69,26 @@ TRANSLATIONS = {
     "game_version_retail": "Retail",
     "invalid_wow_path": "Invalid WoW installation path.",
     "label_append_log": "Append Log (Persistent)",
+    "label_cpu": "CPU:",
     "label_delete_mode": "Delete Mode:",
     "label_detected_installations": "Detected Installations:",
     "label_font": "Font",
     "label_font_size": "Font Size",
+    "label_gpu": "GPU:",
+    "label_hardware_info": "System Hardware Information",
     "label_log_timestamps": "Log Timestamps",
+    "label_ram": "RAM:",
     "label_theme": "Theme",
     "label_verbose_logging": "Verbose Logging",
     "label_wow_installation_path": "WoW Installation Path:",
     "license_accept": "Accept",
     "license_decline": "Decline",
+    "msg_hardware_cached": "(Cached {} days ago)",
+    "msg_hardware_cores": "{} cores",
+    "msg_hardware_frequency": "{} GHz",
+    "msg_hardware_gpu_dedicated": "(Dedicated)",
+    "msg_hardware_gpu_integrated": "(Integrated)",
+    "msg_hardware_memory": "{} GB",
     "msg_license_instructions": (
         "Please read and accept the license agreement to continue using WoW Cleanup Tool."
     ),
@@ -100,8 +115,12 @@ TRANSLATIONS = {
     "option_theme_system": "System",
     "press_enter_to_exit": "Press Enter to exit...",
     "select_wow_folder": "Select World of Warcraft Folder",
+    "status_hardware_scan_complete": "Hardware scan complete",
+    "status_hardware_scan_failed": "Hardware scan failed",
     "status_initializing": "Initializing...",
     "status_log_deleted": "Log Deleted",
+    "status_no_hardware_detected": "No hardware detected (psutil not available)",
+    "status_scanning_hardware": "Scanning hardware...",
     "system_default_font": "System Default",
     "tab_backup_old_cleaner": "Backup & Old Files",
     "tab_developer": "Developer Log",

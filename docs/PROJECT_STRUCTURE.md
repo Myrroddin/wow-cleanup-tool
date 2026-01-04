@@ -8,44 +8,50 @@ wow-cleanup-tool/
 ├── assets/icons/            # Application icons
 ├── docs/                    # Documentation set
 ├── src/                     # Application code
-│   ├── core/                # Settings, logging, theming, deps, background tasks
+│   ├── core/                # Settings, logging, theming, deps, caching, background tasks
 │   ├── localization/        # Translation keys (English default)
-│   ├── operations/          # File/folder scanning and delete helpers
-│   ├── ui/                  # Main window, tabs, dialogs, widgets
-│   ├── wow/                 # WoW path detection and version metadata
+│   ├── operations/          # File/folder scanning, hardware detection, delete helpers
+│   ├── ui/                  # Main window, tabs, dialogs, widgets, font utilities
+│   ├── wow/                 # WoW path detection, caching, version metadata
 │   ├── wow_cleanup_tool.py  # Entry point
 │   └── wow_cleanup_tool.spec# PyInstaller config
-├── tests/                   # Unit tests (~194 collected; 192 pass, 2 skip)
-├── tools/                   # Dev utilities (i18n audit)
-├── LICENSE | README.md | requirements.txt | test_results.txt
+├── tests/                   # Unit tests (pytest framework)
+├── LICENSE | README.md | requirements.txt
 ```
 
 ## Design Principles
 
-- Separation: core infra, operations logic, WoW detection, UI layers.
-- Modularity: clear import flow (core → localization/operations/wow → ui → main), single responsibility per module.
-- Performance: `os.scandir()` for I/O, ThreadPoolExecutor for scanning/installs, 50ms UI debounce, LANCZOS screenshot caching, queue-driven UI updates.
-- UX: localized text with fallback, theme-aware UI, persistent settings, delete-mode awareness across tabs.
-- Extensibility: BaseScanner for new cleaners, batch file operations, themed dialogs/widgets, translation audit tooling.
+- **Separation**: core infra, operations logic, WoW detection, UI layers.
+- **Modularity**: clear import flow (core → localization/operations/wow → ui → main), single responsibility per module.
+- **Caching Strategy**: Multi-tiered caching with TTL
+  - In-memory: Settings, fonts (1-hour TTL)
+  - Disk with TTL: Hardware (30-day), WoW paths (7-day)
+  - Method-level: `@lru_cache` on expensive computations
+- **Performance**: `os.scandir()` for I/O, ThreadPoolExecutor for scanning/installs/hardware detection, parallel GPU detection, 50ms UI debounce, LANCZOS screenshot caching, queue-driven UI updates.
+- **UX**: localized text with fallback, theme-aware UI, persistent settings, delete-mode awareness across tabs.
+- **Extensibility**: BaseScanner for new cleaners, batch file operations, themed dialogs/widgets, translation audit tooling.
 
 ## Build & Automation
 
-- PyInstaller: builds standalone executables with platform icons and hidden imports.
+- PyInstaller: builds standalone executables with platform icons and hidden imports for all new modules.
 - GitHub Actions: releases on tags (`.github/workflows/build-release.yml`) for Windows/macOS/Linux.
-- Dependencies: pinned in `requirements.txt`; runtime bootstrap installs Pillow, send2trash, sv-ttk, darkdetect, orjson when missing.
+- Dependencies: pinned in `requirements.txt`; runtime bootstrap installs Pillow, send2trash, sv-ttk, darkdetect, orjson, psutil, GPUtil, py-cpuinfo when missing.
 
-## Data & Logging
+## Data & Caching
 
-- Settings: `~/.wow_cleanup_tool/settings.json` (theme, font, language, geometry, delete mode, verbose/append).
-- WoW cache: `<WoW_Install>/.wow_cleanup_cache.json` (per-install path cache).
-- Logs: `~/.wow_cleanup_tool/user_log.txt` (append optional) and dev log with rotation.
-- Tabs: File Cleaner, Folder Cleaner, Game Optimizer (placeholder), User Log, Developer Log; log controls respect append and delete mode.
+- **Settings**: `~/.wow_cleanup_tool/settings.json` (theme, font, language, geometry, delete mode, verbose/append) with in-memory cache.
+- **Hardware Cache**: `~/.wow_cleanup_tool/hardware_cache.json` (CPU, RAM, GPU info) with 30-day TTL.
+- **WoW Path Cache**: `~/.wow_cleanup_tool/path_cache.json` (detected installation path) with 7-day TTL and path validation.
+- **Logs**: `~/.wow_cleanup_tool/user_log.txt` (append optional) and dev log with rotation.
+- **Font Cache**: In-memory system fonts list with 1-hour TTL and manual invalidation support.
+- **Tabs**: File Cleaner, Folder Cleaner, Game Optimizer (with hardware scanning), User Log, Developer Log; log controls respect append and delete mode.
 
 ## Quick Import Guide
 
 - Main startup: `Logger`, `load_settings`, `Localization`, `MainWindow`, `PathManager`.
-- UI helpers: `apply_theme`, `DialogDimensions`, `BaseDialog`.
-- Operations: `BaseScanner`, `FileCleaner`, `delete_files_batch`.
+- Caching: `timed_cache`, `SettingsCache`, `PathCache`, `HardwareScanner`, `invalidate_settings_cache`.
+- UI helpers: `apply_theme`, `DialogDimensions`, `BaseDialog`, `get_available_fonts`, `invalidate_font_cache`.
+- Operations: `BaseScanner`, `FileCleaner`, `HardwareScanner`, `delete_files_batch`.
 
 ## Testing Checklist
 

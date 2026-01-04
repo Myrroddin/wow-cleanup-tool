@@ -15,25 +15,18 @@ Implementation of type hints, unit tests, and Python logging refactor for WoW Cl
 
 ## Unit Tests
 
-### Test Results ✅
-```
-Total: 188 tests | Passed: 186 | Skipped: 2 | Failed: 0 | Duration: ~7s
-```
+### Coverage Overview
+Comprehensive test suite using pytest with unittest TestCase classes. All major functionality is covered:
+- **Dependencies**: Parallel installation, queue communication, timeouts
+- **UI Components**: Folder cleaner tab, tooltips, main window, screenshot viewer
+- **File Operations**: Batch delete, AddOns.txt cleaning, trash/permanent modes
+- **Path Manager**: Flavor detection with lru_cache, path validation
+- **Logger**: Thread-safe logging, widget attachment, rotation
+- **Core Utilities**: Localization, orphan scanner, themes, settings
 
-### Coverage by Module
-- **Dependencies** (19): Parallel installation (5 packages), ThreadPoolExecutor, queue communication, timeouts, stable releases only
-- **Tooltip** (9): Fixed TkFixedFont 10pt, themes, boundary detection, show/hide lifecycle
-- **Folder Cleaner** (27): Screenshot caching, Configure debouncing, wraplength updates
-- **File Operations** (15): Batch delete, AddOns.txt cleaning, trash/permanent modes
-- **Path Manager** (30): Flavor detection with lru_cache, path validation, installation checks
-- **Logger** (14): Thread-safe logging, widget attachment, append mode
-- **Log Controls** (10): Copy, save, clear, delete operations
-- **Localization** (22): Translation loading, fallback, key validation
-- **Orphan Scanner** (12): Addon detection, orphan identification, multi-version scanning
-- **Themes** (1): sv-ttk integration, padding validation, fallback to custom themes
-- **Other** (29): Error handling, main window, screenshot viewer, settings with orjson
+**Benefits:** Regression prevention, fast feedback, thread safety validation, comprehensive business logic coverage
 
-**Benefits:** Regression prevention, fast feedback (~7s), thread safety validation, comprehensive business logic coverage
+See [tests_README.md](tests_README.md) for instructions on running tests.
 
 ## Python Logging Refactor
 
@@ -58,13 +51,6 @@ Developer: [2025-12-08 14:32:15] [INFO] Initializing WoW Cleanup Tool
 
 **Benefits:** Industry standard, auto-rotation, thread safety, multi-output, professional logging
 
-## Files Modified
-- Type hints: `localization/__init__.py`, `path_manager.py`, `settings.py`, `path_manager.py` (lru_cache)
-- Performance: `path_manager.py` (@lru_cache), `settings.py` (orjson), `themes.py` (sv-ttk)
-- Logger: `core/logger.py` (complete refactor)
-- Tests: 16 test files (14 existing + 2 new: dependencies, tooltip)
-- Docs: `LOGGING_GUIDE.md`, `tests_README.md`, `TYPE_HINTS_AND_TESTS_SUMMARY.md`, `CODE_DOCUMENTATION.md`
-
 ## Difficulty Assessment
 - **Type Hints**: ⭐ Easy (2/10) - Non-breaking, immediate IDE benefits
 - **Unit Tests**: ⭐⭐⭐ Medium (5/10) - Test framework, mocks, comprehensive coverage
@@ -72,31 +58,12 @@ Developer: [2025-12-08 14:32:15] [INFO] Initializing WoW Cleanup Tool
 - **Performance Optimization**: ⭐⭐ Easy-Medium (4/10) - Drop-in replacements, smart caching, graceful fallbacks
 - **Module Improvements**: ⭐⭐ Easy-Medium (3/10) - sv-ttk/darkdetect/orjson integration with fallbacks
 
-## Session Summary
-
-Recent improvements to WoW Cleanup Tool:
-- **5 New Packages Integrated**: sv-ttk, darkdetect, orjson, ruff, Pillow (with pillow-simd fallback)
-- **Performance Optimizations**: Theme toggle 3x faster, path_manager 2-3x faster, settings 2-3x faster
-- **Code Quality**: Fixed all 60 ruff errors, 100% black formatting compliance, 0 remaining linting issues
-- **Localization**: 100 keys defined, 98 actively used (98% utilization), audit tool enhanced
-- **Testing**: All 188 tests passing across 39 modified files, zero regressions
-- **Documentation**: Comprehensive updates across all docs with cross-linking
-
-**See also**: [IMPLEMENTATION_ROADMAP.md](IMPLEMENTATION_ROADMAP.md) for feature status | [CODE_DOCUMENTATION.md](CODE_DOCUMENTATION.md) for module details
-
-
-  * RuntimeError guard for test environments without event loop
-- Updated all project documentation:
-  * README.md - marked File Cleaner as complete
-  * IMPLEMENTATION_ROADMAP.md - updated status and next steps
-  * tests_README.md - comprehensive test coverage documentation
-- Zero breaking changes to existing functionality
-- All changes validated and working correctly
+## Summary
 
 The codebase now has:
 - **Strong type safety** with comprehensive type hints across core modules
-- **Automated validation** for critical business logic with 109 passing tests
+- **Automated validation** for critical business logic with comprehensive test suite
 - **Professional-grade logging** using Python's standard library
 - **Production-ready code** with defensive error handling and thread safety
-- **Complete feature** for File Cleaner tab (backup file scanning and deletion)
-- **Future-proof architecture** ready for additional phases (Folder Scanner, Orphan Scanner, Game Optimizer)
+- **Complete features** for File Cleaner and Folder Cleaner tabs with Game Optimizer in progress
+- **Future-proof architecture** ready for additional language packs and UI enhancements

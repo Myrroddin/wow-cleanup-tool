@@ -4,6 +4,7 @@ Settings management for WoW Cleanup Tool.
 Handles loading, saving, and managing user preferences and application state.
 - User settings (theme, font, geometry, etc.) are stored per-user in home directory
 - WoW path is cached machine-wide in a shared location that doesn't require admin rights
+- In-memory cache reduces repeated disk I/O for settings access
 """
 
 try:
@@ -16,10 +17,16 @@ except ImportError:
     USE_ORJSON = False
 
 import locale
+import logging
 import os
 from pathlib import Path
 import sys
 from typing import Optional, Dict, Any
+
+logger = logging.getLogger(__name__)
+
+# Global settings cache for fast access
+_settings_cache: Optional[Dict[str, Any]] = None
 
 
 def get_default_settings() -> Dict[str, Any]:
@@ -184,9 +191,18 @@ def save_wow_path_cache(wow_path: str) -> bool:
 def load_settings() -> Dict[str, Any]:
     """Load user settings from disk and merge with cached WoW path.
 
+    Results are cached in memory to avoid repeated disk I/O.
+
     Returns:
         dict: Combined settings dictionary (user + cached WoW path)
     """
+    global _settings_cache
+
+    # Return cached settings if available
+    if _settings_cache is not None:
+        logger.debug(f"Using cached settings ({len(_settings_cache)} keys)")
+        return _settings_cache.copy()
+
     settings_file = get_settings_file()
     defaults: Dict[str, Any] = get_default_settings()
 
@@ -203,18 +219,24 @@ def load_settings() -> Dict[str, Any]:
                 else:
                     loaded = json_module.load(f)
                 user_settings = {**defaults, **loaded}
-        except Exception:
+                logger.debug(f"Loaded {len(user_settings)} settings from disk")
+        except Exception as e:
+            logger.warning(f"Failed to load settings file: {e}")
             pass
 
     cached_wow_path = load_wow_path_cache()
     if cached_wow_path:
         user_settings["wow_path"] = cached_wow_path
 
+    # Cache settings in memory
+    _settings_cache = user_settings.copy()
     return user_settings
 
 
 def save_settings(settings: Dict[str, Any]) -> bool:
     """Save settings to disk, separating user settings from WoW path cache.
+
+    Also invalidates in-memory settings cache to ensure next load is fresh.
 
     Args:
         settings: Dictionary of all settings to save
@@ -222,6 +244,8 @@ def save_settings(settings: Dict[str, Any]) -> bool:
     Returns:
         bool: True if saved successfully, False otherwise
     """
+    global _settings_cache
+
     # Split settings: WoW path goes to cache, everything else to user settings
     wow_path = settings.get("wow_path")
 
@@ -277,9 +301,13 @@ def save_settings(settings: Dict[str, Any]) -> bool:
                     )
                 else:
                     json_module.dump(user_settings, f, indent=2, ensure_ascii=False)
+            logger.debug(f"Saved {len(user_settings)} settings to disk")
         except Exception as e:
-            print(f"[settings.py] Error saving settings: {e}")
+            logger.error(f"Error saving settings: {e}")
             user_success = False
+
+    # Invalidate in-memory cache so next load is fresh
+    _settings_cache = None
 
     # Save WoW path to cache if present
     cache_success = True
@@ -287,6 +315,17 @@ def save_settings(settings: Dict[str, Any]) -> bool:
         cache_success = save_wow_path_cache(wow_path)
 
     return user_success and cache_success
+
+
+def invalidate_settings_cache() -> None:
+    """Invalidate the in-memory settings cache.
+
+    Call this if settings are modified externally and you need the next
+    load_settings() call to read fresh data from disk.
+    """
+    global _settings_cache
+    _settings_cache = None
+    logger.debug("Settings cache invalidated")
 
 
 def save_user_log(log_content: str) -> bool:

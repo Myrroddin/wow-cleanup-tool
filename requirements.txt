@@ -8,8 +8,8 @@ darkdetect>=0.8.0
 # Performance
 orjson>=3.11.0
 
-# Packaging
-pyinstaller>=6.17.0
+# Hardware Detection (optional but recommended)
+psutil>=6.0.0
+GPUtil>=1.4.0
+py-cpuinfo>=9.0.0
 
-# Development
-ruff>=0.14.0

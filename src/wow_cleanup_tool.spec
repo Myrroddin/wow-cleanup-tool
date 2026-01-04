@@ -6,7 +6,8 @@ platforms. Features include automatic WoW detection, multi-flavor support,
 modern Windows 11-style UI (sv-ttk), automatic OS theme detection (darkdetect),
 file cleaning with AddOns.txt integration, dual logging system, font-aware
 UI scaling, and defensive error handling. Performance optimizations include
-fast JSON serialization (orjson) and intelligent caching (lru_cache).
+parallel hardware detection, TTL-based caching (hardware, paths, settings, fonts),
+high-performance JSON serialization (orjson), and intelligent method caching (@lru_cache).
 
 Run with:
 
@@ -53,6 +54,9 @@ a = Analysis(
         "sv_ttk",
         "darkdetect",
         "orjson",
+        "psutil",
+        "GPUtil",
+        "cpuinfo",
         "tkinter.messagebox",
         "tkinter.filedialog",
         "PIL",
@@ -62,6 +66,7 @@ a = Analysis(
         "send2trash",
         # Core Modules
         "core",
+        "core.caching",
         "core.dependencies",
         "core.logger",
         "core.settings",
@@ -97,13 +102,16 @@ a = Analysis(
         "ui.widgets.tooltip",
         # WoW Modules
         "wow",
+        "wow.path_cache",
         "wow.path_handler",
         "wow.path_manager",
+        "wow.version_manager",
         # Operations Modules
         "operations",
         "operations.base_scanner",
         "operations.file_cleaner",
         "operations.file_operations",
+        "operations.hardware_scanner",
         "operations.orphan_scanner",
     ],
     hookspath=[],

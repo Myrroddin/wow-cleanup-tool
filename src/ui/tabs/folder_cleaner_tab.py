@@ -43,6 +43,15 @@ class FolderCleanerTab:
             {}
         )  # Cache for loaded screenshots: {file_path: PhotoImage}
         self._configure_timer = None  # Debounce timer for configure events
+        self._preview_timers = {}  # Debounce timers per flavor for screenshot preview
+        # Cache theme data once to avoid repeated imports on hover
+        try:
+            from core.themes import THEMES
+
+            self._themes = THEMES
+        except Exception:
+            self._themes = {}
+        self._style_configured = False
         self._create_content(
             loc,
             on_scan_folders,
@@ -144,14 +153,6 @@ class FolderCleanerTab:
 
             frame = self.version_frames[flavor_dir]
 
-            if not folders:
-                # No folders found for this version
-                no_folders_label = ttk.Label(
-                    frame, text="No cleanable folders found.", justify="left"
-                )
-                no_folders_label.pack(side="top", anchor="w")
-                continue
-
             # Create horizontal container for checkboxes
             checkbox_frame = ttk.Frame(frame)
             checkbox_frame.pack(side="top", anchor="w", pady=5)
@@ -211,11 +212,10 @@ class FolderCleanerTab:
 
     def _add_cache_tooltip(self, widget, flavor_dir):
         """Add theme-aware tooltip to cache checkbox."""
-        from core.themes import THEMES
 
         def show_tooltip(event):
             theme_name = self.settings.get("theme", "light")
-            theme = THEMES.get(theme_name, THEMES["light"])
+            theme = self._themes.get(theme_name, self._themes.get("light", {}))
 
             tooltip = Tooltip(
                 widget,
@@ -239,11 +239,9 @@ class FolderCleanerTab:
         if not self.settings:
             return
 
-        from core.themes import THEMES
-
         def show_tooltip(event):
             theme_name = self.settings.get("theme", "light")
-            theme = THEMES.get(theme_name, THEMES["light"])
+            theme = self._themes.get(theme_name, self._themes.get("light", {}))
 
             tooltip = Tooltip(
                 widget,
@@ -413,6 +411,12 @@ class FolderCleanerTab:
 
     def _build_screenshot_view(self, flavor_dir, parent_frame, screenshots_path, files):
         """Create the screenshot tree and preview panel for a game version."""
+        if not self._style_configured:
+            style = ttk.Style()
+            style.configure("Fixed.Treeview", font=("TkFixedFont", 10))
+            style.configure("Fixed.Treeview.Heading", font=("TkFixedFont", 10, "bold"))
+            self._style_configured = True
+
         container = ttk.Frame(parent_frame)
         container.pack(fill="both", expand=True, pady=(10, 0))
 
@@ -442,9 +446,6 @@ class FolderCleanerTab:
         tree.heading("#0", text=self.loc._("tree_header_file_path"), anchor="w")
         tree.column("#0", width=500, stretch=True)
 
-        style = ttk.Style()
-        style.configure("Fixed.Treeview", font=("TkFixedFont", 10))
-        style.configure("Fixed.Treeview.Heading", font=("TkFixedFont", 10, "bold"))
         tree.configure(style="Fixed.Treeview")
 
         tree.grid(row=0, column=0, sticky="nsew")
@@ -539,7 +540,14 @@ class FolderCleanerTab:
         item_id = selection[0]
         file_path = self.screenshot_item_paths.get(flavor_dir, {}).get(item_id)
         if file_path:
-            self._show_screenshot(flavor_dir, file_path)
+            if flavor_dir in self._preview_timers:
+                self.frame.after_cancel(self._preview_timers[flavor_dir])
+
+            def render():
+                self._show_screenshot(flavor_dir, file_path)
+
+            self._preview_timers[flavor_dir] = self.frame.after(50, render)
+
         self._update_screenshot_toggle_label(flavor_dir)
 
     def _clear_preview(self, flavor_dir):

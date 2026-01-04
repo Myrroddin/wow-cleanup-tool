@@ -7,20 +7,24 @@ A lightweight, modular utility for managing and optimizing World of Warcraft ins
 
 ## Features
 
-- 🎯 **Automatic WoW detection** or manual path selection
+- 🎯 **Automatic WoW detection** or manual path selection with path caching (7-day TTL)
 - 🎮 **Multi-flavor support**: Retail, Classic, Era, PTR, Beta
 - 🎨 **Modern UI**: Windows 11-style theming with automatic OS theme detection
 - 🌈 **Customizable appearance**: Light/dark themes, custom fonts (8–16pt, default 12)
+- ⚙️ **Game Optimizer**: Scan system hardware (CPU, RAM, GPU) for performance recommendations
 - 🗑️ **Safe deletion**: Move to trash or delete permanently (honored across tabs)
 - 🧹 **Folder Cleaner**: Cache/log/error toggles plus screenshot viewer (preview, expand, select/unselect/remove)
 - ✅ **File Cleaner**: Remove .bak/.old backups, orphaned SavedVariables, and clean AddOns.txt entries
 - 📋 **Dual logging**: User log (append-aware) and developer log with rotation and centralized controls
-- ⚡ **Performance**: sv-ttk UI, orjson settings, lru_cache flavor lookups, debounced resize/tooltip handling
-- 🔧 **Quality**: Full type hints, ruff/black clean, ~192 tests passing (2 skipped)
+- ⚡ **Performance**: sv-ttk UI, orjson (fast JSON), @lru_cache methods, parallel hardware detection, multi-tier caching:
+  - In-Memory: Settings (10-100x faster), fonts (1-hour TTL)
+  - Disk with TTL: Hardware info (30-day), WoW paths (7-day with validation)
+  - Method-Level: @lru_cache on expensive flavor name translations
+- 🔧 **Quality**: Full type hints, ruff/black clean, comprehensive test coverage
 
 ### Roadmap
-- Game optimizer & smart suggestions
 - Release hardening and first tagged build
+
 
 ---
 
@@ -72,7 +76,6 @@ Output: platform-specific binary under `dist/`.
 - [Type Hints & Tests Summary](docs/TYPE_HINTS_AND_TESTS_SUMMARY.md) - Type safety and test implementation details
 - [Logging Guide](docs/LOGGING_GUIDE.md) - Logging system architecture and configuration
 - [Background Tasks Guide](docs/BACKGROUND_TASK_GUIDE.md) - Threading model for scanning and deletion operations
-- [Project Structure](docs/PROJECT_STRUCTURE.md) - Code organization and module layout
 
 ---
 

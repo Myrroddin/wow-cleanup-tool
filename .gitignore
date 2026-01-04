@@ -148,3 +148,6 @@ Thumbs.db
 # Project specific
 settings.json
 *.bak
+
+# Developer notes (internal development tracking)
+.developer_content/
