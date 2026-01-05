@@ -1,6 +1,7 @@
 # Type Hints & Unit Testing Summary
 
 ## Overview
+
 Implementation of type hints, unit tests, and Python logging refactor for WoW Cleanup Tool. Modular UI architecture with tabs in `src/ui/tabs/`, log controls in `src/ui/log_controls.py`, widgets in `src/ui/widgets/`.
 
 ## Type Hints

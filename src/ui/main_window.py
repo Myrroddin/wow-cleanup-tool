@@ -115,12 +115,12 @@ class MainWindowBuilder:
         Returns:
             None
         """
-        from core.themes import THEMES
+        from core.themes import get_theme_colors
 
         font_family = self.settings.get("font_family", "TkDefaultFont")
         font_size = int(self.settings.get("font_size", 12))
-        theme_name = self.settings.get("theme", "light")
-        theme_colors = THEMES.get(theme_name, THEMES["light"])
+        theme_name = self.settings.get("theme", "system")
+        theme_colors = get_theme_colors(theme_name)
         # ...removed debug print...
         # Re-apply theme to root (updates ttk styles)
         from core.themes import apply_theme
@@ -1091,7 +1091,7 @@ class MainWindowBuilder:
             import tkinter.messagebox as messagebox
 
             # Capture current settings to check if anything actually changed
-            old_theme = self.settings.get("theme", "light")
+            old_theme = self.settings.get("theme", "system")
             old_font_family = self.settings.get("font_family", "TkDefaultFont")
             old_font_size = int(self.settings.get("font_size", 12))
 
@@ -1109,7 +1109,7 @@ class MainWindowBuilder:
             self.settings.update(defaults)
 
             # Check if theme/font actually changed
-            new_theme = self.settings.get("theme", "light")
+            new_theme = self.settings.get("theme", "system")
             new_font_family = self.settings.get("font_family", "TkDefaultFont")
             new_font_size = int(self.settings.get("font_size", 12))
 
@@ -1281,7 +1281,11 @@ class MainWindowBuilder:
 
         # Game Optimizer Tab
         game_optimizer_tab = GameOptimizerTab(
-            self.tab_frames["game_optimizer"], self.loc, logger=self.logger
+            self.tab_frames["game_optimizer"],
+            self.loc,
+            logger=self.logger,
+            settings=self.settings,
+            game_versions=self.game_versions,
         )
         game_optimizer_tab.frame.pack(fill="both", expand=True)
 
@@ -1296,6 +1300,7 @@ class MainWindowBuilder:
                 "delete": lambda: delete_user_log(self.settings, self.loc),
             },
             append_log_var=self.append_log_var,
+            settings=self.settings,
             font_size=self.settings.get("font_size", 12),
         )
         log_tab.frame.pack(fill="both", expand=True)
@@ -1336,6 +1341,7 @@ class MainWindowBuilder:
                 "copy": lambda: copy_dev_log(self.root, self.logger, self.loc),
                 "open_folder": lambda: open_log_folder(),
             },
+            settings=self.settings,
             font_size=self.settings.get("font_size", 12),
         )
         developer_tab.frame.pack(fill="both", expand=True)

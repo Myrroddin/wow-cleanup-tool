@@ -1,7 +1,8 @@
 # BackgroundTask Utility Guide
 
 ## Overview
-`BackgroundTask` runs I/O-heavy operations in background threads with thread-safe Tkinter UI updates. Created December 30, 2025 to prevent code duplication across tabs.
+
+`BackgroundTask` runs I/O-heavy operations in background threads with thread-safe Tkinter UI updates. Prevents code duplication across tabs.
 
 **See also**: [LOGGING_GUIDE.md](LOGGING_GUIDE.md) for logging within background tasks.
 

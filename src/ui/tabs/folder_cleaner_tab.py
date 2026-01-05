@@ -2,6 +2,8 @@
 
 import tkinter as tk
 from tkinter import ttk
+
+from core.themes import get_theme_colors
 from ui.widgets.tooltip import Tooltip
 from ui.dialogs.screenshot_viewer import ScreenshotViewer
 
@@ -44,13 +46,6 @@ class FolderCleanerTab:
         )  # Cache for loaded screenshots: {file_path: PhotoImage}
         self._configure_timer = None  # Debounce timer for configure events
         self._preview_timers = {}  # Debounce timers per flavor for screenshot preview
-        # Cache theme data once to avoid repeated imports on hover
-        try:
-            from core.themes import THEMES
-
-            self._themes = THEMES
-        except Exception:
-            self._themes = {}
         self._style_configured = False
         self._create_content(
             loc,
@@ -214,8 +209,8 @@ class FolderCleanerTab:
         """Add theme-aware tooltip to cache checkbox."""
 
         def show_tooltip(event):
-            theme_name = self.settings.get("theme", "light")
-            theme = self._themes.get(theme_name, self._themes.get("light", {}))
+            theme_name = self.settings.get("theme", "system")
+            theme = get_theme_colors(theme_name)
 
             tooltip = Tooltip(
                 widget,
@@ -240,8 +235,8 @@ class FolderCleanerTab:
             return
 
         def show_tooltip(event):
-            theme_name = self.settings.get("theme", "light")
-            theme = self._themes.get(theme_name, self._themes.get("light", {}))
+            theme_name = self.settings.get("theme", "system")
+            theme = get_theme_colors(theme_name)
 
             tooltip = Tooltip(
                 widget,
@@ -574,7 +569,7 @@ class FolderCleanerTab:
             return
 
         # Get theme and settings
-        theme_name = self.settings.get("theme", "light") if self.settings else "light"
+        theme_name = self.settings.get("theme", "system") if self.settings else "system"
 
         # Show screenshot viewer dialog
         viewer = ScreenshotViewer(

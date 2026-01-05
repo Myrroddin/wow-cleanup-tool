@@ -1,5 +1,6 @@
 # Implementation Roadmap
 
+
 Tracks WoW Cleanup Tool development with modular architecture: tabs in `src/ui/tabs/`, log controls in `src/ui/log_controls.py`, widgets in `src/ui/widgets/`.
 
 **See also**: [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) for directory organization | [CODE_DOCUMENTATION.md](CODE_DOCUMENTATION.md) for module details

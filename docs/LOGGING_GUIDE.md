@@ -4,10 +4,12 @@
 
 Dual-channel logging system built on Python's `logging` module with automatic rotation, append mode, and thread-safe operations. All log actions (copy, save, clear, delete) handled by `src/ui/log_controls.py` for consistent behavior.
 
+
 ## Log Channels
 
-**User Log** (`~/.wow_cleanup_tool/user_log.txt`): INFO messages, 1MB rotation, 5 backups, append mode toggleable  
+**User Log** (`~/.wow_cleanup_tool/user_log.txt`): INFO messages, 1MB rotation, 5 backups, append mode toggleable
 **Developer Log** (`~/.wow_cleanup_tool/dev_log.txt`): DEBUG/INFO/WARNING/ERROR, 5MB rotation, 3 backups, always verbose
+
 
 ### Log Controls (src/ui/log_controls.py)
 - **User Log Tab**: Clear Session Log (append-aware), Delete Log File (dimmed when append OFF), Open Log Folder, Copy to Clipboard
@@ -21,17 +23,21 @@ Dual-channel logging system built on Python's `logging` module with automatic ro
 | WARNING | ❌       | ✅      | Warning messages                 |
 | ERROR   | ❌       | ✅      | Error messages with stack traces |
 
+
 **Log Format**: User Log: `[YYYY-MM-DD HH:MM:SS] Message`; Developer Log: `[YYYY-MM-DD HH:MM:SS] [LEVEL] Message`
+
 
 **File Cleaner Output Examples**:
 - Normal: `[retail]: removed 5 file(s)` or `[retail]: removed 2 line(s) from AddOns.txt`
 - Verbose: `[retail]: removed addon_backup.bak` or `[retail]: removed Addon1 from AddOns.txt`
 
+
 ## Usage for Developers
+
 
 ### Basic Logging
 ```python
-from src.core.logger import Logger
+from core.logger import Logger
 
 logger = Logger(verbose=True, append_mode=True)
 logger.log("Operation completed successfully")  # User Log
@@ -40,6 +46,7 @@ logger.debug("Scanning directory: C:\\WoW\\_retail_")  # Developer Log
 logger.warning("Using fallback path detection method")  # Developer Log
 logger.error("Failed to delete file: Permission denied")  # Developer Log
 ```
+
 
 ### Critical Pattern: logger.log() vs logger.verbose()
 **Never call both for the same action** - use if/else to prevent duplicate entries:
@@ -55,7 +62,9 @@ else:
 logger.log("Simple status message")  # No if/else needed
 ```
 
+
 **Rule**: `logger.log()` when verbose OFF or no verbose alternative; `logger.verbose()` when verbose ON with alternative. Developer logs (`error()`, `debug()`, `warning()`) always log without branching.
+
 
 ### Configuration & UI Integration
 ```python
@@ -69,6 +78,7 @@ logger.set_append_mode(True)    # Keep logs across sessions
 logger.set_error_callback(lambda count: update_error_badge(count))
 ```
 
+
 ### Custom Handlers (Advanced)
 ```python
 # Add custom handlers (email, syslog, JSON)
@@ -81,8 +91,9 @@ email_handler.setLevel(logging.ERROR)
 dev_logger.addHandler(email_handler)
 ```
 
+
 ## Log File Locations
-**Windows**: `C:\Users\<YourName>\.wow_cleanup_tool\user_log.txt[.1-.5]`, `dev_log.txt[.1-.3]`  
+**Windows**: `C:\Users\<YourName>\.wow_cleanup_tool\user_log.txt[.1-.5]`, `dev_log.txt[.1-.3]`
 **Linux/macOS**: `~/.wow_cleanup_tool/user_log.txt[.1-.5]`, `dev_log.txt[.1-.3]`
 
 ## Troubleshooting

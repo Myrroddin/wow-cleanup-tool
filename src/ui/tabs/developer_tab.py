@@ -5,9 +5,10 @@ from tkinter import ttk
 
 
 class DeveloperTab:
-    def __init__(self, parent, loc, log_controls, font_size=12):
+    def __init__(self, parent, loc, log_controls, settings=None, font_size=12):
         self.frame = ttk.Frame(parent, padding=5)
         self.font_size = font_size
+        self.settings = settings or {}
         self._configure_timer = None  # Debounce timer for configure events
         self._create_content(loc, log_controls)
 
@@ -33,18 +34,17 @@ class DeveloperTab:
 
         # Add tooltip to clear button
         from ui.widgets.tooltip import Tooltip
-        from core.themes import THEMES
+        from core.themes import get_theme_colors
 
         def setup_clear_tooltip():
             def on_enter(e):
-                theme_name = self.settings.get("theme", "light")
-                theme = THEMES.get(theme_name, THEMES["light"])
+                theme_name = self.settings.get("theme", "system")
+                theme = get_theme_colors(theme_name)
                 t = Tooltip(
                     clear_btn,
                     loc._("tooltip_clear_log"),
                     theme,
-                    self.settings.get("font_family", "TkDefaultFont"),
-                    int(self.settings.get("font_size", 12)),
+                    wraplength=280,
                 )
                 t.show()
                 clear_btn._tip = t

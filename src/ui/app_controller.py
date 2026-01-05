@@ -124,7 +124,7 @@ class ApplicationController:
             self.settings["font_size"] = new_size
             font_size_var.set(str(new_size))
             font_family = self.settings.get("font_family", "TkDefaultFont")
-            current_theme = self.settings.get("theme", "light")
+            current_theme = self.settings.get("theme", "system")
             themes.apply_theme(self.root, current_theme, font_family, new_size)
             self._refresh_all_fonts(font_family, new_size)
             self.root.update_idletasks()
@@ -163,7 +163,7 @@ class ApplicationController:
             actual_font = selected
         self.settings["font_family"] = actual_font
         font_family_var.set(selected)
-        current_theme = self.settings.get("theme", "light")
+        current_theme = self.settings.get("theme", "system")
         font_size = self.settings.get("font_size", 12)
         themes.apply_theme(self.root, current_theme, actual_font, font_size)
         self._refresh_all_fonts(actual_font, font_size)
@@ -294,14 +294,14 @@ class ApplicationController:
 
         # Debug print removed
         # Re-apply theme to root (updates ttk styles)
-        current_theme = self.settings.get("theme", "light")
+        current_theme = self.settings.get("theme", "system")
         themes.apply_theme(self.root, current_theme, font_family, font_size)
         # Recursively update all classic widgets in the main frame
         main_frame = self.ui_widgets.get("main_frame")
         if main_frame:
             themes._apply_widget_theme(
                 main_frame,
-                themes.THEMES.get(current_theme, themes.THEMES["light"]),
+                themes.get_theme_colors(current_theme),
                 font_family,
                 font_size,
             )

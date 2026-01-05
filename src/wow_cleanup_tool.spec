@@ -102,7 +102,6 @@ a = Analysis(
         "ui.widgets.tooltip",
         # WoW Modules
         "wow",
-        "wow.path_cache",
         "wow.path_handler",
         "wow.path_manager",
         "wow.version_manager",

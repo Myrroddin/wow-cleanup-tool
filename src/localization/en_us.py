@@ -8,7 +8,6 @@ TRANSLATIONS = {
     "btn_copy_log": "Copy Log to Clipboard",
     "btn_ok": "OK",
     "btn_open_log_folder": "Open Log Folder",
-    "btn_refresh_hardware": "Refresh Hardware Info",
     "btn_remove_selected": "Remove Selected",
     "btn_remove_selected_screenshots": "Remove Selected Screenshots",
     "btn_reset_settings": "Reset Settings",
@@ -18,6 +17,11 @@ TRANSLATIONS = {
     "btn_select_all_screenshots": "Select All Screenshots",
     "btn_select_all_toggle": "Select All / Unselect All",
     "btn_unselect_all_screenshots": "Unselect All Screenshots",
+    "cache_age_date_format": "%Y-%m-%d",
+    "cache_age_days": "{} days old",
+    "cache_age_months": "{} months old",
+    "cache_age_under_day": "<1 day old",
+    "cache_age_years": "{} years old",
     "dep_install_complete": "Installation Complete",
     "dep_install_complete_msg": (
         "Dependencies were successfully installed, but some packages\n"
@@ -75,7 +79,6 @@ TRANSLATIONS = {
     "label_font": "Font",
     "label_font_size": "Font Size",
     "label_gpu": "GPU:",
-    "label_hardware_info": "System Hardware Information",
     "label_log_timestamps": "Log Timestamps",
     "label_ram": "RAM:",
     "label_theme": "Theme",
@@ -83,12 +86,14 @@ TRANSLATIONS = {
     "label_wow_installation_path": "WoW Installation Path:",
     "license_accept": "Accept",
     "license_decline": "Decline",
-    "msg_hardware_cached": "(Cached {} days ago)",
+    "msg_click_scan_hardware": "Click 'Scan Hardware' to detect your system",
     "msg_hardware_cores": "{} cores",
     "msg_hardware_frequency": "{} GHz",
     "msg_hardware_gpu_dedicated": "(Dedicated)",
     "msg_hardware_gpu_integrated": "(Integrated)",
     "msg_hardware_memory": "{} GB",
+    "msg_hardware_ram_speed": "@ {} MHz",
+    "msg_gpu_unsupported": "Your graphics card is not supported for optimization. World of Warcraft may not run on your system. Optimization features have been disabled.",
     "msg_license_instructions": (
         "Please read and accept the license agreement to continue using WoW Cleanup Tool."
     ),
@@ -120,7 +125,9 @@ TRANSLATIONS = {
     "status_initializing": "Initializing...",
     "status_log_deleted": "Log Deleted",
     "status_no_hardware_detected": "No hardware detected (psutil not available)",
+    "status_optimized": "{} Optimized",
     "status_scanning_hardware": "Scanning hardware...",
+    "status_using_gpu": "Using: {}",
     "system_default_font": "System Default",
     "tab_backup_old_cleaner": "Backup & Old Files",
     "tab_developer": "Developer Log",
@@ -131,6 +138,7 @@ TRANSLATIONS = {
     "tab_file_cleaner": "File Cleaner",
     "tab_folder_cleaner": "Folder Cleaner",
     "tab_game_optimizer": "Game Optimizer",
+    "tab_game_optimizer_disabled": "This tab is disabled because your graphics card is not supported for optimization.",
     "tab_log": "User Log",
     "tab_optimization_suggestions": "Optimization Suggestions",
     "tab_orphaned_addons": "Orphaned AddOn Settings",
@@ -150,6 +158,7 @@ TRANSLATIONS = {
     ),
     "tooltip_language_menu": "Select application language",
     "tooltip_log_timestamps": "User Log and Developer Log",
+    "tooltip_scan_hardware": "(Cached {})",
     "tooltip_select_all_cache_manual": (
         "Cache must be selected manually. This toggle only affects Errors, Logs, "
         "and Screenshots."
@@ -164,12 +173,23 @@ TRANSLATIONS = {
         "The application failed to start. Please see the Developer Log for details."
     ),
     "user_log_normal_app_started": "Application started successfully!",
+    "user_log_normal_gpu_configured": "[{}]: Set gxAdapter to '{}' in Config.wtf",
+    "user_log_normal_gpu_unsupported": "Unsupported GPU detected. Game Optimizer tab disabled.",
+    "user_log_normal_hardware_detected": "Hardware detected and cached.",
+    "user_log_normal_hardware_scan_failed": (
+        "Hardware scan failed. See Developer Log for details."
+    ),
     "user_log_normal_no_game_versions": "No WoW game versions detected.",
     "user_log_normal_removed_files": "[{}]: removed {} file(s).",
     "user_log_normal_removed_folder": "[{}]: removed {} folder",
     "user_log_normal_wow_detected": "WoW installation detected.",
     "user_log_normal_wow_validated": "WoW installation validated.",
     "user_log_verbose_addons_txt_cleaned": "[{}]: removed {} from AddOns.txt",
+    "user_log_verbose_detected_cpu": "Detected CPU: {} - {} cores @ {} GHz",
+    "user_log_verbose_detected_cpu_no_freq": "Detected CPU: {} - {} cores",
+    "user_log_verbose_detected_gpu": "Detected GPU: {} {}",
+    "user_log_verbose_detected_ram": "Detected RAM: {} GB @ {} MHz",
+    "user_log_verbose_detected_ram_no_speed": "Detected RAM: {} GB",
     "user_log_verbose_removed_file": "[{}]: removed {}",
     "user_log_verbose_wow_detected": "WoW installation detected at: {}",
     "user_log_verbose_wow_validated": (

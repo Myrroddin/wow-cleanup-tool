@@ -24,12 +24,15 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
+# Default cache time-to-live: roughly 6 months
+CACHE_TTL_DAYS = 180
+
+
 @dataclass
 class GPUInfo:
     """Information about a GPU."""
 
     name: str
-    memory_mb: int
     is_integrated: bool
     vendor: str  # "NVIDIA", "AMD", "Intel", "Unknown"
 
@@ -42,6 +45,7 @@ class HardwareInfo:
     cpu_cores: int
     cpu_freq_ghz: float
     ram_gb: float
+    ram_speed_mhz: int
     gpus: list[GPUInfo]
     cache_timestamp: float  # Unix timestamp for cache expiration
 
@@ -52,6 +56,7 @@ class HardwareInfo:
             "cpu_cores": self.cpu_cores,
             "cpu_freq_ghz": self.cpu_freq_ghz,
             "ram_gb": self.ram_gb,
+            "ram_speed_mhz": self.ram_speed_mhz,
             "gpus": [asdict(gpu) for gpu in self.gpus],
             "cache_timestamp": self.cache_timestamp,
         }
@@ -65,11 +70,12 @@ class HardwareInfo:
             cpu_cores=data.get("cpu_cores", 0),
             cpu_freq_ghz=data.get("cpu_freq_ghz", 0.0),
             ram_gb=data.get("ram_gb", 0.0),
+            ram_speed_mhz=data.get("ram_speed_mhz", 0),
             gpus=gpus,
             cache_timestamp=data.get("cache_timestamp", 0.0),
         )
 
-    def is_expired(self, days: int = 30) -> bool:
+    def is_expired(self, days: int = CACHE_TTL_DAYS) -> bool:
         """Check if cache has expired."""
         expiration_time = self.cache_timestamp + (days * 24 * 60 * 60)
         return datetime.now().timestamp() > expiration_time
@@ -92,8 +98,8 @@ class HardwareScanner:
                 with open(self.CACHE_FILE, "r") as f:
                     data = json.load(f)
                     info = HardwareInfo.from_dict(data)
-                    # Check if cache is still valid (30 day TTL)
-                    if not info.is_expired(days=30):
+                    # Check if cache is still valid (long TTL for rarely-changing hardware)
+                    if not info.is_expired():
                         self._cached_info = info
                         logger.debug("Loaded valid hardware info from cache")
                     else:
@@ -134,13 +140,15 @@ class HardwareScanner:
                 return None
 
             # Run detection tasks in parallel for faster scanning
-            with ThreadPoolExecutor(max_workers=3) as executor:
+            with ThreadPoolExecutor(max_workers=4) as executor:
                 cpu_future = executor.submit(self._get_cpu_name)
                 ram_future = executor.submit(self._get_ram_info)
+                ram_speed_future = executor.submit(self._get_ram_speed)
                 gpu_future = executor.submit(self._get_gpu_info)
 
                 cpu_name = cpu_future.result(timeout=10)
                 ram_gb = ram_future.result(timeout=5)
+                ram_speed_mhz = ram_speed_future.result(timeout=10)
                 gpus = gpu_future.result(timeout=15)
 
             cpu_cores = psutil.cpu_count(logical=False) or 1
@@ -152,6 +160,7 @@ class HardwareScanner:
                 cpu_cores=cpu_cores,
                 cpu_freq_ghz=round(cpu_freq_ghz, 2),
                 ram_gb=ram_gb,
+                ram_speed_mhz=ram_speed_mhz,
                 gpus=gpus,
                 cache_timestamp=datetime.now().timestamp(),
             )
@@ -204,6 +213,84 @@ class HardwareScanner:
             logger.warning(f"Failed to get RAM info: {e}")
             return 0.0
 
+    def _get_ram_speed(self) -> int:
+        """Get RAM speed in MHz (platform-specific detection)."""
+        if sys.platform == "win32":
+            return self._get_ram_speed_windows()
+        elif sys.platform.startswith("linux"):
+            return self._get_ram_speed_linux()
+        elif sys.platform == "darwin":
+            return self._get_ram_speed_macos()
+        return 0
+
+    def _get_ram_speed_windows(self) -> int:
+        """Get RAM speed from Windows WMI."""
+        try:
+            result = subprocess.run(
+                [
+                    "powershell",
+                    "-NoProfile",
+                    "-Command",
+                    "Get-CimInstance Win32_PhysicalMemory | Select-Object -ExpandProperty Speed -First 1",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=5,
+                creationflags=(
+                    subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
+                ),
+            )
+            if result.returncode == 0:
+                speed_str = result.stdout.strip()
+                if speed_str:
+                    return int(speed_str)
+        except Exception as e:
+            logger.debug(f"Windows RAM speed detection failed: {e}")
+        return 0
+
+    def _get_ram_speed_linux(self) -> int:
+        """Get RAM speed from Linux dmidecode."""
+        try:
+            # dmidecode requires root, but try anyway
+            result = subprocess.run(
+                ["dmidecode", "-t", "memory"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            if result.returncode == 0:
+                # Look for "Speed: XXXX MT/s" or "Configured Memory Speed: XXXX MT/s"
+                for line in result.stdout.splitlines():
+                    if "Configured Memory Speed:" in line or (
+                        "Speed:" in line and "MT/s" in line
+                    ):
+                        match = re.search(r"(\d+)\s*MT/s", line)
+                        if match:
+                            return int(match.group(1))
+        except Exception as e:
+            logger.debug(f"Linux RAM speed detection failed: {e}")
+        return 0
+
+    def _get_ram_speed_macos(self) -> int:
+        """Get RAM speed from macOS system_profiler."""
+        try:
+            result = subprocess.run(
+                ["system_profiler", "SPMemoryDataType"],
+                capture_output=True,
+                text=True,
+                timeout=8,
+            )
+            if result.returncode == 0:
+                # Look for "Speed: XXXX MHz"
+                for line in result.stdout.splitlines():
+                    if "Speed:" in line and "MHz" in line:
+                        match = re.search(r"(\d+)\s*MHz", line)
+                        if match:
+                            return int(match.group(1))
+        except Exception as e:
+            logger.debug(f"macOS RAM speed detection failed: {e}")
+        return 0
+
     def _clean_cpu_name(self, name: str) -> str:
         """Clean up CPU name by removing extra whitespace and qualifiers."""
         # Remove redundant descriptions like (R), (TM), multiple spaces
@@ -252,9 +339,10 @@ class HardwareScanner:
         """Get information about installed GPUs with fallback chain.
 
         Tries multiple detection methods in order of preference:
-        1. GPUtil (best for NVIDIA, cross-platform)
+        1. GPUtil (NVIDIA detection)
         2. Windows WMI
         3. Linux lspci
+        4. macOS system_profiler
         """
         gpus = []
 
@@ -263,7 +351,7 @@ class HardwareScanner:
             try:
                 gpu_list = GPUtil.getGPUs()
                 for gpu in gpu_list:
-                    gpu_info = self._parse_gpu_info(gpu.name, int(gpu.memoryTotal))
+                    gpu_info = self._parse_gpu_info(gpu.name)
                     gpus.append(gpu_info)
                 if gpus:
                     logger.debug(f"Detected {len(gpus)} GPU(s) using GPUtil")
@@ -274,6 +362,8 @@ class HardwareScanner:
         # Fallback to platform-specific methods
         if sys.platform == "win32":
             gpus.extend(self._get_gpu_info_windows())
+        elif sys.platform == "darwin":
+            gpus.extend(self._get_gpu_info_macos())
         elif sys.platform.startswith("linux"):
             gpus.extend(self._get_gpu_info_linux())
 
@@ -284,15 +374,13 @@ class HardwareScanner:
         """Get GPU info from Windows WMI using PowerShell."""
         gpus = []
         try:
-            # Use PowerShell Get-CimInstance (more reliable than wmic)
+            # Use PowerShell Get-CimInstance to get GPU names
             result = subprocess.run(
                 [
                     "powershell",
                     "-NoProfile",
                     "-Command",
-                    "Get-CimInstance Win32_VideoController | "
-                    "Select-Object Name, AdapterRAM | "
-                    'ForEach-Object { "Name=$($_.Name)"; "AdapterRAM=$($_.AdapterRAM)"; "" }',
+                    "Get-CimInstance Win32_VideoController | Select-Object -ExpandProperty Name",
                 ],
                 capture_output=True,
                 text=True,
@@ -303,28 +391,10 @@ class HardwareScanner:
             )
 
             if result.returncode == 0:
-                gpu_blocks = result.stdout.split("\n\n")
-                for block in gpu_blocks:
-                    if not block.strip():
-                        continue
-
-                    gpu_name = None
-                    gpu_memory_mb = 0
-
-                    for line in block.split("\n"):
-                        if line.startswith("Name="):
-                            gpu_name = line.replace("Name=", "").strip()
-                        elif line.startswith("AdapterRAM="):
-                            try:
-                                memory_bytes = int(
-                                    line.replace("AdapterRAM=", "").strip()
-                                )
-                                gpu_memory_mb = memory_bytes // (1024 * 1024)
-                            except ValueError:
-                                pass
-
+                for line in result.stdout.splitlines():
+                    gpu_name = line.strip()
                     if gpu_name and gpu_name.lower() != "unknown":
-                        gpu_info = self._parse_gpu_info(gpu_name, gpu_memory_mb)
+                        gpu_info = self._parse_gpu_info(gpu_name)
                         gpus.append(gpu_info)
 
         except Exception as e:
@@ -333,11 +403,33 @@ class HardwareScanner:
         return gpus
 
     def _get_gpu_info_linux(self) -> list[GPUInfo]:
-        """Get GPU info from Linux lspci and glxinfo."""
+        """Get GPU info from Linux via nvidia-smi or lspci."""
         gpus = []
 
+        # Prefer nvidia-smi when available
         try:
-            # Try lspci for all GPUs
+            result = subprocess.run(
+                [
+                    "nvidia-smi",
+                    "--query-gpu=name",
+                    "--format=csv,noheader",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            if result.returncode == 0:
+                for line in result.stdout.splitlines():
+                    name = line.strip()
+                    if name:
+                        gpus.append(self._parse_gpu_info(name))
+                if gpus:
+                    return gpus
+        except Exception:
+            pass
+
+        # Fallback: lspci to enumerate GPUs
+        try:
             result = subprocess.run(
                 ["lspci"],
                 capture_output=True,
@@ -348,52 +440,139 @@ class HardwareScanner:
             if result.returncode == 0:
                 for line in result.stdout.split("\n"):
                     if "VGA compatible controller:" in line or "3D controller:" in line:
-                        # Extract GPU name
                         gpu_name = (
                             line.split(": ", 1)[-1].strip() if ": " in line else ""
                         )
                         if gpu_name:
-                            gpu_info = self._parse_gpu_info(gpu_name, 0)
+                            gpu_info = self._parse_gpu_info(gpu_name)
                             gpus.append(gpu_info)
 
         except Exception as e:
             logger.warning(f"Linux GPU detection failed: {e}")
 
+        # Last resort: glxinfo -B
+        if not gpus:
+            try:
+                result = subprocess.run(
+                    ["glxinfo", "-B"],
+                    capture_output=True,
+                    text=True,
+                    timeout=5,
+                )
+                if result.returncode == 0:
+                    name = None
+                    for line in result.stdout.splitlines():
+                        lower = line.lower()
+                        if "device:" in lower and not name:
+                            name = line.split(":", 1)[-1].strip()
+                    if name:
+                        gpus.append(self._parse_gpu_info(name))
+            except Exception:
+                pass
+
         return gpus
 
-    def _parse_gpu_info(self, gpu_name: str, memory_mb: int) -> GPUInfo:
-        """Parse GPU name and return GPUInfo object."""
-        gpu_name_lower = gpu_name.lower()
+    def _get_gpu_info_macos(self) -> list[GPUInfo]:
+        """Get GPU info from macOS system_profiler."""
+        gpus = []
+        try:
+            result = subprocess.run(
+                ["system_profiler", "SPDisplaysDataType", "-json"],
+                capture_output=True,
+                text=True,
+                timeout=8,
+            )
+            if result.returncode != 0:
+                return gpus
+
+            data = json.loads(result.stdout)
+            displays = data.get("SPDisplaysDataType", [])
+            for entry in displays:
+                for gpu in entry.get("spdisplays_ndrvs", []):
+                    name = gpu.get("sppci_model") or gpu.get("_name") or "GPU"
+
+                    is_integrated = False
+                    if gpu.get("spdisplays_builtin"):
+                        is_integrated = True
+                    name_lower = str(name).lower()
+                    if any(x in name_lower for x in ["apple", "intel", "integrated"]):
+                        is_integrated = True
+
+                    gpu_info = self._parse_gpu_info(name)
+                    gpu_info.is_integrated = is_integrated
+                    gpus.append(gpu_info)
+        except Exception as e:
+            logger.warning(f"macOS GPU detection failed: {e}")
+
+        return gpus
+
+    def _parse_gpu_info(self, gpu_name: str) -> GPUInfo:
+        """Parse GPU name and return GPUInfo object with best-effort integrated/dedicated flag."""
+        # Normalize first so keyword checks aren't blocked by (TM)/(R) markers
+        clean_name = self._clean_gpu_name(gpu_name)
+        name_lower = clean_name.lower()
+
         is_integrated = False
         vendor = "Unknown"
 
         # Determine vendor
-        if "nvidia" in gpu_name_lower:
+        if "nvidia" in name_lower:
             vendor = "NVIDIA"
-        elif "amd" in gpu_name_lower or "radeon" in gpu_name_lower:
+        elif "amd" in name_lower or "radeon" in name_lower:
             vendor = "AMD"
-        elif "intel" in gpu_name_lower:
+        elif "intel" in name_lower:
             vendor = "Intel"
             is_integrated = True
 
-        # Check if integrated (Intel UHD, Intel Iris, AMD Vega integrated, etc.)
-        integrated_keywords = [
-            "integrated",
+        # Strong integrated signals by vendor
+        intel_integrated = [
             "uhd",
+            "hd graphics",
+            "intel graphics",
             "iris",
             "xe",
-            "radeon graphics",
-            "vega",
         ]
-        if any(kw in gpu_name_lower for kw in integrated_keywords):
+
+        amd_integrated = [
+            "radeon graphics",
+            "apu",
+            "ryzen ",
+            "vega ",
+            "780m",
+            "880m",
+            "760m",
+            "860m",
+            "pro ",  # PRO <number>G parts
+        ]
+
+        discrete_markers = [
+            "rtx",
+            "gtx",
+            "quadro",
+            "geforce",
+            "titan",
+            "arc a",
+            "rx",
+            "xt",
+            "firepro",
+            "radeon pro w",
+            "radeon pro wx",
+            "w7",
+            "w6",
+        ]
+
+        # Integrated override
+        if vendor == "Intel" and any(kw in name_lower for kw in intel_integrated):
+            is_integrated = True
+        if vendor == "AMD" and any(kw in name_lower for kw in amd_integrated):
             is_integrated = True
 
-        # Clean up name for display (remove extra qualifiers)
-        clean_name = self._clean_gpu_name(gpu_name)
+        # Discrete override if we see strong dedicated markers
+        if any(kw in name_lower for kw in discrete_markers):
+            is_integrated = False
 
         return GPUInfo(
             name=clean_name,
-            memory_mb=memory_mb,
             is_integrated=is_integrated,
             vendor=vendor,
         )

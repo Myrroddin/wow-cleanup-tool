@@ -3,20 +3,20 @@
 ## Directory Map
 
 ```
-wow-cleanup-tool/
-├── .github/                 # CI/CD and issue templates
-├── assets/icons/            # Application icons
-├── docs/                    # Documentation set
-├── src/                     # Application code
-│   ├── core/                # Settings, logging, theming, deps, caching, background tasks
-│   ├── localization/        # Translation keys (English default)
-│   ├── operations/          # File/folder scanning, hardware detection, delete helpers
-│   ├── ui/                  # Main window, tabs, dialogs, widgets, font utilities
-│   ├── wow/                 # WoW path detection, caching, version metadata
-│   ├── wow_cleanup_tool.py  # Entry point
-│   └── wow_cleanup_tool.spec# PyInstaller config
-├── tests/                   # Unit tests (pytest framework)
-├── LICENSE | README.md | requirements.txt
+  wow-cleanup-tool/
+  ├── .github/                 # CI/CD and issue templates
+  ├── assets/icons/            # Application icons
+  ├── docs/                    # Documentation set
+  ├── src/                     # Application code
+  │   ├── core/                # Settings, logging, theming, deps, caching, background tasks
+  │   ├── localization/        # Translation keys (English default)
+  │   ├── operations/          # File/folder scanning, hardware detection, delete helpers
+  │   ├── ui/                  # Main window, tabs, dialogs, widgets, font utilities
+  │   ├── wow/                 # WoW path detection, caching, version metadata
+  │   ├── wow_cleanup_tool.py  # Entry point
+  │   └── wow_cleanup_tool.spec# PyInstaller config
+  ├── tests/                   # Unit tests (pytest framework)
+  ├── LICENSE | README.md | requirements.txt
 ```
 
 ## Design Principles
@@ -49,7 +49,7 @@ wow-cleanup-tool/
 ## Quick Import Guide
 
 - Main startup: `Logger`, `load_settings`, `Localization`, `MainWindow`, `PathManager`.
-- Caching: `timed_cache`, `SettingsCache`, `PathCache`, `HardwareScanner`, `invalidate_settings_cache`.
+- Caching: `timed_cache`, `SettingsCache`, `HardwareScanner`, `invalidate_settings_cache`. (Path caching handled by `settings.py`)
 - UI helpers: `apply_theme`, `DialogDimensions`, `BaseDialog`, `get_available_fonts`, `invalidate_font_cache`.
 - Operations: `BaseScanner`, `FileCleaner`, `HardwareScanner`, `delete_files_batch`.
 

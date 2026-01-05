@@ -1,5 +1,6 @@
 # Unit Tests
 
+
 Automated unit tests for WoW Cleanup Tool using pytest. UI is modular (tabs in `src/ui/tabs/`, log controls in `src/ui/log_controls.py`). All file operations tested with mocks/temporary files.
 
 ## Running Tests

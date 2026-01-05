@@ -1,9 +1,8 @@
 """WoW Cleanup Tool - Code Documentation
 
-This document provides a comprehensive overview of all Python modules in the project,
-explaining what each file does and how they work together.
+This document provides a concise overview of all Python modules in the project, explaining their purpose and how they work together.
 
-**See also**: [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) for directory organization and design principles.
+**See also**: [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) for up-to-date directory organization and design principles.
 
 ## Table of Contents
 
@@ -19,15 +18,15 @@ explaining what each file does and how they work together.
 ## Project Structure
 
 ```
-src/
-├── wow_cleanup_tool.py          # Main application entry point
-├── core/                        # Core utilities and systems
-├── localization/                # Translation files
-├── operations/                  # File/folder scanning and cleanup
-├── ui/                          # User interface components
-└── wow/                         # WoW-specific path and detection logic
+  src/
+  ├── wow_cleanup_tool.py          # Main application entry point
+  ├── core/                        # Core utilities and systems (settings, logging, theming, deps, caching, background tasks)
+  ├── localization/                # Translation files (English default)
+  ├── operations/                  # File/folder scanning, hardware detection, delete helpers
+  ├── ui/                          # Main window, tabs, dialogs, widgets, font utilities
+  └── wow/                         # WoW path detection, caching, version metadata
 
-tests/                           # Unit tests for all modules
+  tests/                           # Unit tests (pytest framework)
 ```
 
 ## Main Application (src/)
@@ -82,7 +81,7 @@ tests/                           # Unit tests for all modules
 
 **Storage Locations**:
 - User settings: `~/.wow_cleanup_tool/settings.json` (per-user)
-- WoW path cache: `~/.wow_cleanup_tool/wow_path_cache.json` (with 7-day TTL via PathCache)
+- WoW path cache: `~/.wow_cleanup_tool/path_cache.json` (with 7-day TTL, managed by settings.py)
 - User log file: `~/.wow_cleanup_tool/user_log.txt` (if append mode enabled)
 - Hardware cache: `~/.wow_cleanup_tool/hardware_cache.json` (with 30-day TTL)
 
@@ -253,7 +252,7 @@ semantic keys (e.g., "btn_scan_files", "msg_log_empty")
 
 ## Operations (src/operations/)
 
-### hardware_scanner.py (NEW - January 4, 2026)
+### hardware_scanner.py
 **Purpose**: Detect and cache system hardware information for Game Optimizer.
 
 **Features**:
@@ -266,17 +265,7 @@ semantic keys (e.g., "btn_scan_files", "msg_log_empty")
 - **Caching**: 30-day TTL with timestamp-based expiration
 - **Cross-Platform**: Windows, Linux, macOS support
 
-**Usage**:
-```python
-from operations.hardware_scanner import HardwareScanner
 
-scanner = HardwareScanner()
-info = scanner.scan()  # Cached after first call
-if info:
-    print(f"CPU: {info.cpu_name} ({info.cpu_cores} cores)")
-    for gpu in info.gpus:
-        print(f"GPU: {gpu.name} ({gpu.memory_mb}MB)")
-```
 
 ### base_scanner.py
 **Purpose**: Base class for optimized parallel file scanning.
@@ -323,32 +312,6 @@ if info:
 - Size calculations for freed disk space
 
 ## WoW Detection (src/wow/)
-
-### path_cache.py (NEW - January 4, 2026)
-**Purpose**: Caches detected WoW installation paths with time-to-live (TTL) and validation.
-
-**Features**:
-- **7-day TTL**: Paths automatically expire and require re-detection after 7 days
-- **Path Validation**: Detects if WoW installation moved or deleted
-- **Automatic Cleanup**: Expired entries removed on next access
-- **Bulk Operations**: Retrieve all cached valid paths at once
-- **Fine-grained Control**: Invalidate specific keys or all cache
-- **Machine-wide**: Shared across all users on same system
-
-**Usage**:
-```python
-from wow.path_cache import PathCache
-
-cache = PathCache(ttl_days=7)
-path = cache.get("wow_path")  # None if expired or not found
-if not path:
-    detected = path_manager.detect_wow_installation()
-    cache.set("wow_path", detected)  # Cache with timestamp
-
-# Manual invalidation if needed
-cache.invalidate("wow_path")  # Clear specific entry
-cache.invalidate()            # Clear all entries
-```
 
 ### path_manager.py
 **Purpose**: Detects and manages World of Warcraft installation paths with result caching.
@@ -442,7 +405,7 @@ cache.invalidate()            # Clear all entries
 - Click preview to open full-size viewer (50% screen size)
 
 #### game_optimizer_tab.py
-**Purpose**: Reserved for future game optimization features.
+**Purpose**: Reserved for future game optimization features (hardware scanning, CVar suggestions, etc.).
 
 #### log_tab.py / developer_tab.py
 **Purpose**: Display user-facing and developer logs.
@@ -463,19 +426,14 @@ cache.invalidate()            # Clear all entries
 **Purpose**: Shows GPL license agreement on first run.
 
 #### wow_close_warning.py
-**Purpose**: Displays precautionary warning to close WoW before using cleanup tools (prevents potential file conflicts).
+**Purpose**: Displays warning to close WoW before using cleanup tools (prevents file conflicts).
 
 #### multiple_installations.py
 **Purpose**: Handles detection of multiple WoW installations.
 
 #### screenshot_viewer.py
 **Purpose**: Popup window for viewing screenshots at larger size.
-
-**Features**:
-- Displays image at 25% of screen size
-- Centered on screen
-- Theme-aware background
-- Close via click, ESC key, or window X button
+**Features**: Theme-aware, close via click/ESC/X, auto-centers, 25% screen size.
 
 ### Widgets (src/ui/widgets/)
 
@@ -494,27 +452,10 @@ cache.invalidate()            # Clear all entries
 #### geometry.py
 **Purpose**: Window sizing, positioning, and persistence.
 
-#### font_utils.py (IMPROVED - January 4, 2026)
-**Purpose**: System font detection and management with 1-hour TTL caching.
 
-**Features**:
-- **1-hour Cache TTL**: Automatically refreshes if system fonts change at runtime
-- **Manual Invalidation**: `invalidate_font_cache()` for runtime font installation
-- **Graceful Fallback**: Minimal font list if system query fails
-- **Debug Logging**: Shows cache hits and age
-
-**Functions**:
-- `get_available_fonts(default_label)`: Get cached system fonts with localized default
-- `get_font_sizes()`: Standard font sizes (8-16pt)
-- `invalidate_font_cache()`: Clear cache for runtime-installed fonts
-
-**Performance**:
-- First call: 100-500ms (system query)
-- Cached calls: <1ms (memory access)
-- Auto-refresh: Every 1 hour
 
 #### log_controls.py
-**Purpose**: Log manipulation functions (clear, copy, delete).
+**Purpose**: Log manipulation functions (clear, copy, delete, open folder, append mode awareness).
 
 #### ui_constants.py
 **Purpose**: UI dimensions, spacing, font sizes.
@@ -523,13 +464,13 @@ cache.invalidate()            # Clear all entries
 **Purpose**: Text widget utilities for log display.
 
 #### custom_tabbar.py
-**Purpose**: Custom styling for tab widgets.
+**Purpose**: Custom styling for tab widgets (themed, cross-platform).
 
 #### dialog_base.py
-**Purpose**: Base class for consistent dialog creation.
+**Purpose**: Base class for consistent dialog creation (themed, grid-based).
+
 
 ## Testing (tests/)
-
 All modules have corresponding test files that verify functionality:
 - Mocked Tkinter widgets for UI testing
 - File operation testing with temporary directories
@@ -539,20 +480,17 @@ All modules have corresponding test files that verify functionality:
 - Path detection testing
 
 ## Key Design Patterns
-
 1. **Separation of Concerns**: UI, business logic, and data are separate
 2. **Background Threading**: Long operations don't block UI
-3. **EAFP (Easier to Ask Forgiveness than Permission)**: Try/except over checks
+3. **EAFP**: Try/except over checks
 4. **Dependency Injection**: Components receive dependencies rather than creating them
 5. **Caching Strategy**: Multi-tiered caching with TTL and automatic invalidation
-
-5. **Settings Persistence**: User preferences saved across sessions
-6. **Localization**: All user-facing strings are translatable
-7. **Theme System**: Consistent styling across entire application
-8. **Logging**: Comprehensive logging for debugging and user feedback
+6. **Settings Persistence**: User preferences saved across sessions
+7. **Localization**: All user-facing strings are translatable
+8. **Theme System**: Consistent styling across entire application
+9. **Logging**: Comprehensive logging for debugging and user feedback
 
 ## File Safety
-
 The application prioritizes file safety:
 - Default: Move to trash (reversible)
 - Optional: Permanent deletion
@@ -562,7 +500,6 @@ The application prioritizes file safety:
 - Detailed logging of all operations
 
 ## Performance Optimizations
-
 - os.scandir instead of os.walk (2-3x faster)
 - ThreadPoolExecutor for parallel scanning and dependency installation
 - Directory filtering during traversal (skip irrelevant folders)
@@ -576,7 +513,6 @@ The application prioritizes file safety:
 - Background threading for I/O operations
 
 ## Error Handling
-
 - Top-level exception handler
 - Per-operation error logging
 - User-friendly error messages

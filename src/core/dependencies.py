@@ -189,12 +189,12 @@ def check_and_install_dependencies():
     try:
         from localization import Localization
         from core.settings import load_settings
-        from core.themes import THEMES
+        from core.themes import get_theme_colors, THEMES, resolve_system_theme
 
         settings = load_settings()
         loc = Localization(settings.get("language", "en_us"))
-        theme_name = settings.get("theme", "light")
-        theme = THEMES[theme_name]
+        theme_name = settings.get("theme", "system")
+        theme = get_theme_colors(theme_name)
     except Exception:
         # Fallback to English if localization fails
         class FallbackLoc:
@@ -202,7 +202,17 @@ def check_and_install_dependencies():
                 return key
 
         loc = FallbackLoc()
-        theme = THEMES["light"]
+        try:
+            theme = THEMES[resolve_system_theme()]
+        except Exception:
+            # Minimal light-ish fallback if theme data unavailable
+            theme = {
+                "bg": "#f0f0f0",
+                "frame_bg": "#f0f0f0",
+                "fg": "#000000",
+                "select_bg": "#0078d7",
+                "select_fg": "#ffffff",
+            }
 
     # Show progress UI during installation
     try:

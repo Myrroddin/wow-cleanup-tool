@@ -52,7 +52,7 @@ class WoWCleanupTool:
 
         # Apply theme to root BEFORE showing license dialog
         # This ensures sv-ttk is initialized for all subsequent dialogs
-        theme_name = self.settings.get("theme", "light")
+        theme_name = self.settings.get("theme", "system")
         font_family = self.settings.get("font_family", "TkDefaultFont")
         font_size = self.settings.get("font_size", 12)
         apply_theme(self.root, theme_name, font_family, font_size)
@@ -136,7 +136,7 @@ class WoWCleanupTool:
         self.root.after(
             200,
             lambda: show_wow_close_warning(
-                self.root, self.loc, self.settings.get("theme", "light"), self.settings
+                self.root, self.loc, self.settings.get("theme", "system"), self.settings
             ),
         )
 

@@ -32,7 +32,7 @@ class WoWPathHandler:
         """
         # Show warning dialog if not disabled
         if not self.settings.get("disable_wow_close_warning", False):
-            theme = self.settings.get("theme", "light")
+            theme = self.settings.get("theme", "system")
             result = wow_close_warning.show_wow_close_warning(
                 self.root, self.loc, theme, self.settings
             )
@@ -89,7 +89,7 @@ class WoWPathHandler:
                 self.logger.error(dev_error)
             # Localized user log entry pointing to dev log
             self.logger.log(self.loc._("msg_multiple_installations_see_dev_log"))
-            theme = self.settings.get("theme", "light")
+            theme = self.settings.get("theme", "system")
             show_multiple_installations_dialog(
                 self.root, self.loc, theme, self.settings, all_installations
             )
